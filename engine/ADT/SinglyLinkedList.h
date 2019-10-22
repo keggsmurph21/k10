@@ -23,13 +23,14 @@ public:
 
 private:
     friend ListType;
-    explicit SinglyLinkedListIterator(typename ListType::Node* node, typename ListType::Node* prev = nullptr)
+    explicit SinglyLinkedListIterator(typename ListType::Node* node,
+                                      typename ListType::Node* prev = nullptr)
         : m_node(node)
         , m_prev(prev)
     {
     }
-    typename ListType::Node* m_node{nullptr};
-    typename ListType::Node* m_prev{nullptr};
+    typename ListType::Node* m_node{ nullptr };
+    typename ListType::Node* m_prev{ nullptr };
 };
 
 template<typename T>
@@ -45,7 +46,7 @@ private:
         {
         }
         T value;
-        Node* next{nullptr};
+        Node* next{ nullptr };
     };
 
 public:
@@ -202,8 +203,8 @@ private:
     Node* tail() { return m_tail; }
     const Node* tail() const { return m_tail; }
 
-    Node* m_head{nullptr};
-    Node* m_tail{nullptr};
+    Node* m_head{ nullptr };
+    Node* m_tail{ nullptr };
 };
 
 } // namespace ADT

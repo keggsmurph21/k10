@@ -26,7 +26,7 @@ private:
         : m_node(node)
     {
     }
-    typename ListType::Node* m_node{nullptr};
+    typename ListType::Node* m_node{ nullptr };
 };
 
 template<typename T>
@@ -42,8 +42,8 @@ private:
         {
         }
         T value;
-        Node* next{nullptr};
-        Node* prev{nullptr};
+        Node* next{ nullptr };
+        Node* prev{ nullptr };
     };
 
 public:
@@ -235,8 +235,8 @@ private:
     Node* tail() { return m_tail; }
     const Node* tail() const { return m_tail; }
 
-    Node* m_head{nullptr};
-    Node* m_tail{nullptr};
+    Node* m_head{ nullptr };
+    Node* m_tail{ nullptr };
 };
 
 } // namespace ADT

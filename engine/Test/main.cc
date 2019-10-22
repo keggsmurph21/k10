@@ -1,11 +1,17 @@
 #include <ADT/Assertions.h>
 #include <ADT/DoublyLinkedList.h>
+#include <ADT/Extras.h>
 #include <ADT/HashTable.h>
+#include <ADT/Point.h>
 #include <ADT/SinglyLinkedList.h>
+#include <stdio.h>
+
+using namespace ADT;
 
 void run_singly_linked_list_tests()
 {
-    ADT::SinglyLinkedList<int> l;
+    printf("... running SinglyLinkedList tests ...\n");
+    SinglyLinkedList<int> l;
 
     ASSERT(l.size_slow() == 0);
     ASSERT(l.is_empty());
@@ -74,7 +80,8 @@ void run_singly_linked_list_tests()
 
 void run_doubly_linked_list_tests()
 {
-    ADT::DoublyLinkedList<int> l;
+    printf("... running DoublyLinkedList tests ...\n");
+    DoublyLinkedList<int> l;
 
     ASSERT(l.size_slow() == 0);
     ASSERT(l.is_empty());
@@ -160,19 +167,155 @@ void run_doubly_linked_list_tests()
     ASSERT(l.contains_slow(71));
     ASSERT(!l.contains_slow(72));
 
+    for (auto& it : l) {
+        printf("%d\n", it);
+    }
+
     l.clear();
 
     ASSERT(l.size_slow() == 0);
     ASSERT(l.is_empty());
 }
 
-void run_hash_table_tests() {}
+void run_hash_table_tests()
+{
+    printf("... running HashTable tests ...\n");
+    HashTable<bool> t_bool;
+
+    ASSERT(t_bool.is_empty());
+    ASSERT(t_bool.size() == 0);
+    ASSERT(t_bool.capacity() == 0);
+    ASSERT(!t_bool.contains(true));
+    ASSERT(!t_bool.contains(false));
+
+    t_bool.set(true);
+
+    ASSERT(!t_bool.is_empty());
+    ASSERT(t_bool.size() == 1);
+    ASSERT(t_bool.capacity() == 2);
+    ASSERT(t_bool.contains(true));
+    ASSERT(!t_bool.contains(false));
+
+    t_bool.set(true);
+
+    ASSERT(!t_bool.is_empty());
+    ASSERT(t_bool.size() == 1);
+    ASSERT(t_bool.capacity() == 2);
+    ASSERT(t_bool.contains(true));
+    ASSERT(!t_bool.contains(false));
+
+    t_bool.set(false);
+    t_bool.dump();
+    for (auto& e : t_bool)
+        printf("%s\n", e ? "true" : "false");
+
+    ASSERT(!t_bool.is_empty());
+    ASSERT(t_bool.size() == 2);
+    ASSERT(t_bool.capacity() == 2);
+    ASSERT(t_bool.contains(true));
+    ASSERT(t_bool.contains(false));
+
+    t_bool.remove(true);
+
+    ASSERT(!t_bool.is_empty());
+    ASSERT(t_bool.size() == 1);
+    ASSERT(t_bool.capacity() == 2);
+    ASSERT(!t_bool.contains(true));
+    ASSERT(t_bool.contains(false));
+
+    t_bool.remove(true); // shouldn't throw
+    t_bool.clear();
+
+    ASSERT(t_bool.is_empty());
+    ASSERT(t_bool.size() == 0);
+    ASSERT(t_bool.capacity() == 0);
+    ASSERT(!t_bool.contains(true));
+    ASSERT(!t_bool.contains(false));
+
+    HashTable<int> t_int;
+
+    ASSERT(t_int.is_empty());
+    ASSERT(t_int.size() == 0);
+    ASSERT(t_int.capacity() == 0);
+    ASSERT(!t_int.contains(68));
+    ASSERT(!t_int.contains(69));
+    ASSERT(!t_int.contains(70));
+
+    t_int.set(69);
+
+    ASSERT(!t_int.is_empty());
+    ASSERT(t_int.size() == 1);
+    ASSERT(t_int.capacity() == 2);
+    ASSERT(!t_int.contains(68));
+    ASSERT(t_int.contains(69));
+    ASSERT(!t_int.contains(70));
+
+    t_int.set(68);
+    t_int.set(69);
+    t_int.set(70);
+
+    ASSERT(!t_int.is_empty());
+    ASSERT(t_int.size() == 3);
+    ASSERT(t_int.capacity() == 6);
+    ASSERT(t_int.contains(68));
+    ASSERT(t_int.contains(69));
+    ASSERT(t_int.contains(70));
+
+    t_int.set(71);
+    t_int.set(72);
+    t_int.set(73);
+    t_int.set(74);
+    t_int.set(75);
+    t_int.set(76);
+
+    ASSERT(t_int.size() == 9);
+    ASSERT(t_int.capacity() == 14);
+
+    t_int.set(82);
+    t_int.set(83);
+    t_int.set(84);
+    t_int.set(85);
+    t_int.set(86);
+
+    ASSERT(t_int.capacity() == 14);
+
+    t_int.set(88);
+
+    ASSERT(t_int.capacity() == 30);
+
+    t_int.dump();
+
+    using Point = Point<int>;
+    HashTable<Point> t_point;
+
+    t_point.set(Point());
+
+    ASSERT(!t_point.is_empty());
+    ASSERT(t_point.size() == 1);
+    ASSERT(t_point.capacity() == 2);
+    ASSERT(t_point.contains(Point()));
+    ASSERT(t_point.contains(Point(0, 0)));
+    ASSERT(!t_point.contains(Point(1, 1)));
+
+    t_point.set(Point(0, 0));
+
+    ASSERT(t_point.size() == 1);
+
+    t_point.set(Point(0, 1));
+    t_point.set(Point(1, 0));
+    t_point.set(Point(0, -1));
+    t_point.set(Point(-1, 0));
+
+    ASSERT(t_point.size() == 5);
+
+    t_point.dump();
+}
 
 int main(int, char**)
 {
     run_singly_linked_list_tests();
     run_doubly_linked_list_tests();
     run_hash_table_tests();
-    printf("all tests passed\n");
+    printf("... all tests passed!\n");
     return 0;
 }

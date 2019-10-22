@@ -8,18 +8,18 @@ PRE_CXX         := ccache
 CXXFLAGS        := $(INCLUDE_FLAGS) -g -Wall -Wextra -Werror -pedantic-errors
 CXX             := $(PRE_CXX) g++ -std=c++17
 
-SOURCE          :=              \
-    $(wildcard *.cpp)           \
-    $(wildcard Test/*.cpp)
 BUILD           := ./bin
 
+#SOURCE          :=              \
+#    $(wildcard *.cc)           \
+#    $(wildcard Test/*.cc)
 #OBJECTS			:=              \
 #    main.o                      \
 #    test.o                      \
 
 all: test main
 
-%.o:			%.cpp
+%.o: %.cc
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 .PHONY:			all clean test
@@ -34,4 +34,6 @@ main: main.o
 	$(CXX) $(CXXFLAGS) -o $(BUILD)/main $<
 
 clean:
-	@echo "CLEAN"; rm -rf *.o $(BUILD)
+	-@echo "CLEAN"
+	-@rm -f *.o
+	-@rm -rf $(BUILD)

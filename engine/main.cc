@@ -14,5 +14,6 @@ int main(int, char**)
 {
     signal(SIGSEGV, on_segfault);
     printf("Hello, world!\n");
+    dump_backtrace();
     return 0;
 }
