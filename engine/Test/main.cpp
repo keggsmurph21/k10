@@ -168,7 +168,7 @@ void run_doubly_linked_list_tests()
 
 void run_hash_table_tests() {}
 
-int main(int argc, char* argv[])
+int main(int, char**)
 {
     run_singly_linked_list_tests();
     run_doubly_linked_list_tests();

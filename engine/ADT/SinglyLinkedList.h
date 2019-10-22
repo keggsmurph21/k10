@@ -2,7 +2,6 @@
 
 #include "Assertions.h"
 #include "Extras.h"
-#include <compare>
 
 namespace ADT {
 

@@ -10,8 +10,9 @@ void on_segfault(int sig)
     exit(sig);
 }
 
-int main(int argc, char* argv[])
+int main(int, char**)
 {
     signal(SIGSEGV, on_segfault);
+    printf("Hello, world!\n");
     return 0;
 }

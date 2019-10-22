@@ -12,7 +12,7 @@ static inline void dump_backtrace(FILE* out = stderr, unsigned int max_frames = 
     // adapted from Timo Bingmann via https://panthema.net/2008/0901-stacktrace-demangled/
     fprintf(out, "stack trace:\n");
 
-    void* addresses[max_frames + 1];
+    void** addresses = (void**)new char[max_frames + 1];
     int num_addresses = backtrace(addresses, sizeof(addresses) / sizeof(void*));
 
     if (num_addresses == 0) {
@@ -63,6 +63,8 @@ static inline void dump_backtrace(FILE* out = stderr, unsigned int max_frames = 
 
     free(symbols);
     free(func_name);
+
+    delete[] addresses;
 }
 
 static inline void __assertion_failed(const char* msg, const char* file, unsigned line)
@@ -71,5 +73,6 @@ static inline void __assertion_failed(const char* msg, const char* file, unsigne
     dump_backtrace();
     raise(SIGABRT);
 }
+
 #define ASSERT(expr) (static_cast<bool>(expr) ? (void)0 : __assertion_failed(#expr, __FILE__, __LINE__))
 #define ASSERT_NOT_REACHED() ASSERT(false)
