@@ -1,6 +1,7 @@
 #include <ADT/Assertions.h>
 #include <ADT/DoublyLinkedList.h>
 #include <ADT/Extras.h>
+#include <ADT/HashMap.h>
 #include <ADT/HashTable.h>
 #include <ADT/Point.h>
 #include <ADT/SinglyLinkedList.h>
@@ -311,11 +312,81 @@ void run_hash_table_tests()
     t_point.dump();
 }
 
+void run_hash_map_tests()
+{
+    printf("... running HashMap tests ...\n");
+    HashMap<bool, bool> m_bool_bool;
+
+    ASSERT(m_bool_bool.is_empty());
+    ASSERT(m_bool_bool.size() == 0);
+    ASSERT(m_bool_bool.capacity() == 0);
+    ASSERT(!m_bool_bool.contains(true));
+    ASSERT(!m_bool_bool.contains(false));
+    ASSERT(!(m_bool_bool.get(true)).has_value());
+    ASSERT(!(m_bool_bool.get(false)).has_value());
+
+    m_bool_bool.set(true, true);
+
+    ASSERT(!m_bool_bool.is_empty());
+    ASSERT(m_bool_bool.size() == 1);
+    ASSERT(m_bool_bool.capacity() == 2);
+    ASSERT(m_bool_bool.contains(true));
+    ASSERT(!m_bool_bool.contains(false));
+    ASSERT((m_bool_bool.get(true)).has_value());
+    ASSERT((m_bool_bool.get(true)).value() == true);
+    ASSERT(!(m_bool_bool.get(false)).has_value());
+
+    m_bool_bool.remove(true);
+
+    ASSERT(m_bool_bool.is_empty());
+    ASSERT(m_bool_bool.size() == 0);
+    ASSERT(m_bool_bool.capacity() == 2);
+    ASSERT(!m_bool_bool.contains(true));
+    ASSERT(!(m_bool_bool.get(true)).has_value());
+
+    m_bool_bool.ensure(true);
+
+    ASSERT(!m_bool_bool.is_empty());
+    ASSERT(m_bool_bool.size() == 1);
+    ASSERT(m_bool_bool.capacity() == 2);
+    ASSERT(m_bool_bool.contains(true));
+    ASSERT((m_bool_bool.get(true)).has_value());
+    ASSERT((m_bool_bool.get(true)).value() == false);
+
+    m_bool_bool.set(true, true);
+
+    ASSERT(m_bool_bool.size() == 1);
+    ASSERT((m_bool_bool.get(true)).has_value());
+    ASSERT((m_bool_bool.get(true)).value() == true);
+
+    m_bool_bool.dump();
+
+    using Point = Point<int>;
+    HashMap<Point, double> m_point_double;
+
+    ASSERT(m_point_double.is_empty());
+    ASSERT(m_point_double.size() == 0);
+    ASSERT(m_point_double.capacity() == 0);
+    ASSERT(!m_point_double.contains(Point()));
+    ASSERT(!(m_point_double.get(Point())).has_value());
+
+    m_point_double.set(Point(0, 1), 1.0);
+    m_point_double.set(Point(0, 1), 2.0);
+    m_point_double.set(Point(6, 9), 4.20);
+
+    ASSERT(m_point_double.size() == 2);
+    ASSERT((m_point_double.get(Point(0, 1))).value() == 2.0);
+    ASSERT((m_point_double.get(Point(6, 9))).value() == 4.2);
+
+    m_point_double.dump();
+}
+
 int main(int, char**)
 {
     run_singly_linked_list_tests();
     run_doubly_linked_list_tests();
     run_hash_table_tests();
+    run_hash_map_tests();
     printf("... all tests passed!\n");
     return 0;
 }
