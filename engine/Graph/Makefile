@@ -11,7 +11,7 @@ all: main
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
-main: main.o Graph.o
+main: main.o Graph.o Node.o Edge.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 clean:

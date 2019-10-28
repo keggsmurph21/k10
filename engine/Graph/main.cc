@@ -1,13 +1,13 @@
-#include <stdio.h>
-#include "Graph.h"
-#include <unistd.h>
-//#include "Node.h"
-
-using namespace Graph;
+#include "Generated/Standard.h"
+#include <iostream>
+#include <assert.h>
 
 int main(int, char**)
 {
-    UndirectedGraph g(10);
+    Graph::StandardBoard board;
+
+    /*
+    Graph::Graph g(10);
     g.add_edge(2, Direction::Clock4, 3);
     assert(g[2]->has_edge(Direction::Clock4));
     assert(g[3]->has_edge(Direction::Clock10));
@@ -20,10 +20,10 @@ int main(int, char**)
     g.add_edge(5, Direction::Clock2, 7);
     assert(g[5]->has_edge(Direction::Clock2));
     assert(g[7]->has_edge(Direction::Clock8));
-    g.dump();
-    sleep(100);
-    printf("hello world\n");
-    /*
+
+    std::cout << g << std::endl;
+    std::cout << "done!" << std::endl;
+    / *
     (HexNode(14, HexNode::ResourceType::Normal)).dump();
     (HexNode(1, HexNode::ResourceType::Flippable)).dump();
     (HexNode(6, HexNode::ResourceType::Ocean)).dump();
@@ -36,4 +36,6 @@ int main(int, char**)
     }
     printf("\n");
     */
+
+    return 0;
 }
