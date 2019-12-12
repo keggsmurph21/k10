@@ -2,6 +2,8 @@
 #include "Graph.h"
 #include "Node.h"
 
+#include <assert.h>
+
 namespace Graph {
 
 Orientation get_orientation(Direction dir)
@@ -67,4 +69,4 @@ std::set<Node*> Edge::nodes() const
     return { m_source, m_target };
 }
 
-}
+} // namespace Graph

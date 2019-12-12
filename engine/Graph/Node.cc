@@ -1,13 +1,13 @@
-#include "Graph.h"
 #include "Node.h"
+#include "Graph.h"
+#include <assert.h>
 
 namespace Graph {
 
-Node::Node()
-{
-}
+Node::Node() {}
 
-Node::Node(int index) : m_index(index)
+Node::Node(int index)
+    : m_index(index)
 {
 }
 
@@ -23,7 +23,7 @@ std::ostream& operator<<(std::ostream& cout, Node& n)
     for (int i = 0; i <= (int)Direction::Clock10; ++i) {
         auto dir = static_cast<Direction>(i);
         if (n.has_edge(dir)) {
-            //cout << i << ":Edge(" << n.get_edge(dir)->index() << "),";
+            // cout << i << ":Edge(" << n.get_edge(dir)->index() << "),";
         }
     }
     cout << "}";
@@ -53,4 +53,4 @@ void Node::add_edge(Direction dir, Node* node)
     m_edges.insert_or_assign(dir, node);
 }
 
-}
+} // namespace Graph
