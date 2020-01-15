@@ -3,11 +3,11 @@
 #include <iostream>
 #include <vector>
 
-#include "Road.h"
-#include "Junction.h"
-#include "Hex.h"
 #include "Flippable.h"
+#include "Hex.h"
+#include "Junction.h"
 #include "Ocean.h"
+#include "Road.h"
 
 namespace Graph {
 
@@ -40,7 +40,7 @@ public:
     Hex* hex(int);
     Flippable* flippable(int);
     Ocean* ocean(int);
-    
+
 private:
     std::vector<Road*> m_roads;
     std::vector<Junction*> m_junctions;
@@ -49,4 +49,4 @@ private:
     std::vector<Ocean*> m_oceans;
 };
 
-}
+} // namespace Graph

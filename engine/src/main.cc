@@ -1,6 +1,6 @@
-#include "Generated/Standard.h"
-#include <iostream>
+#include "generated/Standard.h"
 #include <assert.h>
+#include <iostream>
 
 int main(int, char**)
 {
@@ -36,6 +36,8 @@ int main(int, char**)
     }
     printf("\n");
     */
+
+    std::cout << board.name() << std::endl;
 
     return 0;
 }

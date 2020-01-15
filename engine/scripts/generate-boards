@@ -1,12 +1,16 @@
+#!/usr/bin/env python3
+
 import os
 
 from collections import Counter
 from collections import defaultdict
 
+
 # fstrings can't have backslashes ...
-NL = '\n'
-OB = '{'
-CB = '}'
+NL = "\n"
+OB = "{"
+CB = "}"
+
 
 class Position:
     def __init__(self, num, dx, dy):
@@ -15,13 +19,15 @@ class Position:
         self.dy = dy
 
     def __repr__(self):
-        return f'Clock{self.num}'
+        return f"Clock{self.num}"
 
     def generate_cpp(self):
-        return f'Direction::Clock{self.num}'
+        return f"Direction::Clock{self.num}"
+
 
 class Node:
     char = None
+
     def __init__(self, num, x, y):
         self.num = num
         self.x = x
@@ -41,71 +47,83 @@ class Node:
                 yield (pos, neighbor)
 
     def __len__(self):
-        return len([ _ for _ in self ])
+        return len([_ for _ in self])
 
     def __repr__(self):
-        return f'{self.char} #{self.num} ({self.x},{self.y})'
+        return f"{self.char} #{self.num} ({self.x},{self.y})"
+
 
 class Whitespace(Node):
-    char = ' '
+    char = " "
+
 
 class Ocean(Node):
-    char = 'o'
+    char = "o"
+
     def generate_cpp(self):
         for pos, neighbor in self:
-            yield f'm_graph->ocean({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));'
+            yield f"m_graph->ocean({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));"
+
 
 class Hex(Node):
-    char = 'h'
+    char = "h"
+
     def generate_cpp(self):
         for pos, neighbor in self:
-            yield f'm_graph->hex({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));'
+            yield f"m_graph->hex({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));"
+
 
 class Flippable(Node):
-    char = '?'
+    char = "?"
+
     def generate_cpp(self):
         for pos, neighbor in self:
-            yield f'm_graph->flippable({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));'
+            yield f"m_graph->flippable({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));"
+
 
 class Junction(Node):
-    char = '.'
+    char = "."
+
     def __init__(self, num, x, y):
         super().__init__(num, x, y)
-        self.neighbors.update({
-            Position(12, -1, 0): None,
-            Position(6, 1, 0): None,
-            Position(2, -1, 2): None,
-            Position(8, 1, -2): None,
-            Position(4, 1, 2): None,
-            Position(10, -1, -2): None,
-        })
+        self.neighbors.update(
+            {
+                Position(12, -1, 0): None,
+                Position(6, 1, 0): None,
+                Position(2, -1, 2): None,
+                Position(8, 1, -2): None,
+                Position(4, 1, 2): None,
+                Position(10, -1, -2): None,
+            }
+        )
 
     def generate_cpp(self):
         for pos, neighbor in self:
             if isinstance(neighbor, Ocean):
-                yield f'm_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->ocean({neighbor.num}));'
+                yield f"m_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->ocean({neighbor.num}));"
             elif isinstance(neighbor, Hex):
-                yield f'm_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->hex({neighbor.num}));'
+                yield f"m_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->hex({neighbor.num}));"
             elif isinstance(neighbor, Flippable):
-                yield f'm_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->flippable({neighbor.num}));'
+                yield f"m_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->flippable({neighbor.num}));"
             elif isinstance(neighbor, Road):
-                yield f'm_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->road({neighbor.num}));'
+                yield f"m_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->road({neighbor.num}));"
+
 
 class Road(Node):
     def __init__(self, num, x, y, orientation):
         super().__init__(num, x, y)
         self.char = self.orientation = orientation
-        if self.orientation == '|':
+        if self.orientation == "|":
             self.neighbors = {
                 Position(12, -1, 0): None,
                 Position(6, 1, 0): None,
             }
-        elif self.orientation == '/':
+        elif self.orientation == "/":
             self.neighbors = {
                 Position(2, -1, 2): None,
                 Position(8, 1, -2): None,
             }
-        elif self.orientation == '\\':
+        elif self.orientation == "\\":
             self.neighbors = {
                 Position(4, 1, 2): None,
                 Position(10, -1, -2): None,
@@ -113,14 +131,19 @@ class Road(Node):
 
     def generate_cpp(self):
         for pos, neighbor in self:
-            yield f'm_graph->road({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));'
+            yield f"m_graph->road({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));"
+
 
 class Board:
     def __init__(self, name):
 
         self.name = name
-        self.text_file = os.path.join('Boards', f'{name}.txt')
-        self.cpp_file = os.path.join('Generated', f'{name}.h')
+        self.text_file = os.path.join(
+            os.path.dirname(__file__), "..", "static", "boards", f"{name}.txt"
+        )
+        self.cpp_file = os.path.join(
+            os.path.dirname(__file__), "..", "include", "generated", f"{name}.h"
+        )
 
         self.junctions = []
         self.roads = []
@@ -136,49 +159,53 @@ class Board:
             for line in fp:
                 self.height += 1
                 self.width = max(self.width, len(line))
-            self.arr = [ [ Whitespace(-1, i, j) for j in range(self.width) ] for i in range(self.height) ]
+            self.arr = [
+                [Whitespace(-1, i, j) for j in range(self.width)]
+                for i in range(self.height)
+            ]
 
             # lex
             fp.seek(0)
             for x, line in enumerate(fp):
                 for y, ch in enumerate(line):
-                    if ch in (' ', '\n'):
+                    if ch in (" ", "\n"):
                         continue
-                    elif ch == '.':
+                    elif ch == ".":
                         token = Junction(len(self.junctions), x, y)
                         self.junctions.append(token)
-                    elif ch == 'o':
+                    elif ch == "o":
                         token = Ocean(len(self.oceans), x, y)
                         self.oceans.append(token)
-                    elif ch == 'h':
+                    elif ch == "h":
                         token = Hex(len(self.hexes), x, y)
                         self.hexes.append(token)
-                    elif ch == '?':
+                    elif ch == "?":
                         token = Flippable(len(self.flippables), x, y)
                         self.flippables.append(token)
-                    elif ch in ('|', '/', '\\'):
+                    elif ch in ("|", "/", "\\"):
                         token = Road(len(self.roads), x, y, ch)
                         self.roads.append(token)
                     else:
                         assert False
                     self.arr[token.x][token.y] = token
 
-        '''
+        """
         # check lexing
         assert len(self.junctions) == 54
         assert len(self.roads) == 72
         assert len(self.hexes) == 19
         assert len(self.flippables) == 0
         assert len(self.oceans) == 18
-        '''
+        """
 
         # parse
         for token_list in [
-                self.roads,
-                self.junctions,
-                self.hexes,
-                self.flippables,
-                self.oceans ]:
+            self.roads,
+            self.junctions,
+            self.hexes,
+            self.flippables,
+            self.oceans,
+        ]:
             for token in token_list:
                 for pos in token.neighbors:
                     off_x = token.x + pos.dx
@@ -192,7 +219,7 @@ class Board:
                         continue
                     token.neighbors[pos] = neighbor
 
-        '''
+        """
         # check parsing
         for token in self.roads:
             assert len(token) == 2
@@ -204,51 +231,86 @@ class Board:
             assert len(token) == 0
         for token in self.oceans:
             assert len(token) in (2, 3)
-        '''
+        """
 
     def generate_cpp(self):
-        with open(self.cpp_file, 'w') as fp:
-            fp.write(f'''
+        with open(self.cpp_file, "w") as fp:
+            fp.write(
+                """\
 #pragma once
 
-#include "../Board.h"
-#include "../Graph.h"
+#include "Board.h"
+#include "Graph.h"
 
-namespace Graph {OB}
+/**
+ * DO NOT EDIT THIS FILE DIRECTLY.
+ *
+ * It was generated automatically from running
+ *   $ {filename} {name}
+ */
+namespace Graph {{
 
-class {self.name}Board : public Board {OB}
+class {name}Board : public Board {{
 public:
-    {self.name}Board()
-    {OB}
+    {name}Board()
+    {{
+        m_name = "{name}";
         m_graph = new Graph(
-            {len(self.roads)}, // roads
-            {len(self.junctions)}, // junctions
-            {len(self.hexes)}, // hexes
-            {len(self.flippables)}, // flippables
-            {len(self.oceans)} // oceans
+            {n_roads}, // roads
+            {n_junctions}, // junctions
+            {n_hexes}, // hexes
+            {n_flippables}, // flippables
+            {n_oceans} // oceans
         );
+""".format(
+                    filename=__file__,
+                    name=self.name,
+                    n_roads=len(self.roads),
+                    n_hexes=len(self.hexes),
+                    n_junctions=len(self.junctions),
+                    n_flippables=len(self.flippables),
+                    n_oceans=len(self.oceans),
+                )
+            )
+            for road in self.roads:
+                for cpp_line in road.generate_cpp():
+                    fp.write("        {line}\n".format(line=cpp_line))
+            for junction in self.junctions:
+                for cpp_line in junction.generate_cpp():
+                    fp.write("        {line}\n".format(line=cpp_line))
+            for hex_ in self.hexes:
+                for cpp_line in hex_.generate_cpp():
+                    fp.write("        {line}\n".format(line=cpp_line))
+            for flippable in self.flippables:
+                for cpp_line in flippable.generate_cpp():
+                    fp.write("        {line}\n".format(line=cpp_line))
+            for ocean in self.oceans:
+                for cpp_line in ocean.generate_cpp():
+                    fp.write("        {line}\n".format(line=cpp_line))
+            fp.write(
+                """
+    }
 
-{NL.join([ NL.join(r.generate_cpp()) for r in self.roads ])}
-{NL.join([ NL.join(j.generate_cpp()) for j in self.junctions ])}
-{NL.join([ NL.join(h.generate_cpp()) for h in self.hexes ])}
-{NL.join([ NL.join(f.generate_cpp()) for f in self.flippables ])}
-{NL.join([ NL.join(o.generate_cpp()) for o in self.oceans ])}
-    {CB}
+    std::string name() {
+        return m_name;
+    }
 
 private:
     Graph* m_graph;
+    std::string m_name;
+};
 
-{CB};
+} // namespace Graph
+"""
+            )
 
-{CB}
-''')
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument('name')
+    parser.add_argument("name")
     args = parser.parse_args()
 
     b = Board(args.name)
