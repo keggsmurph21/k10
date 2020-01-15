@@ -18,7 +18,7 @@ IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 NamespaceIndentation: None
-Standard: Cpp11
+Standard: Cpp17
 AccessModifierOffset: -4
 #SpaceAfterLogicalNot: true
 Cpp11BracedListStyle: false
