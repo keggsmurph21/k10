@@ -1,6 +1,12 @@
-#include "Board/generated/StandardBoard.h"
 #include <assert.h>
 #include <iostream>
+
+#include "Board/generated/StandardBoard.h"
+#include "Core/Building.h"
+#include "Core/DevelopmentCard.h"
+#include "Core/Resource.h"
+#include "Game/Game.h"
+#include "Scenario/Standard.h"
 
 using namespace k10engine;
 
@@ -40,6 +46,18 @@ int main(int, char**)
     */
 
     std::cout << board.name() << std::endl;
+
+    Scenario::Standard s;
+    std::cout << (s.is_valid(Resource::Wood) ? "Wood is valid" : "Wood is not valid") << std::endl;
+    std::cout << (s.is_valid(NonYieldingResource::Desert) ? "Desert is valid"
+                                                          : "Desert is not valid")
+              << std::endl;
+    std::cout << (s.is_valid(Building::Settlement) ? "Settlements are valid"
+                                                   : "Settlements are not valid")
+              << std::endl;
+    std::cout << (s.is_valid(DevelopmentCard::Knight) ? "Knights are valid"
+                                                      : "Knights are not valid")
+              << std::endl;
 
     return 0;
 }
