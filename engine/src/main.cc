@@ -4,6 +4,7 @@
 #include "Board/generated/StandardBoard.h"
 #include "Core/Building.h"
 #include "Core/DevelopmentCard.h"
+#include "Core/Random.h"
 #include "Core/Resource.h"
 #include "Game/Game.h"
 #include "Scenario/Standard.h"
@@ -58,6 +59,11 @@ int main(int, char**)
     std::cout << (s.is_valid(DevelopmentCard::Knight) ? "Knights are valid"
                                                       : "Knights are not valid")
               << std::endl;
+
+    Random::seed();
+    for (int i = 0; i < 50; ++i)
+        std::cout << Random::get_dice_roll() << " ";
+    std::cout << std::endl;
 
     return 0;
 }
