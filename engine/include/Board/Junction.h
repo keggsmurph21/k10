@@ -1,12 +1,10 @@
 #pragma once
 
-#include "Node.h"
+#include "Board/Node.h"
 
 namespace k10engine {
 
-namespace Graph {
-
-class Node;
+namespace Board {
 
 class Junction : public Node {
 public:
@@ -20,6 +18,6 @@ private:
     int m_index;
 };
 
-} // namespace Graph
+} // namespace Board
 
 } // namespace k10engine

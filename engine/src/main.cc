@@ -1,4 +1,4 @@
-#include "generated/StandardBoard.h"
+#include "Board/generated/StandardBoard.h"
 #include <assert.h>
 #include <iostream>
 
@@ -6,10 +6,10 @@ using namespace k10engine;
 
 int main(int, char**)
 {
-    Graph::StandardBoard board;
+    Board::StandardBoard board;
 
     /*
-    Graph::Graph g(10);
+    Board::Graph g(10);
     g.add_edge(2, Direction::Clock4, 3);
     assert(g[2]->has_edge(Direction::Clock4));
     assert(g[3]->has_edge(Direction::Clock10));

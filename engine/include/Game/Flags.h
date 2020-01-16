@@ -2,6 +2,8 @@
 
 namespace k10engine {
 
+namespace Game {
+
 typedef struct {
     bool can_accept_trade;
     bool can_build_city;
@@ -35,5 +37,7 @@ Flags get_default_flags()
         false, false, false, false, false, false, false, false, false, false, 0,
     };
 }
+
+} // namespace Game
 
 } // namespace k10engine

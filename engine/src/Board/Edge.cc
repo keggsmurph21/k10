@@ -1,29 +1,11 @@
-#include "Edge.h"
-#include "Graph.h"
-#include "Node.h"
-
 #include <assert.h>
+
+#include "Board/Edge.h"
+#include "Board/Node.h"
 
 namespace k10engine {
 
-namespace Graph {
-
-Orientation get_orientation(Direction dir)
-{
-    switch (dir) {
-    case Direction::Clock12:
-    case Direction::Clock6:
-        return Orientation::Clock12Clock6;
-    case Direction::Clock2:
-    case Direction::Clock8:
-        return Orientation::Clock2Clock8;
-    case Direction::Clock4:
-    case Direction::Clock10:
-        return Orientation::Clock4Clock10;
-    default:
-        assert(false);
-    }
-}
+namespace Board {
 
 Edge::Edge(int index, Direction dir, Node* source, Node* target)
     : m_index(index)
@@ -71,6 +53,6 @@ std::set<Node*> Edge::nodes() const
     return { m_source, m_target };
 }
 
-} // namespace Graph
+} // namespace Board
 
 } // namespace k10engine

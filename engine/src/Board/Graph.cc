@@ -1,11 +1,11 @@
 #include <assert.h>
 #include <iostream>
 
-#include "Graph.h"
+#include "Board/Graph.h"
 
 namespace k10engine {
 
-namespace Graph {
+namespace Board {
 
 Direction get_opposite(Direction dir)
 {
@@ -22,6 +22,23 @@ Direction get_opposite(Direction dir)
         return Direction::Clock2;
     case Direction::Clock10:
         return Direction::Clock4;
+    default:
+        assert(false);
+    }
+}
+
+Orientation get_orientation(Direction dir)
+{
+    switch (dir) {
+    case Direction::Clock12:
+    case Direction::Clock6:
+        return Orientation::Clock12Clock6;
+    case Direction::Clock2:
+    case Direction::Clock8:
+        return Orientation::Clock2Clock8;
+    case Direction::Clock4:
+    case Direction::Clock10:
+        return Orientation::Clock4Clock10;
     default:
         assert(false);
     }
@@ -101,6 +118,6 @@ Ocean* Graph::ocean(int index)
     return m_oceans[index];
 }
 
-} // namespace Graph
+} // namespace Board
 
 } // namespace k10engine

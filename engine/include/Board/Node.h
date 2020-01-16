@@ -3,12 +3,11 @@
 #include <iostream>
 #include <map>
 
+#include "Board/Direction.h"
+
 namespace k10engine {
 
-namespace Graph {
-
-enum class Direction;
-class Edge;
+namespace Board {
 
 class Node {
 public:
@@ -31,6 +30,6 @@ private:
     EdgeMap m_edges;
 };
 
-} // namespace Graph
+} // namespace Board
 
 } // namespace k10engine

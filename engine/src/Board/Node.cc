@@ -1,10 +1,10 @@
-#include "Node.h"
-#include "Graph.h"
 #include <assert.h>
+
+#include "Board/Node.h"
 
 namespace k10engine {
 
-namespace Graph {
+namespace Board {
 
 Node::Node() {}
 
@@ -55,6 +55,6 @@ void Node::add_edge(Direction dir, Node* node)
     m_edges.insert_or_assign(dir, node);
 }
 
-} // namespace Graph
+} // namespace Board
 
 } // namespace k10engine

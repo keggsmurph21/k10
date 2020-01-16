@@ -1,16 +1,14 @@
 #pragma once
 
-#include "Node.h"
+#include "Board/Node.h"
 
 namespace k10engine {
 
-namespace Graph {
+namespace Board {
 
-class Node;
-
-class Hex : public Node {
+class Road : public Node {
 public:
-    Hex(int index)
+    Road(int index)
         : m_index(index)
     {
         (void)m_index;
@@ -20,6 +18,6 @@ private:
     int m_index;
 };
 
-} // namespace Graph
+} // namespace Board
 
 } // namespace k10engine

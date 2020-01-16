@@ -3,31 +3,17 @@
 #include <iostream>
 #include <vector>
 
-#include "Flippable.h"
-#include "Hex.h"
-#include "Junction.h"
-#include "Ocean.h"
-#include "Road.h"
+#include "Board/Direction.h"
+#include "Board/Flippable.h"
+#include "Board/Hex.h"
+#include "Board/Junction.h"
+#include "Board/Ocean.h"
+#include "Board/Orientation.h"
+#include "Board/Road.h"
 
 namespace k10engine {
 
-namespace Graph {
-
-class Road;
-class Junction;
-class Hex;
-class Flippable;
-class Ocean;
-
-enum class Direction {
-    Clock12,
-    Clock2,
-    Clock4,
-    Clock6,
-    Clock8,
-    Clock10,
-};
-Direction get_opposite(Direction);
+namespace Board {
 
 class Graph {
 public:
@@ -51,6 +37,6 @@ private:
     std::vector<Ocean*> m_oceans;
 };
 
-} // namespace Graph
+} // namespace Board
 
 } // namespace k10engine

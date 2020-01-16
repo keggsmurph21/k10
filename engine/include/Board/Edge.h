@@ -3,23 +3,16 @@
 #include <iostream>
 #include <set>
 
-#include "Graph.h"
-#include "Node.h"
+#include "Board/Direction.h"
+#include "Board/Graph.h"
+#include "Board/Node.h"
+#include "Board/Orientation.h"
 
 namespace k10engine {
 
-namespace Graph {
-
-enum class Direction;
-enum class Orientation {
-    Clock12Clock6,
-    Clock2Clock8,
-    Clock4Clock10,
-};
-Orientation get_orientation(Direction);
+namespace Board {
 
 class Graph;
-class Node;
 
 class Edge {
 public:
@@ -41,6 +34,6 @@ private:
     Node* m_target;
 };
 
-} // namespace Graph
+} // namespace Board
 
 } // namespace k10engine

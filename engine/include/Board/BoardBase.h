@@ -2,11 +2,11 @@
 
 namespace k10engine {
 
-namespace Graph {
+namespace Board {
 
-class Board {
+class BoardBase {
 };
 
-} // namespace Graph
+} // namespace Board
 
 } // namespace k10engine
