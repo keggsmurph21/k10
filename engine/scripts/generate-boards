@@ -270,7 +270,7 @@ class Board:
                 """\
 #pragma once
 
-#include "Board/BoardBase.h"
+#include "Board/Base.h"
 #include "Board/Graph.h"
 
 /**
@@ -283,7 +283,7 @@ namespace k10engine {{
 
 namespace Board {{
 
-class {name}Board : public BoardBase {{
+class {name}Board : public Base {{
 public:
     {name}Board()
     {{

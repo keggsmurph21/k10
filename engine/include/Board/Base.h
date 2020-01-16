@@ -4,7 +4,7 @@ namespace k10engine {
 
 namespace Board {
 
-class BoardBase {
+class Base {
 };
 
 } // namespace Board
