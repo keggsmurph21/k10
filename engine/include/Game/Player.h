@@ -5,7 +5,7 @@
 
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"
-#include "Game/DevelopmentCards/Base.h"
+#include "Game/DevelopmentCard.h"
 #include "Game/Flags.h"
 #include "Game/Game.h"
 #include "Game/Resource.h"
@@ -83,7 +83,6 @@ private:
 
     ResourceCounts m_resources;
 
-    typedef DevelopmentCards::DevelopmentCardBase DevelopmentCard;
     std::vector<DevelopmentCard> m_played_development_cards;
     std::vector<DevelopmentCard> m_playable_development_cards;
     std::vector<DevelopmentCard> m_unplayable_development_cards;
