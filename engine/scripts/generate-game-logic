@@ -7,6 +7,10 @@ import yaml
 
 def main(src_yaml_path: str, tar_dir: str) -> None:
     """
+#include "Flags.h"
+
+namespace k10engine {
+
 bool check_edge(GraphEdge edge, Flags flags) {
     switch (edge) {
         case GraphEdge::XXX:
@@ -19,6 +23,8 @@ int execute_edge(GraphEdge edge, Game game, Player player, {{ something else? }}
         case GraphEdge::XXX:
             return {{ edge.execute }};
     }
+}
+
 }
 """
 

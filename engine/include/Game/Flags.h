@@ -20,10 +20,10 @@ typedef struct {
     bool can_trade_with_bank;
     bool has_rolled;
     bool is_current_player;
-    bool is_first_turn;
+    bool is_first_round;
     bool is_game_over;
     bool is_roll_seven;
-    bool is_second_turn;
+    bool is_second_round;
     bool is_trade_accepted;
     bool should_wait_for_discard;
     bool should_wait_for_trade;

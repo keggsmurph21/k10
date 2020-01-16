@@ -142,9 +142,9 @@
 - END_INIT:
     nodes:
       - [PAVE, END_TURN]
-    check: "flags.is_first_turn || flags.is_second_turn"
+    check: "flags.is_first_round || flags.is_second_round"
     extra_args: []
-    execute: "iterate_turn(game, player)"
+    execute: "iterate_round(game, player)"
     is_priority: true
     is_multi_person: false
     is_cancel: false
@@ -155,7 +155,7 @@
       - [ROOT, END_TURN]
     check: "flags.has_rolled"
     extra_args: []
-    execute: "iterate_turn(game, player)"
+    execute: "iterate_round(game, player)"
     is_priority: false
     is_multi_person: false
     is_cancel: false
@@ -175,7 +175,7 @@
 - INIT_BUILD_ROAD:
     nodes:
       - [SETTLE, PAVE]
-    check: "flags.is_first_turn"
+    check: "flags.is_first_round"
     extra_args: ["Road r"]
     execute: "init_pave(game, player, r)"
     is_priority: false
@@ -186,7 +186,7 @@
 - INIT_COLLECT:
     nodes:
       - [SETTLE, INIT_COLLECT]
-    check: "flags.is_second_turn"
+    check: "flags.is_second_round"
     extra_args: []
     execute: "init_collect(game, player)"
     is_priority: true
@@ -197,7 +197,7 @@
 - INIT_SETTLE:
     nodes:
       - [ROOT, SETTLE]
-    check: "flags.is_first_turn || flags.is_second_turn"
+    check: "flags.is_first_round || flags.is_second_round"
     extra_args: ["Settlement s"]
     execute: "init_settle(game, player, s)"
     is_priority: false
@@ -208,7 +208,7 @@
 - INIT2_BUILD_ROAD:
     nodes:
       - [INIT_COLLECT, PAVE]
-    check: "flags.is_second_turn"
+    check: "flags.is_second_round"
     extra_args: ["Road r"]
     execute: "init_pave(game, player, r)"
     is_priority: false
@@ -230,7 +230,7 @@
 - OFFER_TRADE:
     nodes:
       - [ROOT, OFFER_TRADE]
-    check: "!flags.is_first_turn && !flags.is_second_turn && flags.has_rolled && flags.can_trade"
+    check: "!flags.is_first_round && !flags.is_second_round && flags.has_rolled && flags.can_trade"
     extra_args: ["Trade t"]
     execute: "offer_trade(game, player, t)"
     is_priority: false
@@ -296,7 +296,7 @@
 - ROLL:
     nodes:
       - [ROOT, ROLL]
-    check: "!flags.has_rolled && !flags.is_first_turn && !flags.is_second_turn"
+    check: "!flags.has_rolled && !flags.is_first_round && !flags.is_second_round"
     extra_args: []
     execute: "return roll(game, player)"
     is_priority: false
@@ -307,7 +307,7 @@
 - ROLL_EXACT:
     nodes:
       - [ROOT, ROLL]
-    check: "!flags.has_rolled && !flags.is_first_turn && !flags.is_second_turn"
+    check: "!flags.has_rolled && !flags.is_first_round && !flags.is_second_round"
     extra_args: ["int _roll"]
     execute: "return roll(game, player, _roll)"
     is_priority: false
@@ -330,7 +330,7 @@
     nodes:
       - [DISCARD, DISCARD]
       - [ROLL, DISCARD]
-    check: "flags.discard > 0"
+    check: "flags.num_to_discard > 0"
     extra_args: ["Trade t"]
     execute: "discard(game, player, t.out)"
     is_priority: false
@@ -342,7 +342,7 @@
     nodes:
       - [DISCARD_OTHER, DISCARD_OTHER]
       - [END_TURN, DISCARD_OTHER]
-    check: "flags.discard > 0"
+    check: "flags.num_to_discard > 0"
     extra_args: ["Trade t"]
     execute: "discard(game, player, t.out)"
     is_priority: false
@@ -397,7 +397,7 @@
       - [SETTLE, ROOT]
       - [STEAL, ROOT]
       - [TRADE_WITH_BANK, ROOT]
-    check: "!flags.is_first_turn"
+    check: "!flags.is_first_round"
     extra_args: []
     execute: null
     is_priority: true
@@ -408,7 +408,7 @@
 - TRADE_WITH_BANK:
     nodes:
       - [ROOT, TRADE_WITH_BANK]
-    check: "!flags.is_first_turn && !flags.is_second_turn && flags.has_rolled && flags.can_trade_with_bank"
+    check: "!flags.is_first_round && !flags.is_second_round && flags.has_rolled && flags.can_trade_with_bank"
     extra_args: ["Trade t"]
     execute: "trade_with_bank(game, player, t)"
     is_priority: false
