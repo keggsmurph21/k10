@@ -5,6 +5,7 @@
 
 #include "Game/Dice.h"
 #include "Game/Player.h"
+#include "Game/Robber.h"
 #include "Game/Trade.h"
 
 namespace k10engine {
@@ -52,6 +53,7 @@ private:
     bool m_is_game_over{ false };
     bool m_is_trade_accepted{ false };
     Dice m_dice;
+    Robber m_robber;
     Trade m_current_trade;
     int m_turn{ 0 };
     std::vector<Player*> m_players;

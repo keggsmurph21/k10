@@ -3,6 +3,9 @@
 #include <string.h>
 #include <vector>
 
+#include "Game/BoardView/Junction.h"
+#include "Game/BoardView/Road.h"
+#include "Game/DevelopmentCards/Base.h"
 #include "Game/Flags.h"
 #include "Game/Game.h"
 #include "Game/Resource.h"
@@ -59,8 +62,8 @@ public:
     int army_size();
     int longest_road();
 
-    int public_score();
-    int private_score();
+    int public_victory_points();
+    int private_victory_points();
 
 private:
     Player(std::string id, bool is_human, Game* game)
@@ -79,21 +82,49 @@ private:
     Game* m_game;
 
     ResourceCounts m_resources;
-    FIXME m_played_development_cards;
-    FIXME m_playable_development_cards;
-    FIXME m_unplayable_development_cards;
 
-    bool m_can_accept_trade{ false };
-    bool m_has_declined_trade{ false };
-    int m_num_to_discard{ 0 };
+    typedef DevelopmentCards::DevelopmentCardBase DevelopmentCard;
+    std::vector<DevelopmentCard> m_played_development_cards;
+    std::vector<DevelopmentCard> m_playable_development_cards;
+    std::vector<DevelopmentCard> m_unplayable_development_cards;
+
+    bool m_can_accept_trade;
+    bool m_has_declined_trade;
+    int m_num_to_discard;
+
     FIXME m_vertex;
 
-    std::vector<FIXME> m_cities;
-    std::vector<FIXME> m_roads;
-    std::vector<FIXME> m_settlements;
+    std::vector<Board::Junction> m_cities;
+    std::vector<Board::Road> m_roads;
+    std::vector<Board::Junction> m_settlements;
 
-    int m_public_score;
-    int m_private_score;
+    int m_public_victory_points;
+    int m_private_victory_points;
+
+    void accrue_resources(ResourceCounts);
+    void spend_resources(ResourceCounts);
+    void collect_resource(Resource);
+    void build_road(BoardView::Road);
+    void build_road_no_cost(BoardView::Road);
+    void build_settlement(BoardView::Junction);
+    void build_settlement_no_cost(BoardView::Junction);
+    void build_city(BoardView::Junction);
+
+    void update_longest_road();
+    void update_victory_points();
+
+    void accept_trade_as_offerer();
+    void accept_trade_as_acceptor();
+    void cancel_trade();
+    void decline_trade();
+    void fail_trade(); // unable to find a trade partner
+    void trade_with_bank();
+
+    void buy_development_card(DevelopmentCard);
+
+    void move_robber();
+
+    void steal_from(Player*);
 };
 
 } // namespace Game
