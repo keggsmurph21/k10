@@ -16,6 +16,12 @@ class Position:
     def __repr__(self):
         return f"Clock{self.num}"
 
+    def __eq__(self, other):
+        return self.num == other.num and self.dx == other.dx and self.dy == other.dy
+
+    def __hash__(self):
+        return hash((self.num, self.dx, self.dy))
+
     def generate_cpp(self):
         return f"Direction::Clock{self.num}"
 
@@ -104,6 +110,31 @@ class Junction(Node):
                 yield f"m_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->road({neighbor.num}));"
 
 
+class Port(Junction):
+    char = "p"
+
+    def __init__(self, num, x, y):
+        super().__init__(num, x, y)
+        self.partner = None
+        self.direction = None
+
+    def set_partner(self, position, partner):
+        assert isinstance(partner, Port)
+        assert self.partner is None
+        self.partner = partner
+        self.direction = str(position)
+        if partner.partner is not None:
+            assert partner.partner == self
+
+    def generate_cpp(self):
+        yield from super().generate_cpp()
+        yield (
+            f"m_graph->junction({self.num})->set_port("
+            f"get_orientation(Direction::{self.direction}), "
+            f"m_graph->junction({self.partner.num}));"
+        )
+
+
 class Road(Node):
     def __init__(self, num, x, y, orientation):
         super().__init__(num, x, y)
@@ -164,6 +195,9 @@ class Board:
                     elif ch == ".":
                         token = Junction(len(self.junctions), x, y)
                         self.junctions.append(token)
+                    elif ch == "p":
+                        token = Port(len(self.junctions), x, y)
+                        self.junctions.append(token)
                     elif ch == "o":
                         token = Ocean(len(self.oceans), x, y)
                         self.oceans.append(token)
@@ -209,6 +243,12 @@ class Board:
                     if isinstance(neighbor, Whitespace):
                         continue
                     token.neighbors[pos] = neighbor
+                    if (
+                        isinstance(token, Port)
+                        and isinstance(neighbor, Road)
+                        and isinstance(neighbor.neighbors[pos], Port)
+                    ):
+                        token.set_partner(pos, neighbor.neighbors[pos])
 
         """
         # check parsing
@@ -309,9 +349,7 @@ if __name__ == "__main__":
     parser.add_argument("--names", nargs="*")
     args = parser.parse_args()
 
-    src_dir = os.path.join(
-        os.path.dirname(__file__), "..", "static", "boards"
-    )
+    src_dir = os.path.join(os.path.dirname(__file__), "..", "static", "boards")
     tar_dir = os.path.join(
         os.path.dirname(__file__), "..", "include", "Board", "generated"
     )
