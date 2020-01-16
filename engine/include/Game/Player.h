@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string.h>
+#include <vector>
 
 #include "Game/Flags.h"
 #include "Game/Resource.h"
@@ -52,6 +53,12 @@ public:
 
     bool can_afford(ResourceCounts);
 
+    int army_size();
+    int longest_road();
+
+    int public_score();
+    int private_score();
+
 private:
     Player(std::string id, bool is_human, Game* game)
         : m_id(id)
@@ -69,6 +76,7 @@ private:
     Game* m_game;
 
     ResourceCounts m_resources;
+    FIXME m_played_development_cards;
     FIXME m_playable_development_cards;
     FIXME m_unplayable_development_cards;
 
@@ -76,6 +84,13 @@ private:
     bool m_has_declined_trade{ false };
     int m_num_to_discard{ 0 };
     FIXME m_vertex;
+
+    std::vector<FIXME> m_cities;
+    std::vector<FIXME> m_roads;
+    std::vector<FIXME> m_settlements;
+
+    int m_public_score;
+    int m_private_score;
 };
 
 } // namespace Game

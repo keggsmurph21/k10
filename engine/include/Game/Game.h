@@ -43,12 +43,19 @@ public:
 
     int get_round(); // turn() // #players
 
+    int largest_army();
+    int longest_road();
+
 private:
     bool m_can_steal{ false };
     bool m_has_rolled{ false };
     Dice m_dice;
+    Trade m_current_trade{ nullptr };
     int m_turn{ 0 };
     std::vector<Player> m_players;
+    Player m_current_player; // snakes at beginning
+    Player m_has_largest_army;
+    Player m_has_longest_road;
 }
 
 } // namespace Game
