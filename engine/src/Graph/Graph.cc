@@ -3,6 +3,8 @@
 
 #include "Graph.h"
 
+namespace k10engine {
+
 namespace Graph {
 
 Direction get_opposite(Direction dir)
@@ -99,4 +101,6 @@ Ocean* Graph::ocean(int index)
     return m_oceans[index];
 }
 
-}
+} // namespace Graph
+
+} // namespace k10engine

@@ -239,6 +239,8 @@ class Board:
  * It was generated automatically from running
  *   $ {filename} {name}
  */
+namespace k10engine {{
+
 namespace Graph {{
 
 class {name}Board : public Board {{
@@ -292,6 +294,8 @@ private:
 };
 
 } // namespace Graph
+
+} // namespace k10engine
 """
             )
             print(f"Wrote file to {os.path.realpath(self.cpp_file)}", file=sys.stderr)

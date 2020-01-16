@@ -9,6 +9,8 @@
 #include "Ocean.h"
 #include "Road.h"
 
+namespace k10engine {
+
 namespace Graph {
 
 class Road;
@@ -50,3 +52,5 @@ private:
 };
 
 } // namespace Graph
+
+} // namespace k10engine

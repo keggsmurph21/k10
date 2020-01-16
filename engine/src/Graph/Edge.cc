@@ -4,6 +4,8 @@
 
 #include <assert.h>
 
+namespace k10engine {
+
 namespace Graph {
 
 Orientation get_orientation(Direction dir)
@@ -70,3 +72,5 @@ std::set<Node*> Edge::nodes() const
 }
 
 } // namespace Graph
+
+} // namespace k10engine

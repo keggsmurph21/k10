@@ -9,6 +9,8 @@
  * It was generated automatically from running
  *   $ ./scripts/generate-boards Standard
  */
+namespace k10engine {
+
 namespace Graph {
 
 class StandardBoard : public Board {
@@ -648,3 +650,5 @@ private:
 };
 
 } // namespace Graph
+
+} // namespace k10engine

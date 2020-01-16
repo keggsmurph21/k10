@@ -3,6 +3,8 @@
 #include <iostream>
 #include <map>
 
+namespace k10engine {
+
 namespace Graph {
 
 enum class Direction;
@@ -25,8 +27,10 @@ private:
 
     typedef std::map<Direction, Node*, std::less<>> EdgeMap;
 
-    int m_index { -1 };
+    int m_index{ -1 };
     EdgeMap m_edges;
 };
 
-}
+} // namespace Graph
+
+} // namespace k10engine

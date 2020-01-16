@@ -2,6 +2,8 @@
 #include <assert.h>
 #include <iostream>
 
+using namespace k10engine;
+
 int main(int, char**)
 {
     Graph::StandardBoard board;

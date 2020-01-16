@@ -2,16 +2,24 @@
 
 #include "Node.h"
 
+namespace k10engine {
+
 namespace Graph {
 
 class Node;
 
 class Ocean : public Node {
 public:
-	Ocean(int index) : m_index(index) { (void)m_index; }
+    Ocean(int index)
+        : m_index(index)
+    {
+        (void)m_index;
+    }
 
 private:
-	int m_index;
+    int m_index;
 };
 
-}
+} // namespace Graph
+
+} // namespace k10engine

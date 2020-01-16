@@ -2,16 +2,24 @@
 
 #include "Node.h"
 
+namespace k10engine {
+
 namespace Graph {
 
 class Node;
 
 class Flippable : public Node {
 public:
-	Flippable(int index) : m_index(index) { (void)m_index; }
+    Flippable(int index)
+        : m_index(index)
+    {
+        (void)m_index;
+    }
 
 private:
-	int m_index;
+    int m_index;
 };
 
-}
+} // namespace Graph
+
+} // namespace k10engine

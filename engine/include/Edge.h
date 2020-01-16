@@ -6,8 +6,9 @@
 #include "Graph.h"
 #include "Node.h"
 
-namespace Graph {
+namespace k10engine {
 
+namespace Graph {
 
 enum class Direction;
 enum class Orientation {
@@ -40,4 +41,6 @@ private:
     Node* m_target;
 };
 
-}
+} // namespace Graph
+
+} // namespace k10engine

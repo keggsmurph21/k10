@@ -2,6 +2,8 @@
 #include "Graph.h"
 #include <assert.h>
 
+namespace k10engine {
+
 namespace Graph {
 
 Node::Node() {}
@@ -54,3 +56,5 @@ void Node::add_edge(Direction dir, Node* node)
 }
 
 } // namespace Graph
+
+} // namespace k10engine
