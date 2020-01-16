@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "Game/Resource.h"
+#include "Core/Resource.h"
 
 namespace k10engine {
 

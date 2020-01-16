@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Board/Hex.h"
-#include "Game/Resource.h"
+#include "Core/Resource.h"
 
 namespace k10engine {
 

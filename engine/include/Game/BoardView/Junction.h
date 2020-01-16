@@ -3,7 +3,7 @@
 #include <optional>
 
 #include "Board/Junction.h"
-#include "Game/Resource.h"
+#include "Core/Resource.h"
 
 namespace k10engine {
 

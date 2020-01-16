@@ -2,8 +2,6 @@
 
 namespace k10engine {
 
-namespace Game {
-
 enum class DevelopmentCard {
     Knight,
     Monopoly,
@@ -11,7 +9,5 @@ enum class DevelopmentCard {
     VictoryPoint,
     YearOfPlenty,
 };
-
-} // namespace Game
 
 } // namespace k10engine

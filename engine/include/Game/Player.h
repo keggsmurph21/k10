@@ -3,12 +3,12 @@
 #include <string.h>
 #include <vector>
 
+#include "Core/DevelopmentCard.h"
+#include "Core/Resource.h"
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"
-#include "Game/DevelopmentCard.h"
 #include "Game/Flags.h"
 #include "Game/Game.h"
-#include "Game/Resource.h"
 #include "Game/Trade.h"
 
 #define FIXME int
