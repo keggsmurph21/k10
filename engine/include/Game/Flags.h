@@ -30,14 +30,6 @@ typedef struct {
     int num_to_discard;
 } Flags;
 
-Flags get_default_flags()
-{
-    return {
-        false, false, false, false, false, false, false, false, false, false, false, false,
-        false, false, false, false, false, false, false, false, false, false, 0,
-    };
-}
-
 } // namespace Game
 
 } // namespace k10engine

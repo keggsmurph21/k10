@@ -11,9 +11,7 @@ namespace k10engine {
 
 namespace Game {
 
-std::random_device rd;                                    // initialize seed engine
-std::mt19937 rng(rd());                                   // seed
-std::uniform_int_distribution<int> random_selector(1, 6); // inclusive
+class Player;
 
 class Game {
 public:
@@ -47,16 +45,20 @@ public:
     int longest_road();
 
 private:
+    ~Game() {} // need to destruct the players
+
     bool m_can_steal{ false };
     bool m_has_rolled{ false };
+    bool m_is_game_over{ false };
+    bool m_is_trade_accepted{ false };
     Dice m_dice;
-    Trade m_current_trade{ nullptr };
+    Trade m_current_trade;
     int m_turn{ 0 };
-    std::vector<Player> m_players;
-    Player m_current_player; // snakes at beginning
-    Player m_has_largest_army;
-    Player m_has_longest_road;
-}
+    std::vector<Player*> m_players;
+    Player* m_current_player; // snakes at beginning
+    Player* m_has_largest_army;
+    Player* m_has_longest_road;
+};
 
 } // namespace Game
 

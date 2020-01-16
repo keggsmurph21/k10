@@ -6,20 +6,9 @@ namespace k10engine {
 
 namespace Game {
 
-void Dice::roll()
-{
-    m_die_0 = random_selector(rng());
-    m_die_1 = random_selector(rng());
-}
-
 void Game::roll_dice()
 {
     assert(false);
-}
-
-int Dice::get_total()
-{
-    return m_die_0 + m_die_1;
 }
 
 int Game::get_dice_total()
@@ -48,6 +37,11 @@ bool Game::should_wait_for_discard()
 }
 
 bool Game::should_wait_for_trade()
+{
+    assert(false);
+}
+
+int Game::get_round()
 {
     assert(false);
 }

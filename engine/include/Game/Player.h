@@ -4,8 +4,11 @@
 #include <vector>
 
 #include "Game/Flags.h"
+#include "Game/Game.h"
 #include "Game/Resource.h"
 #include "Game/Trade.h"
+
+#define FIXME int
 
 namespace k10engine {
 
@@ -20,7 +23,7 @@ public:
     Flags get_flags();
 
     bool can_accept_trade() { return m_can_accept_trade; }
-    void set_can_accept_trade(can_accept_trade) { m_can_accept_trade = can_accept_trade; }
+    void set_can_accept_trade(bool can_accept_trade) { m_can_accept_trade = can_accept_trade; }
 
     bool has_declined_trade() { return m_has_declined_trade; }
     void set_has_declined_trade(bool has_declined_trade)
