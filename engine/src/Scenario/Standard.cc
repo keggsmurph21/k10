@@ -6,12 +6,6 @@ namespace Scenario {
 
 Standard::Standard()
 {
-    m_min_players_count = 2;
-    m_max_players_count = 6;
-
-    m_min_victory_points_goal = 6;
-    m_max_victory_points_goal = 12;
-
     m_building_costs[Building::City] = { { Resource::Ore, 3 }, { Resource::Wheat, 2 } };
     m_building_costs[Building::DevelopmentCard] = { { Resource::Ore, 1 },
                                                     { Resource::Sheep, 1 },
@@ -53,6 +47,25 @@ Standard::Standard()
         { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood });
     m_ports.push_back(
         { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood });
+
+    m_rolls.push_back(9);
+    m_rolls.push_back(5);
+    m_rolls.push_back(2);
+    m_rolls.push_back(6);
+    m_rolls.push_back(3);
+    m_rolls.push_back(8);
+    m_rolls.push_back(10);
+    m_rolls.push_back(12);
+    m_rolls.push_back(11);
+    m_rolls.push_back(4);
+    m_rolls.push_back(8);
+    m_rolls.push_back(10);
+    m_rolls.push_back(9);
+    m_rolls.push_back(4);
+    m_rolls.push_back(5);
+    m_rolls.push_back(6);
+    m_rolls.push_back(3);
+    m_rolls.push_back(11);
 }
 
 } // namespace Scenario

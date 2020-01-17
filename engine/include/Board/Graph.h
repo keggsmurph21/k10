@@ -23,18 +23,27 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, Graph&);
 
-    Road* road(int);
-    Junction* junction(int);
-    Hex* hex(int);
     Flippable* flippable(int);
+    int n_flippables() const { return m_flippables.size(); }
+
+    Hex* hex(int);
+    int n_hexes() const { return m_hexes.size(); }
+
+    Junction* junction(int);
+    int n_junctions() const { return m_junctions.size(); }
+
     Ocean* ocean(int);
+    int n_oceans() const { return m_oceans.size(); }
+
+    Road* road(int);
+    int n_roads() const { return m_roads.size(); }
 
 private:
-    std::vector<Road*> m_roads;
-    std::vector<Junction*> m_junctions;
-    std::vector<Hex*> m_hexes;
     std::vector<Flippable*> m_flippables;
+    std::vector<Hex*> m_hexes;
+    std::vector<Junction*> m_junctions;
     std::vector<Ocean*> m_oceans;
+    std::vector<Road*> m_roads;
 };
 
 } // namespace Board

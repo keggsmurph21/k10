@@ -18,13 +18,13 @@ public:
     std::optional<Player*> owner() { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
 
-    Road(Board::Road node)
+    Road(Board::Road* node)
         : m_node(node)
     {
     }
 
 private:
-    Board::Road m_node;
+    Board::Road* m_node;
     std::optional<Player*> m_owner;
 };
 

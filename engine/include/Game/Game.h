@@ -1,11 +1,19 @@
 #pragma once
 
+#include <list>
+#include <optional>
 #include <vector>
 
+#include "Board/Base.h"
+#include "Game/BoardView/Hex.h"
+#include "Game/BoardView/Junction.h"
+#include "Game/BoardView/Road.h"
 #include "Game/Dice.h"
 #include "Game/Player.h"
 #include "Game/Robber.h"
 #include "Game/Trade.h"
+#include "Scenario/Base.h"
+#include "Scenario/Parameters.h"
 
 namespace k10engine {
 
@@ -44,17 +52,28 @@ public:
     int largest_army();
     int longest_road();
 
-private:
-    ~Game() {} // need to destruct the players
+    static std::optional<Game> initialize(Board::Base*, Scenario::Base*, Scenario::Parameters*);
+    ~Game();
 
-    bool m_can_steal{ false };
-    bool m_has_rolled{ false };
-    bool m_is_game_over{ false };
-    bool m_is_trade_accepted{ false };
+private:
+    Game();
+
+    std::vector<BoardView::Hex> m_hexes;
+    std::vector<BoardView::Junction> m_junctions;
+    std::vector<BoardView::Road> m_roads;
+    std::list<DevelopmentCard> m_deck;
+
+    Scenario::Base m_scenario;
+
+    int m_victory_points_goal;
+    bool m_can_steal;
+    bool m_has_rolled;
+    bool m_is_game_over;
+    bool m_is_trade_accepted;
     Dice m_dice;
     Robber m_robber;
     Trade m_current_trade;
-    int m_turn{ 0 };
+    int m_turn;
     std::vector<Player*> m_players;
     Player* m_current_player; // snakes at beginning
     Player* m_has_largest_army;
