@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <iostream>
 
-#include "Board/generated/StandardBoard.h"
+#include "Board/generated/Standard.h"
 #include "Core/Building.h"
 #include "Core/DevelopmentCard.h"
 #include "Core/Random.h"
@@ -13,7 +13,7 @@ using namespace k10engine;
 
 int main(int, char**)
 {
-    Board::StandardBoard b;
+    Board::Standard b;
     Scenario::Standard s;
     Scenario::Parameters p{
         Scenario::IterationType::Fixed,
