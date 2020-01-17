@@ -22,12 +22,12 @@ using Costs = std::map<T, ResourceCounts, std::less<T>>;
 template<typename T>
 using Counts = std::map<T, int, std::less<T>>;
 
-class Base {
+class Scenario {
 public:
-    static int min_players_count() { return s_min_players_count; }
-    static int max_players_count() { return s_max_players_count; }
-    static int min_victory_points_goal() { return s_min_victory_points_goal; }
-    static int max_victory_points_goal() { return s_max_victory_points_goal; }
+    int min_players_count() { return m_min_players_count; }
+    int max_players_count() { return m_max_players_count; }
+    int min_victory_points_goal() { return m_min_victory_points_goal; }
+    int max_victory_points_goal() { return m_max_victory_points_goal; }
 
     bool is_valid(Building);
     Costs<Building>* building_costs() { return &m_building_costs; }
@@ -48,16 +48,37 @@ public:
     std::vector<AbstractResource> get_resources(IterationType);          // gets a fresh copy
     std::vector<int> get_rolls(IterationType);                           // gets a fresh copy
 
-    static bool is_valid(Parameters*);
+    bool is_valid(Parameters*);
 
-    Base() {}
-    ~Base();
+    Scenario(int min_players_count,
+             int max_players_count,
+             int min_victory_points_goal,
+             int max_victory_points_goal,
+             Costs<Building> building_costs,
+             Counts<Building> building_max_counts,
+             Counts<DevelopmentCard> development_card_counts,
+             Counts<AbstractResource> resource_counts,
+             std::vector<int> rolls,
+             std::vector<ResourceCollection> ports)
+        : m_min_players_count(min_players_count)
+        , m_max_players_count(max_players_count)
+        , m_min_victory_points_goal(min_victory_points_goal)
+        , m_max_victory_points_goal(max_victory_points_goal)
+        , m_building_costs(building_costs)
+        , m_building_max_counts(building_max_counts)
+        , m_development_card_counts(development_card_counts)
+        , m_resource_counts(resource_counts)
+        , m_rolls(rolls)
+        , m_ports(ports)
+    {
+    }
+    ~Scenario();
 
 protected:
-    static const int s_min_players_count = -1;
-    static const int s_max_players_count = -1;
-    static const int s_min_victory_points_goal = -1;
-    static const int s_max_victory_points_goal = -1;
+    int m_min_players_count = -1;
+    int m_max_players_count = -1;
+    int m_min_victory_points_goal = -1;
+    int m_max_victory_points_goal = -1;
 
     Costs<Building> m_building_costs;
     Counts<Building> m_building_max_counts;

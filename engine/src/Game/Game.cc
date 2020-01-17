@@ -48,7 +48,7 @@ int Game::get_round()
 }
 
 std::optional<Game>
-Game::initialize(Board::Base* board, Scenario::Base* scenario, Scenario::Parameters* parameters)
+Game::initialize(Board::Base* board, Scenario::Scenario* scenario, Scenario::Parameters* parameters)
 {
     if (!scenario->is_valid(parameters))
         return std::nullopt;

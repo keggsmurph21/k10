@@ -12,8 +12,8 @@
 #include "Game/Player.h"
 #include "Game/Robber.h"
 #include "Game/Trade.h"
-#include "Scenario/Base.h"
 #include "Scenario/Parameters.h"
+#include "Scenario/Scenario.h"
 
 namespace k10engine {
 
@@ -52,7 +52,7 @@ public:
     int largest_army();
     int longest_road();
 
-    static std::optional<Game> initialize(Board::Base*, Scenario::Base*, Scenario::Parameters*);
+    static std::optional<Game> initialize(Board::Base*, Scenario::Scenario*, Scenario::Parameters*);
     ~Game();
 
 private:
@@ -63,7 +63,7 @@ private:
     std::vector<BoardView::Road> m_roads;
     std::list<DevelopmentCard> m_deck;
 
-    Scenario::Base m_scenario;
+    Scenario::Scenario m_scenario;
 
     int m_victory_points_goal;
     bool m_can_steal;
