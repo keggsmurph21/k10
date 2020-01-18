@@ -22,7 +22,7 @@ class Position:
     def __hash__(self):
         return hash((self.num, self.dx, self.dy))
 
-    def generate_cpp(self):
+    def __str__(self):
         return f"Direction::Clock{self.num}"
 
 
@@ -61,25 +61,13 @@ class Whitespace(Node):
 class Ocean(Node):
     char = "o"
 
-    def generate_cpp(self):
-        for pos, neighbor in self:
-            yield f"m_graph->ocean({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));"
-
 
 class Hex(Node):
     char = "h"
 
-    def generate_cpp(self):
-        for pos, neighbor in self:
-            yield f"m_graph->hex({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));"
 
-
-class Flippable(Node):
+class UnflippedHex(Node):
     char = "?"
-
-    def generate_cpp(self):
-        for pos, neighbor in self:
-            yield f"m_graph->flippable({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));"
 
 
 class Junction(Node):
@@ -98,17 +86,6 @@ class Junction(Node):
             }
         )
 
-    def generate_cpp(self):
-        for pos, neighbor in self:
-            if isinstance(neighbor, Ocean):
-                yield f"m_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->ocean({neighbor.num}));"
-            elif isinstance(neighbor, Hex):
-                yield f"m_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->hex({neighbor.num}));"
-            elif isinstance(neighbor, Flippable):
-                yield f"m_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->flippable({neighbor.num}));"
-            elif isinstance(neighbor, Road):
-                yield f"m_graph->junction({self.num})->add_edge({pos.generate_cpp()}, m_graph->road({neighbor.num}));"
-
 
 class Port(Junction):
     char = "p"
@@ -116,23 +93,15 @@ class Port(Junction):
     def __init__(self, num, x, y):
         super().__init__(num, x, y)
         self.partner = None
-        self.direction = None
+        self.pos = None
 
     def set_partner(self, position, partner):
         assert isinstance(partner, Port)
         assert self.partner is None
         self.partner = partner
-        self.direction = str(position)
+        self.pos = str(position)
         if partner.partner is not None:
             assert partner.partner == self
-
-    def generate_cpp(self):
-        yield from super().generate_cpp()
-        yield (
-            f"m_graph->junction({self.num})->set_port("
-            f"get_orientation(Direction::{self.direction}), "
-            f"m_graph->junction({self.partner.num}));"
-        )
 
 
 class Road(Node):
@@ -155,10 +124,6 @@ class Road(Node):
                 Position(10, -1, -2): None,
             }
 
-    def generate_cpp(self):
-        for pos, neighbor in self:
-            yield f"m_graph->road({self.num})->add_edge({pos.generate_cpp()}, m_graph->junction({neighbor.num}));"
-
 
 class Board:
     def __init__(self, name, src_dir, tar_dir):
@@ -170,8 +135,9 @@ class Board:
         self.junctions = []
         self.roads = []
         self.hexes = []
-        self.flippables = []
+        self.unflipped_hexes = []
         self.oceans = []
+        self.ports = []
 
         with open(self.board_file) as fp:
 
@@ -188,38 +154,41 @@ class Board:
 
             # lex
             fp.seek(0)
+            num = 0
             for x, line in enumerate(fp):
                 for y, ch in enumerate(line):
                     if ch in (" ", "\n"):
                         continue
                     elif ch == ".":
-                        token = Junction(len(self.junctions), x, y)
+                        token = Junction(num, x, y)
                         self.junctions.append(token)
                     elif ch == "p":
-                        token = Port(len(self.junctions), x, y)
+                        token = Port(num, x, y)
                         self.junctions.append(token)
+                        self.ports.append(token)
                     elif ch == "o":
-                        token = Ocean(len(self.oceans), x, y)
+                        token = Ocean(num, x, y)
                         self.oceans.append(token)
                     elif ch == "h":
-                        token = Hex(len(self.hexes), x, y)
+                        token = Hex(num, x, y)
                         self.hexes.append(token)
                     elif ch == "?":
-                        token = Flippable(len(self.flippables), x, y)
-                        self.flippables.append(token)
+                        token = UnflippedHex(num, x, y)
+                        self.unflipped_hexes.append(token)
                     elif ch in ("|", "/", "\\"):
-                        token = Road(len(self.roads), x, y, ch)
+                        token = Road(num, x, y, ch)
                         self.roads.append(token)
                     else:
                         assert False
                     self.arr[token.x][token.y] = token
+                    num += 1
 
         """
         # check lexing
         assert len(self.junctions) == 54
         assert len(self.roads) == 72
         assert len(self.hexes) == 19
-        assert len(self.flippables) == 0
+        assert len(self.unflipped_hexes) == 0
         assert len(self.oceans) == 18
         """
 
@@ -228,7 +197,7 @@ class Board:
             self.roads,
             self.junctions,
             self.hexes,
-            self.flippables,
+            self.unflipped_hexes,
             self.oceans,
         ]:
             for token in token_list:
@@ -258,7 +227,7 @@ class Board:
             assert len(token) in (5, 6)
         for token in self.hexes:
             assert len(token) == 6
-        for token in self.flippables:
+        for token in self.unflipped_hexes:
             assert len(token) == 0
         for token in self.oceans:
             assert len(token) in (2, 3)
@@ -267,7 +236,7 @@ class Board:
     def generate_cpp(self):
         with open(self.cpp_file, "w") as fp:
             fp.write(
-                """\
+                f"""\
 #pragma once
 
 #include "Board/Base.h"
@@ -276,65 +245,56 @@ class Board:
  * DO NOT EDIT THIS FILE DIRECTLY.
  *
  * It was generated automatically from running
- *   $ {filename} {name}
+ *   $ {__file__} {self.name}
  */
 namespace k10engine {{
 
 namespace Board {{
 
-class {name} : public Base {{
-public:
-    {name}()
-    {{
-        m_name = "{name}";
-        m_graph = new Graph(
-            {n_roads}, // roads
-            {n_junctions}, // junctions
-            {n_hexes}, // hexes
-            {n_flippables}, // flippables
-            {n_oceans} // oceans
-        );
-""".format(
-                    filename=__file__,
-                    name=self.name,
-                    n_roads=len(self.roads),
-                    n_hexes=len(self.hexes),
-                    n_junctions=len(self.junctions),
-                    n_flippables=len(self.flippables),
-                    n_oceans=len(self.oceans),
-                )
+Base* get_{self.name.lower()}_board()
+{{
+    return new Base("{self.name}", new Graph({{ """
             )
             for road in self.roads:
-                for cpp_line in road.generate_cpp():
-                    fp.write("        {line}\n".format(line=cpp_line))
+                fp.write(f"{{ {road.num}, NodeType::Road }}, ")
             for junction in self.junctions:
-                for cpp_line in junction.generate_cpp():
-                    fp.write("        {line}\n".format(line=cpp_line))
+                fp.write(f"{{ {junction.num}, NodeType::Junction }}, ")
             for hex_ in self.hexes:
-                for cpp_line in hex_.generate_cpp():
-                    fp.write("        {line}\n".format(line=cpp_line))
-            for flippable in self.flippables:
-                for cpp_line in flippable.generate_cpp():
-                    fp.write("        {line}\n".format(line=cpp_line))
+                fp.write(f"{{ {hex_.num}, NodeType::Hex }}, ")
             for ocean in self.oceans:
-                for cpp_line in ocean.generate_cpp():
-                    fp.write("        {line}\n".format(line=cpp_line))
+                fp.write(f"{{ {ocean.num}, NodeType::Ocean }}, ")
+            for unflipped_hex in self.unflipped_hexes:
+                fp.write(f"{{ {unflipped_hex.num}, NodeType::UnflippedHex }}, ")
+            fp.write(f"}}, {{")
+            for road in self.roads:
+                for pos, neighbor in road:
+                    fp.write(f"{{ {road.num}, {neighbor.num}, {pos} }}, ")
+            for junction in self.junctions:
+                for pos, neighbor in junction:
+                    fp.write(f"{{ {junction.num}, {neighbor.num}, {pos} }}, ")
+            for hex_ in self.hexes:
+                for pos, neighbor in hex_:
+                    fp.write(f"{{ {hex_.num}, {neighbor.num}, {pos} }}, ")
+            for ocean in self.oceans:
+                for pos, neighbor in ocean:
+                    fp.write(f"{{ {ocean.num}, {neighbor.num}, {pos} }}, ")
+            for unflipped_hex in self.unflipped_hexes:
+                for pos, neighbor in unflipped_hex:
+                    fp.write(f"{{ {unflipped_hex.num}, {neighbor.num}, {pos} }}, ")
+            fp.write(f"""}}), {{ """)
+            for port in self.ports:
+                if port.num < port.partner.num:
+                    fp.write(
+                        f"{{ {port.num}, {port.partner.num}, get_orientation({port.pos}) }}, "
+                    )
             fp.write(
-                """
-    }
+                f"""}});
 
-    std::string name() {
-        return m_name;
-    }
+}}
 
-private:
-    Graph* m_graph;
-    std::string m_name;
-};
+}} // namespace Board
 
-} // namespace Board
-
-} // namespace k10engine
+}} // namespace k10engine
 """
             )
             print(f"Wrote file to {os.path.realpath(self.cpp_file)}", file=sys.stderr)

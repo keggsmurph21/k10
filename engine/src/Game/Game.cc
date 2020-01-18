@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <iostream>
 #include <variant>
 
 #include "Game/Game.h"
@@ -50,6 +51,11 @@ int Game::get_round()
 std::optional<Game>
 Game::initialize(Board::Base* board, Scenario::Scenario* scenario, Scenario::Parameters* parameters)
 {
+    (void)board;
+    (void)scenario;
+    (void)parameters;
+    assert(false);
+    /*
     if (!scenario->is_valid(parameters))
         return std::nullopt;
 
@@ -58,9 +64,14 @@ Game::initialize(Board::Base* board, Scenario::Scenario* scenario, Scenario::Par
     auto resources = scenario->get_resources(parameters->resource_iteration_type);
     auto rolls = scenario->get_rolls(parameters->roll_iteration_type);
 
+    std::cout << "initializing hex views" << std::endl;
     std::vector<BoardView::Hex*> hex_views;
     int roll_index = 0;
+    std::cout << "getting n_hexes" << std::endl;
+    std::cout << board->graph()->n_hexes() << std::endl;
+    std::cout << "got n_hexes" << std::endl;
     for (int i = 0; i < board->graph()->n_hexes(); ++i) {
+        std::cout << i << " ";
         auto hex = board->graph()->hex(i);
         auto resource = resources[i];
         BoardView::Hex* hex_view;
@@ -74,6 +85,9 @@ Game::initialize(Board::Base* board, Scenario::Scenario* scenario, Scenario::Par
         hex_views.push_back(hex_view);
     }
 
+    std::cout << std::endl;
+
+    std::cout << "initializing junction views" << std::endl;
     std::vector<BoardView::Junction*> junction_views;
     int port_index = 0;
     std::map<int, ResourceCollection> port_partner_types;
@@ -97,6 +111,7 @@ Game::initialize(Board::Base* board, Scenario::Scenario* scenario, Scenario::Par
         junction_views.push_back(junction_view);
     }
 
+    std::cout << "initializing road views" << std::endl;
     std::vector<BoardView::Road*> road_views;
     for (int i = 0; i < board->graph()->n_roads(); ++i) {
         auto road = board->graph()->road(i);
@@ -104,7 +119,9 @@ Game::initialize(Board::Base* board, Scenario::Scenario* scenario, Scenario::Par
         road_views.push_back(road_view);
     }
 
+    std::cout << "got to end" << std::endl;
     assert(false);
+    */
 }
 
 Game::~Game()

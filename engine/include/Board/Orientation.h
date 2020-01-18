@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+
 #include "Board/Direction.h"
 
 namespace k10engine {
@@ -13,6 +15,7 @@ enum class Orientation {
 };
 
 Orientation get_orientation(Direction);
+const std::set<Direction> get_directions(Orientation);
 
 } // namespace Board
 

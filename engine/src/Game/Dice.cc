@@ -1,7 +1,7 @@
-#include <time.h>
-
-#include "Core/Random.h"
 #include "Game/Dice.h"
+#include "Core/Random.h"
+
+static auto s_dice_dist = std::uniform_int_distribution<int>(1, 6);
 
 namespace k10engine {
 
@@ -15,8 +15,9 @@ Dice::Dice()
 
 void Dice::roll()
 {
-    m_die_0 = Random::get_dice_roll();
-    m_die_1 = Random::get_dice_roll();
+    auto rng = Random::rng();
+    m_die_0 = s_dice_dist(rng);
+    m_die_1 = s_dice_dist(rng);
 }
 
 int Dice::get_total()

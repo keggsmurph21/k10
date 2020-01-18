@@ -93,9 +93,9 @@ private:
 
     FIXME m_vertex;
 
-    std::vector<Board::Junction> m_cities;
-    std::vector<Board::Road> m_roads;
-    std::vector<Board::Junction> m_settlements;
+    std::vector<BoardView::Junction> m_cities;
+    std::vector<BoardView::Road> m_roads;
+    std::vector<BoardView::Junction> m_settlements;
 
     int m_public_victory_points;
     int m_private_victory_points;

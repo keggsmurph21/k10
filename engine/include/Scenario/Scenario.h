@@ -1,6 +1,5 @@
 #pragma once
 
-#include <list>
 #include <map>
 #include <optional>
 #include <set>
@@ -43,10 +42,10 @@ public:
     Counts<AbstractResource>* resource_counts() { return &m_resource_counts; }
     std::optional<int> count(AbstractResource);
 
-    std::list<DevelopmentCard> get_development_card_deck(IterationType); // gets a fresh copy
-    std::vector<ResourceCollection> get_ports(IterationType);            // gets a fresh copy
-    std::vector<AbstractResource> get_resources(IterationType);          // gets a fresh copy
-    std::vector<int> get_rolls(IterationType);                           // gets a fresh copy
+    std::vector<DevelopmentCard> get_development_card_deck(IterationType); // gets a fresh copy
+    std::vector<ResourceCollection> get_ports(IterationType);              // gets a fresh copy
+    std::vector<AbstractResource> get_resources(IterationType);            // gets a fresh copy
+    std::vector<int> get_rolls(IterationType);                             // gets a fresh copy
 
     bool is_valid(Parameters*);
 

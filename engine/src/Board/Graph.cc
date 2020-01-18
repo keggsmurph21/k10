@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <iostream>
 
 #include "Board/Graph.h"
 
@@ -7,115 +6,68 @@ namespace k10engine {
 
 namespace Board {
 
-Direction get_opposite(Direction dir)
+Graph::Graph(const NodeList nodes, const EdgeList edges)
+    : m_num_hexes(0)
+    , m_num_junctions(0)
+    , m_num_oceans(0)
+    , m_num_roads(0)
+    , m_num_unflipped_hexes(0)
 {
-    switch (dir) {
-    case Direction::Clock12:
-        return Direction::Clock6;
-    case Direction::Clock2:
-        return Direction::Clock8;
-    case Direction::Clock4:
-        return Direction::Clock10;
-    case Direction::Clock6:
-        return Direction::Clock12;
-    case Direction::Clock8:
-        return Direction::Clock2;
-    case Direction::Clock10:
-        return Direction::Clock4;
-    default:
-        assert(false);
+    for (auto const& item : nodes) {
+        const int index = std::get<0>(item);
+        const auto type = std::get<1>(item);
+        assert(!has_node(index));
+        auto node = new Node(index, type);
+        m_nodes[index] = node;
+        switch (type) {
+        case NodeType::Hex:
+            ++m_num_hexes;
+            break;
+        case NodeType::Ocean:
+            ++m_num_oceans;
+            break;
+        case NodeType::Junction:
+            ++m_num_junctions;
+            break;
+        case NodeType::Road:
+            ++m_num_roads;
+            break;
+        case NodeType::UnflippedHex:
+            ++m_num_unflipped_hexes;
+            break;
+        default:
+            assert(false);
+        }
     }
-}
-
-Orientation get_orientation(Direction dir)
-{
-    switch (dir) {
-    case Direction::Clock12:
-    case Direction::Clock6:
-        return Orientation::Clock12Clock6;
-    case Direction::Clock2:
-    case Direction::Clock8:
-        return Orientation::Clock2Clock8;
-    case Direction::Clock4:
-    case Direction::Clock10:
-        return Orientation::Clock4Clock10;
-    default:
-        assert(false);
+    for (auto const& item : edges) {
+        auto node_0 = node(std::get<0>(item));
+        auto node_1 = node(std::get<1>(item));
+        const auto direction = std::get<2>(item);
+        assert(node_0);
+        assert(node_1);
+        node_0->add_edge(direction, node_1);
     }
-}
-
-bool operator<(const Direction d1, const Direction d2)
-{
-    return (int)d1 < (int)d2;
-}
-
-Graph::Graph(int n_roads, int n_junctions, int n_hexes, int n_flippables, int n_oceans)
-{
-    for (int i = 0; i < n_roads; ++i)
-        m_roads.push_back(new Road(i));
-    for (int i = 0; i < n_junctions; ++i)
-        m_junctions.push_back(new Junction(i));
-    for (int i = 0; i < n_hexes; ++i)
-        m_hexes.push_back(new Hex(i));
-    for (int i = 0; i < n_flippables; ++i)
-        m_flippables.push_back(new Flippable(i));
-    for (int i = 0; i < n_oceans; ++i)
-        m_oceans.push_back(new Ocean(i));
 }
 
 Graph::~Graph()
 {
-    std::cerr << "called ~Graph" << std::endl;
-    for (auto it : m_roads)
-        delete it;
-    for (auto it : m_junctions)
-        delete it;
-    for (auto it : m_hexes)
-        delete it;
-    for (auto it : m_flippables)
-        delete it;
-    for (auto it : m_oceans)
-        delete it;
+    for (auto item : m_nodes) {
+        auto node = item.second;
+        delete node;
+    }
+    m_nodes.clear();
 }
 
-std::ostream& operator<<(std::ostream& cout, Graph& g)
+Node* Graph::node(const int index)
 {
-    cout << "Graph(" << /*g.size() <<*/ ")" << std::endl;
-    (void)g;
-    /*
-    cout << "  nodes:" << std::endl;
-    for (auto& node : g.m_nodes)
-        cout << "    " << *node << std::endl;
-    cout << "  edges:" << std::endl;
-    for (auto& edge : g.m_edges)
-        cout << "    " << *edge << std::endl;
-        */
-    return cout;
+    if (!has_node(index))
+        return nullptr;
+    return m_nodes.at(index);
 }
 
-Road* Graph::road(int index)
+bool Graph::has_node(const int index) const
 {
-    return m_roads[index];
-}
-
-Junction* Graph::junction(int index)
-{
-    return m_junctions[index];
-}
-
-Hex* Graph::hex(int index)
-{
-    return m_hexes[index];
-}
-
-Flippable* Graph::flippable(int index)
-{
-    return m_flippables[index];
-}
-
-Ocean* Graph::ocean(int index)
-{
-    return m_oceans[index];
+    return m_nodes.find(index) != m_nodes.end();
 }
 
 } // namespace Board

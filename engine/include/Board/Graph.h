@@ -1,49 +1,42 @@
 #pragma once
 
-#include <iostream>
+#include <tuple>
 #include <vector>
 
 #include "Board/Direction.h"
-#include "Board/Flippable.h"
-#include "Board/Hex.h"
-#include "Board/Junction.h"
-#include "Board/Ocean.h"
-#include "Board/Orientation.h"
-#include "Board/Road.h"
+#include "Board/Node.h"
+#include "Board/NodeType.h"
 
 namespace k10engine {
 
 namespace Board {
 
+typedef std::vector<std::tuple<int, NodeType>> NodeList;
+typedef std::vector<std::tuple<int, int, Direction>> EdgeList;
+
 class Graph {
 public:
-    Graph();
-    Graph(int, int, int, int, int);
+    Graph(const NodeList, const EdgeList);
     ~Graph();
 
-    friend std::ostream& operator<<(std::ostream&, Graph&);
+    Node* node(const int);
+    const std::map<int, Node*, std::less<>> nodes() { return m_nodes; }
 
-    Flippable* flippable(int);
-    int n_flippables() const { return m_flippables.size(); }
-
-    Hex* hex(int);
-    int n_hexes() const { return m_hexes.size(); }
-
-    Junction* junction(int);
-    int n_junctions() const { return m_junctions.size(); }
-
-    Ocean* ocean(int);
-    int n_oceans() const { return m_oceans.size(); }
-
-    Road* road(int);
-    int n_roads() const { return m_roads.size(); }
+    int num_hexes() const { return m_num_hexes; }
+    int num_junctions() const { return m_num_junctions; }
+    int num_oceans() const { return m_num_oceans; }
+    int num_roads() const { return m_num_roads; }
+    int num_unflipped_hexes() const { return m_num_unflipped_hexes; }
 
 private:
-    std::vector<Flippable*> m_flippables;
-    std::vector<Hex*> m_hexes;
-    std::vector<Junction*> m_junctions;
-    std::vector<Ocean*> m_oceans;
-    std::vector<Road*> m_roads;
+    bool has_node(const int) const;
+
+    std::map<int, Node*, std::less<>> m_nodes;
+    int m_num_hexes;
+    int m_num_junctions;
+    int m_num_oceans;
+    int m_num_roads;
+    int m_num_unflipped_hexes;
 };
 
 } // namespace Board

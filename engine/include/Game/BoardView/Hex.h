@@ -3,7 +3,7 @@
 #include <optional>
 #include <vector>
 
-#include "Board/Hex.h"
+#include "Board/Node.h"
 #include "Core/Resource.h"
 
 namespace k10engine {
@@ -17,7 +17,7 @@ public:
     AbstractResource resource() { return m_resource; }
     std::optional<int> roll_number() { return m_roll_number; }
 
-    Hex(Board::Hex* node, AbstractResource resource, std::optional<int> roll_number)
+    Hex(Board::Node* node, AbstractResource resource, std::optional<int> roll_number)
         : m_node(node)
         , m_resource(resource)
         , m_roll_number(roll_number)
@@ -25,7 +25,7 @@ public:
     }
 
 private:
-    Board::Hex* m_node;
+    Board::Node* m_node;
     AbstractResource m_resource;
     std::optional<int> m_roll_number;
 };

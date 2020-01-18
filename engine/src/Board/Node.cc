@@ -1,58 +1,60 @@
 #include <assert.h>
 
 #include "Board/Node.h"
+#include "Board/Port.h"
 
 namespace k10engine {
 
 namespace Board {
 
-Node::Node() {}
-
-Node::Node(int index)
-    : m_index(index)
-{
-}
-
 Node::~Node()
 {
-    std::cerr << "called ~Node(" << index() << ")" << std::endl;
     m_edges.clear();
 }
 
-std::ostream& operator<<(std::ostream& cout, Node& n)
+std::ostream& operator<<(std::ostream& os, const Node& node)
 {
-    cout << "Node(" << n.index() << ") {";
-    for (int i = 0; i <= (int)Direction::Clock10; ++i) {
-        auto dir = static_cast<Direction>(i);
-        if (n.has_edge(dir)) {
-            // cout << i << ":Edge(" << n.get_edge(dir)->index() << "),";
+    os << "Node(" << node.index() << ", " << node.type() << ")";
+    return os;
+}
+
+bool Node::has_edge(const Direction d) const
+{
+    return m_edges.find(d) != m_edges.end();
+}
+
+const Node* Node::get_edge(const Direction d) const
+{
+    auto neighbor = m_edges.find(d);
+    if (neighbor == m_edges.end()) {
+        return nullptr;
+    } else {
+        return m_edges.at(d);
+    }
+}
+
+void Node::add_edge(const Direction d, Node* n)
+{
+    assert(!has_edge(d));
+    m_edges[d] = n;
+}
+
+void Node::set_port(const Port* port)
+{
+    assert(port);
+    assert(!m_port);
+    bool connected_to_other_node = false;
+    auto p = const_cast<Port*>(port);
+    for (auto other_node : p->nodes()) {
+        if (other_node == this)
+            continue;
+        for (auto direction : get_directions(p->orientation())) {
+            if (auto first_neighbor = get_edge(direction))
+                if (auto second_neighbor = first_neighbor->get_edge(direction))
+                    connected_to_other_node |= (*second_neighbor == *other_node);
         }
     }
-    cout << "}";
-    return cout;
-}
-
-int Node::index() const
-{
-    return m_index;
-}
-
-bool Node::has_edge(Direction dir)
-{
-    return m_edges.find(dir) != m_edges.end();
-}
-
-Node* Node::get_edge(Direction dir)
-{
-    auto edge = m_edges.find(dir);
-    assert((edge != m_edges.end()));
-    return edge->second;
-}
-
-void Node::add_edge(Direction dir, Node* node)
-{
-    assert(!has_edge(dir));
-    m_edges.insert_or_assign(dir, node);
+    assert(connected_to_other_node);
 }
 
 } // namespace Board

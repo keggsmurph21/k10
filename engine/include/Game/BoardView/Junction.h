@@ -2,7 +2,7 @@
 
 #include <optional>
 
-#include "Board/Junction.h"
+#include "Board/Node.h"
 #include "Core/Resource.h"
 
 namespace k10engine {
@@ -29,7 +29,7 @@ public:
     std::optional<Player*> owner() { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
 
-    Junction(Board::Junction* node, std::optional<ResourceCollection> port_type)
+    Junction(Board::Node* node, std::optional<ResourceCollection> port_type)
         : m_node(node)
         , m_port_type(port_type)
     {
@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    Board::Junction* m_node;
+    Board::Node* m_node;
     bool m_has_settlement;
     bool m_has_city;
     bool m_is_settleable;

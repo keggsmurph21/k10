@@ -2,7 +2,7 @@
 
 #include <optional>
 
-#include "Board/Road.h"
+#include "Board/Node.h"
 #include "Core/Resource.h"
 
 namespace k10engine {
@@ -18,13 +18,13 @@ public:
     std::optional<Player*> owner() { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
 
-    Road(Board::Road* node)
+    Road(Board::Node* node)
         : m_node(node)
     {
     }
 
 private:
-    Board::Road* m_node;
+    Board::Node* m_node;
     std::optional<Player*> m_owner;
 };
 
