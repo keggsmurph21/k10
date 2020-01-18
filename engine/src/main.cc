@@ -7,6 +7,7 @@
 #include "Board/Base.h"
 #include "Board/generated/Portless.h"
 #include "Board/generated/Standard.h"
+#include "Board/generated/Tall.h"
 
 /*
 #include "Board/generated/Standard.h"
@@ -118,6 +119,10 @@ int main(int, char**)
 
     auto portless_board = get_portless_board();
     delete portless_board;
+
+    auto tall_board = get_tall_board();
+    delete tall_board;
+
     /*
     Board::Standard b;
 
