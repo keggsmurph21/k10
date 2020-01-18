@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Board/Base.h"
+#include "Board/generated/Portless.h"
 #include "Board/generated/Standard.h"
 
 /*
@@ -114,6 +115,9 @@ int main(int, char**)
 
     auto standard_board = get_standard_board();
     delete standard_board;
+
+    auto portless_board = get_portless_board();
+    delete portless_board;
     /*
     Board::Standard b;
 
