@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(k10)
 
-include_directories(include)
-
-file(GLOB_RECURSE SOURCES "src/*.cc")
-
 # Generate the Standard.h file
 if (${CMAKE_SOURCE_DIR}/static/boards/Standard.board IS_NEWER_THAN ${CMAKE_SOURCE_DIR}/include/Board/generated/Standard.h)
     execute_process(
@@ -13,6 +9,25 @@ if (${CMAKE_SOURCE_DIR}/static/boards/Standard.board IS_NEWER_THAN ${CMAKE_SOURC
     )
 endif()
 
-add_executable(main ${SOURCES})
-set_property(TARGET main PROPERTY CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
+
+include_directories(include)
+
+add_library(k10 SHARED
+    src/Board/Base.cc
+    src/Board/Graph.cc
+    src/Board/Node.cc
+    src/Board/Orientation.cc
+    src/Core/Random.cc
+    src/Game/Dice.cc
+    src/Game/Game.cc
+    src/Game/Player.cc
+    src/Scenario/Scenario.cc
+)
+target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
+
+link_directories(build)
+link_libraries(k10)
+
+add_executable(main src/main.cc)
 target_compile_options(main PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
