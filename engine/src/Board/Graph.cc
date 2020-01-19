@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <stdexcept>
 
 #include "Board/Graph.h"
 
@@ -16,7 +16,8 @@ Graph::Graph(const NodeList nodes, const EdgeList edges)
     for (auto const& item : nodes) {
         const int index = std::get<0>(item);
         const auto type = std::get<1>(item);
-        assert(!has_node(index));
+        if (has_node(index))
+            throw std::invalid_argument("Cannot add nodes at duplicate indices");
         auto node = new Node(index, type);
         m_nodes[index] = node;
         switch (type) {
@@ -36,15 +37,17 @@ Graph::Graph(const NodeList nodes, const EdgeList edges)
             ++m_num_unflipped_hexes;
             break;
         default:
-            assert(false);
+            throw std::invalid_argument("Unrecognized NodeType");
         }
     }
     for (auto const& item : edges) {
         auto node_0 = node(std::get<0>(item));
         auto node_1 = node(std::get<1>(item));
         const auto direction = std::get<2>(item);
-        assert(node_0);
-        assert(node_1);
+        if (!node_0)
+            throw std::invalid_argument("Cannot add edge: no Node at index");
+        if (!node_1)
+            throw std::invalid_argument("Cannot add edge: no Node at index");
         node_0->add_edge(direction, node_1);
     }
 }

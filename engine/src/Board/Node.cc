@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <stdexcept>
 
 #include "Board/Node.h"
 #include "Board/Port.h"
@@ -35,15 +35,17 @@ const Node* Node::get_edge(const Direction d) const
 
 void Node::add_edge(const Direction d, Node* n)
 {
-    assert(!has_edge(d));
+    if (has_edge(d))
+        throw std::invalid_argument("Node already has neighbor in Direction");
     m_edges[d] = n;
 }
 
 void Node::set_port(const Port* port)
 {
-    assert(port);
-    assert(!m_port);
-    bool connected_to_other_node = false;
+    if (!port)
+        throw std::invalid_argument("Port cannot be nullptr");
+    if (m_port)
+        throw std::invalid_argument("Node already has Port");
     auto p = const_cast<Port*>(port);
     for (auto other_node : p->nodes()) {
         if (other_node == this)
@@ -51,10 +53,11 @@ void Node::set_port(const Port* port)
         for (auto direction : get_directions(p->orientation())) {
             if (auto first_neighbor = get_edge(direction))
                 if (auto second_neighbor = first_neighbor->get_edge(direction))
-                    connected_to_other_node |= (*second_neighbor == *other_node);
+                    if (*second_neighbor == *other_node)
+                        return;
         }
     }
-    assert(connected_to_other_node);
+    throw std::invalid_argument("Node must be 'connected' to other Node in Port");
 }
 
 } // namespace Board

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <assert.h>
 #include <map>
 #include <set>
+#include <stdexcept>
 
 #include "Board/Node.h"
 #include "Board/Orientation.h"
@@ -18,8 +18,10 @@ public:
         , m_orientation(o)
     {
         for (auto node : m_nodes) {
-            assert(node);
-            assert(node->type() == NodeType::Junction);
+            if (!node)
+                throw std::invalid_argument("Node cannot be nullptr");
+            if (node->type() != NodeType::Junction)
+                throw std::invalid_argument("Node must be have NodeType::Junction");
         }
     }
     ~Port() { m_nodes.clear(); }

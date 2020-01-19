@@ -1,5 +1,5 @@
-#include <assert.h>
 #include <iostream>
+#include <stdexcept>
 #include <variant>
 
 #include "Game/Game.h"
@@ -10,7 +10,7 @@ namespace Game {
 
 void Game::roll_dice()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 int Game::get_dice_total()
@@ -35,17 +35,17 @@ bool Game::is_roll_seven()
 
 bool Game::should_wait_for_discard()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Game::should_wait_for_trade()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 int Game::get_round()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 std::optional<Game>
@@ -54,7 +54,7 @@ Game::initialize(Board::Base* board, Scenario::Scenario* scenario, Scenario::Par
     (void)board;
     (void)scenario;
     (void)parameters;
-    assert(false);
+    throw std::invalid_argument("Not implemented");
     /*
     if (!scenario->is_valid(parameters))
         return std::nullopt;
@@ -120,14 +120,11 @@ Game::initialize(Board::Base* board, Scenario::Scenario* scenario, Scenario::Par
     }
 
     std::cout << "got to end" << std::endl;
-    assert(false);
+    throw std::invalid_argument("Not implemented");
     */
 }
 
-Game::~Game()
-{
-    assert(false);
-}
+Game::~Game() {}
 
 } // namespace Game
 

@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <stdexcept>
 
 #include "Board/Orientation.h"
 
@@ -19,7 +19,7 @@ Orientation get_orientation(Direction d)
     case Direction::Clock10:
         return Orientation::Clock4Clock10;
     default:
-        assert(false);
+        throw std::invalid_argument("Unrecognized Direction");
     }
 }
 
@@ -33,7 +33,7 @@ const std::set<Direction> get_directions(Orientation o)
     case Orientation::Clock4Clock10:
         return { Direction::Clock4, Direction::Clock10 };
     default:
-        assert(false);
+        throw std::invalid_argument("Unrecognized Orientation");
     }
 }
 
@@ -53,7 +53,7 @@ Direction get_opposite(Direction d)
     case Direction::Clock10:
         return Direction::Clock4;
     default:
-        assert(false);
+        throw std::invalid_argument("Unrecognized Direction");
     }
 }
 

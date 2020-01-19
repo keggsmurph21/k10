@@ -1,5 +1,3 @@
-#include <assert.h>
-
 #include "Board/Base.h"
 
 namespace k10engine {

@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <assert.h>
+#include <stdexcept>
 
 #include "Core/Random.h"
 #include "Scenario/Scenario.h"
@@ -15,12 +15,12 @@ bool Scenario::is_valid(Building b)
 
 std::optional<ResourceCounts> Scenario::cost(Building)
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 std::optional<int> Scenario::max_count(Building)
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Scenario::is_valid(DevelopmentCard d)
@@ -30,7 +30,7 @@ bool Scenario::is_valid(DevelopmentCard d)
 
 std::optional<int> Scenario::count(DevelopmentCard)
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Scenario::is_valid(AbstractResource r)
@@ -53,7 +53,7 @@ std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType t
         std::shuffle(deck.begin(), deck.end(), Random::rng());
         return deck;
     } else {
-        assert(false);
+        throw std::invalid_argument("Unrecognized IterationType");
     }
 }
 
@@ -72,7 +72,7 @@ std::vector<AbstractResource> Scenario::get_resources(IterationType type)
         std::shuffle(resources.begin(), resources.end(), Random::rng());
         return resources;
     } else {
-        assert(false);
+        throw std::invalid_argument("Unrecognized IterationType");
     }
 }
 
@@ -87,7 +87,7 @@ std::vector<ResourceCollection> Scenario::get_ports(IterationType type)
         std::shuffle(ports.begin(), ports.end(), Random::rng());
         return ports;
     } else {
-        assert(false);
+        throw std::invalid_argument("Unrecognized IterationType");
     }
 }
 
@@ -102,7 +102,7 @@ std::vector<int> Scenario::get_rolls(IterationType type)
         std::shuffle(rolls.begin(), rolls.end(), Random::rng());
         return rolls;
     } else {
-        assert(false);
+        throw std::invalid_argument("Unrecognized IterationType");
     }
 }
 

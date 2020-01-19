@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <stdexcept>
 
 #include "Game/Player.h"
 
@@ -38,77 +38,77 @@ Flags Player::get_flags()
 
 bool Player::has_heavy_purse()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_build_city()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_build_road()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_build_settlement()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_buy_development_card()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_play_knight()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_play_monopoly()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_play_road_building()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_play_victory_point()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_play_year_of_plenty()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_trade()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_trade_with_bank()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::is_current_player()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::is_blocking()
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 bool Player::can_afford(ResourceCounts)
 {
-    assert(false);
+    throw std::invalid_argument("Not implemented");
 }
 
 } // namespace Game
