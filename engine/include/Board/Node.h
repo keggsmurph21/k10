@@ -26,6 +26,9 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Node&);
 
+    bool operator<(Node other) { return index() < other.index(); }
+    bool operator<(const Node other) const { return index() < other.index(); }
+
     bool operator==(Node other) { return index() == other.index() && type() == other.type(); }
     bool operator==(const Node other) const
     {
