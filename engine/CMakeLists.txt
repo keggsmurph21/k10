@@ -31,3 +31,7 @@ link_libraries(k10)
 
 add_executable(main src/main.cc)
 target_compile_options(main PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
+
+FILE(GLOB k10_TEST_SOURCES src/*/Test/*.cc)
+add_executable(test_ ${k10_TEST_SOURCES} src/test.cc)
+target_compile_options(test_ PRIVATE -Werror)
