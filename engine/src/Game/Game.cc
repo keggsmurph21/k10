@@ -10,7 +10,7 @@ namespace Game {
 
 void Game::roll_dice()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Game::roll_dice");
 }
 
 int Game::get_dice_total()
@@ -35,17 +35,17 @@ bool Game::is_roll_seven()
 
 bool Game::should_wait_for_discard()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Game::should_wait_for_discard");
 }
 
 bool Game::should_wait_for_trade()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Game::should_wait_for_trade");
 }
 
 int Game::get_round()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Game::get_round");
 }
 
 Game* Game::initialize(Board::Base* board,
@@ -55,7 +55,7 @@ Game* Game::initialize(Board::Base* board,
     (void)board;
     (void)scenario;
     (void)parameters;
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Game::initialize");
     /*
     if (!scenario->is_valid(parameters))
         return std::nullopt;

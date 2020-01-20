@@ -15,12 +15,12 @@ bool Scenario::is_valid(Building b)
 
 std::optional<ResourceCounts> Scenario::cost(Building)
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Scenario::cost");
 }
 
 std::optional<int> Scenario::max_count(Building)
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Scenario::max_count");
 }
 
 bool Scenario::is_valid(DevelopmentCard d)
@@ -30,7 +30,7 @@ bool Scenario::is_valid(DevelopmentCard d)
 
 std::optional<int> Scenario::count(DevelopmentCard)
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Scenario::count");
 }
 
 bool Scenario::is_valid(AbstractResource r)

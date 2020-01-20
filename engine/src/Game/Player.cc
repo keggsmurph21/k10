@@ -38,77 +38,77 @@ Flags Player::get_flags()
 
 bool Player::has_heavy_purse()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::has_heavy_purse");
 }
 
 bool Player::can_build_city()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_build_city");
 }
 
 bool Player::can_build_road()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_build_road");
 }
 
 bool Player::can_build_settlement()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_build_settlement");
 }
 
 bool Player::can_buy_development_card()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_buy_development_card");
 }
 
 bool Player::can_play_knight()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_play_knight");
 }
 
 bool Player::can_play_monopoly()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_play_monopoly");
 }
 
 bool Player::can_play_road_building()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_play_road_building");
 }
 
 bool Player::can_play_victory_point()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_play_victory_point");
 }
 
 bool Player::can_play_year_of_plenty()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_play_year_of_plenty");
 }
 
 bool Player::can_trade()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_trade");
 }
 
 bool Player::can_trade_with_bank()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_trade_with_bank");
 }
 
 bool Player::is_current_player()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::is_current_player");
 }
 
 bool Player::is_blocking()
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::is_blocking");
 }
 
 bool Player::can_afford(ResourceCounts)
 {
-    throw std::invalid_argument("Not implemented");
+    throw std::invalid_argument("Not implemented: Player::can_afford");
 }
 
 } // namespace Game
