@@ -1,7 +1,6 @@
 #pragma once
 
 #include <list>
-#include <optional>
 #include <vector>
 
 #include "Board/Base.h"
@@ -52,7 +51,7 @@ public:
     int largest_army();
     int longest_road();
 
-    static std::optional<Game> initialize(Board::Base*, Scenario::Scenario*, Scenario::Parameters*);
+    static Game* initialize(Board::Base*, Scenario::Scenario*, Scenario::Parameters*);
     ~Game();
 
 private:

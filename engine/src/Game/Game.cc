@@ -48,8 +48,9 @@ int Game::get_round()
     throw std::invalid_argument("Not implemented");
 }
 
-std::optional<Game>
-Game::initialize(Board::Base* board, Scenario::Scenario* scenario, Scenario::Parameters* parameters)
+Game* Game::initialize(Board::Base* board,
+                       Scenario::Scenario* scenario,
+                       Scenario::Parameters* parameters)
 {
     (void)board;
     (void)scenario;
