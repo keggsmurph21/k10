@@ -15,14 +15,14 @@ TEST_CASE("Graph initialization", "[Board][Board.Graph]")
 
     SECTION("Trivial")
     {
-        auto const g = Graph({}, {}, {});
+        const auto g = Graph({}, {}, {});
         REQUIRE(g.size() == 0);
         REQUIRE(g.node(0) == nullptr);
     }
 
     SECTION("1 ocean, no edges")
     {
-        auto const g = Graph({ NodeType::Ocean }, {}, {});
+        const auto g = Graph({ NodeType::Ocean }, {}, {});
         auto n = g.node(0);
         REQUIRE(n != nullptr);
         REQUIRE(n->index() == 0);
@@ -56,7 +56,7 @@ TEST_CASE("Graph initialization", "[Board][Board.Graph]")
 
     SECTION("2 nodes, 1 edge")
     {
-        auto const g =
+        const auto g =
             Graph({ NodeType::Ocean, NodeType::Junction }, { { 0, 1, Direction::Clock2 } }, {});
         auto n0 = g.node(0);
         REQUIRE(n0 != nullptr);

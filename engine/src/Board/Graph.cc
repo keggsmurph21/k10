@@ -42,7 +42,7 @@ Graph::Graph(const _NodeSpecs node_specs, const _EdgeSpecs edge_specs, const _Po
         m_nodes.push_back(node);
         ++index;
     }
-    for (auto const& edge_spec : edge_specs) {
+    for (const auto& edge_spec : edge_specs) {
         const auto node_0 = node(std::get<0>(edge_spec));
         const auto node_1 = node(std::get<1>(edge_spec));
         const auto direction = std::get<2>(edge_spec);
@@ -56,8 +56,8 @@ Graph::Graph(const _NodeSpecs node_specs, const _EdgeSpecs edge_specs, const _Po
         m_edges[key] = node_1;
     }
     for (auto port_spec : port_specs) {
-        auto const node_0 = node(std::get<0>(port_spec));
-        auto const node_1 = node(std::get<1>(port_spec));
+        const auto node_0 = node(std::get<0>(port_spec));
+        const auto node_1 = node(std::get<1>(port_spec));
         const auto orientation = std::get<2>(port_spec);
         if (!nodes_can_make_port(node_0, node_1, orientation)) {
             goto clean_up_failed_construction;
