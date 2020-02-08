@@ -8,40 +8,54 @@ namespace k10engine {
 
 namespace Scenario {
 
-bool Scenario::is_valid(Building b)
+bool Scenario::is_valid(Building building) const
 {
-    return m_building_costs.find(b) != m_building_costs.end();
+    return m_building_costs.find(building) != m_building_costs.end();
 }
 
-std::optional<ResourceCounts> Scenario::cost(Building building)
+std::optional<ResourceCounts> Scenario::cost(Building building) const
 {
-    (void)building;
-    throw std::invalid_argument("Not implemented: Scenario::cost");
+    if (!is_valid(building)) {
+        return std::nullopt;
+    }
+    return m_building_costs.at(building);
 }
 
-std::optional<int> Scenario::max_count(Building building)
+std::optional<int> Scenario::max_count(Building building) const
 {
-    (void)building;
-    throw std::invalid_argument("Not implemented: Scenario::max_count");
+    if (!is_valid(building)) {
+        return std::nullopt;
+    }
+    return m_building_max_counts.at(building);
 }
 
-bool Scenario::is_valid(DevelopmentCard d)
+bool Scenario::is_valid(DevelopmentCard development_card) const
 {
-    return m_development_card_counts.find(d) != m_development_card_counts.end();
+    return m_development_card_counts.find(development_card) != m_development_card_counts.end();
 }
 
-std::optional<int> Scenario::count(DevelopmentCard development_card)
+std::optional<int> Scenario::count(DevelopmentCard development_card) const
 {
-    (void)development_card;
-    throw std::invalid_argument("Not implemented: Scenario::count");
+    if (!is_valid(development_card)) {
+        return std::nullopt;
+    }
+    return m_development_card_counts.at(development_card);
 }
 
-bool Scenario::is_valid(AbstractResource r)
+bool Scenario::is_valid(AbstractResource resource) const
 {
-    return m_resource_counts.find(r) != m_resource_counts.end();
+    return m_resource_counts.find(resource) != m_resource_counts.end();
 }
 
-std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType type)
+std::optional<int> Scenario::count(AbstractResource resource) const
+{
+    if (!is_valid(resource)) {
+        return std::nullopt;
+    }
+    return m_resource_counts.at(resource);
+}
+
+std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType type) const
 {
     std::vector<DevelopmentCard> deck;
     for (const auto& item : m_development_card_counts) {
@@ -62,7 +76,7 @@ std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType t
     }
 }
 
-std::vector<AbstractResource> Scenario::get_resources(IterationType type)
+std::vector<AbstractResource> Scenario::get_resources(IterationType type) const
 {
     std::vector<AbstractResource> resources;
     for (const auto& item : m_resource_counts) {
@@ -83,7 +97,7 @@ std::vector<AbstractResource> Scenario::get_resources(IterationType type)
     }
 }
 
-std::vector<ResourceCollection> Scenario::get_ports(IterationType type)
+std::vector<ResourceCollection> Scenario::get_ports(IterationType type) const
 {
     std::vector<ResourceCollection> ports(m_ports.size());
     for (const auto& port_type : m_ports) {
@@ -100,7 +114,7 @@ std::vector<ResourceCollection> Scenario::get_ports(IterationType type)
     }
 }
 
-std::vector<int> Scenario::get_rolls(IterationType type)
+std::vector<int> Scenario::get_rolls(IterationType type) const
 {
     std::vector<int> rolls(m_rolls.size());
     for (const auto& roll : m_rolls) {
@@ -126,7 +140,7 @@ Scenario::~Scenario()
     m_ports.clear();
 }
 
-bool Scenario::is_valid(Parameters* parameters)
+bool Scenario::is_valid(Parameters* parameters) const
 {
     return parameters->players_count >= min_players_count()
            && parameters->players_count <= max_players_count()

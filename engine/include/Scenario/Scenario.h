@@ -23,31 +23,35 @@ using Counts = std::map<T, int, std::less<T>>;
 
 class Scenario {
 public:
-    int min_players_count() { return m_min_players_count; }
-    int max_players_count() { return m_max_players_count; }
-    int min_victory_points_goal() { return m_min_victory_points_goal; }
-    int max_victory_points_goal() { return m_max_victory_points_goal; }
+    int min_players_count() const { return m_min_players_count; }
+    int max_players_count() const { return m_max_players_count; }
+    int min_victory_points_goal() const { return m_min_victory_points_goal; }
+    int max_victory_points_goal() const { return m_max_victory_points_goal; }
 
-    bool is_valid(Building);
-    Costs<Building>* building_costs() { return &m_building_costs; }
-    std::optional<ResourceCounts> cost(Building);
-    Counts<Building>* building_max_counts() { return &m_building_max_counts; }
-    std::optional<int> max_count(Building);
+    bool is_valid(Building) const;
+    const Costs<Building> building_costs() const { return m_building_costs; }
+    std::optional<ResourceCounts> cost(Building) const;
+    const Counts<Building> building_max_counts() const { return m_building_max_counts; }
+    std::optional<int> max_count(Building) const;
 
-    bool is_valid(DevelopmentCard);
-    Counts<DevelopmentCard>* development_card_counts() { return &m_development_card_counts; }
-    std::optional<int> count(DevelopmentCard);
+    bool is_valid(DevelopmentCard) const;
+    const Counts<DevelopmentCard> development_card_counts() const
+    {
+        return m_development_card_counts;
+    }
+    std::optional<int> count(DevelopmentCard) const;
 
-    bool is_valid(AbstractResource);
-    Counts<AbstractResource>* resource_counts() { return &m_resource_counts; }
-    std::optional<int> count(AbstractResource);
+    bool is_valid(AbstractResource) const;
+    const Counts<AbstractResource> resource_counts() const { return m_resource_counts; }
+    std::optional<int> count(AbstractResource) const;
 
-    std::vector<DevelopmentCard> get_development_card_deck(IterationType); // gets a fresh copy
-    std::vector<ResourceCollection> get_ports(IterationType);              // gets a fresh copy
-    std::vector<AbstractResource> get_resources(IterationType);            // gets a fresh copy
-    std::vector<int> get_rolls(IterationType);                             // gets a fresh copy
+    std::vector<DevelopmentCard>
+        get_development_card_deck(IterationType) const;               // gets a fresh copy
+    std::vector<ResourceCollection> get_ports(IterationType) const;   // gets a fresh copy
+    std::vector<AbstractResource> get_resources(IterationType) const; // gets a fresh copy
+    std::vector<int> get_rolls(IterationType) const;                  // gets a fresh copy
 
-    bool is_valid(Parameters*);
+    bool is_valid(Parameters*) const;
 
     Scenario(int min_players_count,
              int max_players_count,
@@ -74,10 +78,10 @@ public:
     ~Scenario();
 
 protected:
-    int m_min_players_count = -1;
-    int m_max_players_count = -1;
-    int m_min_victory_points_goal = -1;
-    int m_max_victory_points_goal = -1;
+    int m_min_players_count;
+    int m_max_players_count;
+    int m_min_victory_points_goal;
+    int m_max_victory_points_goal;
 
     Costs<Building> m_building_costs;
     Counts<Building> m_building_max_counts;
