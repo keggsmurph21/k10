@@ -6,7 +6,7 @@ namespace Game {
 
 class Dice {
 public:
-    Dice();
+    Dice() {}
     void roll();
     int get_total();
 

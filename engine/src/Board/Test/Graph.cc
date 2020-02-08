@@ -6,7 +6,9 @@
 #include "Board/generated/Tall.h"
 #include "Test/catch.h"
 
-using namespace k10engine::Board;
+namespace k10engine {
+
+namespace Board {
 
 TEST_CASE("Graph initialization", "[Board][Board.Graph]")
 {
@@ -143,3 +145,7 @@ TEST_CASE("Loading generated boards", "[Board][Board.Graph]")
         delete g;
     }
 }
+
+} // namespace Board
+
+} // namespace k10engine

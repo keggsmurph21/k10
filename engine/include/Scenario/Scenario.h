@@ -41,9 +41,9 @@ public:
     }
     std::optional<int> count(DevelopmentCard) const;
 
-    bool is_valid(AbstractResource) const;
+    bool is_valid(const AbstractResource&) const;
     const Counts<AbstractResource> resource_counts() const { return m_resource_counts; }
-    std::optional<int> count(AbstractResource) const;
+    std::optional<int> count(const AbstractResource&) const;
 
     std::vector<DevelopmentCard>
         get_development_card_deck(IterationType) const;               // gets a fresh copy

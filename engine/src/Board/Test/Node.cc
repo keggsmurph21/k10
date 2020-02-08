@@ -1,7 +1,9 @@
 #include "Board/Node.h"
 #include "Test/catch.h"
 
-using namespace k10engine::Board;
+namespace k10engine {
+
+namespace Board {
 
 TEST_CASE("Node initialization", "[Board][Board.Node]")
 {
@@ -12,3 +14,7 @@ TEST_CASE("Node initialization", "[Board][Board.Node]")
         REQUIRE(node.type() == NodeType::Ocean);
     }
 }
+
+} // namespace Board
+
+} // namespace k10engine

@@ -114,7 +114,7 @@ Graph& Graph::operator=(const Graph& other)
 
 const Node* Graph::node(const int index) const
 {
-    if (0 <= index && index < (int)m_nodes.size()) {
+    if (0 <= index && index < static_cast<int>(m_nodes.size())) {
         return m_nodes.at(index);
     }
     return nullptr;

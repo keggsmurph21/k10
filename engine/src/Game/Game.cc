@@ -57,9 +57,13 @@ Game* Game::initialize(Board::Graph* graph,
     }
 
     auto deck = scenario->get_development_card_deck(parameters->development_card_iteration_type);
+    (void)deck;
     auto ports = scenario->get_ports(parameters->port_iteration_type);
+    (void)ports;
     auto resources = scenario->get_resources(parameters->resource_iteration_type);
+    (void)resources;
     auto rolls = scenario->get_rolls(parameters->roll_iteration_type);
+    (void)rolls;
 
     for (const auto node : *graph) {
         std::cout << node->type() << std::endl;
@@ -127,8 +131,6 @@ Game* Game::initialize(Board::Graph* graph,
     throw std::invalid_argument("Not implemented");
     */
 }
-
-Game::~Game() {}
 
 } // namespace Game
 

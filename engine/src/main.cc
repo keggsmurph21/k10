@@ -8,11 +8,9 @@
 #include "Game/Game.h"
 #include "Scenario/Scenario.h"
 
-using namespace k10engine;
-
 int main(int /* unused */, char** /* unused */)
 {
-    auto b = Board::Graph({}, {}, {});
+    auto b = k10engine::Board::Graph({}, {}, {});
 
     /*
     Scenario::Costs<Building> building_costs;

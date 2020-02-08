@@ -42,12 +42,12 @@ std::optional<int> Scenario::count(DevelopmentCard development_card) const
     return m_development_card_counts.at(development_card);
 }
 
-bool Scenario::is_valid(AbstractResource resource) const
+bool Scenario::is_valid(const AbstractResource& resource) const
 {
     return m_resource_counts.find(resource) != m_resource_counts.end();
 }
 
-std::optional<int> Scenario::count(AbstractResource resource) const
+std::optional<int> Scenario::count(const AbstractResource& resource) const
 {
     if (!is_valid(resource)) {
         return std::nullopt;

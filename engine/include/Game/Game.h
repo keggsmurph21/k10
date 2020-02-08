@@ -52,7 +52,7 @@ public:
     int longest_road();
 
     static Game* initialize(Board::Graph*, Scenario::Scenario*, Scenario::Parameters*);
-    ~Game();
+    ~Game() = default;
 
 private:
     Game();

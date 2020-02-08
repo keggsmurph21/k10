@@ -4,8 +4,11 @@
 #include "Scenario/Scenario.h"
 #include "Test/catch.h"
 
-using namespace k10engine::Scenario;
+namespace k10engine {
 
+namespace Scenario {
+
+// NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
 TEST_CASE("Scenario initialization", "[Scenario]")
 {
     SECTION("Trivial")
@@ -219,12 +222,12 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             REQUIRE(s.cost(k10engine::Building::DevelopmentCard).has_value());
             REQUIRE(s.cost(k10engine::Building::Road).has_value());
             REQUIRE(s.cost(k10engine::Building::Settlement).has_value());
-            for (const auto resource_cost_spec : costs) {
+            for (const auto& resource_cost_spec : costs) {
                 const auto building_type = resource_cost_spec.first;
                 const auto actual_cost = resource_cost_spec.second;
-                const auto expected_cost = costs.at(building_type);
+                const auto& expected_cost = costs.at(building_type);
                 REQUIRE(actual_cost.size() == expected_cost.size());
-                for (const auto it : actual_cost) {
+                for (const auto& it : actual_cost) {
                     const auto actual_resource_type = it.first;
                     const auto actual_resource_cost = it.second;
                     REQUIRE(expected_cost.at(actual_resource_type) == actual_resource_cost);
@@ -235,3 +238,7 @@ TEST_CASE("Scenario initialization", "[Scenario]")
 }
 
 TEST_CASE("Parameter validation", "[Scenario]") {}
+
+} // namespace Scenario
+
+} // namespace k10engine
