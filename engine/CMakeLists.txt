@@ -24,13 +24,13 @@ add_library(k10 SHARED
     src/Game/Player.cc
     src/Scenario/Scenario.cc
 )
-target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g -fsanitize=address)
+target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
 
 link_directories(build)
-link_libraries(k10 -fsanitize=address)
+link_libraries(k10)
 
 add_executable(main src/main.cc)
-target_compile_options(main PRIVATE -Werror -Wall -Wextra -pedantic-errors -g -fsanitize=address)
+target_compile_options(main PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
 
 add_executable(test_
     src/test.cc
