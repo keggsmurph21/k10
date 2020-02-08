@@ -37,5 +37,6 @@ add_executable(test_
     src/Board/Test/Graph.cc
     src/Board/Test/Node.cc
     src/Board/Test/Port.cc
+    src/Scenario/Test/Scenario.cc
 )
 target_compile_options(test_ PRIVATE -Werror -g)
