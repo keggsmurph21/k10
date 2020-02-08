@@ -30,26 +30,26 @@ public:
 
     bool is_valid(Building) const;
     const Costs<Building> building_costs() const { return m_building_costs; }
-    std::optional<ResourceCounts> cost(Building) const;
-    const Counts<Building> building_max_counts() const { return m_building_max_counts; }
-    std::optional<int> max_count(Building) const;
+    const std::optional<ResourceCounts> cost(Building) const;
+    const Counts<Building> building_counts() const { return m_building_counts; }
+    int count(Building) const;
 
     bool is_valid(DevelopmentCard) const;
     const Counts<DevelopmentCard> development_card_counts() const
     {
         return m_development_card_counts;
     }
-    std::optional<int> count(DevelopmentCard) const;
+    int count(DevelopmentCard) const;
 
     bool is_valid(const AbstractResource&) const;
     const Counts<AbstractResource> resource_counts() const { return m_resource_counts; }
-    std::optional<int> count(const AbstractResource&) const;
+    int count(const AbstractResource&) const;
 
-    std::vector<DevelopmentCard>
-        get_development_card_deck(IterationType) const;               // gets a fresh copy
-    std::vector<ResourceCollection> get_ports(IterationType) const;   // gets a fresh copy
-    std::vector<AbstractResource> get_resources(IterationType) const; // gets a fresh copy
-    std::vector<int> get_rolls(IterationType) const;                  // gets a fresh copy
+    const std::vector<DevelopmentCard>
+        get_development_card_deck(IterationType) const;                     // gets a fresh copy
+    const std::vector<ResourceCollection> get_ports(IterationType) const;   // gets a fresh copy
+    const std::vector<AbstractResource> get_resources(IterationType) const; // gets a fresh copy
+    const std::vector<int> get_rolls(IterationType) const;                  // gets a fresh copy
 
     bool is_valid(Parameters*) const;
 
@@ -58,7 +58,7 @@ public:
              int min_victory_points_goal,
              int max_victory_points_goal,
              Costs<Building> building_costs,
-             Counts<Building> building_max_counts,
+             Counts<Building> building_counts,
              Counts<DevelopmentCard> development_card_counts,
              Counts<AbstractResource> resource_counts,
              std::vector<int> rolls,
@@ -68,7 +68,7 @@ public:
         , m_min_victory_points_goal(min_victory_points_goal)
         , m_max_victory_points_goal(max_victory_points_goal)
         , m_building_costs(building_costs)
-        , m_building_max_counts(building_max_counts)
+        , m_building_counts(building_counts)
         , m_development_card_counts(development_card_counts)
         , m_resource_counts(resource_counts)
         , m_rolls(rolls)
@@ -84,7 +84,7 @@ protected:
     int m_max_victory_points_goal;
 
     Costs<Building> m_building_costs;
-    Counts<Building> m_building_max_counts;
+    Counts<Building> m_building_counts;
     Counts<DevelopmentCard> m_development_card_counts;
     Counts<AbstractResource> m_resource_counts;
     std::vector<int> m_rolls;

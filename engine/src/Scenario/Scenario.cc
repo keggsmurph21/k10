@@ -13,7 +13,7 @@ bool Scenario::is_valid(Building building) const
     return m_building_costs.find(building) != m_building_costs.end();
 }
 
-std::optional<ResourceCounts> Scenario::cost(Building building) const
+const std::optional<ResourceCounts> Scenario::cost(Building building) const
 {
     if (!is_valid(building)) {
         return std::nullopt;
@@ -21,12 +21,12 @@ std::optional<ResourceCounts> Scenario::cost(Building building) const
     return m_building_costs.at(building);
 }
 
-std::optional<int> Scenario::max_count(Building building) const
+int Scenario::count(Building building) const
 {
     if (!is_valid(building)) {
-        return std::nullopt;
+        return 0;
     }
-    return m_building_max_counts.at(building);
+    return m_building_counts.at(building);
 }
 
 bool Scenario::is_valid(DevelopmentCard development_card) const
@@ -34,10 +34,10 @@ bool Scenario::is_valid(DevelopmentCard development_card) const
     return m_development_card_counts.find(development_card) != m_development_card_counts.end();
 }
 
-std::optional<int> Scenario::count(DevelopmentCard development_card) const
+int Scenario::count(DevelopmentCard development_card) const
 {
     if (!is_valid(development_card)) {
-        return std::nullopt;
+        return 0;
     }
     return m_development_card_counts.at(development_card);
 }
@@ -47,15 +47,15 @@ bool Scenario::is_valid(const AbstractResource& resource) const
     return m_resource_counts.find(resource) != m_resource_counts.end();
 }
 
-std::optional<int> Scenario::count(const AbstractResource& resource) const
+int Scenario::count(const AbstractResource& resource) const
 {
     if (!is_valid(resource)) {
-        return std::nullopt;
+        return 0;
     }
     return m_resource_counts.at(resource);
 }
 
-std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType type) const
+const std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType type) const
 {
     std::vector<DevelopmentCard> deck;
     for (const auto& item : m_development_card_counts) {
@@ -76,7 +76,7 @@ std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType t
     }
 }
 
-std::vector<AbstractResource> Scenario::get_resources(IterationType type) const
+const std::vector<AbstractResource> Scenario::get_resources(IterationType type) const
 {
     std::vector<AbstractResource> resources;
     for (const auto& item : m_resource_counts) {
@@ -97,9 +97,9 @@ std::vector<AbstractResource> Scenario::get_resources(IterationType type) const
     }
 }
 
-std::vector<ResourceCollection> Scenario::get_ports(IterationType type) const
+const std::vector<ResourceCollection> Scenario::get_ports(IterationType type) const
 {
-    std::vector<ResourceCollection> ports(m_ports.size());
+    std::vector<ResourceCollection> ports;
     for (const auto& port_type : m_ports) {
         ports.push_back(port_type);
     }
@@ -114,9 +114,9 @@ std::vector<ResourceCollection> Scenario::get_ports(IterationType type) const
     }
 }
 
-std::vector<int> Scenario::get_rolls(IterationType type) const
+const std::vector<int> Scenario::get_rolls(IterationType type) const
 {
-    std::vector<int> rolls(m_rolls.size());
+    std::vector<int> rolls;
     for (const auto& roll : m_rolls) {
         rolls.push_back(roll);
     }
@@ -134,7 +134,7 @@ std::vector<int> Scenario::get_rolls(IterationType type) const
 Scenario::~Scenario()
 {
     m_building_costs.clear();
-    m_building_max_counts.clear();
+    m_building_counts.clear();
     m_development_card_counts.clear();
     m_resource_counts.clear();
     m_ports.clear();
