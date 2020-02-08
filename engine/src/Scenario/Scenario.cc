@@ -13,13 +13,15 @@ bool Scenario::is_valid(Building b)
     return m_building_costs.find(b) != m_building_costs.end();
 }
 
-std::optional<ResourceCounts> Scenario::cost(Building)
+std::optional<ResourceCounts> Scenario::cost(Building building)
 {
+    (void)building;
     throw std::invalid_argument("Not implemented: Scenario::cost");
 }
 
-std::optional<int> Scenario::max_count(Building)
+std::optional<int> Scenario::max_count(Building building)
 {
+    (void)building;
     throw std::invalid_argument("Not implemented: Scenario::max_count");
 }
 
@@ -28,8 +30,9 @@ bool Scenario::is_valid(DevelopmentCard d)
     return m_development_card_counts.find(d) != m_development_card_counts.end();
 }
 
-std::optional<int> Scenario::count(DevelopmentCard)
+std::optional<int> Scenario::count(DevelopmentCard development_card)
 {
+    (void)development_card;
     throw std::invalid_argument("Not implemented: Scenario::count");
 }
 
@@ -44,15 +47,17 @@ std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType t
     for (const auto& item : m_development_card_counts) {
         auto development_card = item.first;
         auto count = item.second;
-        for (int i = 0; i < count; ++i)
+        for (int i = 0; i < count; ++i) {
             deck.push_back(development_card);
+        }
     }
-    if (type == IterationType::Fixed) {
+    switch (type) {
+    case IterationType::Fixed:
         return deck;
-    } else if (type == IterationType::Random) {
+    case IterationType::Random:
         std::shuffle(deck.begin(), deck.end(), Random::rng());
         return deck;
-    } else {
+    default:
         throw std::invalid_argument("Unrecognized IterationType");
     }
 }
@@ -63,15 +68,17 @@ std::vector<AbstractResource> Scenario::get_resources(IterationType type)
     for (const auto& item : m_resource_counts) {
         auto resource = item.first;
         auto count = item.second;
-        for (int i = 0; i < count; ++i)
+        for (int i = 0; i < count; ++i) {
             resources.push_back(resource);
+        }
     }
-    if (type == IterationType::Fixed) {
+    switch (type) {
+    case IterationType::Fixed:
         return resources;
-    } else if (type == IterationType::Random) {
+    case IterationType::Random:
         std::shuffle(resources.begin(), resources.end(), Random::rng());
         return resources;
-    } else {
+    default:
         throw std::invalid_argument("Unrecognized IterationType");
     }
 }
@@ -79,14 +86,16 @@ std::vector<AbstractResource> Scenario::get_resources(IterationType type)
 std::vector<ResourceCollection> Scenario::get_ports(IterationType type)
 {
     std::vector<ResourceCollection> ports(m_ports.size());
-    for (const auto& port_type : m_ports)
+    for (const auto& port_type : m_ports) {
         ports.push_back(port_type);
-    if (type == IterationType::Fixed) {
+    }
+    switch (type) {
+    case IterationType::Fixed:
         return ports;
-    } else if (type == IterationType::Random) {
+    case IterationType::Random:
         std::shuffle(ports.begin(), ports.end(), Random::rng());
         return ports;
-    } else {
+    default:
         throw std::invalid_argument("Unrecognized IterationType");
     }
 }
@@ -94,14 +103,16 @@ std::vector<ResourceCollection> Scenario::get_ports(IterationType type)
 std::vector<int> Scenario::get_rolls(IterationType type)
 {
     std::vector<int> rolls(m_rolls.size());
-    for (const auto& roll : m_rolls)
+    for (const auto& roll : m_rolls) {
         rolls.push_back(roll);
-    if (type == IterationType::Fixed) {
+    }
+    switch (type) {
+    case IterationType::Fixed:
         return rolls;
-    } else if (type == IterationType::Random) {
+    case IterationType::Random:
         std::shuffle(rolls.begin(), rolls.end(), Random::rng());
         return rolls;
-    } else {
+    default:
         throw std::invalid_argument("Unrecognized IterationType");
     }
 }

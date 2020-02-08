@@ -25,6 +25,9 @@ class Position:
     def __str__(self):
         return f"Direction::Clock{self.num}"
 
+    def opposite(self):
+        return Position((self.num + 6) % 12 or 12, -self.dx, -self.dy)
+
 
 class Node:
     char = None
@@ -60,18 +63,22 @@ class Whitespace(Node):
 
 class Ocean(Node):
     char = "o"
+    node_type = "Ocean"
 
 
 class Hex(Node):
     char = "h"
+    node_type = "Hex"
 
 
 class UnflippedHex(Node):
     char = "?"
+    node_type = "UnflippedHex"
 
 
 class Junction(Node):
     char = "."
+    node_type = "Junction"
 
     def __init__(self, num, x, y):
         super().__init__(num, x, y)
@@ -89,6 +96,7 @@ class Junction(Node):
 
 class Port(Junction):
     char = "p"
+    node_type = "Junction"
 
     def __init__(self, num, x, y):
         super().__init__(num, x, y)
@@ -105,6 +113,9 @@ class Port(Junction):
 
 
 class Road(Node):
+    char = "r"
+    node_type = "Road"
+
     def __init__(self, num, x, y, orientation):
         super().__init__(num, x, y)
         self.char = self.orientation = orientation
@@ -132,11 +143,7 @@ class Board:
         self.board_file = os.path.join(src_dir, name + ".board")
         self.cpp_file = os.path.join(tar_dir, name + ".h")
 
-        self.junctions = []
-        self.roads = []
-        self.hexes = []
-        self.unflipped_hexes = []
-        self.oceans = []
+        self.tokens = []
         self.ports = []
 
         with open(self.board_file) as fp:
@@ -161,77 +168,48 @@ class Board:
                         continue
                     elif ch == ".":
                         token = Junction(num, x, y)
-                        self.junctions.append(token)
+                        self.tokens.append(token)
                     elif ch == "p":
                         token = Port(num, x, y)
-                        self.junctions.append(token)
                         self.ports.append(token)
+                        self.tokens.append(token)
                     elif ch == "o":
                         token = Ocean(num, x, y)
-                        self.oceans.append(token)
+                        self.tokens.append(token)
                     elif ch == "h":
                         token = Hex(num, x, y)
-                        self.hexes.append(token)
+                        self.tokens.append(token)
                     elif ch == "?":
                         token = UnflippedHex(num, x, y)
-                        self.unflipped_hexes.append(token)
+                        self.tokens.append(token)
                     elif ch in ("|", "/", "\\"):
                         token = Road(num, x, y, ch)
-                        self.roads.append(token)
+                        self.tokens.append(token)
                     else:
                         assert False
                     self.arr[token.x][token.y] = token
                     num += 1
 
-        """
-        # check lexing
-        assert len(self.junctions) == 54
-        assert len(self.roads) == 72
-        assert len(self.hexes) == 19
-        assert len(self.unflipped_hexes) == 0
-        assert len(self.oceans) == 18
-        """
-
         # parse
-        for token_list in [
-            self.roads,
-            self.junctions,
-            self.hexes,
-            self.unflipped_hexes,
-            self.oceans,
-        ]:
-            for token in token_list:
-                for pos in token.neighbors:
-                    off_x = token.x + pos.dx
-                    if off_x < 0 or self.height <= off_x:
-                        continue
-                    off_y = token.y + pos.dy
-                    if off_y < 0 or self.width <= off_y:
-                        continue
-                    neighbor = self.arr[off_x][off_y]
-                    if isinstance(neighbor, Whitespace):
-                        continue
-                    token.neighbors[pos] = neighbor
-                    if (
-                        isinstance(token, Port)
-                        and isinstance(neighbor, Road)
-                        and isinstance(neighbor.neighbors[pos], Port)
-                    ):
-                        token.set_partner(pos, neighbor.neighbors[pos])
-
-        """
-        # check parsing
-        for token in self.roads:
-            assert len(token) == 2
-        for token in self.junctions:
-            assert len(token) in (5, 6)
-        for token in self.hexes:
-            assert len(token) == 6
-        for token in self.unflipped_hexes:
-            assert len(token) == 0
-        for token in self.oceans:
-            assert len(token) in (2, 3)
-        """
+        for token in self.tokens:
+            for pos in token.neighbors:
+                off_x = token.x + pos.dx
+                if off_x < 0 or self.height <= off_x:
+                    continue
+                off_y = token.y + pos.dy
+                if off_y < 0 or self.width <= off_y:
+                    continue
+                neighbor = self.arr[off_x][off_y]
+                if isinstance(neighbor, Whitespace):
+                    continue
+                token.neighbors[pos] = neighbor
+                if (
+                    isinstance(token, Port)
+                    and isinstance(neighbor, Road)
+                    and isinstance(neighbor.neighbors[pos], Port)
+                ):
+                    token.set_partner(pos, neighbor.neighbors[pos])
+                    neighbor.neighbors[pos].set_partner(pos.opposite(), token)
 
     def generate_cpp(self):
         with open(self.cpp_file, "w") as fp:
@@ -239,7 +217,7 @@ class Board:
                 f"""\
 #pragma once
 
-#include "Board/Base.h"
+#include "Board/Graph.h"
 
 /**
  * DO NOT EDIT THIS FILE DIRECTLY.
@@ -251,37 +229,17 @@ namespace k10engine {{
 
 namespace Board {{
 
-Base* get_{self.name.lower()}_board()
+Graph* get_{self.name.lower()}_board()
 {{
-    return new Base("{self.name}", new Graph({{ """
+    return new Graph({{ """
             )
-            for road in self.roads:
-                fp.write(f"{{ {road.num}, NodeType::Road }}, ")
-            for junction in self.junctions:
-                fp.write(f"{{ {junction.num}, NodeType::Junction }}, ")
-            for hex_ in self.hexes:
-                fp.write(f"{{ {hex_.num}, NodeType::Hex }}, ")
-            for ocean in self.oceans:
-                fp.write(f"{{ {ocean.num}, NodeType::Ocean }}, ")
-            for unflipped_hex in self.unflipped_hexes:
-                fp.write(f"{{ {unflipped_hex.num}, NodeType::UnflippedHex }}, ")
+            for token in self.tokens:
+                fp.write(f"NodeType::{token.node_type}, ")
             fp.write(f"}}, {{")
-            for road in self.roads:
-                for pos, neighbor in road:
-                    fp.write(f"{{ {road.num}, {neighbor.num}, {pos} }}, ")
-            for junction in self.junctions:
-                for pos, neighbor in junction:
-                    fp.write(f"{{ {junction.num}, {neighbor.num}, {pos} }}, ")
-            for hex_ in self.hexes:
-                for pos, neighbor in hex_:
-                    fp.write(f"{{ {hex_.num}, {neighbor.num}, {pos} }}, ")
-            for ocean in self.oceans:
-                for pos, neighbor in ocean:
-                    fp.write(f"{{ {ocean.num}, {neighbor.num}, {pos} }}, ")
-            for unflipped_hex in self.unflipped_hexes:
-                for pos, neighbor in unflipped_hex:
-                    fp.write(f"{{ {unflipped_hex.num}, {neighbor.num}, {pos} }}, ")
-            fp.write(f"""}}), {{ """)
+            for token in self.tokens:
+                for pos, neighbor in token:
+                    fp.write(f"{{ {token.num}, {neighbor.num}, {pos} }}, ")
+            fp.write(f"""}}, {{ """)
             for port in self.ports:
                 if port.num < port.partner.num:
                     fp.write(

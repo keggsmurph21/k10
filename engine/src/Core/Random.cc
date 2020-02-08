@@ -9,8 +9,9 @@ static Random* s_random;
 
 Random* Random::the()
 {
-    if (!s_random)
+    if (s_random == nullptr) {
         s_random = new Random();
+    }
     return s_random;
 }
 

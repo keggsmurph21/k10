@@ -1,42 +1,56 @@
 #pragma once
 
+#include <map>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "Board/Direction.h"
 #include "Board/Node.h"
 #include "Board/NodeType.h"
+#include "Board/Orientation.h"
+#include "Board/Port.h"
 
 namespace k10engine {
 
 namespace Board {
 
-typedef std::vector<std::tuple<int, NodeType>> NodeList;
-typedef std::vector<std::tuple<int, int, Direction>> EdgeList;
+typedef std::vector<NodeType> _NodeSpecs;
+typedef std::vector<std::tuple<int, int, Direction>> _EdgeSpecs;
+typedef std::vector<std::tuple<int, int, Orientation>> _PortSpecs;
+
+typedef std::vector<const Node*> Nodes;
+typedef std::map<std::pair<const Node*, const Direction>, const Node*, std::less<>> Edges;
+typedef std::vector<const Port*> Ports;
+
+class Base;
 
 class Graph {
 public:
-    Graph(const NodeList, const EdgeList);
+    Graph(const _NodeSpecs, const _EdgeSpecs, const _PortSpecs);
     ~Graph();
+    // Graph(const Graph&);
+    // Graph& operator=(const Graph&);
 
-    Node* node(const int);
-    const std::map<int, Node*, std::less<>> nodes() { return m_nodes; }
+    const Node* node(const int) const;
 
-    int num_hexes() const { return m_num_hexes; }
-    int num_junctions() const { return m_num_junctions; }
-    int num_oceans() const { return m_num_oceans; }
-    int num_roads() const { return m_num_roads; }
-    int num_unflipped_hexes() const { return m_num_unflipped_hexes; }
+    int size() const { return m_nodes.size(); }
+    int size() { return m_nodes.size(); }
+
+    using ConstIterator = std::vector<const Node*>::const_iterator;
+    ConstIterator begin() const { return m_nodes.cbegin(); }
+    ConstIterator end() const { return m_nodes.cend(); }
+
+    bool has_neighbor(const Node*, const Direction) const;
+    const Node* neighbor(const Node*, const Direction) const;
+    ConstIterator neighbors(const Node*) const;
 
 private:
-    bool has_node(const int) const;
+    bool nodes_can_make_port(const Node*, const Node*, const Orientation);
 
-    std::map<int, Node*, std::less<>> m_nodes;
-    int m_num_hexes;
-    int m_num_junctions;
-    int m_num_oceans;
-    int m_num_roads;
-    int m_num_unflipped_hexes;
+    Nodes m_nodes;
+    Edges m_edges;
+    Ports m_ports;
 };
 
 } // namespace Board

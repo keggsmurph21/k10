@@ -3,7 +3,7 @@
 #include <list>
 #include <vector>
 
-#include "Board/Base.h"
+#include "Board/Graph.h"
 #include "Game/BoardView/Hex.h"
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"
@@ -51,7 +51,7 @@ public:
     int largest_army();
     int longest_road();
 
-    static Game* initialize(Board::Base*, Scenario::Scenario*, Scenario::Parameters*);
+    static Game* initialize(Board::Graph*, Scenario::Scenario*, Scenario::Parameters*);
     ~Game();
 
 private:

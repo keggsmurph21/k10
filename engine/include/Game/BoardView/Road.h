@@ -18,6 +18,8 @@ public:
     std::optional<Player*> owner() { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
 
+    const Board::Node* node() const { return m_node; }
+
     Road(Board::Node* node)
         : m_node(node)
     {

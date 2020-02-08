@@ -1,7 +1,5 @@
 #include <iostream>
 
-#include "Game/Game.h"
-/*
 #include "Board/generated/Standard.h"
 #include "Core/Building.h"
 #include "Core/DevelopmentCard.h"
@@ -9,15 +7,14 @@
 #include "Core/Resource.h"
 #include "Game/Game.h"
 #include "Scenario/Scenario.h"
-*/
 
 using namespace k10engine;
 
-int main(int, char**)
+int main(int /* unused */, char** /* unused */)
 {
-    /*
-    Board::Standard b;
+    auto b = Board::Graph({}, {}, {});
 
+    /*
     Scenario::Costs<Building> building_costs;
     building_costs[Building::City] = { { Resource::Ore, 3 }, { Resource::Wheat, 2 } };
     building_costs[Building::DevelopmentCard] = { { Resource::Ore, 1 },
@@ -55,14 +52,15 @@ int main(int, char**)
     };
 
     std::vector<ResourceCollection> ports = {
-        { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat,
-    Resource::Wood }, { Resource::Wheat }, { Resource::Ore }, { Resource::Wood }, {
-    Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
+        { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
+        { Resource::Wheat },
+        { Resource::Ore },
+        { Resource::Wood },
+        { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
         { Resource::Brick },
         { Resource::Sheep },
-        { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat,
-    Resource::Wood }, { Resource::Brick, Resource::Ore, Resource::Sheep,
-    Resource::Wheat, Resource::Wood },
+        { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
+        { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
     };
 
     Scenario::Scenario* s = new Scenario::Scenario(2,
@@ -85,14 +83,16 @@ int main(int, char**)
         10,
     };
 
-    auto g = Game::Game::initialize(&b, s, &p);
+    auto b = Board::get_standard_board();
 
-    if (g.has_value()) {
-        std::cout << "Survived!" << std::endl;
-    } else {
-        std::cout << "Died!" << std::endl;
+    try {
+        auto g = Game::Game::initialize(b, s, &p);
+        delete g;
+    } catch (std::exception& e) {
+        std::cout << "Ded: " << e.what() << std::endl;
     }
 
-    return 0;
+    delete b;
     */
+    return 0;
 }

@@ -17,14 +17,8 @@ public:
         : m_nodes(nodes)
         , m_orientation(o)
     {
-        for (auto node : m_nodes) {
-            if (!node)
-                throw std::invalid_argument("Node cannot be nullptr");
-            if (node->type() != NodeType::Junction)
-                throw std::invalid_argument("Node must be have NodeType::Junction");
-        }
     }
-    ~Port() { m_nodes.clear(); }
+    ~Port() {}
 
     Orientation orientation() { return m_orientation; }
     const std::set<const Node*> nodes() { return m_nodes; }

@@ -106,8 +106,9 @@ bool Player::is_blocking()
     throw std::invalid_argument("Not implemented: Player::is_blocking");
 }
 
-bool Player::can_afford(ResourceCounts)
+bool Player::can_afford(ResourceCounts resource_counts)
 {
+    (void)resource_counts;
     throw std::invalid_argument("Not implemented: Player::can_afford");
 }
 

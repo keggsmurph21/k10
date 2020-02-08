@@ -29,6 +29,8 @@ public:
     std::optional<Player*> owner() { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
 
+    const Board::Node* node() const { return m_node; }
+
     Junction(Board::Node* node, std::optional<ResourceCollection> port_type)
         : m_node(node)
         , m_port_type(port_type)

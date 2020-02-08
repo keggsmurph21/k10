@@ -48,32 +48,35 @@ int Game::get_round()
     throw std::invalid_argument("Not implemented: Game::get_round");
 }
 
-Game* Game::initialize(Board::Base* board,
+Game* Game::initialize(Board::Graph* graph,
                        Scenario::Scenario* scenario,
                        Scenario::Parameters* parameters)
 {
-    (void)board;
-    (void)scenario;
-    (void)parameters;
-    throw std::invalid_argument("Not implemented: Game::initialize");
-    /*
-    if (!scenario->is_valid(parameters))
-        return std::nullopt;
+    if (!scenario->is_valid(parameters)) {
+        throw std::invalid_argument("Invalid parameters");
+    }
 
     auto deck = scenario->get_development_card_deck(parameters->development_card_iteration_type);
     auto ports = scenario->get_ports(parameters->port_iteration_type);
     auto resources = scenario->get_resources(parameters->resource_iteration_type);
     auto rolls = scenario->get_rolls(parameters->roll_iteration_type);
 
+    for (const auto node : *graph) {
+        std::cout << node->type() << std::endl;
+    }
+
+    throw std::invalid_argument("not done yet");
+
+    /*
     std::cout << "initializing hex views" << std::endl;
     std::vector<BoardView::Hex*> hex_views;
     int roll_index = 0;
     std::cout << "getting n_hexes" << std::endl;
-    std::cout << board->graph()->n_hexes() << std::endl;
+    std::cout << graph->n_hexes() << std::endl;
     std::cout << "got n_hexes" << std::endl;
-    for (int i = 0; i < board->graph()->n_hexes(); ++i) {
+    for (int i = 0; i < graph->n_hexes(); ++i) {
         std::cout << i << " ";
-        auto hex = board->graph()->hex(i);
+        auto hex = graph->hex(i);
         auto resource = resources[i];
         BoardView::Hex* hex_view;
         if (std::get_if<Resource>(&resource)) {
@@ -92,8 +95,8 @@ Game* Game::initialize(Board::Base* board,
     std::vector<BoardView::Junction*> junction_views;
     int port_index = 0;
     std::map<int, ResourceCollection> port_partner_types;
-    for (int i = 0; i < board->graph()->n_junctions(); ++i) {
-        auto junction = board->graph()->junction(i);
+    for (int i = 0; i < graph->n_junctions(); ++i) {
+        auto junction = graph->junction(i);
         BoardView::Junction* junction_view;
         if (junction->is_port()) {
             int partner_index = (*junction->port_partner())->index();
@@ -114,8 +117,8 @@ Game* Game::initialize(Board::Base* board,
 
     std::cout << "initializing road views" << std::endl;
     std::vector<BoardView::Road*> road_views;
-    for (int i = 0; i < board->graph()->n_roads(); ++i) {
-        auto road = board->graph()->road(i);
+    for (int i = 0; i < graph->n_roads(); ++i) {
+        auto road = graph->road(i);
         auto road_view = new BoardView::Road(road);
         road_views.push_back(road_view);
     }

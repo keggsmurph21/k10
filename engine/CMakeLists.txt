@@ -10,11 +10,11 @@ if (${CMAKE_SOURCE_DIR}/static/boards/Standard.board IS_NEWER_THAN ${CMAKE_SOURC
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
 
 include_directories(include)
 
 add_library(k10 SHARED
-    src/Board/Base.cc
     src/Board/Graph.cc
     src/Board/Node.cc
     src/Board/Orientation.cc
@@ -24,19 +24,18 @@ add_library(k10 SHARED
     src/Game/Player.cc
     src/Scenario/Scenario.cc
 )
-target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
+target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g -fsanitize=address)
 
 link_directories(build)
-link_libraries(k10)
+link_libraries(k10 -fsanitize=address)
 
 add_executable(main src/main.cc)
-target_compile_options(main PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
+target_compile_options(main PRIVATE -Werror -Wall -Wextra -pedantic-errors -g -fsanitize=address)
 
 add_executable(test_
     src/test.cc
-    src/Board/Test/Board.cc
     src/Board/Test/Graph.cc
     src/Board/Test/Node.cc
     src/Board/Test/Port.cc
 )
-target_compile_options(test_ PRIVATE -Werror)
+target_compile_options(test_ PRIVATE -Werror -g)
