@@ -119,6 +119,7 @@ Graph& Graph::operator=(const Graph& other)
 
 const Node* Graph::node(const int index) const
 {
+    // FIXME: Should these take in a size_t param?
     if (0 <= index && index < static_cast<int>(m_nodes.size())) {
         return m_nodes.at(index);
     }
@@ -136,6 +137,26 @@ const Node* Graph::neighbor(const Node* n, const Direction d) const
         return nullptr;
     }
     return m_edges.at({ n, d });
+}
+
+const Port* Graph::port(const Node& node) const
+{
+    if (node.type() != NodeType::Junction) {
+        return nullptr;
+    }
+    const auto node_index = node.index();
+    if (m_node_index_to_port_map.find(node_index) == m_node_index_to_port_map.end()) {
+        return nullptr;
+    }
+    return m_node_index_to_port_map.at(node_index);
+}
+
+const Port* Graph::port(size_t port_index) const
+{
+    if (port_index < m_ports.size()) {
+        return m_ports.at(port_index);
+    }
+    return nullptr;
 }
 
 std::ostream& operator<<(std::ostream& os, NodeType type)
