@@ -37,6 +37,7 @@ Graph::Graph(const _NodeSpecs& node_specs,
              const _PortSpecs& port_specs)
 {
     int index = 0;
+    size_t port_index = 0;
     for (auto type : node_specs) {
         auto node = new Node(index, type);
         m_nodes.push_back(node);
@@ -62,7 +63,8 @@ Graph::Graph(const _NodeSpecs& node_specs,
         if (!nodes_can_make_port(node_0, node_1, orientation)) {
             goto clean_up_failed_construction;
         }
-        const auto port = new Port({ node_0, node_1 }, orientation);
+        const auto port = new Port(port_index, { node_0, node_1 }, orientation);
+        ++port_index;
         m_ports.push_back(port);
     }
     // FIXME: Make sure everything is connected (undirected)

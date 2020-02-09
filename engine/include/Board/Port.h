@@ -13,17 +13,21 @@ namespace Board {
 
 class Port {
 public:
-    Port(std::set<const Node*> nodes, const Orientation o)
-        : m_nodes(nodes)
+    Port(size_t index, std::set<const Node*> nodes, const Orientation o)
+        : m_index(index)
+        , m_nodes(nodes)
         , m_orientation(o)
     {
     }
     ~Port() {}
 
+    size_t index() const { return m_index; }
+
     Orientation orientation() { return m_orientation; }
     const std::set<const Node*> nodes() { return m_nodes; }
 
 private:
+    const size_t m_index;
     std::set<const Node*> m_nodes;
     const Orientation m_orientation;
 };
