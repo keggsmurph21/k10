@@ -275,6 +275,27 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                 REQUIRE(s.count(other_building) == (is_match ? 1 : 0));
             }
         }
+
+        SECTION("standard building_counts")
+        {
+            const k10engine::Scenario::Costs<k10engine::Building> building_costs = {
+                // THIS IS A STUB!
+                { k10engine::Building::City, {} },
+                { k10engine::Building::DevelopmentCard, {} },
+                { k10engine::Building::Road, {} },
+                { k10engine::Building::Settlement, {} },
+            };
+            const k10engine::Scenario::Counts<k10engine::Building> building_counts = {
+                { k10engine::Building::City, 4 },
+                { k10engine::Building::DevelopmentCard, 25 },
+                { k10engine::Building::Road, 15 },
+                { k10engine::Building::Settlement, 5 },
+            };
+            const auto s = Scenario(0, 0, 0, 0, building_costs, building_counts, {}, {}, {}, {});
+            for (const auto& building : buildings) {
+                REQUIRE(s.count(building) == building_counts.at(building));
+            }
+        }
     }
 
     SECTION("Counts<DevelopmentCard>")
