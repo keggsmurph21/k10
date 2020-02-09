@@ -104,8 +104,8 @@ bool Player::is_blocking() // NOLINT(readability-convert-member-functions-to-sta
     throw std::invalid_argument("Not implemented: Player::is_blocking");
 }
 
-bool Player::can_afford(
-    const ResourceCounts& resource_counts) // NOLINT(readability-convert-member-functions-to-static)
+bool Player::can_afford( // NOLINT(readability-convert-member-functions-to-static)
+    const ResourceCounts& resource_counts)
 {
     (void)resource_counts;
     throw std::invalid_argument("Not implemented: Player::can_afford");

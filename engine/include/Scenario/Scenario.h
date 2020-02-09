@@ -26,28 +26,29 @@ public:
     int min_victory_points_goal() const { return m_min_victory_points_goal; }
     int max_victory_points_goal() const { return m_max_victory_points_goal; }
 
-    bool is_valid(const Building&) const;
     const Costs<Building>& building_costs() const { return m_building_costs; }
-    const ResourceCounts* cost(const Building&) const;
     const Counts<Building>& building_counts() const { return m_building_counts; }
-    int count(const Building&) const;
-
-    bool is_valid(const DevelopmentCard&) const;
+    const Counts<AbstractResource>& resource_counts() const { return m_resource_counts; }
     const Counts<DevelopmentCard>& development_card_counts() const
     {
         return m_development_card_counts;
     }
+
+    bool is_valid(const Building&) const;
+    const ResourceCounts* cost(const Building&) const;
+    int count(const Building&) const;
+
+    bool is_valid(const DevelopmentCard&) const;
     int count(const DevelopmentCard&) const;
 
     bool is_valid(const AbstractResource&) const;
-    const Counts<AbstractResource> resource_counts() const { return m_resource_counts; }
     int count(const AbstractResource&) const;
 
-    const std::vector<DevelopmentCard>
-        get_development_card_deck(IterationType) const;                     // gets a fresh copy
-    const std::vector<ResourceCollection> get_ports(IterationType) const;   // gets a fresh copy
-    const std::vector<AbstractResource> get_resources(IterationType) const; // gets a fresh copy
-    const std::vector<int> get_rolls(IterationType) const;                  // gets a fresh copy
+    std::vector<const DevelopmentCard*>
+        get_development_card_deck(IterationType) const;                      // gets a fresh copy
+    std::vector<const ResourceCollection*> get_ports(IterationType) const;   // gets a fresh copy
+    std::vector<const AbstractResource*> get_resources(IterationType) const; // gets a fresh copy
+    std::vector<int> get_rolls(IterationType) const;                         // gets a fresh copy
 
     bool is_valid(Parameters*) const;
 

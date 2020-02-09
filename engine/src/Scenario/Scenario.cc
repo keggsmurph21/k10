@@ -53,14 +53,14 @@ int Scenario::count(const AbstractResource& resource) const
     return m_resource_counts.at(resource);
 }
 
-const std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType type) const
+std::vector<const DevelopmentCard*> Scenario::get_development_card_deck(IterationType type) const
 {
-    std::vector<DevelopmentCard> deck;
+    std::vector<const DevelopmentCard*> deck;
     for (const auto& item : m_development_card_counts) {
         auto development_card = item.first;
         auto count = item.second;
         for (int i = 0; i < count; ++i) {
-            deck.push_back(development_card);
+            deck.push_back(&development_card);
         }
     }
     switch (type) {
@@ -74,14 +74,14 @@ const std::vector<DevelopmentCard> Scenario::get_development_card_deck(Iteration
     }
 }
 
-const std::vector<AbstractResource> Scenario::get_resources(IterationType type) const
+std::vector<const AbstractResource*> Scenario::get_resources(IterationType type) const
 {
-    std::vector<AbstractResource> resources;
+    std::vector<const AbstractResource*> resources;
     for (const auto& item : m_resource_counts) {
         auto resource = item.first;
         auto count = item.second;
         for (int i = 0; i < count; ++i) {
-            resources.push_back(resource);
+            resources.push_back(&resource);
         }
     }
     switch (type) {
@@ -95,11 +95,11 @@ const std::vector<AbstractResource> Scenario::get_resources(IterationType type) 
     }
 }
 
-const std::vector<ResourceCollection> Scenario::get_ports(IterationType type) const
+std::vector<const ResourceCollection*> Scenario::get_ports(IterationType type) const
 {
-    std::vector<ResourceCollection> ports;
+    std::vector<const ResourceCollection*> ports;
     for (const auto& port_type : m_ports) {
-        ports.push_back(port_type);
+        ports.push_back(&port_type);
     }
     switch (type) {
     case IterationType::Fixed:
@@ -112,7 +112,7 @@ const std::vector<ResourceCollection> Scenario::get_ports(IterationType type) co
     }
 }
 
-const std::vector<int> Scenario::get_rolls(IterationType type) const
+std::vector<int> Scenario::get_rolls(IterationType type) const
 {
     std::vector<int> rolls;
     for (const auto& roll : m_rolls) {
