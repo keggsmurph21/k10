@@ -74,6 +74,7 @@ std::vector<const DevelopmentCard*> Scenario::get_development_card_deck(Iteratio
 }
 
 std::vector<const AbstractResource*> Scenario::get_resources(IterationType type) const
+// FIXME: These should be <const Vector&> returns
 {
     std::vector<const AbstractResource*> resources;
     for (const auto& item : m_resource_counts) {
