@@ -21,15 +21,6 @@ namespace k10engine::Scenario {
 #    define MAGIC_NUMBER_3 420
 #endif
 
-/*
- Costs<Building> building_costs,
- Counts<Building> building_counts,
- Counts<DevelopmentCard> development_card_counts,
- Counts<AbstractResource> resource_counts,
- std::vector<int> rolls,
- std::vector<ResourceCollection> ports)
- */
-
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
 TEST_CASE("Scenario initialization", "[Scenario]")
 {
