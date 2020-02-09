@@ -903,6 +903,61 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
     }
 }
 
-TEST_CASE("Parameter validation", "[Scenario]") {}
+TEST_CASE("Parameter validation", "[Scenario]")
+{
+    const int standard_min_players_count = 2;
+    const int standard_max_players_count = 5;
+    const int standard_min_victory_points_goal = 8;
+    const int standard_max_victory_points_goal = 12;
+    const auto s = Scenario(standard_min_players_count,
+                            standard_max_players_count,
+                            standard_min_victory_points_goal,
+                            standard_max_victory_points_goal,
+                            {},
+                            {},
+                            {},
+                            {},
+                            {},
+                            {});
+    for (int players_count = standard_min_players_count;
+         players_count <= standard_max_players_count;
+         ++players_count) {
+        for (int victory_points_goal = standard_min_victory_points_goal;
+             victory_points_goal <= standard_max_victory_points_goal;
+             ++victory_points_goal) {
+
+            REQUIRE(s.is_valid({ IterationType::Fixed,
+                                 IterationType::Fixed,
+                                 IterationType::Fixed,
+                                 IterationType::Fixed,
+                                 players_count,
+                                 victory_points_goal }));
+        }
+    }
+    REQUIRE(!s.is_valid({ IterationType::Fixed,
+                          IterationType::Fixed,
+                          IterationType::Fixed,
+                          IterationType::Fixed,
+                          standard_min_players_count - 1,
+                          standard_min_victory_points_goal }));
+    REQUIRE(!s.is_valid({ IterationType::Fixed,
+                          IterationType::Fixed,
+                          IterationType::Fixed,
+                          IterationType::Fixed,
+                          standard_max_players_count + 1,
+                          standard_min_victory_points_goal }));
+    REQUIRE(!s.is_valid({ IterationType::Fixed,
+                          IterationType::Fixed,
+                          IterationType::Fixed,
+                          IterationType::Fixed,
+                          standard_min_players_count,
+                          standard_min_victory_points_goal - 1 }));
+    REQUIRE(!s.is_valid({ IterationType::Fixed,
+                          IterationType::Fixed,
+                          IterationType::Fixed,
+                          IterationType::Fixed,
+                          standard_min_players_count,
+                          standard_max_victory_points_goal + 1 }));
+}
 
 } // namespace k10engine::Scenario
