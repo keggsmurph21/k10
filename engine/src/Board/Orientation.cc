@@ -2,9 +2,7 @@
 
 #include "Board/Orientation.h"
 
-namespace k10engine {
-
-namespace Board {
+namespace k10engine::Board {
 
 Orientation get_orientation(Direction d)
 {
@@ -23,7 +21,7 @@ Orientation get_orientation(Direction d)
     }
 }
 
-const std::set<Direction> get_directions(Orientation o)
+std::set<Direction> get_directions(Orientation o)
 {
     switch (o) {
     case Orientation::Clock12Clock6:
@@ -57,6 +55,4 @@ Direction get_opposite(Direction d)
     }
 }
 
-} // namespace Board
-
-} // namespace k10engine
+} // namespace k10engine::Board

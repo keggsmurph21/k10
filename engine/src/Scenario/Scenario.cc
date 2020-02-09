@@ -4,24 +4,22 @@
 #include "Core/Random.h"
 #include "Scenario/Scenario.h"
 
-namespace k10engine {
+namespace k10engine::Scenario {
 
-namespace Scenario {
-
-bool Scenario::is_valid(Building building) const
+bool Scenario::is_valid(const Building& building) const
 {
     return m_building_costs.find(building) != m_building_costs.end();
 }
 
-const std::optional<ResourceCounts> Scenario::cost(Building building) const
+const ResourceCounts* Scenario::cost(const Building& building) const
 {
     if (!is_valid(building)) {
-        return std::nullopt;
+        return nullptr;
     }
-    return m_building_costs.at(building);
+    return &m_building_costs.at(building);
 }
 
-int Scenario::count(Building building) const
+int Scenario::count(const Building& building) const
 {
     if (!is_valid(building)) {
         return 0;
@@ -29,12 +27,12 @@ int Scenario::count(Building building) const
     return m_building_counts.at(building);
 }
 
-bool Scenario::is_valid(DevelopmentCard development_card) const
+bool Scenario::is_valid(const DevelopmentCard& development_card) const
 {
     return m_development_card_counts.find(development_card) != m_development_card_counts.end();
 }
 
-int Scenario::count(DevelopmentCard development_card) const
+int Scenario::count(const DevelopmentCard& development_card) const
 {
     if (!is_valid(development_card)) {
         return 0;
@@ -148,6 +146,4 @@ bool Scenario::is_valid(Parameters* parameters) const
            && parameters->victory_points_goal <= max_victory_points_goal();
 }
 
-} // namespace Scenario
-
-} // namespace k10engine
+} // namespace k10engine::Scenario

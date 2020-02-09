@@ -57,7 +57,7 @@ public:
     bool is_current_player();
     bool is_blocking();
 
-    bool can_afford(ResourceCounts);
+    bool can_afford(const ResourceCounts&);
 
     int army_size();
     int longest_road();

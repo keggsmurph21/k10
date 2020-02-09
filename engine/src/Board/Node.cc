@@ -3,9 +3,7 @@
 
 #include "Board/Node.h"
 
-namespace k10engine {
-
-namespace Board {
+namespace k10engine::Board {
 
 std::ostream& operator<<(std::ostream& os, const Node& node)
 {
@@ -13,6 +11,4 @@ std::ostream& operator<<(std::ostream& os, const Node& node)
     return os;
 }
 
-} // namespace Board
-
-} // namespace k10engine
+} // namespace k10engine::Board

@@ -1,8 +1,9 @@
 #pragma once
 
-namespace k10engine {
+namespace k10engine::Game {
 
-namespace Game {
+#define k10_DICE_MIN 1
+#define k10_DICE_MAX 6
 
 class Dice {
 public:
@@ -15,6 +16,4 @@ private:
     int m_die_1{ 0 };
 };
 
-} // namespace Game
-
-} // namespace k10engine
+} // namespace k10engine::Game

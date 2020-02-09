@@ -4,11 +4,9 @@
 
 #include "Game/Game.h"
 
-namespace k10engine {
+namespace k10engine::Game {
 
-namespace Game {
-
-void Game::roll_dice()
+void Game::roll_dice() // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Game::roll_dice");
 }
@@ -30,20 +28,20 @@ bool Game::is_second_round()
 
 bool Game::is_roll_seven()
 {
-    return get_dice_total() == 7;
+    return get_dice_total() == k10_ROBBER_DICE_ROLL;
 }
 
-bool Game::should_wait_for_discard()
+bool Game::should_wait_for_discard() // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Game::should_wait_for_discard");
 }
 
-bool Game::should_wait_for_trade()
+bool Game::should_wait_for_trade() // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Game::should_wait_for_trade");
 }
 
-int Game::get_round()
+int Game::get_round() // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Game::get_round");
 }
@@ -132,6 +130,4 @@ Game* Game::initialize(Board::Graph* graph,
     */
 }
 
-} // namespace Game
-
-} // namespace k10engine
+} // namespace k10engine::Game

@@ -15,7 +15,7 @@ enum class Orientation {
 };
 
 Orientation get_orientation(Direction);
-const std::set<Direction> get_directions(Orientation);
+std::set<Direction> get_directions(Orientation);
 
 } // namespace Board
 

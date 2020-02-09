@@ -18,6 +18,8 @@ namespace k10engine {
 
 namespace Game {
 
+#define k10_ROBBER_DICE_ROLL 7
+
 class Player;
 
 class Game {

@@ -34,10 +34,10 @@ TEST_CASE("Scenario initialization", "[Scenario]")
         REQUIRE(!s.is_valid(k10engine::Building::DevelopmentCard));
         REQUIRE(!s.is_valid(k10engine::Building::Road));
         REQUIRE(!s.is_valid(k10engine::Building::Settlement));
-        REQUIRE(!s.cost(k10engine::Building::City).has_value());
-        REQUIRE(!s.cost(k10engine::Building::DevelopmentCard).has_value());
-        REQUIRE(!s.cost(k10engine::Building::Road).has_value());
-        REQUIRE(!s.cost(k10engine::Building::Settlement).has_value());
+        REQUIRE(s.cost(k10engine::Building::City) == nullptr);
+        REQUIRE(s.cost(k10engine::Building::DevelopmentCard) == nullptr);
+        REQUIRE(s.cost(k10engine::Building::Road) == nullptr);
+        REQUIRE(s.cost(k10engine::Building::Settlement) == nullptr);
         REQUIRE(s.count(k10engine::Building::City) == 0);
         REQUIRE(s.count(k10engine::Building::DevelopmentCard) == 0);
         REQUIRE(s.count(k10engine::Building::Road) == 0);
@@ -91,17 +91,17 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             REQUIRE(!s.is_valid(k10engine::Building::DevelopmentCard));
             REQUIRE(!s.is_valid(k10engine::Building::Road));
             REQUIRE(!s.is_valid(k10engine::Building::Settlement));
-            REQUIRE(s.cost(k10engine::Building::City).has_value());
-            const auto actual_city_cost = s.cost(k10engine::Building::City).value();
+            REQUIRE(s.cost(k10engine::Building::City) != nullptr);
+            const auto actual_city_cost = *s.cost(k10engine::Building::City);
             REQUIRE(actual_city_cost.size() == expected_cost.size());
             for (const auto it : actual_city_cost) {
                 const auto actual_resource_type = it.first;
                 const auto actual_resource_cost = it.second;
                 REQUIRE(expected_cost.at(actual_resource_type) == actual_resource_cost);
             }
-            REQUIRE(!s.cost(k10engine::Building::DevelopmentCard).has_value());
-            REQUIRE(!s.cost(k10engine::Building::Road).has_value());
-            REQUIRE(!s.cost(k10engine::Building::Settlement).has_value());
+            REQUIRE(s.cost(k10engine::Building::DevelopmentCard) == nullptr);
+            REQUIRE(s.cost(k10engine::Building::Road) == nullptr);
+            REQUIRE(s.cost(k10engine::Building::Settlement) == nullptr);
         }
 
         SECTION("standard DevelopmentCard")
@@ -118,17 +118,17 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             REQUIRE(s.is_valid(k10engine::Building::DevelopmentCard));
             REQUIRE(!s.is_valid(k10engine::Building::Road));
             REQUIRE(!s.is_valid(k10engine::Building::Settlement));
-            REQUIRE(!s.cost(k10engine::Building::City).has_value());
-            REQUIRE(s.cost(k10engine::Building::DevelopmentCard).has_value());
-            const auto actual_cost = s.cost(k10engine::Building::DevelopmentCard).value();
+            REQUIRE(s.cost(k10engine::Building::City) == nullptr);
+            REQUIRE(s.cost(k10engine::Building::DevelopmentCard) != nullptr);
+            const auto actual_cost = *s.cost(k10engine::Building::DevelopmentCard);
             REQUIRE(actual_cost.size() == expected_cost.size());
             for (const auto it : actual_cost) {
                 const auto actual_resource_type = it.first;
                 const auto actual_resource_cost = it.second;
                 REQUIRE(expected_cost.at(actual_resource_type) == actual_resource_cost);
             }
-            REQUIRE(!s.cost(k10engine::Building::Road).has_value());
-            REQUIRE(!s.cost(k10engine::Building::Settlement).has_value());
+            REQUIRE(s.cost(k10engine::Building::Road) == nullptr);
+            REQUIRE(s.cost(k10engine::Building::Settlement) == nullptr);
         }
 
         SECTION("standard Road")
@@ -146,17 +146,17 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             REQUIRE(!s.is_valid(k10engine::Building::DevelopmentCard));
             REQUIRE(s.is_valid(k10engine::Building::Road));
             REQUIRE(!s.is_valid(k10engine::Building::Settlement));
-            REQUIRE(!s.cost(k10engine::Building::City).has_value());
-            REQUIRE(!s.cost(k10engine::Building::DevelopmentCard).has_value());
-            REQUIRE(s.cost(k10engine::Building::Road).has_value());
-            const auto actual_cost = s.cost(k10engine::Building::Road).value();
+            REQUIRE(s.cost(k10engine::Building::City) == nullptr);
+            REQUIRE(s.cost(k10engine::Building::DevelopmentCard) == nullptr);
+            REQUIRE(s.cost(k10engine::Building::Road) != nullptr);
+            const auto actual_cost = *s.cost(k10engine::Building::Road);
             REQUIRE(actual_cost.size() == expected_cost.size());
             for (const auto it : actual_cost) {
                 const auto actual_resource_type = it.first;
                 const auto actual_resource_cost = it.second;
                 REQUIRE(expected_cost.at(actual_resource_type) == actual_resource_cost);
             }
-            REQUIRE(!s.cost(k10engine::Building::Settlement).has_value());
+            REQUIRE(s.cost(k10engine::Building::Settlement) == nullptr);
         }
 
         SECTION("standard Settlement")
@@ -174,11 +174,11 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             REQUIRE(!s.is_valid(k10engine::Building::DevelopmentCard));
             REQUIRE(!s.is_valid(k10engine::Building::Road));
             REQUIRE(s.is_valid(k10engine::Building::Settlement));
-            REQUIRE(!s.cost(k10engine::Building::City).has_value());
-            REQUIRE(!s.cost(k10engine::Building::DevelopmentCard).has_value());
-            REQUIRE(!s.cost(k10engine::Building::Road).has_value());
-            REQUIRE(s.cost(k10engine::Building::Settlement).has_value());
-            const auto actual_cost = s.cost(k10engine::Building::Settlement).value();
+            REQUIRE(s.cost(k10engine::Building::City) == nullptr);
+            REQUIRE(s.cost(k10engine::Building::DevelopmentCard) == nullptr);
+            REQUIRE(s.cost(k10engine::Building::Road) == nullptr);
+            REQUIRE(s.cost(k10engine::Building::Settlement) != nullptr);
+            const auto actual_cost = *s.cost(k10engine::Building::Settlement);
             REQUIRE(actual_cost.size() == expected_cost.size());
             for (const auto it : actual_cost) {
                 const auto actual_resource_type = it.first;
@@ -221,10 +221,10 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             REQUIRE(s.is_valid(k10engine::Building::DevelopmentCard));
             REQUIRE(s.is_valid(k10engine::Building::Road));
             REQUIRE(s.is_valid(k10engine::Building::Settlement));
-            REQUIRE(s.cost(k10engine::Building::City).has_value());
-            REQUIRE(s.cost(k10engine::Building::DevelopmentCard).has_value());
-            REQUIRE(s.cost(k10engine::Building::Road).has_value());
-            REQUIRE(s.cost(k10engine::Building::Settlement).has_value());
+            REQUIRE(s.cost(k10engine::Building::City) != nullptr);
+            REQUIRE(s.cost(k10engine::Building::DevelopmentCard) != nullptr);
+            REQUIRE(s.cost(k10engine::Building::Road) != nullptr);
+            REQUIRE(s.cost(k10engine::Building::Settlement) != nullptr);
             for (const auto& resource_cost_spec : costs) {
                 const auto building_type = resource_cost_spec.first;
                 const auto actual_cost = resource_cost_spec.second;

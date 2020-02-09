@@ -27,7 +27,7 @@ class Base;
 
 class Graph {
 public:
-    Graph(const _NodeSpecs, const _EdgeSpecs, const _PortSpecs);
+    Graph(const _NodeSpecs&, const _EdgeSpecs&, const _PortSpecs&);
     ~Graph();
     // Graph(const Graph&);
     // Graph& operator=(const Graph&);

@@ -11,9 +11,7 @@
 #include "Scenario/IterationType.h"
 #include "Scenario/Parameters.h"
 
-namespace k10engine {
-
-namespace Scenario {
+namespace k10engine::Scenario {
 
 template<typename T>
 using Costs = std::map<T, ResourceCounts, std::less<T>>;
@@ -28,18 +26,18 @@ public:
     int min_victory_points_goal() const { return m_min_victory_points_goal; }
     int max_victory_points_goal() const { return m_max_victory_points_goal; }
 
-    bool is_valid(Building) const;
-    const Costs<Building> building_costs() const { return m_building_costs; }
-    const std::optional<ResourceCounts> cost(Building) const;
-    const Counts<Building> building_counts() const { return m_building_counts; }
-    int count(Building) const;
+    bool is_valid(const Building&) const;
+    const Costs<Building>& building_costs() const { return m_building_costs; }
+    const ResourceCounts* cost(const Building&) const;
+    const Counts<Building>& building_counts() const { return m_building_counts; }
+    int count(const Building&) const;
 
-    bool is_valid(DevelopmentCard) const;
-    const Counts<DevelopmentCard> development_card_counts() const
+    bool is_valid(const DevelopmentCard&) const;
+    const Counts<DevelopmentCard>& development_card_counts() const
     {
         return m_development_card_counts;
     }
-    int count(DevelopmentCard) const;
+    int count(const DevelopmentCard&) const;
 
     bool is_valid(const AbstractResource&) const;
     const Counts<AbstractResource> resource_counts() const { return m_resource_counts; }
@@ -92,6 +90,4 @@ protected:
     std::vector<ResourceCollection> m_ports;
 };
 
-} // namespace Scenario
-
-} // namespace k10engine
+} // namespace k10engine::Scenario

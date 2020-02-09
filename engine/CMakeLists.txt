@@ -10,7 +10,7 @@ if (${CMAKE_SOURCE_DIR}/static/boards/Standard.board IS_NEWER_THAN ${CMAKE_SOURC
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=bugprone-*,google-*,readability-*,misc-*,modernize-*,performance-*,portability-*)
+set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=bugprone-*,google-*,readability-*,misc-*,modernize-*,performance-*,portability-*,-modernize-use-trailing-return-type,-google-readability-namespace-comments)
 
 include_directories(include)
 
