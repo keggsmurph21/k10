@@ -85,81 +85,74 @@ Game* initialize(const Board::Graph* graph,
     auto deck = scenario.get_development_card_deck(parameters.development_card_iteration_type);
     (void)deck;
     auto ports = scenario.get_ports(parameters.port_iteration_type);
-    (void)ports;
     auto resources = scenario.get_resources(parameters.resource_iteration_type);
-    (void)resources;
     auto rolls = scenario.get_rolls(parameters.roll_iteration_type);
-    (void)rolls;
 
     std::vector<BoardView::Hex> hexes;
     std::vector<BoardView::Junction> junctions;
     std::vector<BoardView::Road> roads;
 
+    int robber_index = -1; // FIXME: Pass this along to Game contructor
+
+    size_t hex_index = 0;
+    size_t roll_index = 0;
+
     for (const auto node : *graph) {
-        std::cout << node->type() << std::endl;
+        std::cout << node->index() << " " << node->type();
+        switch (node->type()) {
+        case Board::NodeType::Hex: { // scope for const
+            std::cout << " " << hex_index;
+            if (hex_index >= resources.size()) {
+                return nullptr; // Too few resources
+            }
+            const auto resource = *resources.at(hex_index);
+            std::cout << " " << resource;
+            if (std::holds_alternative<NonYieldingResource>(resource)) {
+                if (robber_index != -1) {
+                    return nullptr; // FIXME: Handle multiple robbers?
+                }
+                robber_index = static_cast<int>(hex_index);
+                const auto hex = BoardView::Hex(node, resource, 0);
+                hexes.push_back(hex);
+            } else {
+                if (roll_index >= rolls.size()) {
+                    return nullptr; // Too few rolls
+                }
+                const auto roll = rolls.at(roll_index);
+                std::cout << " " << roll;
+                ++roll_index;
+                const auto hex = BoardView::Hex(node, resource, roll);
+                hexes.push_back(hex);
+            }
+            ++hex_index;
+        } break;
+        case Board::NodeType::Junction: { // scope for const
+            const auto port = graph->port(*node);
+            if (port == nullptr) {
+                break;
+            }
+            const auto port_index = port->index();
+            if (port_index >= ports.size()) {
+                return nullptr; // Too few ports
+            }
+            const auto port_resources = ports.at(port_index);
+            const auto other_node = port->buddy(node);
+            std::cout << " Port " << port_index << " " << *port_resources << " (with "
+                      << other_node->index() << ")";
+            auto junction = BoardView::Junction(node, *port_resources, 0); // FIXME: pass xrate
+            junctions.push_back(junction);
+        } break;
+        case Board::NodeType::Road: { // scope for const
+            const auto road = BoardView::Road(node);
+            roads.push_back(road);
+        } break;
+        default:
+            break; // do nothing
+        }
+        std::cout << std::endl;
     }
 
     return nullptr;
-
-    /*
-    std::cout << "initializing hex views" << std::endl;
-    std::vector<BoardView::Hex*> hex_views;
-    int roll_index = 0;
-    std::cout << "getting n_hexes" << std::endl;
-    std::cout << graph->n_hexes() << std::endl;
-    std::cout << "got n_hexes" << std::endl;
-    for (int i = 0; i < graph->n_hexes(); ++i) {
-        std::cout << i << " ";
-        auto hex = graph->hex(i);
-        auto resource = resources[i];
-        BoardView::Hex* hex_view;
-        if (std::get_if<Resource>(&resource)) {
-            auto roll = rolls[roll_index];
-            ++roll_index;
-            hex_view = new BoardView::Hex(hex, resource, roll);
-        } else {
-            hex_view = new BoardView::Hex(hex, resource, std::nullopt);
-        }
-        hex_views.push_back(hex_view);
-    }
-
-    std::cout << std::endl;
-
-    std::cout << "initializing junction views" << std::endl;
-    std::vector<BoardView::Junction*> junction_views;
-    int port_index = 0;
-    std::map<int, ResourceCollection> port_partner_types;
-    for (int i = 0; i < graph->n_junctions(); ++i) {
-        auto junction = graph->junction(i);
-        BoardView::Junction* junction_view;
-        if (junction->is_port()) {
-            int partner_index = (*junction->port_partner())->index();
-            ResourceCollection port_type;
-            if (junction->index() < partner_index) {
-                port_type = ports[port_index];
-                ++port_index;
-                port_partner_types[partner_index] = port_type;
-            } else {
-                port_type = port_partner_types[partner_index];
-            }
-            junction_view = new BoardView::Junction(junction, port_type);
-        } else {
-            junction_view = new BoardView::Junction(junction, std::nullopt);
-        }
-        junction_views.push_back(junction_view);
-    }
-
-    std::cout << "initializing road views" << std::endl;
-    std::vector<BoardView::Road*> road_views;
-    for (int i = 0; i < graph->n_roads(); ++i) {
-        auto road = graph->road(i);
-        auto road_view = new BoardView::Road(road);
-        road_views.push_back(road_view);
-    }
-
-    std::cout << "got to end" << std::endl;
-    throw std::invalid_argument("Not implemented");
-    */
 }
 
 } // namespace k10engine::Game
