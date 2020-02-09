@@ -56,7 +56,7 @@ public:
     std::vector<const AbstractResource*> get_resources(IterationType) const; // gets a fresh copy
     std::vector<int> get_rolls(IterationType) const;                         // gets a fresh copy
 
-    bool is_valid(Parameters*) const;
+    bool is_valid(const Parameters&) const;
 
     Scenario(int min_players_count,
              int max_players_count,

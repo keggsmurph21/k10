@@ -136,12 +136,12 @@ Scenario::~Scenario()
     m_ports.clear();
 }
 
-bool Scenario::is_valid(Parameters* parameters) const
+bool Scenario::is_valid(const Parameters& parameters) const
 {
-    return parameters->players_count >= min_players_count()
-           && parameters->players_count <= max_players_count()
-           && parameters->victory_points_goal >= min_victory_points_goal()
-           && parameters->victory_points_goal <= max_victory_points_goal();
+    return parameters.players_count >= min_players_count()
+           && parameters.players_count <= max_players_count()
+           && parameters.victory_points_goal >= min_victory_points_goal()
+           && parameters.victory_points_goal <= max_victory_points_goal();
 }
 
 } // namespace k10engine::Scenario

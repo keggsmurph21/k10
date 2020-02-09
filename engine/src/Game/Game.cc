@@ -48,7 +48,7 @@ int Game::get_round() // NOLINT(readability-convert-member-functions-to-static)
 
 Game* initialize(Board::Graph* graph,
                  Scenario::Scenario* scenario,
-                 Scenario::Parameters* parameters)
+                 const Scenario::Parameters& parameters)
 {
     if (!scenario->is_valid(parameters)) {
         throw std::invalid_argument("Invalid parameters");

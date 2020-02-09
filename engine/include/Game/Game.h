@@ -80,7 +80,7 @@ private:
     Player* m_has_longest_road;
 };
 
-Game* initialize(Board::Graph*, Scenario::Scenario*, Scenario::Parameters*);
+Game* initialize(Board::Graph*, Scenario::Scenario*, const Scenario::Parameters&);
 
 } // namespace Game
 
