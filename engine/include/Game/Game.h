@@ -53,7 +53,6 @@ public:
     int largest_army();
     int longest_road();
 
-    static Game* initialize(Board::Graph*, Scenario::Scenario*, Scenario::Parameters*);
     ~Game() = default;
 
 private:
@@ -80,6 +79,8 @@ private:
     Player* m_has_largest_army;
     Player* m_has_longest_road;
 };
+
+Game* initialize(Board::Graph*, Scenario::Scenario*, Scenario::Parameters*);
 
 } // namespace Game
 

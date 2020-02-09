@@ -46,9 +46,9 @@ int Game::get_round() // NOLINT(readability-convert-member-functions-to-static)
     throw std::invalid_argument("Not implemented: Game::get_round");
 }
 
-Game* Game::initialize(Board::Graph* graph,
-                       Scenario::Scenario* scenario,
-                       Scenario::Parameters* parameters)
+Game* initialize(Board::Graph* graph,
+                 Scenario::Scenario* scenario,
+                 Scenario::Parameters* parameters)
 {
     if (!scenario->is_valid(parameters)) {
         throw std::invalid_argument("Invalid parameters");
