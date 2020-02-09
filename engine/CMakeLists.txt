@@ -18,6 +18,7 @@ add_library(k10 SHARED
     src/Board/Graph.cc
     src/Board/Node.cc
     src/Board/Orientation.cc
+    src/Board/Port.cc
     src/Core/Random.cc
     src/Game/Dice.cc
     src/Game/Game.cc

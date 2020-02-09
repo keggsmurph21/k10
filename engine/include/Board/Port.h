@@ -26,6 +26,9 @@ public:
     Orientation orientation() { return m_orientation; }
     const std::set<const Node*> nodes() { return m_nodes; }
 
+    bool contains(const Node*) const;
+    const Node* buddy(const Node*) const;
+
 private:
     const size_t m_index;
     std::set<const Node*> m_nodes;
