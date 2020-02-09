@@ -46,12 +46,40 @@ int Game::get_round() // NOLINT(readability-convert-member-functions-to-static)
     throw std::invalid_argument("Not implemented: Game::get_round");
 }
 
+Game::Game(std::vector<BoardView::Hex> hexes,
+           std::vector<BoardView::Junction> junctions,
+           std::vector<BoardView::Road> roads,
+           std::list<DevelopmentCard> deck,
+           const Scenario::Scenario& scenario)
+    : m_hexes(std::move(hexes))
+    , m_junctions(std::move(junctions))
+    , m_roads(std::move(roads))
+    , m_deck(std::move(deck))
+    , m_scenario(scenario)
+{
+    m_dice = Dice();
+    m_robber = Robber();
+}
+
+Game::~Game()
+{
+    m_hexes.clear();
+    m_junctions.clear();
+    m_roads.clear();
+    m_deck.clear();
+
+    for (auto player : m_players) {
+        delete player;
+    }
+    m_players.clear();
+}
+
 Game* initialize(const Board::Graph* graph,
                  const Scenario::Scenario& scenario,
                  const Scenario::Parameters& parameters)
 {
     if (!scenario.is_valid(parameters)) {
-        throw std::invalid_argument("Invalid parameters");
+        return nullptr;
     }
 
     auto deck = scenario.get_development_card_deck(parameters.development_card_iteration_type);
@@ -63,11 +91,15 @@ Game* initialize(const Board::Graph* graph,
     auto rolls = scenario.get_rolls(parameters.roll_iteration_type);
     (void)rolls;
 
+    std::vector<BoardView::Hex> hexes;
+    std::vector<BoardView::Junction> junctions;
+    std::vector<BoardView::Road> roads;
+
     for (const auto node : *graph) {
         std::cout << node->type() << std::endl;
     }
 
-    throw std::invalid_argument("not done yet");
+    return nullptr;
 
     /*
     std::cout << "initializing hex views" << std::endl;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <optional>
 #include <vector>
 
 #include "Board/Graph.h"
@@ -14,10 +15,7 @@
 #include "Scenario/Parameters.h"
 #include "Scenario/Scenario.h"
 
-namespace k10engine {
-
-namespace Game {
-
+namespace k10engine::Game {
 
 class Player;
 
@@ -52,17 +50,20 @@ public:
     int largest_army();
     int longest_road();
 
-    ~Game() = default;
+    Game(std::vector<BoardView::Hex>,
+         std::vector<BoardView::Junction>,
+         std::vector<BoardView::Road>,
+         std::list<DevelopmentCard>,
+         const Scenario::Scenario&);
+    ~Game();
 
 private:
-    Game();
-
     std::vector<BoardView::Hex> m_hexes;
     std::vector<BoardView::Junction> m_junctions;
     std::vector<BoardView::Road> m_roads;
     std::list<DevelopmentCard> m_deck;
 
-    Scenario::Scenario m_scenario;
+    const Scenario::Scenario& m_scenario;
 
     int m_victory_points_goal;
     bool m_can_steal;
@@ -71,16 +72,14 @@ private:
     bool m_is_trade_accepted;
     Dice m_dice;
     Robber m_robber;
-    Trade m_current_trade;
-    int m_turn;
+    std::optional<Trade> m_current_trade;
+    int m_turn{ 0 };
     std::vector<Player*> m_players;
     Player* m_current_player; // snakes at beginning
-    Player* m_has_largest_army;
-    Player* m_has_longest_road;
+    Player* m_has_largest_army{ nullptr };
+    Player* m_has_longest_road{ nullptr };
 };
 
 Game* initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);
 
-} // namespace Game
-
-} // namespace k10engine
+} // namespace k10engine::Game
