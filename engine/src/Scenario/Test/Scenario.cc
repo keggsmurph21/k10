@@ -396,36 +396,36 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
                                     {},
                                     {},
                                     {},
-                                    { { k10engine::NonYieldingResource::Desert, 1 },
-                                      { k10engine::Resource::Brick, 3 },
+                                    { { k10engine::Resource::Brick, 3 },
                                       { k10engine::Resource::Ore, 3 },
                                       { k10engine::Resource::Sheep, 4 },
                                       { k10engine::Resource::Wheat, 4 },
-                                      { k10engine::Resource::Wood, 4 } },
+                                      { k10engine::Resource::Wood, 4 },
+                                      { k10engine::NonYieldingResource::Desert, 1 } },
                                     {},
                                     {});
             std::vector<k10engine::AbstractResource> expected_resources;
             std::vector<const k10engine::AbstractResource*> actual_resources;
             expected_resources = {
+                k10engine::Resource::Brick,
+                k10engine::Resource::Brick,
+                k10engine::Resource::Brick,
+                k10engine::Resource::Ore,
+                k10engine::Resource::Ore,
+                k10engine::Resource::Ore,
+                k10engine::Resource::Sheep,
+                k10engine::Resource::Sheep,
+                k10engine::Resource::Sheep,
+                k10engine::Resource::Sheep,
+                k10engine::Resource::Wheat,
+                k10engine::Resource::Wheat,
+                k10engine::Resource::Wheat,
+                k10engine::Resource::Wheat,
+                k10engine::Resource::Wood,
+                k10engine::Resource::Wood,
+                k10engine::Resource::Wood,
+                k10engine::Resource::Wood,
                 k10engine::NonYieldingResource::Desert,
-                k10engine::Resource::Brick,
-                k10engine::Resource::Brick,
-                k10engine::Resource::Brick,
-                k10engine::Resource::Ore,
-                k10engine::Resource::Ore,
-                k10engine::Resource::Ore,
-                k10engine::Resource::Sheep,
-                k10engine::Resource::Sheep,
-                k10engine::Resource::Sheep,
-                k10engine::Resource::Sheep,
-                k10engine::Resource::Wheat,
-                k10engine::Resource::Wheat,
-                k10engine::Resource::Wheat,
-                k10engine::Resource::Wheat,
-                k10engine::Resource::Wood,
-                k10engine::Resource::Wood,
-                k10engine::Resource::Wood,
-                k10engine::Resource::Wood,
             };
             actual_resources = s.get_resources(IterationType::Fixed);
             REQUIRE(!actual_resources.empty());
@@ -434,7 +434,16 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             for (int i = 0; i < expected_resources.size(); ++i) {
                 const auto expected_resource = expected_resources.at(i);
                 const auto actual_resource = *actual_resources.at(i);
-                REQUIRE(actual_resource == expected_resource);
+                if (std::holds_alternative<k10engine::Resource>(actual_resource)) {
+                    REQUIRE(std::holds_alternative<k10engine::Resource>(expected_resource));
+                    REQUIRE(std::get<k10engine::Resource>(actual_resource)
+                            == std::get<k10engine::Resource>(expected_resource));
+                } else {
+                    REQUIRE(
+                        std::holds_alternative<k10engine::NonYieldingResource>(expected_resource));
+                    REQUIRE(std::get<k10engine::NonYieldingResource>(actual_resource)
+                            == std::get<k10engine::NonYieldingResource>(expected_resource));
+                }
             }
             expected_resources = {
                 k10engine::Resource::Ore,   k10engine::Resource::Sheep,
@@ -455,7 +464,16 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             for (int i = 0; i < expected_resources.size(); ++i) {
                 const auto expected_resource = expected_resources.at(i);
                 const auto actual_resource = *actual_resources.at(i);
-                REQUIRE(actual_resource == expected_resource);
+                if (std::holds_alternative<k10engine::Resource>(actual_resource)) {
+                    REQUIRE(std::holds_alternative<k10engine::Resource>(expected_resource));
+                    REQUIRE(std::get<k10engine::Resource>(actual_resource)
+                            == std::get<k10engine::Resource>(expected_resource));
+                } else {
+                    REQUIRE(
+                        std::holds_alternative<k10engine::NonYieldingResource>(expected_resource));
+                    REQUIRE(std::get<k10engine::NonYieldingResource>(actual_resource)
+                            == std::get<k10engine::NonYieldingResource>(expected_resource));
+                }
             }
         }
     }

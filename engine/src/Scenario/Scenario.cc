@@ -57,10 +57,9 @@ std::vector<const DevelopmentCard*> Scenario::get_development_card_deck(Iteratio
 {
     std::vector<const DevelopmentCard*> deck;
     for (const auto& item : m_development_card_counts) {
-        auto development_card = item.first;
         auto count = item.second;
         for (int i = 0; i < count; ++i) {
-            deck.push_back(&development_card);
+            deck.push_back(&item.first);
         }
     }
     switch (type) {
@@ -78,10 +77,9 @@ std::vector<const AbstractResource*> Scenario::get_resources(IterationType type)
 {
     std::vector<const AbstractResource*> resources;
     for (const auto& item : m_resource_counts) {
-        auto resource = item.first;
         auto count = item.second;
         for (int i = 0; i < count; ++i) {
-            resources.push_back(&resource);
+            resources.push_back(&item.first);
         }
     }
     switch (type) {
