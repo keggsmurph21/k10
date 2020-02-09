@@ -2,9 +2,7 @@
 
 #include <iostream>
 
-namespace k10engine {
-
-namespace Board {
+namespace k10engine::Board {
 
 enum class NodeType {
     Hex,
@@ -16,6 +14,4 @@ enum class NodeType {
 
 std::ostream& operator<<(std::ostream&, NodeType);
 
-} // namespace Board
-
-} // namespace k10engine
+} // namespace k10engine::Board
