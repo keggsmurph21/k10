@@ -12,7 +12,6 @@ bool Graph::nodes_can_make_port(const Node* n0, const Node* n1, Orientation o)
     if (n1 == nullptr || n1->type() != NodeType::Junction) {
         return false;
     }
-
     if (*n0 == *n1) {
         return false;
     }
@@ -66,6 +65,10 @@ Graph::Graph(const _NodeSpecs& node_specs,
         const auto port = new Port(port_index, { node_0, node_1 }, orientation);
         ++port_index;
         m_ports.push_back(port);
+        // FIXME: Assert that we don't assign a port to an index if
+        //        it's already in our map.  In that case, we should fail.
+        m_node_index_to_port_map[node_0->index()] = port;
+        m_node_index_to_port_map[node_1->index()] = port;
     }
     // FIXME: Make sure everything is connected (undirected)
     // for (auto g : (*m_graph)) {

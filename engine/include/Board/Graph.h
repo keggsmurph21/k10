@@ -11,9 +11,7 @@
 #include "Board/Orientation.h"
 #include "Board/Port.h"
 
-namespace k10engine {
-
-namespace Board {
+namespace k10engine::Board {
 
 typedef std::vector<NodeType> _NodeSpecs;
 typedef std::vector<std::tuple<int, int, Direction>> _EdgeSpecs;
@@ -51,8 +49,8 @@ private:
     Nodes m_nodes;
     Edges m_edges;
     Ports m_ports;
+
+    std::map<int, const Port*> m_node_index_to_port_map;
 };
 
-} // namespace Board
-
-} // namespace k10engine
+} // namespace k10engine::Board
