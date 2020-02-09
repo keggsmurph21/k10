@@ -20,6 +20,9 @@ add_library(k10 SHARED
     src/Board/Orientation.cc
     src/Board/Port.cc
     src/Core/Random.cc
+    src/Core/Building.cc
+    src/Core/DevelopmentCard.cc
+    src/Core/Resource.cc
     src/Game/Dice.cc
     src/Game/Game.cc
     src/Game/Player.cc

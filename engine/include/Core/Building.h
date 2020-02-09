@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 namespace k10engine {
 
 enum class Building {
@@ -8,6 +10,8 @@ enum class Building {
     Road,
     Settlement,
 };
+
+std::ostream& operator<<(std::ostream&, Building);
 
 } // namespace k10engine
 
