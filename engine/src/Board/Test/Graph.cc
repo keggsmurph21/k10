@@ -6,9 +6,7 @@
 #include "Board/generated/Tall.h"
 #include "Test/catch.h"
 
-namespace k10engine {
-
-namespace Board {
+namespace k10engine::Board {
 
 TEST_CASE("Graph initialization", "[Board][Board.Graph]")
 {
@@ -106,6 +104,7 @@ TEST_CASE("Graph initialization", "[Board][Board.Graph]")
         auto g = Graph(node_specs,
                        { { 0, 1, Direction::Clock2 }, { 1, 2, Direction::Clock2 } },
                        { { 0, 2, Orientation::Clock2Clock8 } });
+        // NEXTLINENOLINT(readability-magic-numbers)
         for (int i = 3; i < 7; ++i) {
             REQUIRE_THROWS_AS(Graph(node_specs,
                                     { { 0, 1, Direction::Clock2 }, { 1, i, Direction::Clock2 } },
@@ -146,6 +145,4 @@ TEST_CASE("Loading generated boards", "[Board][Board.Graph]")
     }
 }
 
-} // namespace Board
-
-} // namespace k10engine
+} // namespace k10engine::Board

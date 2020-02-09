@@ -1,9 +1,7 @@
 #include "Board/Node.h"
 #include "Test/catch.h"
 
-namespace k10engine {
-
-namespace Board {
+namespace k10engine::Board {
 
 TEST_CASE("Node initialization", "[Board][Board.Node]")
 {
@@ -15,6 +13,4 @@ TEST_CASE("Node initialization", "[Board][Board.Node]")
     }
 }
 
-} // namespace Board
-
-} // namespace k10engine
+} // namespace k10engine::Board
