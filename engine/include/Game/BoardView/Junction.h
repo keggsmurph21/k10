@@ -1,7 +1,5 @@
 #pragma once
 
-#include <optional>
-
 #include "Board/Node.h"
 #include "Core/Resource.h"
 
@@ -24,30 +22,30 @@ public:
     bool is_settleable() { return m_is_settleable; }
     void set_is_not_settleable() { m_is_settleable = false; }
 
-    std::optional<ResourceCollection> port_type() { return m_port_type; }
+    const ResourceCollection& port_resources() { return m_port_resources; }
 
-    std::optional<Player*> owner() { return m_owner; }
+    const Player* owner() const { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
 
     const Board::Node* node() const { return m_node; }
 
-    Junction(const Board::Node* node, std::optional<ResourceCollection> port_type)
+    Junction(const Board::Node* node,
+             const ResourceCollection& port_resources,
+             size_t port_exchange_rate)
         : m_node(node)
-        , m_port_type(port_type)
+        , m_port_resources(port_resources)
+        , m_port_exchange_rate(port_exchange_rate)
     {
-        m_has_settlement = false;
-        m_has_city = false;
-        m_is_settleable = true;
-        m_owner = std::nullopt;
     }
 
 private:
     const Board::Node* m_node;
-    bool m_has_settlement;
-    bool m_has_city;
-    bool m_is_settleable;
-    std::optional<ResourceCollection> m_port_type;
-    std::optional<Player*> m_owner;
+    bool m_has_settlement{ false };
+    bool m_has_city{ false };
+    bool m_is_settleable{ true };
+    const ResourceCollection& m_port_resources;
+    const size_t m_port_exchange_rate;
+    Player* m_owner{ nullptr };
 };
 
 } // namespace BoardView
