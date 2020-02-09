@@ -46,21 +46,21 @@ int Game::get_round() // NOLINT(readability-convert-member-functions-to-static)
     throw std::invalid_argument("Not implemented: Game::get_round");
 }
 
-Game* initialize(Board::Graph* graph,
-                 Scenario::Scenario* scenario,
+Game* initialize(const Board::Graph* graph,
+                 const Scenario::Scenario& scenario,
                  const Scenario::Parameters& parameters)
 {
-    if (!scenario->is_valid(parameters)) {
+    if (!scenario.is_valid(parameters)) {
         throw std::invalid_argument("Invalid parameters");
     }
 
-    auto deck = scenario->get_development_card_deck(parameters->development_card_iteration_type);
+    auto deck = scenario.get_development_card_deck(parameters.development_card_iteration_type);
     (void)deck;
-    auto ports = scenario->get_ports(parameters->port_iteration_type);
+    auto ports = scenario.get_ports(parameters.port_iteration_type);
     (void)ports;
-    auto resources = scenario->get_resources(parameters->resource_iteration_type);
+    auto resources = scenario.get_resources(parameters.resource_iteration_type);
     (void)resources;
-    auto rolls = scenario->get_rolls(parameters->roll_iteration_type);
+    auto rolls = scenario.get_rolls(parameters.roll_iteration_type);
     (void)rolls;
 
     for (const auto node : *graph) {
