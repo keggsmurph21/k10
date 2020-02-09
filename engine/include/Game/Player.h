@@ -65,6 +65,8 @@ public:
     int public_victory_points();
     int private_victory_points();
 
+    ~Player() {}
+
 private:
     Player(std::string id, bool is_human, Game* game)
         : m_id(id)
@@ -72,8 +74,6 @@ private:
         , m_game(game)
     {
     }
-
-    ~Player() {}
 
     Game* game() { return m_game; }
 
