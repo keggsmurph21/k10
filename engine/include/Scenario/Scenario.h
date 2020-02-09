@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <map>
 #include <optional>
 #include <set>
@@ -12,6 +13,11 @@
 #include "Scenario/Parameters.h"
 
 namespace k10engine::Scenario {
+
+#define k10_SCENARIO_MIN_PLAYERS_COUNT 1
+#define k10_SCENARIO_MAX_PLAYERS_COUNT 10
+#define k10_SCENARIO_MIN_VICTORY_POINTS_GOAL 2
+#define k10_SCENARIO_MAX_VICTORY_POINTS_GOAL 20
 
 template<typename T>
 using Costs = std::map<T, ResourceCounts, std::less<T>>;
@@ -62,17 +68,19 @@ public:
              Counts<AbstractResource> resource_counts,
              std::vector<int> rolls,
              std::vector<ResourceCollection> ports)
-        : m_min_players_count(min_players_count)
-        , m_max_players_count(max_players_count)
-        , m_min_victory_points_goal(min_victory_points_goal)
-        , m_max_victory_points_goal(max_victory_points_goal)
-        , m_building_costs(building_costs)
+        : m_building_costs(building_costs)
         , m_building_counts(building_counts)
         , m_development_card_counts(development_card_counts)
         , m_resource_counts(resource_counts)
         , m_rolls(rolls)
         , m_ports(ports)
     {
+        m_min_players_count = std::max<int>(min_players_count, k10_SCENARIO_MIN_PLAYERS_COUNT);
+        m_max_players_count = std::min<int>(max_players_count, k10_SCENARIO_MAX_PLAYERS_COUNT);
+        m_min_victory_points_goal =
+            std::max<int>(min_victory_points_goal, k10_SCENARIO_MIN_VICTORY_POINTS_GOAL);
+        m_max_victory_points_goal =
+            std::min<int>(max_victory_points_goal, k10_SCENARIO_MAX_VICTORY_POINTS_GOAL);
     }
     ~Scenario();
 

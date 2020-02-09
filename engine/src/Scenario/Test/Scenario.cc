@@ -35,11 +35,11 @@ TEST_CASE("Scenario initialization", "[Scenario]")
 {
     SECTION("Trivial")
     {
-        const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {});
-        REQUIRE(s.min_players_count() == 0);
-        REQUIRE(s.max_players_count() == 0);
-        REQUIRE(s.min_victory_points_goal() == 0);
-        REQUIRE(s.max_victory_points_goal() == 0);
+        const auto s = Scenario(2, 2, 2, 2, {}, {}, {}, {}, {}, {});
+        REQUIRE(s.min_players_count() == 2);
+        REQUIRE(s.max_players_count() == 2);
+        REQUIRE(s.min_victory_points_goal() == 2);
+        REQUIRE(s.max_victory_points_goal() == 2);
         REQUIRE(s.building_costs().empty());
         REQUIRE(!s.is_valid(k10engine::Building::City));
         REQUIRE(!s.is_valid(k10engine::Building::DevelopmentCard));
@@ -85,6 +85,24 @@ TEST_CASE("Scenario initialization", "[Scenario]")
         REQUIRE(s.get_resources(IterationType::Random).empty());
         REQUIRE(s.get_rolls(IterationType::Fixed).empty());
         REQUIRE(s.get_rolls(IterationType::Random).empty());
+    }
+
+    SECTION("Mins & Maxes")
+    {
+        const auto s = Scenario(k10_SCENARIO_MIN_PLAYERS_COUNT - 1,
+                                k10_SCENARIO_MAX_PLAYERS_COUNT + 1,
+                                k10_SCENARIO_MIN_VICTORY_POINTS_GOAL - 1,
+                                k10_SCENARIO_MAX_VICTORY_POINTS_GOAL + 1,
+                                {},
+                                {},
+                                {},
+                                {},
+                                {},
+                                {});
+        REQUIRE(s.min_players_count() == k10_SCENARIO_MIN_PLAYERS_COUNT);
+        REQUIRE(s.max_players_count() == k10_SCENARIO_MAX_PLAYERS_COUNT);
+        REQUIRE(s.min_victory_points_goal() == k10_SCENARIO_MIN_VICTORY_POINTS_GOAL);
+        REQUIRE(s.max_victory_points_goal() == k10_SCENARIO_MAX_VICTORY_POINTS_GOAL);
     }
 
     SECTION("Costs<Building>")
