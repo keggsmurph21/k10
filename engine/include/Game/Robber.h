@@ -8,16 +8,13 @@ namespace Game {
 
 class Robber {
 public:
-    BoardView::Hex location() { return m_location; }
-    void set_location(BoardView::Hex hex) { m_location = hex; }
+    const BoardView::Hex* location() { return m_location; }
+    void set_location(const BoardView::Hex* hex) { m_location = hex; }
 
-    Robber(BoardView::Hex hex)
-        : m_location(hex)
-    {
-    }
+    Robber() {}
 
 private:
-    BoardView::Hex m_location;
+    const BoardView::Hex* m_location{ nullptr };
 };
 
 } // namespace Game

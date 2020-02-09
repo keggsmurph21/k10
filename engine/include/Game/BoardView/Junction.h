@@ -31,7 +31,7 @@ public:
 
     const Board::Node* node() const { return m_node; }
 
-    Junction(Board::Node* node, std::optional<ResourceCollection> port_type)
+    Junction(const Board::Node* node, std::optional<ResourceCollection> port_type)
         : m_node(node)
         , m_port_type(port_type)
     {
@@ -42,7 +42,7 @@ public:
     }
 
 private:
-    Board::Node* m_node;
+    const Board::Node* m_node;
     bool m_has_settlement;
     bool m_has_city;
     bool m_is_settleable;

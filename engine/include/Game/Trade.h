@@ -10,9 +10,9 @@ namespace Game {
 
 class Trade {
 public:
-    Trade(std::string offerer_id,
-          ResourceCounts cards_from_offerer,
-          ResourceCounts cards_to_offerer)
+    Trade(const std::string& offerer_id,
+          const ResourceCounts& cards_from_offerer,
+          const ResourceCounts& cards_to_offerer)
         : m_offerer_id(offerer_id)
         , m_cards_from_offerer(cards_from_offerer)
         , m_cards_to_offerer(cards_to_offerer)
@@ -20,9 +20,9 @@ public:
     }
 
 private:
-    std::string m_offerer_id;
-    ResourceCounts m_cards_from_offerer;
-    ResourceCounts m_cards_to_offerer;
+    const std::string& m_offerer_id;
+    const ResourceCounts& m_cards_from_offerer;
+    const ResourceCounts& m_cards_to_offerer;
 };
 
 } // namespace Game

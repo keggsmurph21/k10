@@ -20,13 +20,13 @@ public:
 
     const Board::Node* node() const { return m_node; }
 
-    Road(Board::Node* node)
+    Road(const Board::Node* node)
         : m_node(node)
     {
     }
 
 private:
-    Board::Node* m_node;
+    const Board::Node* m_node;
     std::optional<Player*> m_owner;
 };
 
