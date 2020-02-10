@@ -20,34 +20,34 @@ class Player;
 
 class Game {
 public:
-    bool can_steal() { return m_can_steal; }
+    bool can_steal() const { return m_can_steal; }
     void set_can_steal(bool can_steal) { m_can_steal = can_steal; }
 
-    bool has_rolled() { return m_has_rolled; }
+    bool has_rolled() const { return m_has_rolled; }
     void set_has_rolled(bool has_rolled) { m_has_rolled = has_rolled; }
 
-    bool is_game_over() { return m_is_game_over; }
+    bool is_game_over() const { return m_is_game_over; }
     void set_is_game_over(bool is_game_over) { m_is_game_over = is_game_over; }
 
-    bool is_trade_accepted() { return m_is_trade_accepted; }
+    bool is_trade_accepted() const { return m_is_trade_accepted; }
     void set_is_trade_accepted(bool is_trade_accepted) { m_is_trade_accepted = is_trade_accepted; }
 
-    bool is_first_round();
-    bool is_second_round();
-    bool is_roll_seven();
-    bool should_wait_for_discard();
-    bool should_wait_for_trade();
+    bool is_first_round() const;
+    bool is_second_round() const;
+    bool is_roll_seven() const;
+    bool should_wait_for_discard() const;
+    bool should_wait_for_trade() const;
 
     void roll_dice();
-    int get_dice_total();
+    int get_dice_total() const;
 
-    int turn() { return m_turn; }
+    int turn() const { return m_turn; }
     void increment_turn() { ++m_turn; }
 
-    int get_round(); // turn() // #players
+    int get_round() const; // turn() // #players
 
-    int largest_army();
-    int longest_road();
+    int largest_army() const;
+    int longest_road() const;
 
     Game(std::vector<BoardView::Hex>,
          std::vector<BoardView::Junction>,

@@ -11,37 +11,37 @@ void Game::roll_dice() // NOLINT(readability-convert-member-functions-to-static)
     throw std::invalid_argument("Not implemented: Game::roll_dice");
 }
 
-int Game::get_dice_total()
+int Game::get_dice_total() const
 {
     return m_dice.get_total();
 }
 
-bool Game::is_first_round()
+bool Game::is_first_round() const
 {
     return get_round() == 0;
 }
 
-bool Game::is_second_round()
+bool Game::is_second_round() const
 {
     return get_round() == 1;
 }
 
-bool Game::is_roll_seven()
+bool Game::is_roll_seven() const
 {
     return get_dice_total() == k10_ROBBER_DICE_ROLL;
 }
 
-bool Game::should_wait_for_discard() // NOLINT(readability-convert-member-functions-to-static)
+bool Game::should_wait_for_discard() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Game::should_wait_for_discard");
 }
 
-bool Game::should_wait_for_trade() // NOLINT(readability-convert-member-functions-to-static)
+bool Game::should_wait_for_trade() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Game::should_wait_for_trade");
 }
 
-int Game::get_round() // NOLINT(readability-convert-member-functions-to-static)
+int Game::get_round() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Game::get_round");
 }
