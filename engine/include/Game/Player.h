@@ -5,13 +5,12 @@
 
 #include "Core/DevelopmentCard.h"
 #include "Core/Resource.h"
+#include "Core/Vertex.h"
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"
 #include "Game/Flags.h"
 #include "Game/Game.h"
 #include "Game/Trade.h"
-
-#define FIXME int
 
 namespace k10engine {
 
@@ -37,8 +36,8 @@ public:
     int num_to_discard() { return m_num_to_discard; }
     void set_num_to_discard(int num_to_discard) { m_num_to_discard = num_to_discard; }
 
-    FIXME vertex() { return m_vertex; }
-    void set_vertex(FIXME vertex) { m_vertex = vertex; }
+    State::Vertex& vertex() { return m_vertex; }
+    void set_vertex(State::Vertex vertex) { m_vertex = vertex; }
 
     bool is_human() { return m_is_human; }
 
@@ -91,7 +90,7 @@ private:
     bool m_has_declined_trade;
     int m_num_to_discard;
 
-    FIXME m_vertex;
+    State::Vertex m_vertex{ State::Vertex::Root };
 
     std::vector<BoardView::Junction> m_cities;
     std::vector<BoardView::Road> m_roads;
