@@ -80,9 +80,9 @@ private:
     std::vector<DevelopmentCard> m_playable_development_cards;
     std::vector<DevelopmentCard> m_unplayable_development_cards;
 
-    bool m_can_accept_trade;
-    bool m_has_declined_trade;
-    int m_num_to_discard;
+    bool m_can_accept_trade{ false };
+    bool m_has_declined_trade{ false };
+    int m_num_to_discard{ 0 };
 
     State::Vertex m_vertex{ State::Vertex::Root };
 
@@ -90,8 +90,8 @@ private:
     std::vector<BoardView::Road> m_roads;
     std::vector<BoardView::Junction> m_settlements;
 
-    int m_public_victory_points;
-    int m_private_victory_points;
+    int m_public_victory_points{ 0 };
+    int m_private_victory_points{ 0 };
 
     void accrue_resources(ResourceCounts);
     void spend_resources(ResourceCounts);
