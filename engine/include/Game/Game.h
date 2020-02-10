@@ -59,6 +59,8 @@ public:
     ~Game();
 
 private:
+    Player* current_player() { return m_players.at(m_current_player_index); }
+
     std::vector<BoardView::Hex> m_hexes;
     std::vector<BoardView::Junction> m_junctions;
     std::vector<BoardView::Road> m_roads;
@@ -72,9 +74,10 @@ private:
     int m_victory_points_goal;
 
     std::vector<Player*> m_players;
-    Player* m_current_player; // snakes at beginning
 
     size_t m_deck_index{ 0 };
+    size_t m_current_player_index{ 0 };
+
     bool m_can_steal{ false };
     bool m_has_rolled{ false };
     bool m_is_game_over{ false };
