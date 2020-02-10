@@ -50,7 +50,8 @@ Game::Game(std::vector<BoardView::Hex> hexes,
            std::vector<BoardView::Junction> junctions,
            std::vector<BoardView::Road> roads,
            std::vector<DevelopmentCard> deck,
-           const Scenario::Scenario& scenario)
+           const Scenario::Scenario& scenario,
+           int robber_index)
     : m_hexes(std::move(hexes))
     , m_junctions(std::move(junctions))
     , m_roads(std::move(roads))
@@ -59,6 +60,7 @@ Game::Game(std::vector<BoardView::Hex> hexes,
 {
     m_dice = Dice();
     m_robber = Robber();
+    (void)robber_index;
 }
 
 Game::~Game()
@@ -150,6 +152,10 @@ Game* initialize(const Board::Graph* graph,
             break; // do nothing
         }
         std::cout << std::endl;
+    }
+
+    if (!(0 <= robber_index && robber_index < static_cast<int>(hexes.size()))) {
+        return nullptr; // something went wrong ... or no Desert given
     }
 
     return nullptr;

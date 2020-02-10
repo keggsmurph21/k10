@@ -53,7 +53,8 @@ public:
          std::vector<BoardView::Junction>,
          std::vector<BoardView::Road>,
          std::vector<DevelopmentCard>,
-         const Scenario::Scenario&);
+         const Scenario::Scenario&,
+         int robber_index);
     ~Game();
 
 private:
