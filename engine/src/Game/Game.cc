@@ -137,9 +137,8 @@ Game* initialize(const Board::Graph* graph,
                 return nullptr; // Too few ports
             }
             const auto& port_spec = ports.at(port_index);
-            const auto other_node = port->buddy(node);
             std::cout << " Port " << port_index << " " << port_spec.resources << " @ "
-                      << port_spec.exchange_rate << " (with " << other_node->index() << ")";
+                      << port_spec.exchange_rate;
             auto junction = BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
             junctions.push_back(junction);
         } break;
