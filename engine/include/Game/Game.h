@@ -66,19 +66,21 @@ private:
 
     const Scenario::Scenario& m_scenario;
 
+    Dice m_dice;
+    Robber m_robber;
+
     int m_victory_points_goal;
+
+    std::vector<Player*> m_players;
+    Player* m_current_player; // snakes at beginning
 
     size_t m_deck_index{ 0 };
     bool m_can_steal{ false };
     bool m_has_rolled{ false };
     bool m_is_game_over{ false };
     bool m_is_trade_accepted{ false };
-    Dice m_dice;
-    Robber m_robber;
     std::optional<Trade> m_current_trade;
     int m_turn{ 0 };
-    std::vector<Player*> m_players;
-    Player* m_current_player; // snakes at beginning
 
     Player* m_has_largest_army{ nullptr };
     Player* m_has_longest_road{ nullptr };
