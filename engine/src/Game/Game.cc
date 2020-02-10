@@ -62,7 +62,7 @@ Game::Game(std::vector<BoardView::Hex> hexes,
     , m_victory_points_goal(parameters.victory_points_goal)
 {
     for (int i = 0; i < parameters.players_count; ++i) {
-        // construct each Player
+        m_players.push_back(new Player(i, this));
     }
 }
 

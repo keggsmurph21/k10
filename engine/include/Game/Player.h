@@ -64,6 +64,8 @@ public:
 
     ~Player() {}
 
+    friend Game;
+
 private:
     Player(size_t id, const Game* game)
         : m_id(id)
