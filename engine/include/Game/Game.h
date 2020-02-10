@@ -65,6 +65,7 @@ private:
 
     const Scenario::Scenario& m_scenario;
 
+    size_t m_deck_index{ 0 };
     int m_victory_points_goal;
     bool m_can_steal;
     bool m_has_rolled;
