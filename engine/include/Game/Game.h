@@ -1,6 +1,5 @@
 #pragma once
 
-#include <list>
 #include <optional>
 #include <vector>
 
@@ -53,7 +52,7 @@ public:
     Game(std::vector<BoardView::Hex>,
          std::vector<BoardView::Junction>,
          std::vector<BoardView::Road>,
-         std::list<DevelopmentCard>,
+         std::vector<DevelopmentCard>,
          const Scenario::Scenario&);
     ~Game();
 
@@ -61,7 +60,7 @@ private:
     std::vector<BoardView::Hex> m_hexes;
     std::vector<BoardView::Junction> m_junctions;
     std::vector<BoardView::Road> m_roads;
-    std::list<DevelopmentCard> m_deck;
+    std::vector<DevelopmentCard> m_deck;
 
     const Scenario::Scenario& m_scenario;
 

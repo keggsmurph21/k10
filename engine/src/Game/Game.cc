@@ -49,7 +49,7 @@ int Game::get_round() // NOLINT(readability-convert-member-functions-to-static)
 Game::Game(std::vector<BoardView::Hex> hexes,
            std::vector<BoardView::Junction> junctions,
            std::vector<BoardView::Road> roads,
-           std::list<DevelopmentCard> deck,
+           std::vector<DevelopmentCard> deck,
            const Scenario::Scenario& scenario)
     : m_hexes(std::move(hexes))
     , m_junctions(std::move(junctions))
