@@ -108,8 +108,8 @@ int main(int /* unused */, char** /* unused */)
                                               4,    // NOLINT(readability-magic-numbers)
                                               10 }; // NOLINT(readability-magic-numbers)
     auto g = k10engine::Game::initialize(b, s, p);
-    (void)g;
 
+    delete g;
     delete b;
 
     return 0;

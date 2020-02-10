@@ -57,10 +57,8 @@ Game::Game(std::vector<BoardView::Hex> hexes,
     , m_roads(std::move(roads))
     , m_deck(std::move(deck))
     , m_scenario(scenario)
+    , m_robber(&m_hexes.at(robber_index))
 {
-    m_dice = Dice();
-    m_robber = Robber();
-    (void)robber_index;
 }
 
 Game::~Game()
@@ -86,7 +84,6 @@ Game* initialize(const Board::Graph* graph,
 
     const auto& deck =
         scenario.get_development_card_deck(parameters.development_card_iteration_type);
-    (void)deck;
     const auto& ports = scenario.get_ports(parameters.port_iteration_type);
     const auto& resources = scenario.get_resources(parameters.resource_iteration_type);
     const auto& rolls = scenario.get_rolls(parameters.roll_iteration_type);
@@ -95,7 +92,7 @@ Game* initialize(const Board::Graph* graph,
     std::vector<BoardView::Junction> junctions;
     std::vector<BoardView::Road> roads;
 
-    int robber_index = -1; // FIXME: Pass this along to Game contructor
+    int robber_index = -1;
 
     size_t hex_index = 0;
     size_t roll_index = 0;
@@ -158,7 +155,7 @@ Game* initialize(const Board::Graph* graph,
         return nullptr; // something went wrong ... or no Desert given
     }
 
-    return nullptr;
+    return new Game(hexes, junctions, roads, deck, scenario, robber_index);
 }
 
 } // namespace k10engine::Game
