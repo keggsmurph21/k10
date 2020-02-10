@@ -53,13 +53,13 @@ int Scenario::count(const AbstractResource& resource) const
     return m_resource_counts.at(resource);
 }
 
-std::vector<const DevelopmentCard*> Scenario::get_development_card_deck(IterationType type) const
+std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType type) const
 {
-    std::vector<const DevelopmentCard*> deck;
+    std::vector<DevelopmentCard> deck;
     for (const auto& item : m_development_card_counts) {
         auto count = item.second;
         for (int i = 0; i < count; ++i) {
-            deck.push_back(&item.first);
+            deck.push_back(item.first);
         }
     }
     switch (type) {
@@ -73,14 +73,14 @@ std::vector<const DevelopmentCard*> Scenario::get_development_card_deck(Iteratio
     }
 }
 
-std::vector<const AbstractResource*> Scenario::get_resources(IterationType type) const
-// FIXME: These should be <const Vector&> returns
+std::vector<AbstractResource> Scenario::get_resources(IterationType type) const
+// FIXME: These should be <const Vector> returns
 {
-    std::vector<const AbstractResource*> resources;
+    std::vector<AbstractResource> resources;
     for (const auto& item : m_resource_counts) {
         auto count = item.second;
         for (int i = 0; i < count; ++i) {
-            resources.push_back(&item.first);
+            resources.push_back(item.first);
         }
     }
     switch (type) {
@@ -94,11 +94,11 @@ std::vector<const AbstractResource*> Scenario::get_resources(IterationType type)
     }
 }
 
-std::vector<const _PortSpec*> Scenario::get_ports(IterationType type) const
+std::vector<_PortSpec> Scenario::get_ports(IterationType type) const
 {
-    std::vector<const _PortSpec*> ports;
+    std::vector<_PortSpec> ports;
     for (const auto& port_spec : m_ports) {
-        ports.push_back(&port_spec);
+        ports.push_back(port_spec);
     }
     switch (type) {
     case IterationType::Fixed:

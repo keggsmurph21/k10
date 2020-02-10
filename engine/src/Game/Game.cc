@@ -135,7 +135,7 @@ Game* initialize(const Board::Graph* graph,
             if (port_index >= ports.size()) {
                 return nullptr; // Too few ports
             }
-            const auto port_spec = *ports.at(port_index);
+            const auto port_spec = ports.at(port_index);
             const auto other_node = port->buddy(node);
             std::cout << " Port " << port_index << " " << port_spec.resources << " @ "
                       << port_spec.exchange_rate << " (with " << other_node->index() << ")";

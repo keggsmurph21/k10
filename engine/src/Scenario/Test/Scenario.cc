@@ -357,12 +357,12 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& fixed_resources = s.get_resources(IterationType::Fixed);
             REQUIRE(!fixed_resources.empty());
             REQUIRE(fixed_resources.size() == 1);
-            REQUIRE(std::get<k10engine::Resource>(*fixed_resources.at(0))
+            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(0))
                     == k10engine::Resource::Ore);
             const auto& random_resources = s.get_resources(IterationType::Random);
             REQUIRE(!random_resources.empty());
             REQUIRE(random_resources.size() == 1);
-            REQUIRE(std::get<k10engine::Resource>(*random_resources.at(0))
+            REQUIRE(std::get<k10engine::Resource>(random_resources.at(0))
                     == k10engine::Resource::Ore);
         }
 
@@ -373,16 +373,16 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& fixed_resources = s.get_resources(IterationType::Fixed);
             REQUIRE(!fixed_resources.empty());
             REQUIRE(fixed_resources.size() == 2);
-            REQUIRE(std::get<k10engine::Resource>(*fixed_resources.at(0))
+            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(0))
                     == k10engine::Resource::Ore);
-            REQUIRE(std::get<k10engine::Resource>(*fixed_resources.at(1))
+            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(1))
                     == k10engine::Resource::Ore);
             const auto& random_resources = s.get_resources(IterationType::Random);
             REQUIRE(!random_resources.empty());
             REQUIRE(random_resources.size() == 2);
-            REQUIRE(std::get<k10engine::Resource>(*random_resources.at(0))
+            REQUIRE(std::get<k10engine::Resource>(random_resources.at(0))
                     == k10engine::Resource::Ore);
-            REQUIRE(std::get<k10engine::Resource>(*random_resources.at(1))
+            REQUIRE(std::get<k10engine::Resource>(random_resources.at(1))
                     == k10engine::Resource::Ore);
         }
 
@@ -403,16 +403,16 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& fixed_resources = s.get_resources(IterationType::Fixed);
             REQUIRE(!fixed_resources.empty());
             REQUIRE(fixed_resources.size() == 2);
-            REQUIRE(std::get<k10engine::Resource>(*fixed_resources.at(0))
+            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(0))
                     == k10engine::Resource::Ore);
-            REQUIRE(std::get<k10engine::Resource>(*fixed_resources.at(1))
+            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(1))
                     == k10engine::Resource::Wheat);
             const auto& random_resources = s.get_resources(IterationType::Random);
             REQUIRE(!random_resources.empty());
             REQUIRE(random_resources.size() == 2);
-            REQUIRE(std::get<k10engine::Resource>(*random_resources.at(0))
+            REQUIRE(std::get<k10engine::Resource>(random_resources.at(0))
                     == k10engine::Resource::Wheat);
-            REQUIRE(std::get<k10engine::Resource>(*random_resources.at(1))
+            REQUIRE(std::get<k10engine::Resource>(random_resources.at(1))
                     == k10engine::Resource::Ore);
         }
 
@@ -435,7 +435,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
                                     {},
                                     {});
             std::vector<k10engine::AbstractResource> expected_resources;
-            std::vector<const k10engine::AbstractResource*> actual_resources;
+            std::vector<k10engine::AbstractResource> actual_resources;
             expected_resources = {
                 k10engine::Resource::Brick,
                 k10engine::Resource::Brick,
@@ -463,7 +463,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             // NOLINTNEXTLINE(modernize-loop-convert)
             for (int i = 0; i < expected_resources.size(); ++i) {
                 const auto expected_resource = expected_resources.at(i);
-                const auto actual_resource = *actual_resources.at(i);
+                const auto actual_resource = actual_resources.at(i);
                 if (std::holds_alternative<k10engine::Resource>(actual_resource)) {
                     REQUIRE(std::holds_alternative<k10engine::Resource>(expected_resource));
                     REQUIRE(std::get<k10engine::Resource>(actual_resource)
@@ -493,7 +493,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             // NOLINTNEXTLINE(modernize-loop-convert)
             for (int i = 0; i < expected_resources.size(); ++i) {
                 const auto expected_resource = expected_resources.at(i);
-                const auto actual_resource = *actual_resources.at(i);
+                const auto actual_resource = actual_resources.at(i);
                 if (std::holds_alternative<k10engine::Resource>(actual_resource)) {
                     REQUIRE(std::holds_alternative<k10engine::Resource>(expected_resource));
                     REQUIRE(std::get<k10engine::Resource>(actual_resource)
@@ -524,12 +524,12 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& fixed_development_cards = s.get_development_card_deck(IterationType::Fixed);
             REQUIRE(!fixed_development_cards.empty());
             REQUIRE(fixed_development_cards.size() == 1);
-            REQUIRE(*fixed_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
+            REQUIRE(fixed_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
             const auto& random_development_cards =
                 s.get_development_card_deck(IterationType::Random);
             REQUIRE(!random_development_cards.empty());
             REQUIRE(random_development_cards.size() == 1);
-            REQUIRE(*random_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
+            REQUIRE(random_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
         }
 
         SECTION("2 development cards (same)")
@@ -539,14 +539,14 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& fixed_development_cards = s.get_development_card_deck(IterationType::Fixed);
             REQUIRE(!fixed_development_cards.empty());
             REQUIRE(fixed_development_cards.size() == 2);
-            REQUIRE(*fixed_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
-            REQUIRE(*fixed_development_cards.at(1) == k10engine::DevelopmentCard::Knight);
+            REQUIRE(fixed_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
+            REQUIRE(fixed_development_cards.at(1) == k10engine::DevelopmentCard::Knight);
             const auto& random_development_cards =
                 s.get_development_card_deck(IterationType::Random);
             REQUIRE(!random_development_cards.empty());
             REQUIRE(random_development_cards.size() == 2);
-            REQUIRE(*random_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
-            REQUIRE(*random_development_cards.at(1) == k10engine::DevelopmentCard::Knight);
+            REQUIRE(random_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
+            REQUIRE(random_development_cards.at(1) == k10engine::DevelopmentCard::Knight);
         }
 
         SECTION("2 development cards (different)")
@@ -566,14 +566,14 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& fixed_development_cards = s.get_development_card_deck(IterationType::Fixed);
             REQUIRE(!fixed_development_cards.empty());
             REQUIRE(fixed_development_cards.size() == 2);
-            REQUIRE(*fixed_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
-            REQUIRE(*fixed_development_cards.at(1) == k10engine::DevelopmentCard::Monopoly);
+            REQUIRE(fixed_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
+            REQUIRE(fixed_development_cards.at(1) == k10engine::DevelopmentCard::Monopoly);
             const auto& random_development_cards =
                 s.get_development_card_deck(IterationType::Random);
             REQUIRE(!random_development_cards.empty());
             REQUIRE(random_development_cards.size() == 2);
-            REQUIRE(*random_development_cards.at(0) == k10engine::DevelopmentCard::Monopoly);
-            REQUIRE(*random_development_cards.at(1) == k10engine::DevelopmentCard::Knight);
+            REQUIRE(random_development_cards.at(0) == k10engine::DevelopmentCard::Monopoly);
+            REQUIRE(random_development_cards.at(1) == k10engine::DevelopmentCard::Knight);
         }
 
         SECTION("standard development cards")
@@ -595,7 +595,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
                                     {},
                                     {});
             std::vector<k10engine::DevelopmentCard> expected_development_cards;
-            std::vector<const k10engine::DevelopmentCard*> actual_development_cards;
+            std::vector<k10engine::DevelopmentCard> actual_development_cards;
             expected_development_cards = {
                 k10engine::DevelopmentCard::Knight,       k10engine::DevelopmentCard::Knight,
                 k10engine::DevelopmentCard::Knight,       k10engine::DevelopmentCard::Knight,
@@ -617,7 +617,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             // NOLINTNEXTLINE(modernize-loop-convert)
             for (int i = 0; i < expected_development_cards.size(); ++i) {
                 const auto expected_development_card = expected_development_cards.at(i);
-                const auto actual_development_card = *actual_development_cards.at(i);
+                const auto actual_development_card = actual_development_cards.at(i);
                 REQUIRE(actual_development_card == expected_development_card);
             }
             expected_development_cards = {
@@ -641,7 +641,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             // NOLINTNEXTLINE(modernize-loop-convert)
             for (int i = 0; i < expected_development_cards.size(); ++i) {
                 const auto expected_development_card = expected_development_cards.at(i);
-                const auto actual_development_card = *actual_development_cards.at(i);
+                const auto actual_development_card = actual_development_cards.at(i);
                 REQUIRE(actual_development_card == expected_development_card);
             }
         }
@@ -758,11 +758,11 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
             REQUIRE(fixed_ports.size() == 1);
-            REQUIRE(*fixed_ports.at(0) == expected_port);
+            REQUIRE(fixed_ports.at(0) == expected_port);
             const auto& random_ports = s.get_ports(IterationType::Random);
             REQUIRE(!random_ports.empty());
             REQUIRE(random_ports.size() == 1);
-            REQUIRE(*random_ports.at(0) == expected_port);
+            REQUIRE(random_ports.at(0) == expected_port);
         }
 
         SECTION("1 port (multiple resources)")
@@ -774,11 +774,11 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
             REQUIRE(fixed_ports.size() == 1);
-            REQUIRE(*fixed_ports.at(0) == expected_port);
+            REQUIRE(fixed_ports.at(0) == expected_port);
             const auto& random_ports = s.get_ports(IterationType::Random);
             REQUIRE(!random_ports.empty());
             REQUIRE(random_ports.size() == 1);
-            REQUIRE(*random_ports.at(0) == expected_port);
+            REQUIRE(random_ports.at(0) == expected_port);
         }
 
         SECTION("2 ports (same, single)")
@@ -792,13 +792,13 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
             REQUIRE(fixed_ports.size() == 2);
-            REQUIRE(*fixed_ports.at(0) == expected_port);
-            REQUIRE(*fixed_ports.at(1) == expected_port);
+            REQUIRE(fixed_ports.at(0) == expected_port);
+            REQUIRE(fixed_ports.at(1) == expected_port);
             const auto& random_ports = s.get_ports(IterationType::Random);
             REQUIRE(!random_ports.empty());
             REQUIRE(random_ports.size() == 2);
-            REQUIRE(*random_ports.at(0) == expected_port);
-            REQUIRE(*random_ports.at(1) == expected_port);
+            REQUIRE(random_ports.at(0) == expected_port);
+            REQUIRE(random_ports.at(1) == expected_port);
         }
 
         SECTION("2 ports (different, single)")
@@ -812,7 +812,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(!fixed_ports.empty());
             REQUIRE(fixed_ports.size() == expected_ports.size());
             for (int i = 0; i < expected_ports.size(); ++i) {
-                REQUIRE(*fixed_ports.at(i) == expected_ports.at(i));
+                REQUIRE(fixed_ports.at(i) == expected_ports.at(i));
             }
             expected_ports = {
                 { { k10engine::Resource::Wheat }, 1 },
@@ -822,7 +822,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(!random_ports.empty());
             REQUIRE(random_ports.size() == expected_ports.size());
             for (int i = 0; i < expected_ports.size(); ++i) {
-                REQUIRE(*random_ports.at(i) == expected_ports.at(i));
+                REQUIRE(random_ports.at(i) == expected_ports.at(i));
             }
         }
 
@@ -873,7 +873,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             };
             const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, ports);
             std::vector<k10engine::Scenario::_PortSpec> expected_ports;
-            std::vector<const k10engine::Scenario::_PortSpec*> actual_ports;
+            std::vector<k10engine::Scenario::_PortSpec> actual_ports;
             expected_ports = ports;
             actual_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!actual_ports.empty());
@@ -881,7 +881,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             // NOLINTNEXTLINE(modernize-loop-convert)
             for (int i = 0; i < expected_ports.size(); ++i) {
                 const auto expected_port = expected_ports.at(i);
-                const auto actual_port = *actual_ports.at(i);
+                const auto actual_port = actual_ports.at(i);
                 REQUIRE(actual_port == expected_port);
             }
             actual_ports = s.get_ports(IterationType::Random);
@@ -936,7 +936,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             // NOLINTNEXTLINE(modernize-loop-convert)
             for (int i = 0; i < expected_ports.size(); ++i) {
                 const auto expected_port = expected_ports.at(i);
-                const auto actual_port = *actual_ports.at(i);
+                const auto actual_port = actual_ports.at(i);
                 REQUIRE(actual_port == expected_port);
             }
         }

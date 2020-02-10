@@ -59,11 +59,11 @@ public:
     bool is_valid(const AbstractResource&) const;
     int count(const AbstractResource&) const;
 
-    std::vector<const DevelopmentCard*>
-        get_development_card_deck(IterationType) const;                      // gets a fresh copy
-    std::vector<const _PortSpec*> get_ports(IterationType) const;            // gets a fresh copy
-    std::vector<const AbstractResource*> get_resources(IterationType) const; // gets a fresh copy
-    std::vector<int> get_rolls(IterationType) const;                         // gets a fresh copy
+    std::vector<DevelopmentCard>
+        get_development_card_deck(IterationType) const;               // gets a fresh copy
+    std::vector<_PortSpec> get_ports(IterationType) const;            // gets a fresh copy
+    std::vector<AbstractResource> get_resources(IterationType) const; // gets a fresh copy
+    std::vector<int> get_rolls(IterationType) const;                  // gets a fresh copy
 
     bool is_valid(const Parameters&) const;
 
