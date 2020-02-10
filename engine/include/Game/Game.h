@@ -54,6 +54,7 @@ public:
          std::vector<BoardView::Road>,
          std::vector<DevelopmentCard>,
          const Scenario::Scenario&,
+         const Scenario::Parameters&,
          int robber_index);
     ~Game();
 
@@ -65,8 +66,9 @@ private:
 
     const Scenario::Scenario& m_scenario;
 
-    size_t m_deck_index{ 0 };
     int m_victory_points_goal;
+
+    size_t m_deck_index{ 0 };
     bool m_can_steal;
     bool m_has_rolled;
     bool m_is_game_over;
