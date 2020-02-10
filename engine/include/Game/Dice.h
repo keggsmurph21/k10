@@ -11,7 +11,7 @@ class Dice {
 public:
     Dice() {}
     void roll();
-    int get_total();
+    int get_total() const;
 
 private:
     int m_die_0{ 0 };

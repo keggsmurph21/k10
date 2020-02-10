@@ -12,7 +12,7 @@ void Dice::roll()
     m_die_1 = s_dice_dist(rng);
 }
 
-int Dice::get_total()
+int Dice::get_total() const
 {
     return m_die_0 + m_die_1;
 }
