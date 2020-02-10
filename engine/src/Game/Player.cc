@@ -4,7 +4,7 @@
 
 namespace k10engine::Game {
 
-Flags Player::get_flags()
+Flags Player::get_flags() const
 {
     Flags flags;
     flags.can_accept_trade = m_game->is_game_over();
@@ -34,78 +34,83 @@ Flags Player::get_flags()
     return flags;
 }
 
-bool Player::has_heavy_purse() // NOLINT(readability-convert-member-functions-to-static)
+bool Player::has_heavy_purse() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Player::has_heavy_purse");
 }
 
-bool Player::can_build_city() // NOLINT(readability-convert-member-functions-to-static)
+bool Player::can_build_city() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Player::can_build_city");
 }
 
-bool Player::can_build_road() // NOLINT(readability-convert-member-functions-to-static)
+bool Player::can_build_road() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Player::can_build_road");
 }
 
-bool Player::can_build_settlement() // NOLINT(readability-convert-member-functions-to-static)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+bool Player::can_build_settlement() const
 {
     throw std::invalid_argument("Not implemented: Player::can_build_settlement");
 }
 
-bool Player::can_buy_development_card() // NOLINT(readability-convert-member-functions-to-static)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+bool Player::can_buy_development_card() const
 {
     throw std::invalid_argument("Not implemented: Player::can_buy_development_card");
 }
 
-bool Player::can_play_knight() // NOLINT(readability-convert-member-functions-to-static)
+bool Player::can_play_knight() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Player::can_play_knight");
 }
 
-bool Player::can_play_monopoly() // NOLINT(readability-convert-member-functions-to-static)
+bool Player::can_play_monopoly() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Player::can_play_monopoly");
 }
 
-bool Player::can_play_road_building() // NOLINT(readability-convert-member-functions-to-static)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+bool Player::can_play_road_building() const
 {
     throw std::invalid_argument("Not implemented: Player::can_play_road_building");
 }
 
-bool Player::can_play_victory_point() // NOLINT(readability-convert-member-functions-to-static)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+bool Player::can_play_victory_point() const
 {
     throw std::invalid_argument("Not implemented: Player::can_play_victory_point");
 }
 
-bool Player::can_play_year_of_plenty() // NOLINT(readability-convert-member-functions-to-static)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+bool Player::can_play_year_of_plenty() const
 {
     throw std::invalid_argument("Not implemented: Player::can_play_year_of_plenty");
 }
 
-bool Player::can_trade() // NOLINT(readability-convert-member-functions-to-static)
+bool Player::can_trade() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Player::can_trade");
 }
 
-bool Player::can_trade_with_bank() // NOLINT(readability-convert-member-functions-to-static)
+bool Player::can_trade_with_bank() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Player::can_trade_with_bank");
 }
 
-bool Player::is_current_player() // NOLINT(readability-convert-member-functions-to-static)
+bool Player::is_current_player() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Player::is_current_player");
 }
 
-bool Player::is_blocking() // NOLINT(readability-convert-member-functions-to-static)
+bool Player::is_blocking() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Player::is_blocking");
 }
 
 bool Player::can_afford( // NOLINT(readability-convert-member-functions-to-static)
-    const ResourceCounts& resource_counts)
+    const ResourceCounts& resource_counts) const
 {
     (void)resource_counts;
     throw std::invalid_argument("Not implemented: Player::can_afford");
