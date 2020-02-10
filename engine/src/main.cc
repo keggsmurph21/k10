@@ -7,12 +7,12 @@
 int main(int /* unused */, char** /* unused */)
 {
     auto b = k10engine::Board::get_standard_board();
-    // NEXTLINENOLINT(readability-magic-numbers)
+
     auto s = k10engine::Scenario::Scenario(
-        2,
-        5,
-        8,
-        12,
+        2,  // NOLINT(readability-magic-numbers)
+        5,  // NOLINT(readability-magic-numbers)
+        8,  // NOLINT(readability-magic-numbers)
+        12, // NOLINT(readability-magic-numbers)
         { {
               k10engine::Building::City,
               { { k10engine::Resource::Ore, 3 }, { k10engine::Resource::Wheat, 2 } },
@@ -39,15 +39,15 @@ int main(int /* unused */, char** /* unused */)
           } },
         {
             { k10engine::Building::City, 4 },
-            { k10engine::Building::DevelopmentCard, 25 },
-            { k10engine::Building::Road, 15 },
-            { k10engine::Building::Settlement, 5 },
+            { k10engine::Building::DevelopmentCard, 25 }, // NOLINT(readability-magic-numbers)
+            { k10engine::Building::Road, 15 },            // NOLINT(readability-magic-numbers)
+            { k10engine::Building::Settlement, 5 },       // NOLINT(readability-magic-numbers)
         },
         {
-            { k10engine::DevelopmentCard::Knight, 14 },
+            { k10engine::DevelopmentCard::Knight, 14 }, // NOLINT(readability-magic-numbers)
             { k10engine::DevelopmentCard::Monopoly, 2 },
             { k10engine::DevelopmentCard::RoadBuilding, 2 },
-            { k10engine::DevelopmentCard::VictoryPoint, 5 },
+            { k10engine::DevelopmentCard::VictoryPoint, 5 }, // NOLINT(readability-magic-numbers)
             { k10engine::DevelopmentCard::YearOfPlenty, 2 },
         },
         { { k10engine::Resource::Brick, 3 },
@@ -56,6 +56,7 @@ int main(int /* unused */, char** /* unused */)
           { k10engine::Resource::Wheat, 4 },
           { k10engine::Resource::Wood, 4 },
           { k10engine::NonYieldingResource::Desert, 1 } },
+        // NOLINTNEXTLINE(readability-magic-numbers)
         { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 },
         {
             { { k10engine::Resource::Brick,
@@ -100,13 +101,12 @@ int main(int /* unused */, char** /* unused */)
               },
               3 },
         });
-    // NEXTLINENOLINT(readability-magic-numbers)
     auto p = k10engine::Scenario::Parameters{ k10engine::Scenario::IterationType::Fixed,
                                               k10engine::Scenario::IterationType::Fixed,
                                               k10engine::Scenario::IterationType::Fixed,
                                               k10engine::Scenario::IterationType::Fixed,
-                                              4,
-                                              10 };
+                                              4,    // NOLINT(readability-magic-numbers)
+                                              10 }; // NOLINT(readability-magic-numbers)
     auto g = k10engine::Game::initialize(b, s, p);
     (void)g;
 
