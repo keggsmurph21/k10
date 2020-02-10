@@ -7,7 +7,7 @@ namespace k10engine::Game {
 Flags Player::get_flags() const
 {
     Flags flags;
-    flags.can_accept_trade = m_game->is_game_over();
+    flags.can_accept_trade = can_accept_trade();
     flags.can_build_city = can_build_city();
     flags.can_build_road = can_build_road();
     flags.can_build_settlement = can_build_settlement();
