@@ -82,11 +82,12 @@ Game* initialize(const Board::Graph* graph,
         return nullptr;
     }
 
-    auto deck = scenario.get_development_card_deck(parameters.development_card_iteration_type);
+    const auto& deck =
+        scenario.get_development_card_deck(parameters.development_card_iteration_type);
     (void)deck;
-    auto ports = scenario.get_ports(parameters.port_iteration_type);
-    auto resources = scenario.get_resources(parameters.resource_iteration_type);
-    auto rolls = scenario.get_rolls(parameters.roll_iteration_type);
+    const auto& ports = scenario.get_ports(parameters.port_iteration_type);
+    const auto& resources = scenario.get_resources(parameters.resource_iteration_type);
+    const auto& rolls = scenario.get_rolls(parameters.roll_iteration_type);
 
     std::vector<BoardView::Hex> hexes;
     std::vector<BoardView::Junction> junctions;
@@ -97,7 +98,7 @@ Game* initialize(const Board::Graph* graph,
     size_t hex_index = 0;
     size_t roll_index = 0;
 
-    for (const auto node : *graph) {
+    for (const auto& node : *graph) {
         std::cout << node->index() << " " << node->type();
         switch (node->type()) {
         case Board::NodeType::Hex: { // scope for const
@@ -105,14 +106,14 @@ Game* initialize(const Board::Graph* graph,
             if (hex_index >= resources.size()) {
                 return nullptr; // Too few resources
             }
-            const auto resource = *resources.at(hex_index);
+            const auto& resource = resources.at(hex_index);
             std::cout << " " << resource;
             if (std::holds_alternative<NonYieldingResource>(resource)) {
                 if (robber_index != -1) {
                     return nullptr; // FIXME: Handle multiple robbers?
                 }
                 robber_index = static_cast<int>(hex_index);
-                const auto hex = BoardView::Hex(node, resource, 0);
+                const auto& hex = BoardView::Hex(node, resource, 0);
                 hexes.push_back(hex);
             } else {
                 if (roll_index >= rolls.size()) {
@@ -121,7 +122,7 @@ Game* initialize(const Board::Graph* graph,
                 const auto roll = rolls.at(roll_index);
                 std::cout << " " << roll;
                 ++roll_index;
-                const auto hex = BoardView::Hex(node, resource, roll);
+                const auto& hex = BoardView::Hex(node, resource, roll);
                 hexes.push_back(hex);
             }
             ++hex_index;
@@ -135,7 +136,7 @@ Game* initialize(const Board::Graph* graph,
             if (port_index >= ports.size()) {
                 return nullptr; // Too few ports
             }
-            const auto port_spec = ports.at(port_index);
+            const auto& port_spec = ports.at(port_index);
             const auto other_node = port->buddy(node);
             std::cout << " Port " << port_index << " " << port_spec.resources << " @ "
                       << port_spec.exchange_rate << " (with " << other_node->index() << ")";
