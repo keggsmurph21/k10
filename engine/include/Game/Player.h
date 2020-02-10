@@ -20,7 +20,7 @@ class Game;
 
 class Player {
 public:
-    std::string id() { return m_id; }
+    size_t id() const { return m_id; }
 
     Flags get_flags();
 
@@ -38,8 +38,6 @@ public:
 
     State::Vertex& vertex() { return m_vertex; }
     void set_vertex(State::Vertex vertex) { m_vertex = vertex; }
-
-    bool is_human() { return m_is_human; }
 
     bool has_heavy_purse();
     bool can_build_city();
@@ -67,18 +65,14 @@ public:
     ~Player() {}
 
 private:
-    Player(std::string id, bool is_human, Game* game)
+    Player(size_t id, const Game* game)
         : m_id(id)
-        , m_is_human(is_human)
         , m_game(game)
     {
     }
 
-    Game* game() { return m_game; }
-
-    std::string m_id;
-    bool m_is_human;
-    Game* m_game;
+    size_t m_id;
+    const Game* m_game;
 
     ResourceCounts m_resources;
 
