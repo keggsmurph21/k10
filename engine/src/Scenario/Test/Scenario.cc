@@ -752,7 +752,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("1 port (single resource)")
         {
-            const k10engine::ResourceCollection expected_port = { k10engine::Resource::Ore };
+            const k10engine::Scenario::_PortSpec expected_port = { { k10engine::Resource::Ore },
+                                                                   1 };
             const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, { expected_port });
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
@@ -766,8 +767,9 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("1 port (multiple resources)")
         {
-            const k10engine::ResourceCollection expected_port = { k10engine::Resource::Ore,
-                                                                  k10engine::Resource::Wheat };
+            const k10engine::Scenario::_PortSpec expected_port = {
+                { k10engine::Resource::Ore, k10engine::Resource::Wheat }, 1
+            };
             const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, { expected_port });
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
@@ -779,11 +781,12 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(*random_ports.at(0) == expected_port);
         }
 
-        SECTION("2 port (same, single)")
+        SECTION("2 ports (same, single)")
         {
             k10engine::Random::seed(MAGIC_NUMBER_1);
-            const k10engine::ResourceCollection expected_port = { k10engine::Resource::Ore,
-                                                                  k10engine::Resource::Wheat };
+            const k10engine::Scenario::_PortSpec expected_port = {
+                { k10engine::Resource::Ore, k10engine::Resource::Wheat }, 1
+            };
             const auto s =
                 Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, { expected_port, expected_port });
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
@@ -798,11 +801,12 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(*random_ports.at(1) == expected_port);
         }
 
-        SECTION("2 port (different, single)")
+        SECTION("2 ports (different, single)")
         {
             k10engine::Random::seed(MAGIC_NUMBER_1);
-            std::vector<k10engine::ResourceCollection> expected_ports;
-            expected_ports = { { k10engine::Resource::Ore }, { k10engine::Resource::Wheat } };
+            std::vector<k10engine::Scenario::_PortSpec> expected_ports;
+            expected_ports = { { { k10engine::Resource::Ore }, 1 },
+                               { { k10engine::Resource::Wheat }, 1 } };
             const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, expected_ports);
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
@@ -811,8 +815,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
                 REQUIRE(*fixed_ports.at(i) == expected_ports.at(i));
             }
             expected_ports = {
-                { k10engine::Resource::Wheat },
-                { k10engine::Resource::Ore },
+                { { k10engine::Resource::Wheat }, 1 },
+                { { k10engine::Resource::Ore }, 1 },
             };
             const auto& random_ports = s.get_ports(IterationType::Random);
             REQUIRE(!random_ports.empty());
@@ -824,46 +828,52 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("standard ports")
         {
-            const std::vector<k10engine::ResourceCollection> ports = {
-                { k10engine::Resource::Brick,
-                  k10engine::Resource::Ore,
-                  k10engine::Resource::Sheep,
-                  k10engine::Resource::Wheat,
-                  k10engine::Resource::Wood },
-                {
-                    k10engine::Resource::Wheat,
-                },
-                {
+            const std::vector<k10engine::Scenario::_PortSpec> ports = {
+                { { k10engine::Resource::Brick,
                     k10engine::Resource::Ore,
-                },
-                { k10engine::Resource::Brick,
-                  k10engine::Resource::Ore,
-                  k10engine::Resource::Sheep,
-                  k10engine::Resource::Wheat,
-                  k10engine::Resource::Wood },
-                { k10engine::Resource::Brick,
-                  k10engine::Resource::Ore,
-                  k10engine::Resource::Sheep,
-                  k10engine::Resource::Wheat,
-                  k10engine::Resource::Wood },
-                {
                     k10engine::Resource::Sheep,
-                },
-                { k10engine::Resource::Brick,
-                  k10engine::Resource::Ore,
-                  k10engine::Resource::Sheep,
-                  k10engine::Resource::Wheat,
-                  k10engine::Resource::Wood },
-                {
-                    k10engine::Resource::Brick,
-                },
-                {
-                    k10engine::Resource::Wood,
-                },
+                    k10engine::Resource::Wheat,
+                    k10engine::Resource::Wood },
+                  4 },
+                { { k10engine::Resource::Wheat }, 3 },
+                { {
+                      k10engine::Resource::Ore,
+                  },
+                  3 },
+                { { k10engine::Resource::Brick,
+                    k10engine::Resource::Ore,
+                    k10engine::Resource::Sheep,
+                    k10engine::Resource::Wheat,
+                    k10engine::Resource::Wood },
+                  4 },
+                { { k10engine::Resource::Brick,
+                    k10engine::Resource::Ore,
+                    k10engine::Resource::Sheep,
+                    k10engine::Resource::Wheat,
+                    k10engine::Resource::Wood },
+                  4 },
+                { {
+                      k10engine::Resource::Sheep,
+                  },
+                  3 },
+                { { k10engine::Resource::Brick,
+                    k10engine::Resource::Ore,
+                    k10engine::Resource::Sheep,
+                    k10engine::Resource::Wheat,
+                    k10engine::Resource::Wood },
+                  4 },
+                { {
+                      k10engine::Resource::Brick,
+                  },
+                  3 },
+                { {
+                      k10engine::Resource::Wood,
+                  },
+                  3 },
             };
             const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, ports);
-            std::vector<k10engine::ResourceCollection> expected_ports;
-            std::vector<const k10engine::ResourceCollection*> actual_ports;
+            std::vector<k10engine::Scenario::_PortSpec> expected_ports;
+            std::vector<const k10engine::Scenario::_PortSpec*> actual_ports;
             expected_ports = ports;
             actual_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!actual_ports.empty());
@@ -876,41 +886,50 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             }
             actual_ports = s.get_ports(IterationType::Random);
             expected_ports = {
-                { k10engine::Resource::Brick,
-                  k10engine::Resource::Ore,
-                  k10engine::Resource::Sheep,
-                  k10engine::Resource::Wheat,
-                  k10engine::Resource::Wood },
-                {
-                    k10engine::Resource::Brick,
-                },
-                {
+                { { k10engine::Resource::Brick,
                     k10engine::Resource::Ore,
-                },
-                { k10engine::Resource::Brick,
-                  k10engine::Resource::Ore,
-                  k10engine::Resource::Sheep,
-                  k10engine::Resource::Wheat,
-                  k10engine::Resource::Wood },
-                {
-                    k10engine::Resource::Wood,
-                },
-                {
                     k10engine::Resource::Sheep,
-                },
-                {
                     k10engine::Resource::Wheat,
-                },
-                { k10engine::Resource::Brick,
-                  k10engine::Resource::Ore,
-                  k10engine::Resource::Sheep,
-                  k10engine::Resource::Wheat,
-                  k10engine::Resource::Wood },
-                { k10engine::Resource::Brick,
-                  k10engine::Resource::Ore,
-                  k10engine::Resource::Sheep,
-                  k10engine::Resource::Wheat,
-                  k10engine::Resource::Wood },
+                    k10engine::Resource::Wood },
+                  4 },
+                { {
+                      k10engine::Resource::Brick,
+                  },
+                  3 },
+                { {
+                      k10engine::Resource::Ore,
+                  },
+                  3 },
+                { { k10engine::Resource::Brick,
+                    k10engine::Resource::Ore,
+                    k10engine::Resource::Sheep,
+                    k10engine::Resource::Wheat,
+                    k10engine::Resource::Wood },
+                  4 },
+                { {
+                      k10engine::Resource::Wood,
+                  },
+                  3 },
+                { {
+                      k10engine::Resource::Sheep,
+                  },
+                  3 },
+                { {
+                      k10engine::Resource::Wheat,
+                  },
+                  3 },
+                { { k10engine::Resource::Brick,
+                    k10engine::Resource::Ore,
+                    k10engine::Resource::Sheep,
+                    k10engine::Resource::Wheat,
+                    k10engine::Resource::Wood },
+                  4 },
+                { { k10engine::Resource::Brick,
+                    k10engine::Resource::Ore,
+                    k10engine::Resource::Sheep,
+                    k10engine::Resource::Wheat,
+                    k10engine::Resource::Wood },
+                  4 },
             };
             REQUIRE(!actual_ports.empty());
             REQUIRE(actual_ports.size() == expected_ports.size());

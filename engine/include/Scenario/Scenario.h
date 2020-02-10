@@ -25,6 +25,15 @@ using Costs = std::map<T, ResourceCounts, std::less<T>>;
 template<typename T>
 using Counts = std::map<T, int, std::less<T>>;
 
+struct _PortSpec {
+    ResourceCollection resources;
+    unsigned exchange_rate;
+    bool operator==(const _PortSpec other) const
+    {
+        return resources == other.resources && exchange_rate == other.exchange_rate;
+    }
+};
+
 class Scenario {
 public:
     int min_players_count() const { return m_min_players_count; }
@@ -52,7 +61,7 @@ public:
 
     std::vector<const DevelopmentCard*>
         get_development_card_deck(IterationType) const;                      // gets a fresh copy
-    std::vector<const ResourceCollection*> get_ports(IterationType) const;   // gets a fresh copy
+    std::vector<const _PortSpec*> get_ports(IterationType) const;            // gets a fresh copy
     std::vector<const AbstractResource*> get_resources(IterationType) const; // gets a fresh copy
     std::vector<int> get_rolls(IterationType) const;                         // gets a fresh copy
 
@@ -67,7 +76,7 @@ public:
              Counts<DevelopmentCard> development_card_counts,
              Counts<AbstractResource> resource_counts,
              std::vector<int> rolls,
-             std::vector<ResourceCollection> ports)
+             std::vector<_PortSpec> ports)
         : m_building_costs(building_costs)
         , m_building_counts(building_counts)
         , m_development_card_counts(development_card_counts)
@@ -96,7 +105,7 @@ protected:
     Counts<AbstractResource> m_resource_counts;
     std::vector<int> m_rolls;
 
-    std::vector<ResourceCollection> m_ports;
+    std::vector<_PortSpec> m_ports;
 };
 
 } // namespace k10engine::Scenario

@@ -94,11 +94,11 @@ std::vector<const AbstractResource*> Scenario::get_resources(IterationType type)
     }
 }
 
-std::vector<const ResourceCollection*> Scenario::get_ports(IterationType type) const
+std::vector<const _PortSpec*> Scenario::get_ports(IterationType type) const
 {
-    std::vector<const ResourceCollection*> ports;
-    for (const auto& port_type : m_ports) {
-        ports.push_back(&port_type);
+    std::vector<const _PortSpec*> ports;
+    for (const auto& port_spec : m_ports) {
+        ports.push_back(&port_spec);
     }
     switch (type) {
     case IterationType::Fixed:

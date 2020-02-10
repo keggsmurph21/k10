@@ -135,11 +135,11 @@ Game* initialize(const Board::Graph* graph,
             if (port_index >= ports.size()) {
                 return nullptr; // Too few ports
             }
-            const auto port_resources = ports.at(port_index);
+            const auto port_spec = *ports.at(port_index);
             const auto other_node = port->buddy(node);
-            std::cout << " Port " << port_index << " " << *port_resources << " (with "
-                      << other_node->index() << ")";
-            auto junction = BoardView::Junction(node, *port_resources, 0); // FIXME: pass xrate
+            std::cout << " Port " << port_index << " " << port_spec.resources << " @ "
+                      << port_spec.exchange_rate << " (with " << other_node->index() << ")";
+            auto junction = BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
             junctions.push_back(junction);
         } break;
         case Board::NodeType::Road: { // scope for const
