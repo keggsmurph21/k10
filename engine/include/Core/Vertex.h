@@ -5,7 +5,6 @@
 namespace k10engine::State {
 
 enum class Vertex {
-    AfterBuilding,
     AfterDiscarding,
     AfterMovingRobber,
     AfterRoll,

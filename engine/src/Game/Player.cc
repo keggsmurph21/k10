@@ -10,12 +10,6 @@ std::vector<Action> Player::get_available_actions() const
     // FIXME: Handle first two turns!!
     switch (m_vertex) {
 
-    case State::Vertex::AfterBuilding:
-        if (m_game->is_game_over()) {
-            return { { State::Edge::EndGame, {} } };
-        }
-        return { { State::Edge::ToRoot, {} } };
-
     case State::Vertex::AfterDiscarding:
         if (is_current_player()) {
             if (num_to_discard() > 0) {
