@@ -14,9 +14,7 @@
 #include "Game/Game.h"
 #include "Game/Trade.h"
 
-namespace k10engine {
-
-namespace Game {
+namespace k10engine::Game {
 
 #define MAX_NUM_TRADE_OFFERS_PER_TURN 42
 
@@ -118,6 +116,4 @@ private:
     void steal_from(Player*);
 };
 
-} // namespace Game
-
-} // namespace k10engine
+} // namespace k10engine::Game
