@@ -10,26 +10,25 @@ enum class Edge {
     AfterTradeOther,
     Build, // City, DevelopmentCard, Road, Settlement
     CancelTrade,
+    CollectResources,
     DeclineTrade,
+    Discard,
     EndGame,
     EndInit,
-    EndTurn,
     FailTradeUnableToFindPartner,
     InitBuildFirstRoad,
     InitBuildSecondRoad,
     InitCollectResources,
     InitSettle,
-    NoStealRobber,
+    MoveRobber,
     OfferTrade,
     PlayDevelopmentCard, // Knight, Monopoly, RoadBuilding, VictoryPoint, YearOfPlenty
     RollDice,
-    CollectResources,
-    Discard,
-    MoveRobber,
-    StealRobber,
+    Steal,
     TakeTurn,
     ToRoot,
     TradeBank,
+    WaitForTurn,
 };
 
 std::ostream& operator<<(std::ostream&, Edge);

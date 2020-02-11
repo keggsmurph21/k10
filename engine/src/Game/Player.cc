@@ -36,6 +36,7 @@ Flags Player::get_flags() const
     return flags;
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 std::vector<Action> Player::get_available_actions(const Flags& flags) const
 {
     // FIXME: Handle first two turns!!
@@ -44,28 +45,26 @@ std::vector<Action> Player::get_available_actions(const Flags& flags) const
     case State::Vertex::AfterBuilding:
         if (flags.is_game_over) {
             return { { State::Edge::EndGame, {} } };
-        } else {
-            { { State::Edge::ToRoot, {} } };
         }
+        return { { State::Edge::ToRoot, {} } };
 
     case State::Vertex::AfterDiscarding:
         if (flags.is_current_player) {
             if (flags.num_to_discard > 0) {
                 // FIXME: generate a list of possible cards to discard
                 return { { State::Edge::Discard, {} } };
-            } else if (flags.should_wait_for_discard) {
-                return {}; // i.e., wait
-            } else {
-                // FIXME: generate a list of available robber locations
-                return { { State::Edge::MoveRobber, {} } };
             }
+            if (flags.should_wait_for_discard) {
+                return {}; // i.e., wait
+            }
+            // FIXME: generate a list of available robber locations
+            return { { State::Edge::MoveRobber, {} } };
         } else {
             if (flags.num_to_discard > 0) {
                 // FIXME: generate a list of possible cards to discard
                 return { { State::Edge::Discard, {} } };
-            } else {
-                return { { State::Edge::WaitForTurn, {} } };
             }
+            return { { State::Edge::WaitForTurn, {} } };
         }
 
     case State::Vertex::AfterMovingRobber:
@@ -73,34 +72,38 @@ std::vector<Action> Player::get_available_actions(const Flags& flags) const
             // FIXME: generate a list of players to steal from
             return { { State::Edge::Steal, {} } };
         }
-        return { { State::Edge::ToRoot } };
+        return { { State::Edge::ToRoot, {} } };
 
     case State::Vertex::AfterRoll:
         if (!flags.is_roll_seven) {
             return { { State::Edge::CollectResources, {} } };
-        } else if (flags.num_to_discard > 0) {
+        }
+        if (flags.num_to_discard > 0) {
             // FIXME: generate a list of possible cards to discard
             return { { State::Edge::Discard, {} } };
-        } else if (flags.should_wait_for_discard) {
-            return {}; // i.e., wait
-        } else {
-            // FIXME: generate a list of possible cards to discard
-            return { { State::MoveRobber, {} } };
         }
+        if (flags.should_wait_for_discard) {
+            return {}; // i.e., wait
+        }
+        // FIXME: generate a list of possible cards to discard
+        return { { State::Edge::MoveRobber, {} } };
 
     case State::Vertex::GameOver:
-        std::assert(false); // We shouldn't hit this
+        assert(false); // We shouldn't hit this
 
     case State::Vertex::Root:
-        if (flags.is_first_turn) {
+        if (flags.is_first_round) {
             // FIXME: do something!
             return {};
-        } else if (flags.is_second_turn) {
+        }
+        if (flags.is_second_round) {
             // FIXME: do something!
             return {};
-        } else if (!flags.has_rolled) {
+        }
+        if (!flags.has_rolled) {
             return { { State::Edge::RollDice, {} } };
-        } else {
+        }
+        {
             std::vector<Action> available_actions;
             // FIXME: generate list: settlements to build city
             // FIXME: check possibility of buying development card
@@ -119,23 +122,27 @@ std::vector<Action> Player::get_available_actions(const Flags& flags) const
     case State::Vertex::WaitForTurn:
         if (flags.is_current_player) {
             return { { State::Edge::ToRoot, {} } };
-        } else if (flags.num_to_discard > 0) {
+        }
+        if (flags.num_to_discard > 0) {
             // FIXME: generate a list of possible cards to discard
             return { { State::Edge::Discard, {} } };
-        } else if (flags.can_accept_trade) {
-            return { { State::Edge::AcceptTrade, {} }, { State::Edge::DeclineTrade, {} } };
-        } else {
-            return {};
         }
+        if (flags.can_accept_trade) {
+            return { { State::Edge::AcceptTrade, {} }, { State::Edge::DeclineTrade, {} } };
+        }
+        return {};
 
     case State::Vertex::WaitingForTradeResponses:
-        if (flags.trade_is_accepted) {
+        if (flags.is_trade_accepted) {
             return { { State::Edge::AcceptTrade, {} } };
-        } else if (flags.should_wait_for_trade) {
-            return { { State::Edge::CancelTrade, {} } }; // or do nothing and wait
-        } else {
-            return { { State::Edge::FailTradeUnableToFindPartner, {} } };
         }
+        if (flags.should_wait_for_trade) {
+            return { { State::Edge::CancelTrade, {} } }; // or do nothing and wait
+        }
+        return { { State::Edge::FailTradeUnableToFindPartner, {} } };
+
+    default:
+        assert(false); // NOT REACHED
     }
 }
 
