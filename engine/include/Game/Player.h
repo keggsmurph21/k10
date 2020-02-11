@@ -18,6 +18,8 @@ namespace k10engine {
 
 namespace Game {
 
+#define MAX_NUM_TRADE_OFFERS_PER_TURN 42
+
 class Game;
 
 class Player {
@@ -89,6 +91,7 @@ private:
     size_t m_num_to_discard{ 0 };
     size_t m_public_victory_points{ 0 };
     size_t m_private_victory_points{ 0 };
+    size_t m_num_trades_offered_this_turn{ 0 };
 
     void accrue_resources(ResourceCounts);
     void spend_resources(ResourceCounts);
