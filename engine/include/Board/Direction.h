@@ -13,6 +13,11 @@ enum class Direction {
     Clock10,
 };
 
+static const Direction AllDirections[] = {
+    Direction::Clock12, Direction::Clock2, Direction::Clock4,
+    Direction::Clock6,  Direction::Clock8, Direction::Clock10,
+};
+
 Direction get_opposite(Direction);
 
 } // namespace Board
