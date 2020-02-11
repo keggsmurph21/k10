@@ -36,10 +36,9 @@ public:
     int size() const { return m_nodes.size(); }
     int size() { return m_nodes.size(); }
 
-    using ConstIterator = std::vector<const Node*>::const_iterator;
     bool has_neighbor(const Node*, const Direction) const;
     const Node* neighbor(const Node*, const Direction) const;
-    ConstIterator neighbors(const Node*) const;
+    std::vector<const Node*> neighbors(const Node* node) const;
 
     const Port* port(const Node&) const;
     const Port* port(size_t port_index) const;

@@ -159,4 +159,16 @@ const Port* Graph::port(size_t port_index) const
     return nullptr;
 }
 
+std::vector<const Node*> Graph::neighbors(const Node* node) const
+{
+    std::vector<const Node*> neighbors;
+    for (const auto& direction : AllDirections) {
+        const auto node_neighbor = neighbor(node, direction);
+        if (node_neighbor != nullptr) {
+            neighbors.push_back(node_neighbor);
+        }
+    }
+    return neighbors;
+}
+
 } // namespace k10engine::Board
