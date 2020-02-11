@@ -32,7 +32,7 @@ public:
     const Board::Node* node() const { return m_node; }
 
     Junction(const Board::Node* node,
-             const ResourceCollection& port_resources,
+             const ResourceCollection port_resources,
              size_t port_exchange_rate)
         : m_node(node)
         , m_port_resources(port_resources)
@@ -45,7 +45,7 @@ private:
     bool m_has_settlement{ false };
     bool m_has_city{ false };
     bool m_is_settleable{ true };
-    const ResourceCollection& m_port_resources;
+    const ResourceCollection m_port_resources;
     const size_t m_port_exchange_rate;
     Player* m_owner{ nullptr };
 };

@@ -15,7 +15,7 @@ public:
     size_t index() const { return m_node->index(); }
     const Board::Node* node() const { return m_node; }
 
-    Hex(const Board::Node* node, const AbstractResource& resource, int roll_number)
+    Hex(const Board::Node* node, const AbstractResource resource, size_t roll_number)
         : m_node(node)
         , m_resource(resource)
         , m_roll_number(roll_number)
@@ -24,7 +24,7 @@ public:
 
 private:
     const Board::Node* m_node;
-    const AbstractResource& m_resource;
+    const AbstractResource m_resource;
     size_t m_roll_number; // 0 means <none>
 };
 
