@@ -20,8 +20,14 @@ std::vector<Action> Player::get_available_actions() const
             if (m_game->should_wait_for_discard()) {
                 return {}; // i.e., wait
             }
-            // FIXME: generate a list of available robber locations
-            return { { State::Edge::MoveRobber, {} } };
+            for (const auto& hex : m_game->hexes()) {
+                if (hex.index() != m_game->robber_location()->index()) {
+                    available_actions.push_back(
+                        { State::Edge::MoveRobber,
+                          { { ActionArgumentType::NodeId, hex.index() } } });
+                }
+            }
+            return available_actions;
         } else {
             if (num_to_discard() > 0) {
                 return { { State::Edge::Discard,
