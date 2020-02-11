@@ -22,7 +22,7 @@ class Game;
 
 class Player {
 public:
-    size_t id() const { return m_id; }
+    size_t index() const { return m_index; }
 
     Flags get_flags() const;
     std::vector<Action> get_available_actions(const Flags&) const;
@@ -36,8 +36,8 @@ public:
         m_has_declined_trade = has_declined_trade;
     }
 
-    int num_to_discard() const { return m_num_to_discard; }
-    void set_num_to_discard(int num_to_discard) { m_num_to_discard = num_to_discard; }
+    size_t num_to_discard() const { return m_num_to_discard; }
+    void set_num_to_discard(size_t num_to_discard) { m_num_to_discard = num_to_discard; }
 
     State::Vertex& vertex() { return m_vertex; }
     void set_vertex(State::Vertex vertex) { m_vertex = vertex; }
@@ -52,24 +52,24 @@ public:
 
     bool can_afford(const ResourceCounts&) const;
 
-    int army_size() const;
-    int longest_road() const;
+    size_t army_size() const;
+    size_t longest_road() const;
 
-    int public_victory_points() const;
-    int private_victory_points() const;
+    size_t public_victory_points() const;
+    size_t private_victory_points() const;
 
     ~Player() {}
 
     friend Game;
 
 private:
-    Player(size_t id, const Game* game)
-        : m_id(id)
+    Player(size_t index, const Game* game)
+        : m_index(index)
         , m_game(game)
     {
     }
 
-    size_t m_id;
+    size_t m_index;
     const Game* m_game;
 
     ResourceCounts m_resources;
@@ -86,9 +86,9 @@ private:
 
     bool m_can_accept_trade{ false };
     bool m_has_declined_trade{ false };
-    int m_num_to_discard{ 0 };
-    int m_public_victory_points{ 0 };
-    int m_private_victory_points{ 0 };
+    size_t m_num_to_discard{ 0 };
+    size_t m_public_victory_points{ 0 };
+    size_t m_private_victory_points{ 0 };
 
     void accrue_resources(ResourceCounts);
     void spend_resources(ResourceCounts);

@@ -10,8 +10,9 @@ namespace k10engine::Game::BoardView {
 class Hex {
 public:
     const AbstractResource& resource() const { return m_resource; }
-    std::optional<int> roll_number() { return m_roll_number; }
+    size_t roll_number() const { return m_roll_number; }
 
+    size_t index() const { return m_node->index(); }
     const Board::Node* node() const { return m_node; }
 
     Hex(const Board::Node* node, const AbstractResource& resource, int roll_number)
@@ -24,7 +25,7 @@ public:
 private:
     const Board::Node* m_node;
     const AbstractResource& m_resource;
-    int m_roll_number; // 0 means <none>
+    size_t m_roll_number; // 0 means <none>
 };
 
 } // namespace k10engine::Game::BoardView

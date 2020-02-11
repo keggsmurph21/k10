@@ -23,10 +23,12 @@ public:
     void set_is_not_settleable() { m_is_settleable = false; }
 
     const ResourceCollection& port_resources() { return m_port_resources; }
+    size_t port_exchange_rate() const { return m_port_exchange_rate; }
 
     const Player* owner() const { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
 
+    size_t index() const { return m_node->index(); }
     const Board::Node* node() const { return m_node; }
 
     Junction(const Board::Node* node,

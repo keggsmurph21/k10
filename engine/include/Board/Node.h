@@ -14,7 +14,7 @@ namespace Board {
 
 class Node {
 public:
-    Node(const int index, const NodeType type)
+    Node(const size_t index, const NodeType type)
         : m_index(index)
         , m_type(type)
     {
@@ -32,11 +32,11 @@ public:
         return index() == other.index() && type() == other.type();
     }
 
-    int index() const { return m_index; }
+    size_t index() const { return m_index; }
     NodeType type() const { return m_type; }
 
 private:
-    const int m_index;
+    const size_t m_index;
     const NodeType m_type;
 };
 
