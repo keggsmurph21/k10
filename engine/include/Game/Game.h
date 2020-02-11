@@ -55,7 +55,8 @@ public:
     const std::vector<BoardView::Junction>& junctions() const { return m_junctions; }
     const std::vector<BoardView::Road>& roads() const { return m_roads; }
 
-    Game(std::vector<BoardView::Hex>,
+    Game(const Board::Graph*,
+         std::vector<BoardView::Hex>,
          std::vector<BoardView::Junction>,
          std::vector<BoardView::Road>,
          std::vector<DevelopmentCard>,
@@ -66,6 +67,8 @@ public:
 
 private:
     Player* current_player() { return m_players.at(m_current_player_index); }
+
+    const Board::Graph* m_graph;
 
     std::vector<BoardView::Hex> m_hexes;
     std::vector<BoardView::Junction> m_junctions;

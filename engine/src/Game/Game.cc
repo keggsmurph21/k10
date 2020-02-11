@@ -46,14 +46,16 @@ int Game::get_round() const // NOLINT(readability-convert-member-functions-to-st
     throw std::invalid_argument("Not implemented: Game::get_round");
 }
 
-Game::Game(std::vector<BoardView::Hex> hexes,
+Game::Game(const Board::Graph* graph,
+           std::vector<BoardView::Hex> hexes,
            std::vector<BoardView::Junction> junctions,
            std::vector<BoardView::Road> roads,
            std::vector<DevelopmentCard> deck,
            const Scenario::Scenario& scenario,
            const Scenario::Parameters& parameters,
            int robber_index)
-    : m_hexes(std::move(hexes))
+    : m_graph(graph)
+    , m_hexes(std::move(hexes))
     , m_junctions(std::move(junctions))
     , m_roads(std::move(roads))
     , m_deck(std::move(deck))
@@ -163,7 +165,7 @@ Game* initialize(const Board::Graph* graph,
         return nullptr; // something went wrong ... or no Desert given
     }
 
-    return new Game(hexes, junctions, roads, deck, scenario, parameters, robber_index);
+    return new Game(graph, hexes, junctions, roads, deck, scenario, parameters, robber_index);
 }
 
 } // namespace k10engine::Game
