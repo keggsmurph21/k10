@@ -1,7 +1,9 @@
 #pragma once
 
 #include <iostream>
+#include <map>
 
+#include "Board/Direction.h"
 #include "Board/Node.h"
 #include "Core/Resource.h"
 
@@ -10,6 +12,9 @@ namespace k10engine::Game {
 class Player;
 
 namespace BoardView {
+
+class Hex;
+class Road;
 
 class Junction {
 public:
@@ -50,6 +55,18 @@ private:
     const ResourceCollection m_port_resources;
     const size_t m_port_exchange_rate;
     Player* m_owner{ nullptr };
+
+    std::map<Board::Direction, const Hex*, std::less<>> m_hex_neighbors;
+    std::map<Board::Direction, const Road*, std::less<>> m_road_neighbors;
+
+    void add_neighbor(const Board::Direction& direction, const Hex* hex)
+    {
+        m_hex_neighbors[direction] = hex;
+    }
+    void add_neighbor(const Board::Direction& direction, const Road* road)
+    {
+        m_road_neighbors[direction] = road;
+    }
 };
 
 } // namespace BoardView
