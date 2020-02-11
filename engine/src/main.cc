@@ -109,6 +109,16 @@ int main(int /* unused */, char** /* unused */)
                                               10 }; // NOLINT(readability-magic-numbers)
     auto g = k10engine::Game::initialize(b, s, p);
 
+    for (const auto& hex : g->hexes()) {
+        std::cout << hex << std::endl;
+    }
+    for (const auto& junction : g->junctions()) {
+        std::cout << junction << std::endl;
+    }
+    for (const auto& road : g->roads()) {
+        std::cout << road << std::endl;
+    }
+
     delete g;
     delete b;
 

@@ -51,6 +51,10 @@ public:
     int largest_army() const;
     int longest_road() const;
 
+    const std::vector<BoardView::Hex>& hexes() const { return m_hexes; }
+    const std::vector<BoardView::Junction>& junctions() const { return m_junctions; }
+    const std::vector<BoardView::Road>& roads() const { return m_roads; }
+
     Game(std::vector<BoardView::Hex>,
          std::vector<BoardView::Junction>,
          std::vector<BoardView::Road>,
