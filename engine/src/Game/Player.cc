@@ -14,8 +14,8 @@ std::vector<Action> Player::get_available_actions() const
     case State::Vertex::AfterDiscarding:
         if (is_current_player()) {
             if (num_to_discard() > 0) {
-                // FIXME: generate a list of possible cards to discard
-                return { { State::Edge::Discard, {} } };
+                return { { State::Edge::Discard,
+                           { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
             }
             if (m_game->should_wait_for_discard()) {
                 return {}; // i.e., wait
@@ -24,8 +24,8 @@ std::vector<Action> Player::get_available_actions() const
             return { { State::Edge::MoveRobber, {} } };
         } else {
             if (num_to_discard() > 0) {
-                // FIXME: generate a list of possible cards to discard
-                return { { State::Edge::Discard, {} } };
+                return { { State::Edge::Discard,
+                           { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
             }
             return { { State::Edge::WaitForTurn, {} } };
         }
@@ -42,8 +42,8 @@ std::vector<Action> Player::get_available_actions() const
             return { { State::Edge::CollectResources, {} } };
         }
         if (num_to_discard() > 0) {
-            // FIXME: generate a list of possible cards to discard
-            return { { State::Edge::Discard, {} } };
+            return { { State::Edge::Discard,
+                       { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
         }
         if (m_game->should_wait_for_discard()) {
             return {}; // i.e., wait
@@ -84,8 +84,8 @@ std::vector<Action> Player::get_available_actions() const
             return { { State::Edge::ToRoot, {} } };
         }
         if (num_to_discard() > 0) {
-            // FIXME: generate a list of possible cards to discard
-            return { { State::Edge::Discard, {} } };
+            return { { State::Edge::Discard,
+                       { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
         }
         if (can_accept_trade()) {
             return { { State::Edge::AcceptTrade, {} }, { State::Edge::DeclineTrade, {} } };
