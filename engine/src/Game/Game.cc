@@ -134,17 +134,20 @@ Game* initialize(const Board::Graph* graph,
         case Board::NodeType::Junction: { // scope for const
             const auto port = graph->port(*node);
             if (port == nullptr) {
-                break;
+                auto junction = BoardView::Junction(node, {}, 0);
+                junctions.push_back(junction);
+            } else {
+                const auto port_index = port->index();
+                if (port_index >= ports.size()) {
+                    return nullptr; // Too few ports
+                }
+                const auto& port_spec = ports.at(port_index);
+                std::cout << " Port " << port_index << " " << port_spec.resources << " @ "
+                          << port_spec.exchange_rate;
+                auto junction =
+                    BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
+                junctions.push_back(junction);
             }
-            const auto port_index = port->index();
-            if (port_index >= ports.size()) {
-                return nullptr; // Too few ports
-            }
-            const auto& port_spec = ports.at(port_index);
-            std::cout << " Port " << port_index << " " << port_spec.resources << " @ "
-                      << port_spec.exchange_rate;
-            auto junction = BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
-            junctions.push_back(junction);
         } break;
         case Board::NodeType::Road: { // scope for const
             const auto road = BoardView::Road(node);
