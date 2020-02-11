@@ -44,7 +44,7 @@ public:
     ConstIterator neighbors(const Node*) const;
 
     const Port* port(const Node&) const;
-    const Port* port(size_t index) const;
+    const Port* port(size_t port_index) const;
 
 private:
     bool nodes_can_make_port(const Node*, const Node*, const Orientation);
