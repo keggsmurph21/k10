@@ -104,7 +104,7 @@ Game* initialize(const Board::Graph* graph,
     size_t hex_index = 0;
     size_t roll_index = 0;
 
-    for (const auto& node : *graph) {
+    for (const auto& node : graph->nodes()) {
         std::cout << node->index() << " " << node->type();
         switch (node->type()) {
         case Board::NodeType::Hex: { // scope for const

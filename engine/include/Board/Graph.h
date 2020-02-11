@@ -30,15 +30,13 @@ public:
     // Graph(const Graph&);
     // Graph& operator=(const Graph&);
 
+    const std::vector<const Node*>& nodes() const { return m_nodes; }
     const Node* node(const int) const;
 
     int size() const { return m_nodes.size(); }
     int size() { return m_nodes.size(); }
 
     using ConstIterator = std::vector<const Node*>::const_iterator;
-    ConstIterator begin() const { return m_nodes.cbegin(); }
-    ConstIterator end() const { return m_nodes.cend(); }
-
     bool has_neighbor(const Node*, const Direction) const;
     const Node* neighbor(const Node*, const Direction) const;
     ConstIterator neighbors(const Node*) const;
