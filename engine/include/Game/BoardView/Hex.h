@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 
 #include "Board/Node.h"
@@ -20,6 +21,13 @@ public:
         , m_resource(resource)
         , m_roll_number(roll_number)
     {
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Hex& hex)
+    {
+        os << "BoardView::Hex{ " << hex.index() << ", " << hex.resource() << ", "
+           << hex.roll_number() << " }";
+        return os;
     }
 
 private:

@@ -1,29 +1,29 @@
 #pragma once
 
+#include <iostream>
+
 #include "Board/Node.h"
 #include "Core/Resource.h"
 
-namespace k10engine {
-
-namespace Game {
-
-namespace BoardView {
+namespace k10engine::Game {
 
 class Player;
 
+namespace BoardView {
+
 class Junction {
 public:
-    bool has_settlement() { return m_has_settlement; }
+    bool has_settlement() const { return m_has_settlement; }
     void set_has_settlement() { m_has_settlement = true; }
 
-    bool has_city() { return m_has_city; }
+    bool has_city() const { return m_has_city; }
     void set_has_city() { m_has_city = true; }
 
-    bool is_settleable() { return m_is_settleable; }
+    bool is_settleable() const { return m_is_settleable; }
     void set_is_not_settleable() { m_is_settleable = false; }
 
-    const ResourceCollection& port_resources() { return m_port_resources; }
     size_t port_exchange_rate() const { return m_port_exchange_rate; }
+    const ResourceCollection& port_resources() const { return m_port_resources; }
 
     const Player* owner() const { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
@@ -40,6 +40,8 @@ public:
     {
     }
 
+    friend std::ostream& operator<<(std::ostream&, const Junction&);
+
 private:
     const Board::Node* m_node;
     bool m_has_settlement{ false };
@@ -52,6 +54,4 @@ private:
 
 } // namespace BoardView
 
-} // namespace Game
-
-} // namespace k10engine
+} // namespace k10engine::Game

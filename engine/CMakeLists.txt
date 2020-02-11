@@ -24,6 +24,8 @@ add_library(k10 SHARED
     src/Core/Building.cc
     src/Core/DevelopmentCard.cc
     src/Core/Resource.cc
+    src/Game/BoardView/Junction.cc
+    src/Game/BoardView/Road.cc
     src/Game/Dice.cc
     src/Game/Game.cc
     src/Game/Player.cc

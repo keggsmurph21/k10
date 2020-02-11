@@ -1,15 +1,15 @@
 #pragma once
 
+#include <iostream>
+
 #include "Board/Node.h"
 #include "Core/Resource.h"
 
-namespace k10engine {
-
-namespace Game {
-
-namespace BoardView {
+namespace k10engine::Game {
 
 class Player;
+
+namespace BoardView {
 
 class Road {
 public:
@@ -24,6 +24,8 @@ public:
     {
     }
 
+    friend std::ostream& operator<<(std::ostream&, const Road&);
+
 private:
     const Board::Node* m_node;
     Player* m_owner{ nullptr };
@@ -31,7 +33,4 @@ private:
 
 } // namespace BoardView
 
-} // namespace Game
-
-} // namespace k10engine
-
+} // namespace k10engine::Game
