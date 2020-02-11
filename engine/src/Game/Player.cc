@@ -1,3 +1,4 @@
+#include <cassert>
 #include <stdexcept>
 
 #include "Game/Player.h"
@@ -38,94 +39,105 @@ Flags Player::get_flags() const
 
 std::vector<Action> Player::get_available_actions(const Flags& flags) const
 {
-    (void)flags;
-    std::vector<Action> actions;
+    // FIXME: Handle first two turns!!
+    switch (flags.vertex) {
 
-    if (false) {
-        actions.push_back({ State::Edge::AcceptTrade, {} });
+    case State::Vertex::AfterBuilding:
+        if (flags.is_game_over) {
+            return { { State::Edge::EndGame, {} } };
+        } else {
+            { { State::Edge::ToRoot, {} } };
+        }
+
+    case State::Vertex::AfterDiscarding:
+        if (flags.is_current_player) {
+            if (flags.num_to_discard > 0) {
+                // FIXME: generate a list of possible cards to discard
+                return { { State::Edge::Discard, {} } };
+            } else if (flags.should_wait_for_discard) {
+                return {}; // i.e., wait
+            } else {
+                // FIXME: generate a list of available robber locations
+                return { { State::Edge::MoveRobber, {} } };
+            }
+        } else {
+            if (flags.num_to_discard > 0) {
+                // FIXME: generate a list of possible cards to discard
+                return { { State::Edge::Discard, {} } };
+            } else {
+                return { { State::Edge::WaitForTurn, {} } };
+            }
+        }
+
+    case State::Vertex::AfterMovingRobber:
+        if (flags.can_steal) {
+            // FIXME: generate a list of players to steal from
+            return { { State::Edge::Steal, {} } };
+        }
+        return { { State::Edge::ToRoot } };
+
+    case State::Vertex::AfterRoll:
+        if (!flags.is_roll_seven) {
+            return { { State::Edge::CollectResources, {} } };
+        } else if (flags.num_to_discard > 0) {
+            // FIXME: generate a list of possible cards to discard
+            return { { State::Edge::Discard, {} } };
+        } else if (flags.should_wait_for_discard) {
+            return {}; // i.e., wait
+        } else {
+            // FIXME: generate a list of possible cards to discard
+            return { { State::MoveRobber, {} } };
+        }
+
+    case State::Vertex::GameOver:
+        std::assert(false); // We shouldn't hit this
+
+    case State::Vertex::Root:
+        if (flags.is_first_turn) {
+            // FIXME: do something!
+            return {};
+        } else if (flags.is_second_turn) {
+            // FIXME: do something!
+            return {};
+        } else if (!flags.has_rolled) {
+            return { { State::Edge::RollDice, {} } };
+        } else {
+            std::vector<Action> available_actions;
+            // FIXME: generate list: settlements to build city
+            // FIXME: check possibility of buying development card
+            // FIXME: generate list: nodes to build road
+            // FIXME: generate list: nodes to build settlement
+            // FIXME: generate list: hexes to move robber to with a knight
+            // FIXME: generate list: resource to choose with a monopoly
+            // FIXME: generate list: nodes to use road-building with
+            // FIXME: check possibility of playing victory-point
+            // FIXME: generate list: resources to choose with year-of-plenty
+            // FIXME: generate list: trades to offer people
+            // FIXME: generate list: trades to offer bank
+            return available_actions;
+        }
+
+    case State::Vertex::WaitForTurn:
+        if (flags.is_current_player) {
+            return { { State::Edge::ToRoot, {} } };
+        } else if (flags.num_to_discard > 0) {
+            // FIXME: generate a list of possible cards to discard
+            return { { State::Edge::Discard, {} } };
+        } else if (flags.can_accept_trade) {
+            return { { State::Edge::AcceptTrade, {} }, { State::Edge::DeclineTrade, {} } };
+        } else {
+            return {};
+        }
+
+    case State::Vertex::WaitingForTradeResponses:
+        if (flags.trade_is_accepted) {
+            return { { State::Edge::AcceptTrade, {} } };
+        } else if (flags.should_wait_for_trade) {
+            return { { State::Edge::CancelTrade, {} } }; // or do nothing and wait
+        } else {
+            return { { State::Edge::FailTradeUnableToFindPartner, {} } };
+        }
     }
-    if (false) {
-        actions.push_back({ State::Edge::AcceptTradeOther, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::AfterDiscardOther, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::AfterTradeOther, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::Build, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::CancelTrade, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::DeclineTrade, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::DiscardMoveRobber, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::EndGame, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::EndInit, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::EndTurn, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::FailTrade, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::InitBuildFirstRoad, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::InitBuildSecondRoad, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::InitCollect, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::InitSettle, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::NoStealRobber, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::OfferTrade, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::PlayDevelopmentCard, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::Roll, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::RollCollect, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::RollDiscard, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::RollDiscardOther, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::RollMoveRobber, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::StealRobber, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::TakeTurn, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::ToRoot, {} });
-    }
-    if (false) {
-        actions.push_back({ State::Edge::TradeBank, {} });
-    }
-    return actions;
 }
 
 bool Player::has_heavy_purse() const // NOLINT(readability-convert-member-functions-to-static)

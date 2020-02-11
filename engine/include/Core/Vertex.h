@@ -5,22 +5,14 @@
 namespace k10engine::State {
 
 enum class Vertex {
-    AcceptTrade,
-    AcceptTradeOther,
-    Build, // City, DevelopmentCard, Road, Settlement
-    Collect,
-    Discard,
-    DiscardOther,
-    EndGame,
-    EndTurn,
-    InitCollect,
-    MoveRobber,
-    OfferTrade,
-    PlayDevelopmentCard, // Knight, Monopoly, RoadBuilding, VictoryPoint, YearOfPlenty
-    Roll,
+    AfterBuilding,
+    AfterDiscarding,
+    AfterMovingRobber,
+    AfterRoll,
+    GameOver,
     Root,
-    Steal,
-    TradeWithBank,
+    WaitForTurn,
+    WaitingForTradeResponses,
 };
 
 std::ostream& operator<<(std::ostream&, Vertex);
