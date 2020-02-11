@@ -43,15 +43,8 @@ public:
     void set_vertex(State::Vertex vertex) { m_vertex = vertex; }
 
     bool has_heavy_purse() const;
-    bool can_build_city() const;
-    bool can_build_road() const;
-    bool can_build_settlement() const;
-    bool can_buy_development_card() const;
-    bool can_play_knight() const;
-    bool can_play_monopoly() const;
-    bool can_play_road_building() const;
-    bool can_play_victory_point() const;
-    bool can_play_year_of_plenty() const;
+    bool can_build(const Building&) const;
+    bool can_play(const DevelopmentCard&) const;
     bool can_trade() const;
     bool can_trade_with_bank() const;
     bool is_current_player() const;
