@@ -7,6 +7,7 @@ namespace k10engine::Game {
 
 std::vector<Action> Player::get_available_actions() const
 {
+    std::vector<Action> available_actions;
     // FIXME: Handle first two turns!!
     switch (m_vertex) {
 
@@ -65,21 +66,18 @@ std::vector<Action> Player::get_available_actions() const
         if (!m_game->has_rolled()) {
             return { { State::Edge::RollDice, {} } };
         }
-        {
-            std::vector<Action> available_actions;
-            // FIXME: generate list: settlements to build city
-            // FIXME: check possibility of buying development card
-            // FIXME: generate list: nodes to build road
-            // FIXME: generate list: nodes to build settlement
-            // FIXME: generate list: hexes to move robber to with a knight
-            // FIXME: generate list: resource to choose with a monopoly
-            // FIXME: generate list: nodes to use road-building with
-            // FIXME: check possibility of playing victory-point
-            // FIXME: generate list: resources to choose with year-of-plenty
-            // FIXME: generate list: trades to offer people
-            // FIXME: generate list: trades to offer bank
-            return available_actions;
-        }
+        // FIXME: generate list: settlements to build city
+        // FIXME: check possibility of buying development card
+        // FIXME: generate list: nodes to build road
+        // FIXME: generate list: nodes to build settlement
+        // FIXME: generate list: hexes to move robber to with a knight
+        // FIXME: generate list: resource to choose with a monopoly
+        // FIXME: generate list: nodes to use road-building with
+        // FIXME: check possibility of playing victory-point
+        // FIXME: generate list: resources to choose with year-of-plenty
+        // FIXME: generate list: trades to offer people
+        // FIXME: generate list: trades to offer bank
+        return available_actions;
 
     case State::Vertex::WaitForTurn:
         if (is_current_player()) {
