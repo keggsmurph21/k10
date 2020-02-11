@@ -38,6 +38,9 @@ std::vector<Action> Player::get_available_actions() const
 
     case State::Vertex::AfterMovingRobber:
         if (m_game->can_steal()) {
+            const auto& robber_location = m_game->robber_location();
+            (void)robber_location;
+            // for (const auto& junction : m_game->m_graph
             // FIXME: generate a list of players to steal from
             return { { State::Edge::Steal, {} } };
         }
