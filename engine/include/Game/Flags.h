@@ -1,31 +1,20 @@
 #pragma once
 
+#include <set>
+
+#include "Core/Building.h"
+#include "Core/DevelopmentCard.h"
 #include "Core/Vertex.h"
 
 namespace k10engine {
 
 namespace Game {
 
-struct BuildFlags {
-    bool city;
-    bool development_card;
-    bool road;
-    bool settlement;
-};
-
-struct DevelopmentCardFlags {
-    bool knight;
-    bool monopoly;
-    bool road_building;
-    bool victory_point;
-    bool year_of_plenty;
-};
-
 struct Flags {
     State::Vertex vertex;
     bool can_accept_trade;
-    BuildFlags can_build;
-    DevelopmentCardFlags can_play;
+    std::set<Building> buildable_buildings;
+    std::set<DevelopmentCard> playable_development_cards;
     bool can_steal;
     bool can_trade;
     bool can_trade_with_bank;

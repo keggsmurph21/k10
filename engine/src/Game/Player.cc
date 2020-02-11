@@ -10,17 +10,16 @@ Flags Player::get_flags() const
     Flags flags;
     flags.vertex = m_vertex;
     flags.can_accept_trade = can_accept_trade();
-    flags.can_build = {
-        can_build(Building::City),
-        can_build(Building::DevelopmentCard),
-        can_build(Building::Road),
-        can_build(Building::Settlement),
-    };
-    flags.can_play{
-        can_play(DevelopmentCard::Knight),       can_play(DevelopmentCard::Monopoly),
-        can_play(DevelopmentCard::RoadBuilding), can_play(DevelopmentCard::VictoryPoint),
-        can_play(DevelopmentCard::YearOfPlenty),
-    };
+    for (const auto building : AllBuildings) {
+        if (can_build(building)) {
+            flags.buildable_buildings.insert(building);
+        }
+    }
+    for (const auto development_card : AllDevelopmentCards) {
+        if (can_play(development_card)) {
+            flags.playable_development_cards.insert(development_card);
+        }
+    }
     flags.can_steal = m_game->can_steal();
     flags.can_trade = can_trade();
     flags.can_trade_with_bank = can_trade_with_bank();
