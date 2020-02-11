@@ -34,6 +34,98 @@ Flags Player::get_flags() const
     return flags;
 }
 
+std::vector<Action> Player::get_available_actions(const Flags& flags) const
+{
+    (void)flags;
+    std::vector<Action> actions;
+
+    if (false) {
+        actions.push_back({ State::Edge::AcceptTrade, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::AcceptTradeOther, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::AfterDiscardOther, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::AfterTradeOther, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::Build, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::CancelTrade, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::DeclineTrade, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::DiscardMoveRobber, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::EndGame, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::EndInit, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::EndTurn, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::FailTrade, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::InitBuildFirstRoad, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::InitBuildSecondRoad, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::InitCollect, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::InitSettle, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::NoStealRobber, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::OfferTrade, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::PlayDevelopmentCard, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::Roll, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::RollCollect, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::RollDiscard, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::RollDiscardOther, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::RollMoveRobber, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::StealRobber, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::TakeTurn, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::ToRoot, {} });
+    }
+    if (false) {
+        actions.push_back({ State::Edge::TradeBank, {} });
+    }
+    return actions;
+}
+
 bool Player::has_heavy_purse() const // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Player::has_heavy_purse");

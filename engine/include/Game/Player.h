@@ -3,7 +3,9 @@
 #include <string.h>
 #include <vector>
 
+#include "Core/Action.h"
 #include "Core/DevelopmentCard.h"
+#include "Core/Edge.h"
 #include "Core/Resource.h"
 #include "Core/Vertex.h"
 #include "Game/BoardView/Junction.h"
@@ -23,6 +25,7 @@ public:
     size_t id() const { return m_id; }
 
     Flags get_flags() const;
+    std::vector<Action> get_available_actions(const Flags&) const;
 
     bool can_accept_trade() const { return m_can_accept_trade; }
     void set_can_accept_trade(bool can_accept_trade) { m_can_accept_trade = can_accept_trade; }
