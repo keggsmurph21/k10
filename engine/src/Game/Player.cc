@@ -5,62 +5,30 @@
 
 namespace k10engine::Game {
 
-Flags Player::get_flags() const
-{
-    Flags flags;
-    flags.vertex = m_vertex;
-    flags.can_accept_trade = can_accept_trade();
-    for (const auto building : AllBuildings) {
-        if (can_build(building)) {
-            flags.buildable_buildings.insert(building);
-        }
-    }
-    for (const auto development_card : AllDevelopmentCards) {
-        if (can_play(development_card)) {
-            flags.playable_development_cards.insert(development_card);
-        }
-    }
-    flags.can_steal = m_game->can_steal();
-    flags.can_trade = can_trade();
-    flags.can_trade_with_bank = can_trade_with_bank();
-    flags.has_rolled = m_game->has_rolled();
-    flags.is_current_player = is_current_player();
-    flags.is_first_round = m_game->is_first_round();
-    flags.is_game_over = m_game->is_game_over();
-    flags.is_roll_seven = m_game->is_roll_seven();
-    flags.is_second_round = m_game->is_second_round();
-    flags.is_trade_accepted = m_game->is_trade_accepted();
-    flags.should_wait_for_discard = m_game->should_wait_for_discard();
-    flags.should_wait_for_trade = m_game->should_wait_for_trade();
-    flags.num_to_discard = num_to_discard();
-    return flags;
-}
-
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-std::vector<Action> Player::get_available_actions(const Flags& flags) const
+std::vector<Action> Player::get_available_actions() const
 {
     // FIXME: Handle first two turns!!
-    switch (flags.vertex) {
+    switch (m_vertex) {
 
     case State::Vertex::AfterBuilding:
-        if (flags.is_game_over) {
+        if (m_game->is_game_over()) {
             return { { State::Edge::EndGame, {} } };
         }
         return { { State::Edge::ToRoot, {} } };
 
     case State::Vertex::AfterDiscarding:
-        if (flags.is_current_player) {
-            if (flags.num_to_discard > 0) {
+        if (is_current_player()) {
+            if (num_to_discard() > 0) {
                 // FIXME: generate a list of possible cards to discard
                 return { { State::Edge::Discard, {} } };
             }
-            if (flags.should_wait_for_discard) {
+            if (m_game->should_wait_for_discard()) {
                 return {}; // i.e., wait
             }
             // FIXME: generate a list of available robber locations
             return { { State::Edge::MoveRobber, {} } };
         } else {
-            if (flags.num_to_discard > 0) {
+            if (num_to_discard() > 0) {
                 // FIXME: generate a list of possible cards to discard
                 return { { State::Edge::Discard, {} } };
             }
@@ -68,21 +36,21 @@ std::vector<Action> Player::get_available_actions(const Flags& flags) const
         }
 
     case State::Vertex::AfterMovingRobber:
-        if (flags.can_steal) {
+        if (m_game->can_steal()) {
             // FIXME: generate a list of players to steal from
             return { { State::Edge::Steal, {} } };
         }
         return { { State::Edge::ToRoot, {} } };
 
     case State::Vertex::AfterRoll:
-        if (!flags.is_roll_seven) {
+        if (!m_game->is_roll_seven()) {
             return { { State::Edge::CollectResources, {} } };
         }
-        if (flags.num_to_discard > 0) {
+        if (num_to_discard() > 0) {
             // FIXME: generate a list of possible cards to discard
             return { { State::Edge::Discard, {} } };
         }
-        if (flags.should_wait_for_discard) {
+        if (m_game->should_wait_for_discard()) {
             return {}; // i.e., wait
         }
         // FIXME: generate a list of possible cards to discard
@@ -92,15 +60,15 @@ std::vector<Action> Player::get_available_actions(const Flags& flags) const
         assert(false); // We shouldn't hit this
 
     case State::Vertex::Root:
-        if (flags.is_first_round) {
+        if (m_game->is_first_round()) {
             // FIXME: do something!
             return {};
         }
-        if (flags.is_second_round) {
+        if (m_game->is_second_round()) {
             // FIXME: do something!
             return {};
         }
-        if (!flags.has_rolled) {
+        if (!m_game->has_rolled()) {
             return { { State::Edge::RollDice, {} } };
         }
         {
@@ -120,23 +88,23 @@ std::vector<Action> Player::get_available_actions(const Flags& flags) const
         }
 
     case State::Vertex::WaitForTurn:
-        if (flags.is_current_player) {
+        if (is_current_player()) {
             return { { State::Edge::ToRoot, {} } };
         }
-        if (flags.num_to_discard > 0) {
+        if (num_to_discard() > 0) {
             // FIXME: generate a list of possible cards to discard
             return { { State::Edge::Discard, {} } };
         }
-        if (flags.can_accept_trade) {
+        if (can_accept_trade()) {
             return { { State::Edge::AcceptTrade, {} }, { State::Edge::DeclineTrade, {} } };
         }
         return {};
 
     case State::Vertex::WaitingForTradeResponses:
-        if (flags.is_trade_accepted) {
+        if (m_game->is_trade_accepted()) {
             return { { State::Edge::AcceptTrade, {} } };
         }
-        if (flags.should_wait_for_trade) {
+        if (m_game->should_wait_for_trade()) {
             return { { State::Edge::CancelTrade, {} } }; // or do nothing and wait
         }
         return { { State::Edge::FailTradeUnableToFindPartner, {} } };

@@ -4,13 +4,13 @@
 #include <vector>
 
 #include "Core/Action.h"
+#include "Core/Building.h"
 #include "Core/DevelopmentCard.h"
 #include "Core/Edge.h"
 #include "Core/Resource.h"
 #include "Core/Vertex.h"
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"
-#include "Game/Flags.h"
 #include "Game/Game.h"
 #include "Game/Trade.h"
 
@@ -26,8 +26,7 @@ class Player {
 public:
     size_t index() const { return m_index; }
 
-    Flags get_flags() const;
-    std::vector<Action> get_available_actions(const Flags&) const;
+    std::vector<Action> get_available_actions() const;
 
     bool can_accept_trade() const { return m_can_accept_trade; }
     void set_can_accept_trade(bool can_accept_trade) { m_can_accept_trade = can_accept_trade; }
