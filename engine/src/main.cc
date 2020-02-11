@@ -119,6 +119,11 @@ int main(int /* unused */, char** /* unused */)
         std::cout << road << std::endl;
     }
 
+    g->for_each_neighbor(g->hexes().at(0), [&](const auto& junction) {
+        std::cout << "in body of callback" << std::endl;
+        std::cout << junction << std::endl;
+    });
+
     delete g;
     delete b;
 

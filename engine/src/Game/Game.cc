@@ -6,6 +6,16 @@
 
 namespace k10engine::Game {
 
+void Game::for_each_neighbor(const BoardView::Hex& hex,
+                             const std::function<void(const Board::Node*)>& callback) const
+{
+    std::cout << "in regular function" << std::endl;
+    for (const auto& node : m_graph->neighbors(hex.node())) {
+        std::cout << node->type() << " " << node->index() << std::endl;
+        callback(node);
+    }
+}
+
 void Game::roll_dice() // NOLINT(readability-convert-member-functions-to-static)
 {
     throw std::invalid_argument("Not implemented: Game::roll_dice");

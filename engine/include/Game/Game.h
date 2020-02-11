@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <optional>
 #include <vector>
 
@@ -54,6 +55,9 @@ public:
     const std::vector<BoardView::Hex>& hexes() const { return m_hexes; }
     const std::vector<BoardView::Junction>& junctions() const { return m_junctions; }
     const std::vector<BoardView::Road>& roads() const { return m_roads; }
+
+    void for_each_neighbor(const BoardView::Hex&,
+                           const std::function<void(const Board::Node*)>& callback) const;
 
     Game(const Board::Graph*,
          std::vector<BoardView::Hex>,
