@@ -8,7 +8,7 @@ namespace Game {
 
 class Robber {
 public:
-    const BoardView::Hex* location() { return m_location; }
+    const BoardView::Hex* location() const { return m_location; }
     void set_location(const BoardView::Hex* location) { m_location = location; }
     Robber(const BoardView::Hex* location)
         : m_location(location)

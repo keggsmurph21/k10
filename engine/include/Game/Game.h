@@ -38,6 +38,8 @@ public:
     bool should_wait_for_discard() const;
     bool should_wait_for_trade() const;
 
+    const BoardView::Hex* robber_location() const { return m_robber.location(); }
+
     void roll_dice();
     int get_dice_total() const;
 
