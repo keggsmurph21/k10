@@ -100,6 +100,12 @@ std::vector<Action> Player::get_available_actions() const
                       { { ActionArgumentType::BuildItemId,
                           static_cast<size_t>(Building::DevelopmentCard) } } });
             }
+
+            if (m_num_trades_offered_this_turn < MAX_NUM_TRADE_OFFERS_PER_TURN
+                && m_resources.size() > 0) {
+                // FIXME: Make sure we handle trading with the bank
+                available_actions.push_back({ State::Edge::OfferTrade, {} });
+            }
         }
         // FIXME: generate list: nodes to build road
         // FIXME: generate list: nodes to build settlement
@@ -108,8 +114,6 @@ std::vector<Action> Player::get_available_actions() const
         // FIXME: generate list: nodes to use road-building with
         // FIXME: check possibility of playing victory-point
         // FIXME: generate list: resources to choose with year-of-plenty
-        // FIXME: generate list: trades to offer people
-        // FIXME: generate list: trades to offer bank
         return available_actions;
 
     case State::Vertex::WaitForTurn:
