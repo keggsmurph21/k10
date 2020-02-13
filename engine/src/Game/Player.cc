@@ -38,11 +38,21 @@ std::vector<Action> Player::get_available_actions() const
 
     case State::Vertex::AfterMovingRobber:
         if (m_game->can_steal()) {
-            const auto& robber_location = m_game->robber_location();
-            (void)robber_location;
-            // for (const auto& junction : m_game->m_graph
-            // FIXME: generate a list of players to steal from
-            return { { State::Edge::Steal, {} } };
+            const auto robber_location = m_game->robber_location();
+            std::set<const Player*> players_to_steal_from;
+            for (const auto& junction_neighbor : robber_location->junction_neighbors()) {
+                const auto junction = junction_neighbor.second;
+                const auto owner = junction->owner();
+                if (owner != nullptr && owner != this) {
+                    players_to_steal_from.insert(owner);
+                }
+            }
+            for (const auto player_to_steal_from : players_to_steal_from) {
+                available_actions.push_back(
+                    { State::Edge::Steal,
+                      { { ActionArgumentType::PlayerId, player_to_steal_from->index() } } });
+            }
+            return available_actions;
         }
         return { { State::Edge::ToRoot, {} } };
 
