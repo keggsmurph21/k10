@@ -93,6 +93,7 @@ std::vector<Action> Player::get_available_actions() const
         {
             const bool can_build_city = can_build(Building::City);
             const bool can_build_development_card = can_build(Building::DevelopmentCard);
+            const bool can_build_road = can_build(Building::Road);
 
             if (can_build_development_card) {
                 available_actions.push_back(
@@ -110,6 +111,31 @@ std::vector<Action> Player::get_available_actions() const
                                   static_cast<size_t>(Building::City) },
                                 { ActionArgumentType::NodeId, junction->index() } } });
                     }
+                }
+            }
+
+            std::set<const BoardView::Road*> reachable_roads;
+            for (const auto owned_road : roads()) {
+                for (const auto junction_neighbor : owned_road->junction_neighbors()) {
+                    const auto junction = junction_neighbor.second;
+                    if (junction->owner() != nullptr && junction->owner() != this) {
+                        continue; // can't build roads thru other settlements
+                    }
+                    for (const auto road_neighbor : junction->road_neighbors()) {
+                        const auto reachable_road = road_neighbor.second;
+                        if (reachable_road->owner() == nullptr) {
+                            reachable_roads.insert(reachable_road);
+                        }
+                    }
+                }
+            }
+            if (can_build_road) {
+                for (const auto road : reachable_roads) {
+                    available_actions.push_back(
+                        { State::Edge::Build,
+                          { { ActionArgumentType::BuildItemId,
+                              static_cast<size_t>(Building::Road) },
+                            { ActionArgumentType::NodeId, road->index() } } });
                 }
             }
 
@@ -149,7 +175,6 @@ std::vector<Action> Player::get_available_actions() const
                 available_actions.push_back({ State::Edge::OfferTrade, {} });
             }
         }
-        // FIXME: generate list: nodes to build road
         // FIXME: generate list: nodes to build settlement
         return available_actions;
 
