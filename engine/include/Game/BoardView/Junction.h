@@ -16,6 +16,9 @@ namespace BoardView {
 class Hex;
 class Road;
 
+template<typename T>
+using Neighbors = std::map<Board::Direction, const T*, std::less<>>;
+
 class Junction {
 public:
     bool has_settlement() const { return m_has_settlement; }
@@ -36,9 +39,7 @@ public:
     size_t index() const { return m_node->index(); }
     const Board::Node* node() const { return m_node; }
 
-    Junction(const Board::Node* node,
-             const ResourceCollection port_resources,
-             size_t port_exchange_rate)
+    Junction(const Board::Node* node, ResourceCollection port_resources, size_t port_exchange_rate)
         : m_node(node)
         , m_port_resources(port_resources)
         , m_port_exchange_rate(port_exchange_rate)
@@ -46,6 +47,18 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream&, const Junction&);
+
+    const Neighbors<Hex>& hex_neighbors() const { return m_hex_neighbors; }
+    void add_neighbor(Board::Direction direction, const Hex* hex)
+    {
+        m_hex_neighbors[direction] = hex;
+    }
+
+    const Neighbors<Road>& road_neighbors() const { return m_road_neighbors; }
+    void add_neighbor(Board::Direction direction, const Road* road)
+    {
+        m_road_neighbors[direction] = road;
+    }
 
 private:
     const Board::Node* m_node;
@@ -56,17 +69,8 @@ private:
     const size_t m_port_exchange_rate;
     Player* m_owner{ nullptr };
 
-    std::map<Board::Direction, const Hex*, std::less<>> m_hex_neighbors;
-    std::map<Board::Direction, const Road*, std::less<>> m_road_neighbors;
-
-    void add_neighbor(const Board::Direction& direction, const Hex* hex)
-    {
-        m_hex_neighbors[direction] = hex;
-    }
-    void add_neighbor(const Board::Direction& direction, const Road* road)
-    {
-        m_road_neighbors[direction] = road;
-    }
+    Neighbors<Hex> m_hex_neighbors;
+    Neighbors<Road> m_road_neighbors;
 };
 
 } // namespace BoardView

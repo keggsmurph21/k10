@@ -14,6 +14,9 @@ namespace BoardView {
 
 class Junction;
 
+template<typename T>
+using Neighbors = std::map<Board::Direction, const T*, std::less<>>;
+
 class Road {
 public:
     const Player* owner() const { return m_owner; }
@@ -29,16 +32,17 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Road&);
 
+    const Neighbors<Junction>& junction_neighbors() const { return m_junction_neighbors; }
+    void add_neighbor(Board::Direction direction, const Junction* junction)
+    {
+        m_junction_neighbors[direction] = junction;
+    }
+
 private:
     const Board::Node* m_node;
     Player* m_owner{ nullptr };
 
-    std::map<Board::Direction, const Junction*> m_junction_neighbors;
-
-    void add_neighbor(const Board::Direction& direction, const Junction* junction)
-    {
-        m_junction_neighbors[direction] = junction;
-    }
+    Neighbors<Junction> m_junction_neighbors;
 };
 
 } // namespace BoardView

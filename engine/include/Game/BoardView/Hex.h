@@ -9,7 +9,9 @@
 namespace k10engine::Game::BoardView {
 
 class Junction;
-class Road;
+
+template<typename T>
+using Neighbors = std::map<Board::Direction, const T*, std::less<>>;
 
 class Hex {
 public:
@@ -19,7 +21,7 @@ public:
     size_t index() const { return m_node->index(); }
     const Board::Node* node() const { return m_node; }
 
-    Hex(const Board::Node* node, const AbstractResource resource, size_t roll_number)
+    Hex(const Board::Node* node, AbstractResource resource, size_t roll_number)
         : m_node(node)
         , m_resource(resource)
         , m_roll_number(roll_number)
@@ -33,22 +35,18 @@ public:
         return os;
     }
 
+    const Neighbors<Junction>& junction_neighbors() const { return m_junction_neighbors; }
+    void add_neighbor(Board::Direction direction, const Junction* junction)
+    {
+        m_junction_neighbors[direction] = junction;
+    }
+
 private:
     const Board::Node* m_node;
     const AbstractResource m_resource;
     size_t m_roll_number; // 0 means <none>
 
-    std::map<Board::Direction, const Junction*, std::less<>> m_junction_neighbors;
-    std::map<Board::Direction, const Road*, std::less<>> m_road_neighbors;
-
-    void add_neighbor(const Board::Direction& direction, const Junction* junction)
-    {
-        m_junction_neighbors[direction] = junction;
-    }
-    void add_neighbor(const Board::Direction& direction, const Road* road)
-    {
-        m_road_neighbors[direction] = road;
-    }
+    Neighbors<Junction> m_junction_neighbors;
 };
 
 } // namespace k10engine::Game::BoardView
