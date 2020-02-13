@@ -91,7 +91,16 @@ std::vector<Action> Player::get_available_actions() const
             return { { State::Edge::RollDice, {} } };
         }
         // FIXME: generate list: settlements to build city
-        // FIXME: check possibility of buying development card
+        {
+            const bool can_build_development_card = can_build(Building::DevelopmentCard);
+
+            if (can_build_development_card) {
+                available_actions.push_back(
+                    { State::Edge::Build,
+                      { { ActionArgumentType::BuildItemId,
+                          static_cast<size_t>(Building::DevelopmentCard) } } });
+            }
+        }
         // FIXME: generate list: nodes to build road
         // FIXME: generate list: nodes to build settlement
         // FIXME: generate list: hexes to move robber to with a knight
