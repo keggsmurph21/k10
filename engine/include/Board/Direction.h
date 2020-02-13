@@ -1,8 +1,8 @@
 #pragma once
 
-namespace k10engine {
+#include <iostream>
 
-namespace Board {
+namespace k10engine::Board {
 
 enum class Direction {
     Clock12,
@@ -20,6 +20,6 @@ static const Direction AllDirections[] = {
 
 Direction get_opposite(Direction);
 
-} // namespace Board
+std::ostream& operator<<(std::ostream&, Direction);
 
-} // namespace k10engine
+} // namespace k10engine::Board

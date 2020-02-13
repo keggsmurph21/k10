@@ -35,24 +35,22 @@ std::set<Direction> get_directions(Orientation o)
     }
 }
 
-Direction get_opposite(Direction d)
+std::ostream& operator<<(std::ostream& os, Orientation o)
 {
-    switch (d) {
-    case Direction::Clock12:
-        return Direction::Clock6;
-    case Direction::Clock6:
-        return Direction::Clock12;
-    case Direction::Clock2:
-        return Direction::Clock8;
-    case Direction::Clock8:
-        return Direction::Clock2;
-    case Direction::Clock4:
-        return Direction::Clock10;
-    case Direction::Clock10:
-        return Direction::Clock4;
+    switch (o) {
+    case Orientation::Clock12Clock6:
+        os << "Orientation::Clock12Clock6";
+        break;
+    case Orientation::Clock2Clock8:
+        os << "Orientation::Clock2Clock8";
+        break;
+    case Orientation::Clock4Clock10:
+        os << "Orientation::Clock4Clock10";
+        break;
     default:
-        throw std::invalid_argument("Unrecognized Direction");
+        throw std::invalid_argument("Unrecognized Orientation");
     }
+    return os;
 }
 
 } // namespace k10engine::Board

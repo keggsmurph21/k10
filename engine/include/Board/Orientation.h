@@ -1,12 +1,11 @@
 #pragma once
 
+#include <iostream>
 #include <set>
 
 #include "Board/Direction.h"
 
-namespace k10engine {
-
-namespace Board {
+namespace k10engine::Board {
 
 enum class Orientation {
     Clock12Clock6,
@@ -17,6 +16,6 @@ enum class Orientation {
 Orientation get_orientation(Direction);
 std::set<Direction> get_directions(Orientation);
 
-} // namespace Board
+std::ostream& operator<<(std::ostream&, Orientation);
 
-} // namespace k10engine
+} // namespace k10engine::Board

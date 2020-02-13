@@ -15,6 +15,7 @@ set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=bugprone-*,google-*,readability-*,mi
 include_directories(include)
 
 add_library(k10 SHARED
+    src/Board/Direction.cc
     src/Board/Graph.cc
     src/Board/Node.cc
     src/Board/NodeType.cc
