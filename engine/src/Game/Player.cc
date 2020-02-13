@@ -80,8 +80,16 @@ std::vector<Action> Player::get_available_actions() const
 
     case State::Vertex::Root:
         if (m_game->is_first_round()) {
-            // FIXME: do something!
-            return {};
+            for (const auto junction : m_game->junctions()) {
+                if (junction->is_settleable()) {
+                    available_actions.push_back(
+                        { State::Edge::Build,
+                          { { ActionArgumentType::BuildItemId,
+                              static_cast<size_t>(Building::Settlement) },
+                            { ActionArgumentType::NodeId, junction->index() } } });
+                }
+            }
+            return available_actions;
         }
         if (m_game->is_second_round()) {
             // FIXME: do something!

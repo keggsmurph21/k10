@@ -142,6 +142,14 @@ int main(int /* unused */, char** /* unused */)
         }
     }
 
+    for (const auto player : g->players()) {
+        const auto actions = player->get_available_actions();
+        std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
+        for (const auto& available_action : actions) {
+            std::cout << " - " << available_action << std::endl;
+        }
+    }
+
     delete g;
     delete b;
 

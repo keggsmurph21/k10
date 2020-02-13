@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Board/Graph.h"
+#include "Core/Vertex.h"
 #include "Game/BoardView/Hex.h"
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"

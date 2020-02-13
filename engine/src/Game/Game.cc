@@ -66,6 +66,7 @@ Game::Game(const Board::Graph* graph,
     for (int i = 0; i < parameters.players_count; ++i) {
         m_players.push_back(new Player(i, this));
     }
+    current_player()->set_vertex(State::Vertex::Root);
 }
 
 Game::~Game()
