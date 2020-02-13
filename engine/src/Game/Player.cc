@@ -90,8 +90,8 @@ std::vector<Action> Player::get_available_actions() const
         if (!m_game->has_rolled()) {
             return { { State::Edge::RollDice, {} } };
         }
-        // FIXME: generate list: settlements to build city
         {
+            const bool can_build_city = can_build(Building::City);
             const bool can_build_development_card = can_build(Building::DevelopmentCard);
 
             if (can_build_development_card) {
@@ -99,6 +99,18 @@ std::vector<Action> Player::get_available_actions() const
                     { State::Edge::Build,
                       { { ActionArgumentType::BuildItemId,
                           static_cast<size_t>(Building::DevelopmentCard) } } });
+            }
+
+            for (const auto junction : m_game->junctions()) {
+                if (can_build_city) {
+                    if (junction->owner() == this) {
+                        available_actions.push_back(
+                            { State::Edge::Build,
+                              { { ActionArgumentType::BuildItemId,
+                                  static_cast<size_t>(Building::City) },
+                                { ActionArgumentType::NodeId, junction->index() } } });
+                    }
+                }
             }
 
             std::set<DevelopmentCard> seen_development_cards;
