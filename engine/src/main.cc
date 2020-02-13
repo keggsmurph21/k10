@@ -109,14 +109,37 @@ int main(int /* unused */, char** /* unused */)
                                               10 }; // NOLINT(readability-magic-numbers)
     auto g = k10engine::Game::initialize(b, s, p);
 
+    std::cout << std::endl << " ~~~ Hex neighbors ~~~" << std::endl << std::endl;
     for (const auto& hex : g->hexes()) {
         std::cout << *hex << std::endl;
+        for (const auto& junction_neighbor : hex->junction_neighbors()) {
+            const auto direction = junction_neighbor.first;
+            const auto junction = junction_neighbor.second;
+            std::cout << " > neighbor in " << direction << " is " << *junction << std::endl;
+        }
     }
+    std::cout << std::endl << " ~~~ Junction neighbors ~~~" << std::endl << std::endl;
     for (const auto& junction : g->junctions()) {
         std::cout << *junction << std::endl;
+        for (const auto& hex_neighbor : junction->hex_neighbors()) {
+            const auto direction = hex_neighbor.first;
+            const auto hex = hex_neighbor.second;
+            std::cout << " > neighbor in " << direction << " is " << *hex << std::endl;
+        }
+        for (const auto& road_neighbor : junction->road_neighbors()) {
+            const auto direction = road_neighbor.first;
+            const auto road = road_neighbor.second;
+            std::cout << " > neighbor in " << direction << " is " << *road << std::endl;
+        }
     }
+    std::cout << std::endl << " ~~~ Road neighbors ~~~" << std::endl << std::endl;
     for (const auto& road : g->roads()) {
         std::cout << *road << std::endl;
+        for (const auto& junction_neighbor : road->junction_neighbors()) {
+            const auto direction = junction_neighbor.first;
+            const auto junction = junction_neighbor.second;
+            std::cout << " > neighbor in " << direction << " is " << *junction << std::endl;
+        }
     }
 
     delete g;

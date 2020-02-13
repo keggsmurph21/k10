@@ -103,6 +103,10 @@ Game* initialize(const Board::Graph* graph,
     std::vector<BoardView::Junction*> junctions;
     std::vector<BoardView::Road*> roads;
 
+    std::map<const Board::Node*, BoardView::Hex*> hex_lookup;
+    std::map<const Board::Node*, BoardView::Junction*> junction_lookup;
+    std::map<const Board::Node*, BoardView::Road*> road_lookup;
+
     int robber_index = -1;
 
     size_t hex_index = 0;
@@ -135,6 +139,7 @@ Game* initialize(const Board::Graph* graph,
                 hex = new BoardView::Hex(node, resource, roll);
             }
             std::cout << " " << hex;
+            hex_lookup[node] = hex;
             hexes.push_back(hex);
             ++hex_index;
         } break;
@@ -155,17 +160,59 @@ Game* initialize(const Board::Graph* graph,
                     new BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
                 std::cout << " " << junction;
             }
+            junction_lookup[node] = junction;
             junctions.push_back(junction);
         } break;
         case Board::NodeType::Road: { // scope for const
             auto road = new BoardView::Road(node);
             std::cout << " " << road;
+            road_lookup[node] = road;
             roads.push_back(road);
         } break;
         default:
             break; // do nothing
         }
         std::cout << std::endl;
+    }
+
+    for (auto hex : hexes) {
+        for (const auto& direction : Board::AllDirections) {
+            const auto neighbor_node = graph->neighbor(hex->node(), direction);
+            if (neighbor_node == nullptr) {
+                continue;
+            }
+            if (junction_lookup.find(neighbor_node) != junction_lookup.end()) {
+                const auto neighbor_junction = junction_lookup.at(neighbor_node);
+                hex->add_neighbor(direction, neighbor_junction);
+            }
+        }
+    }
+    for (auto junction : junctions) {
+        for (const auto& direction : Board::AllDirections) {
+            const auto neighbor_node = graph->neighbor(junction->node(), direction);
+            if (neighbor_node == nullptr) {
+                continue;
+            }
+            if (hex_lookup.find(neighbor_node) != hex_lookup.end()) {
+                const auto neighbor_hex = hex_lookup.at(neighbor_node);
+                junction->add_neighbor(direction, neighbor_hex);
+            } else if (road_lookup.find(neighbor_node) != road_lookup.end()) {
+                const auto neighbor_road = road_lookup.at(neighbor_node);
+                junction->add_neighbor(direction, neighbor_road);
+            }
+        }
+    }
+    for (auto road : roads) {
+        for (const auto& direction : Board::AllDirections) {
+            const auto neighbor_node = graph->neighbor(road->node(), direction);
+            if (neighbor_node == nullptr) {
+                continue;
+            }
+            if (junction_lookup.find(neighbor_node) != junction_lookup.end()) {
+                const auto neighbor_junction = junction_lookup.at(neighbor_node);
+                road->add_neighbor(direction, neighbor_junction);
+            }
+        }
     }
 
     if (!(0 <= robber_index && robber_index < static_cast<int>(hexes.size()))) {
