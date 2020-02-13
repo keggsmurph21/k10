@@ -58,6 +58,8 @@ public:
     size_t public_victory_points() const;
     size_t private_victory_points() const;
 
+    const std::vector<BoardView::Road*>& roads() const { return m_roads; }
+
     ~Player() {}
 
     friend Game;
