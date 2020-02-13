@@ -1,4 +1,4 @@
-#include <stdexcept>
+#include <cassert>
 
 #include "Board/Orientation.h"
 
@@ -16,9 +16,8 @@ Orientation get_orientation(Direction d)
     case Direction::Clock4:
     case Direction::Clock10:
         return Orientation::Clock4Clock10;
-    default:
-        throw std::invalid_argument("Unrecognized Direction");
     }
+    assert(false);
 }
 
 std::set<Direction> get_directions(Orientation o)
@@ -30,9 +29,8 @@ std::set<Direction> get_directions(Orientation o)
         return { Direction::Clock2, Direction::Clock8 };
     case Orientation::Clock4Clock10:
         return { Direction::Clock4, Direction::Clock10 };
-    default:
-        throw std::invalid_argument("Unrecognized Orientation");
     }
+    assert(false);
 }
 
 std::ostream& operator<<(std::ostream& os, Orientation o)
@@ -47,8 +45,6 @@ std::ostream& operator<<(std::ostream& os, Orientation o)
     case Orientation::Clock4Clock10:
         os << "Orientation::Clock4Clock10";
         break;
-    default:
-        throw std::invalid_argument("Unrecognized Orientation");
     }
     return os;
 }

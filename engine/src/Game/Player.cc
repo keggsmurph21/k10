@@ -109,10 +109,8 @@ std::vector<Action> Player::get_available_actions() const
             return { { State::Edge::CancelTrade, {} } }; // or do nothing and wait
         }
         return { { State::Edge::FailTradeUnableToFindPartner, {} } };
-
-    default:
-        assert(false); // NOT REACHED
     }
+    assert(false);
 }
 
 bool Player::has_heavy_purse() const // NOLINT(readability-convert-member-functions-to-static)

@@ -20,8 +20,6 @@ std::ostream& operator<<(std::ostream& os, DevelopmentCard type)
     case DevelopmentCard::YearOfPlenty:
         os << "DevelopmentCard::YearOfPlenty";
         break;
-    default:
-        os << "DevelopmentCard::Unknown";
     }
     return os;
 }

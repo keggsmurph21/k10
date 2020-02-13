@@ -17,8 +17,6 @@ std::ostream& operator<<(std::ostream& os, Building type)
     case Building::Settlement:
         os << "Building::Settlement";
         break;
-    default:
-        os << "Building::Unknown";
     }
     return os;
 }

@@ -20,8 +20,6 @@ std::ostream& operator<<(std::ostream& os, NodeType type)
     case NodeType::UnflippedHex:
         os << "NodeType::UnflippedHex";
         break;
-    default:
-        os << "NodeType::Unknown";
     }
     return os;
 }

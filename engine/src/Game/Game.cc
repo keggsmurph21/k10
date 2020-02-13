@@ -160,7 +160,8 @@ Game* initialize(const Board::Graph* graph,
             road_lookup[node] = road;
             roads.push_back(road);
         } break;
-        default:
+        case Board::NodeType::Ocean:
+        case Board::NodeType::UnflippedHex:
             break; // do nothing
         }
     }

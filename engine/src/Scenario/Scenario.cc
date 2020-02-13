@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <stdexcept>
+#include <cassert>
 
 #include "Core/Random.h"
 #include "Scenario/Scenario.h"
@@ -68,9 +68,8 @@ std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType t
     case IterationType::Random:
         std::shuffle(deck.begin(), deck.end(), Random::rng());
         return deck;
-    default:
-        throw std::invalid_argument("Unrecognized IterationType");
     }
+    assert(false);
 }
 
 std::vector<AbstractResource> Scenario::get_resources(IterationType type) const
@@ -89,9 +88,8 @@ std::vector<AbstractResource> Scenario::get_resources(IterationType type) const
     case IterationType::Random:
         std::shuffle(resources.begin(), resources.end(), Random::rng());
         return resources;
-    default:
-        throw std::invalid_argument("Unrecognized IterationType");
     }
+    assert(false);
 }
 
 std::vector<_PortSpec> Scenario::get_ports(IterationType type) const
@@ -106,9 +104,8 @@ std::vector<_PortSpec> Scenario::get_ports(IterationType type) const
     case IterationType::Random:
         std::shuffle(ports.begin(), ports.end(), Random::rng());
         return ports;
-    default:
-        throw std::invalid_argument("Unrecognized IterationType");
     }
+    assert(false);
 }
 
 std::vector<int> Scenario::get_rolls(IterationType type) const
@@ -123,9 +120,8 @@ std::vector<int> Scenario::get_rolls(IterationType type) const
     case IterationType::Random:
         std::shuffle(rolls.begin(), rolls.end(), Random::rng());
         return rolls;
-    default:
-        throw std::invalid_argument("Unrecognized IterationType");
     }
+    assert(false);
 }
 
 Scenario::~Scenario()

@@ -8,8 +8,6 @@ std::ostream& operator<<(std::ostream& os, const NonYieldingResource& type)
     case NonYieldingResource::Desert:
         os << "NonYieldingResource::Desert";
         break;
-    default:
-        os << "NonYieldingResource::Unknown";
     }
     return os;
 }
@@ -32,8 +30,6 @@ std::ostream& operator<<(std::ostream& os, const Resource& type)
     case Resource::Wood:
         os << "Resource::Wood";
         break;
-    default:
-        os << "Resource::Unknown";
     }
     return os;
 }

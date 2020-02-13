@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "Board/Direction.h"
 
 namespace k10engine::Board {
@@ -17,9 +19,8 @@ Direction get_opposite(Direction d)
         return Direction::Clock10;
     case Direction::Clock10:
         return Direction::Clock4;
-    default:
-        throw std::invalid_argument("Unrecognized Direction");
     }
+    assert(false);
 }
 
 std::ostream& operator<<(std::ostream& os, Direction d)
@@ -43,8 +44,6 @@ std::ostream& operator<<(std::ostream& os, Direction d)
     case Direction::Clock12:
         os << "Direction::Clock12";
         break;
-    default:
-        throw std::invalid_argument("Unrecognized Direction");
     }
     return os;
 }
