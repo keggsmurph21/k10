@@ -21,10 +21,10 @@ std::vector<Action> Player::get_available_actions() const
                 return {}; // i.e., wait
             }
             for (const auto& hex : m_game->hexes()) {
-                if (hex.index() != m_game->robber_location()->index()) {
+                if (hex->index() != m_game->robber_location()->index()) {
                     available_actions.push_back(
                         { State::Edge::MoveRobber,
-                          { { ActionArgumentType::NodeId, hex.index() } } });
+                          { { ActionArgumentType::NodeId, hex->index() } } });
                 }
             }
             return available_actions;
