@@ -41,9 +41,9 @@ bool Game::should_wait_for_trade() const // NOLINT(readability-convert-member-fu
     throw std::invalid_argument("Not implemented: Game::should_wait_for_trade");
 }
 
-int Game::get_round() const // NOLINT(readability-convert-member-functions-to-static)
+int Game::get_round() const
 {
-    throw std::invalid_argument("Not implemented: Game::get_round");
+    return m_turn % players().size();
 }
 
 Game::Game(const Board::Graph* graph,
