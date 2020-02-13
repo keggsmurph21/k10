@@ -157,7 +157,15 @@ std::vector<Action> Player::get_available_actions() const
                     }
                     break;
                 case DevelopmentCard::RoadBuilding:
-                    // FIXME: generate list: nodes to use road-building with
+                    // NB: This structured as ONE ROAD PER ACTION, even though we expect players to
+                    //     "execute" it with (up to) TWO ROADS in the action.
+                    for (const auto road : reachable_roads) {
+                        available_actions.push_back(
+                            { State::Edge::PlayDevelopmentCard,
+                              { { ActionArgumentType::DevelopmentCardId,
+                                  static_cast<size_t>(development_card) },
+                                { ActionArgumentType::NodeId, road->index() } } });
+                    }
                     break;
                 case DevelopmentCard::Monopoly:
                 case DevelopmentCard::VictoryPoint:
