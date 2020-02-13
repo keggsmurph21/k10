@@ -113,15 +113,12 @@ Game* initialize(const Board::Graph* graph,
     size_t roll_index = 0;
 
     for (const auto& node : graph->nodes()) {
-        std::cout << node->index() << " " << node->type();
         switch (node->type()) {
         case Board::NodeType::Hex: { // scope for const
-            std::cout << " " << hex_index;
             if (hex_index >= resources.size()) {
                 return nullptr; // Too few resources
             }
             const auto& resource = resources.at(hex_index);
-            std::cout << " " << resource;
             BoardView::Hex* hex;
             if (std::holds_alternative<NonYieldingResource>(resource)) {
                 if (robber_index != -1) {
@@ -134,11 +131,9 @@ Game* initialize(const Board::Graph* graph,
                     return nullptr; // Too few rolls
                 }
                 const auto roll = rolls.at(roll_index);
-                std::cout << " " << roll;
                 ++roll_index;
                 hex = new BoardView::Hex(node, resource, roll);
             }
-            std::cout << " " << hex;
             hex_lookup[node] = hex;
             hexes.push_back(hex);
             ++hex_index;
@@ -154,25 +149,20 @@ Game* initialize(const Board::Graph* graph,
                     return nullptr; // Too few ports
                 }
                 const auto& port_spec = ports.at(port_index);
-                std::cout << " Port " << port_index << " " << port_spec.resources << " @ "
-                          << port_spec.exchange_rate;
                 junction =
                     new BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
-                std::cout << " " << junction;
             }
             junction_lookup[node] = junction;
             junctions.push_back(junction);
         } break;
         case Board::NodeType::Road: { // scope for const
             auto road = new BoardView::Road(node);
-            std::cout << " " << road;
             road_lookup[node] = road;
             roads.push_back(road);
         } break;
         default:
             break; // do nothing
         }
-        std::cout << std::endl;
     }
 
     for (auto hex : hexes) {
