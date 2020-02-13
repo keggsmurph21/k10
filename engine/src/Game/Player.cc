@@ -108,7 +108,15 @@ std::vector<Action> Player::get_available_actions() const
                 }
                 switch (development_card) {
                 case DevelopmentCard::Knight:
-                    // FIXME: generate list: hexes to move robber to with a knight
+                    for (const auto& hex : m_game->hexes()) {
+                        if (hex->index() != m_game->robber_location()->index()) {
+                            available_actions.push_back(
+                                { State::Edge::PlayDevelopmentCard,
+                                  { { ActionArgumentType::DevelopmentCardId,
+                                      static_cast<size_t>(development_card) },
+                                    { ActionArgumentType::NodeId, hex->index() } } });
+                        }
+                    }
                     break;
                 case DevelopmentCard::RoadBuilding:
                     // FIXME: generate list: nodes to use road-building with
