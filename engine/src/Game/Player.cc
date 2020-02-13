@@ -101,6 +101,28 @@ std::vector<Action> Player::get_available_actions() const
                           static_cast<size_t>(Building::DevelopmentCard) } } });
             }
 
+            std::set<DevelopmentCard> seen_development_cards;
+            for (const auto& development_card : m_playable_development_cards) {
+                if (seen_development_cards.find(development_card) != seen_development_cards.end()) {
+                    continue;
+                }
+                switch (development_card) {
+                case DevelopmentCard::Knight:
+                    // FIXME: generate list: hexes to move robber to with a knight
+                    break;
+                case DevelopmentCard::RoadBuilding:
+                    // FIXME: generate list: nodes to use road-building with
+                    break;
+                case DevelopmentCard::Monopoly:
+                case DevelopmentCard::VictoryPoint:
+                case DevelopmentCard::YearOfPlenty:
+                    available_actions.push_back({ State::Edge::PlayDevelopmentCard,
+                                                  { { ActionArgumentType::DevelopmentCardId,
+                                                      static_cast<size_t>(development_card) } } });
+                    break;
+                }
+            }
+
             if (m_num_trades_offered_this_turn < MAX_NUM_TRADE_OFFERS_PER_TURN
                 && m_resources.size() > 0) {
                 // FIXME: Make sure we handle trading with the bank
@@ -109,11 +131,6 @@ std::vector<Action> Player::get_available_actions() const
         }
         // FIXME: generate list: nodes to build road
         // FIXME: generate list: nodes to build settlement
-        // FIXME: generate list: hexes to move robber to with a knight
-        // FIXME: generate list: resource to choose with a monopoly
-        // FIXME: generate list: nodes to use road-building with
-        // FIXME: check possibility of playing victory-point
-        // FIXME: generate list: resources to choose with year-of-plenty
         return available_actions;
 
     case State::Vertex::WaitForTurn:
