@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string.h>
 #include <vector>
 
@@ -38,7 +39,7 @@ public:
     size_t num_to_discard() const { return m_num_to_discard; }
     void set_num_to_discard(size_t num_to_discard) { m_num_to_discard = num_to_discard; }
 
-    State::Vertex& vertex() { return m_vertex; }
+    const State::Vertex& vertex() const { return m_vertex; }
     void set_vertex(State::Vertex vertex) { m_vertex = vertex; }
 
     bool has_heavy_purse() const;
@@ -60,6 +61,7 @@ public:
     ~Player() {}
 
     friend Game;
+    friend std::ostream& operator<<(std::ostream&, const Player&);
 
 private:
     Player(size_t index, const Game* game)

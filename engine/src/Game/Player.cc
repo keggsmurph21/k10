@@ -161,4 +161,10 @@ bool Player::can_afford(const ResourceCounts& resource_counts) const
     throw std::invalid_argument("Not implemented: Player::can_afford");
 }
 
+std::ostream& operator<<(std::ostream& os, const Player& player)
+{
+    os << "Player{ " << player.index() << ", " << player.vertex() << " }";
+    return os;
+}
+
 } // namespace k10engine::Game
