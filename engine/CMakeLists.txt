@@ -21,6 +21,7 @@ add_library(k10 SHARED
     src/Board/NodeType.cc
     src/Board/Orientation.cc
     src/Board/Port.cc
+    src/Core/Action.cc
     src/Core/Edge.cc
     src/Core/Random.cc
     src/Core/Building.cc

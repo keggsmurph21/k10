@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 
 #include "Core/Edge.h"
@@ -39,8 +40,12 @@ struct ActionArgument {
  */
 
 struct Action {
-    State::Edge actions;
+    State::Edge edge;
     std::vector<ActionArgument> args;
 };
+
+std::ostream& operator<<(std::ostream&, const ActionArgumentType&);
+std::ostream& operator<<(std::ostream&, const ActionArgument&);
+std::ostream& operator<<(std::ostream&, const Action&);
 
 } // namespace k10engine::Game
