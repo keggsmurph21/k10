@@ -94,6 +94,7 @@ std::vector<Action> Player::get_available_actions() const
             const bool can_build_city = can_build(Building::City);
             const bool can_build_development_card = can_build(Building::DevelopmentCard);
             const bool can_build_road = can_build(Building::Road);
+            const bool can_build_settlement = can_build(Building::Settlement);
 
             if (can_build_development_card) {
                 available_actions.push_back(
@@ -110,6 +111,18 @@ std::vector<Action> Player::get_available_actions() const
                               { { ActionArgumentType::BuildItemId,
                                   static_cast<size_t>(Building::City) },
                                 { ActionArgumentType::NodeId, junction->index() } } });
+                    }
+                }
+                if (can_build_settlement && junction->is_settleable()) {
+                    for (const auto road_neighbor : junction->road_neighbors()) {
+                        const auto road = road_neighbor.second;
+                        if (road->owner() == this) {
+                            available_actions.push_back(
+                                { State::Edge::Build,
+                                  { { ActionArgumentType::BuildItemId,
+                                      static_cast<size_t>(Building::Settlement) },
+                                    { ActionArgumentType::NodeId, junction->index() } } });
+                        }
                     }
                 }
             }
@@ -183,7 +196,6 @@ std::vector<Action> Player::get_available_actions() const
                 available_actions.push_back({ State::Edge::OfferTrade, {} });
             }
         }
-        // FIXME: generate list: nodes to build settlement
         return available_actions;
 
     case State::Vertex::WaitForTurn:
