@@ -77,9 +77,9 @@ private:
 
     ResourceCounts m_resources;
 
-    std::vector<BoardView::Junction> m_cities;
-    std::vector<BoardView::Road> m_roads;
-    std::vector<BoardView::Junction> m_settlements;
+    std::vector<BoardView::Junction*> m_cities;
+    std::vector<BoardView::Road*> m_roads;
+    std::vector<BoardView::Junction*> m_settlements;
 
     std::vector<DevelopmentCard> m_played_development_cards;
     std::vector<DevelopmentCard> m_playable_development_cards;
@@ -97,11 +97,11 @@ private:
     void accrue_resources(ResourceCounts);
     void spend_resources(ResourceCounts);
     void collect_resource(Resource);
-    void build_road(BoardView::Road);
-    void build_road_no_cost(BoardView::Road);
-    void build_settlement(BoardView::Junction);
-    void build_settlement_no_cost(BoardView::Junction);
-    void build_city(BoardView::Junction);
+    void build_road(BoardView::Road*);
+    void build_road_no_cost(BoardView::Road*);
+    void build_settlement(BoardView::Junction*);
+    void build_settlement_no_cost(BoardView::Junction*);
+    void build_city(BoardView::Junction*);
 
     void update_longest_road();
     void update_victory_points();
