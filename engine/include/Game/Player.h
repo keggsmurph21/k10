@@ -40,7 +40,6 @@ public:
     void set_num_to_discard(size_t num_to_discard) { m_num_to_discard = num_to_discard; }
 
     const State::Vertex& vertex() const { return m_vertex; }
-    void set_vertex(State::Vertex vertex) { m_vertex = vertex; }
 
     bool has_heavy_purse() const;
     bool can_build(const Building&) const;
@@ -93,6 +92,8 @@ private:
     size_t m_public_victory_points{ 0 };
     size_t m_private_victory_points{ 0 };
     size_t m_num_trades_offered_this_turn{ 0 };
+
+    void set_vertex(State::Vertex vertex) { m_vertex = vertex; }
 
     void accrue_resources(ResourceCounts);
     void spend_resources(ResourceCounts);
