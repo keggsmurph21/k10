@@ -84,7 +84,7 @@ private:
     std::vector<DevelopmentCard> m_playable_development_cards;
     std::vector<DevelopmentCard> m_unplayable_development_cards;
 
-    State::Vertex m_vertex{ State::Vertex::Root };
+    State::Vertex m_vertex{ State::Vertex::WaitForTurn };
 
     bool m_can_accept_trade{ false };
     bool m_has_declined_trade{ false };
