@@ -73,4 +73,34 @@ std::ostream& operator<<(std::ostream& os, const Action& action)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const Result& result)
+{
+    if (result.was_valid) {
+        os << "Result{ ";
+        if (!result.args.empty()) {
+            bool is_first = true;
+            for (const auto& arg : result.args) {
+                if (!is_first) {
+                    os << ", ";
+                }
+                os << arg;
+                is_first = false;
+            }
+            os << " }";
+        }
+        os << " }";
+    } else {
+        os << "InvalidResult{ messages{ ";
+        bool is_first = true;
+        for (const auto& msg : result.messages) {
+            if (!is_first) {
+                os << ", ";
+            }
+            os << msg;
+            is_first = false;
+        }
+    }
+    return os;
+}
+
 } // namespace k10engine::Game
