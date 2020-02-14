@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Board/Graph.h"
+#include "Core/Action.h"
 #include "Core/Vertex.h"
 #include "Game/BoardView/Hex.h"
 #include "Game/BoardView/Junction.h"
@@ -59,6 +60,8 @@ public:
 
     const Player* current_player() const { return m_players.at(m_current_player_index); }
     const std::vector<Player*>& players() const { return m_players; }
+
+    Result execute_action(size_t player_id, const Action&);
 
     Game(const Board::Graph*,
          std::vector<BoardView::Hex*>,

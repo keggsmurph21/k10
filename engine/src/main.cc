@@ -109,6 +109,7 @@ int main(int /* unused */, char** /* unused */)
                                               10 }; // NOLINT(readability-magic-numbers)
     auto g = k10engine::Game::initialize(b, s, p);
 
+    /*
     std::cout << std::endl << " ~~~ Hex neighbors ~~~" << std::endl << std::endl;
     for (const auto& hex : g->hexes()) {
         std::cout << *hex << std::endl;
@@ -141,6 +142,7 @@ int main(int /* unused */, char** /* unused */)
             std::cout << " > neighbor in " << direction << " is " << *junction << std::endl;
         }
     }
+    */
 
     for (const auto player : g->players()) {
         const auto actions = player->get_available_actions();
@@ -149,6 +151,12 @@ int main(int /* unused */, char** /* unused */)
             std::cout << " - " << available_action << std::endl;
         }
     }
+
+    g->execute_action(0,
+                      { k10engine::State::Edge::Build,
+                        { { k10engine::Game::ActionArgumentType::BuildItemId,
+                            static_cast<size_t>(k10engine::Building::Settlement) },
+                          { k10engine::Game::ActionArgumentType::NodeId, 4 } } });
 
     delete g;
     delete b;

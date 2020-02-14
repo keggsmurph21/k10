@@ -214,4 +214,11 @@ Game* initialize(const Board::Graph* graph,
     return new Game(graph, hexes, junctions, roads, deck, scenario, parameters, robber_index);
 }
 
+Result Game::execute_action(size_t player_id, const Action& action)
+{
+    (void)player_id;
+    (void)action;
+    throw std::invalid_argument("Not implemented: execute_action()");
+}
+
 } // namespace k10engine::Game
