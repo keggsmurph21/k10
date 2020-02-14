@@ -252,9 +252,9 @@ bool Player::can_trade_with_bank() const // NOLINT(readability-convert-member-fu
     throw std::invalid_argument("Not implemented: Player::can_trade_with_bank");
 }
 
-bool Player::is_current_player() const // NOLINT(readability-convert-member-functions-to-static)
+bool Player::is_current_player() const
 {
-    throw std::invalid_argument("Not implemented: Player::is_current_player");
+    return m_game->current_player() == this;
 }
 
 bool Player::is_blocking() const // NOLINT(readability-convert-member-functions-to-static)
