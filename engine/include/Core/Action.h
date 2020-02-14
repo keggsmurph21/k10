@@ -5,6 +5,22 @@
 
 #include "Core/Edge.h"
 
+/**
+ * Examples:
+ *
+ * // Build a settlement at Node(42)
+ * { State::Edge::Build,
+ *   { { ActionArgumentType::BuildItemId, Building::Settlement },
+ *     { ActionArgumentType::NodeId, 42 } } };
+ *
+ * // Offer to trade 1 Brick for 2 Sheep
+ * { State::Edge::OfferTrade,
+ *   { { ActionArgumentType::GiveResourceType, Resource::Brick },
+ *     { ActionArgumentType::ResourceCount, 1 },
+ *     { ActionArgumentType::TakeResourceType, Resource::Sheep },
+ *     { ActionArgumentType::ResourceCount, 2 } } };
+ */
+
 namespace k10engine::Game {
 
 enum class ActionArgumentType {
@@ -22,22 +38,6 @@ struct ActionArgument {
     ActionArgumentType type;
     size_t value;
 };
-
-/**
- * Examples:
- *
- * // Build a settlement at Node(42)
- * { State::Edge::Build,
- *   { { ActionArgumentType::BuildItemId, Building::Settlement },
- *     { ActionArgumentType::NodeId, 42 } } };
- *
- * // Offer to trade 1 Brick for 2 Sheep
- * { State::Edge::OfferTrade,
- *   { { ActionArgumentType::GiveResourceType, Resource::Brick },
- *     { ActionArgumentType::ResourceCount, 1 },
- *     { ActionArgumentType::TakeResourceType, Resource::Sheep },
- *     { ActionArgumentType::ResourceCount, 2 } } };
- */
 
 struct Action {
     State::Edge edge;
