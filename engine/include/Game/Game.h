@@ -56,6 +56,7 @@ public:
     const std::vector<BoardView::Junction*>& junctions() const { return m_junctions; }
     const std::vector<BoardView::Road*>& roads() const { return m_roads; }
 
+    const Player* current_player() const { return m_players.at(m_current_player_index); }
     const std::vector<Player*>& players() const { return m_players; }
 
     Game(const Board::Graph*,
