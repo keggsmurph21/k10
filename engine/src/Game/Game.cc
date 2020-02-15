@@ -231,7 +231,6 @@ Result Game::execute_action(size_t player_id, const Action& action)
         return { ResultType::InvalidEdgeChoice, {} };
     }
     */
-    (void)player;
 
     switch (action.edge) {
 
@@ -247,7 +246,43 @@ Result Game::execute_action(size_t player_id, const Action& action)
             "Not implemented: execution_action(State::Edge::AfterTradeOther)");
 
     case State::Edge::Build:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::Build)");
+        if (action.args.size() != 2) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
+        if (action.args.at(0).type != ActionArgumentType::BuildItemId) {
+            return { ResultType::InvalidArgumentType, {} };
+        }
+        if (action.args.at(0).value != static_cast<size_t>(Building::Settlement)) {
+            return { ResultType::BuildingIdOutOfRange, {} };
+        }
+        if (action.args.at(1).type != ActionArgumentType::NodeId) {
+            return { ResultType::InvalidArgumentType, {} };
+        }
+        {
+            const auto chosen_node = m_graph->node(action.args.at(1).value);
+            if (chosen_node == nullptr) {
+                return { ResultType::NodeIdOutOfRange, {} };
+            }
+            const auto chosen_junction_entry = m_junctions.find(chosen_node->index());
+            if (chosen_junction_entry == m_junctions.end()) {
+                return { ResultType::InvalidNodeId, {} };
+            }
+            const auto chosen_junction = chosen_junction_entry->second;
+            if (!chosen_junction->is_settleable()) {
+                return { ResultType::JunctionNotSettleable, {} };
+            }
+            build_settlement(player, chosen_junction, Options::NoCost);
+            if (is_first_round()) {
+                player->set_vertex(State::Vertex::WaitForTurn);
+                increment_turn();
+            } else if (is_game_over()) {
+                std::invalid_argument("Not implemented: setting game over");
+            } else {
+                player->set_vertex(State::Vertex::Root);
+                std::invalid_argument("Not implemented: settling on an arbitrary turn");
+            }
+            return { ResultType::Ok, {} };
+        }
 
     case State::Edge::CancelTrade:
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::CancelTrade)");

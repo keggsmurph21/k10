@@ -14,6 +14,24 @@ std::ostream& operator<<(std::ostream& os, const ResultType& error)
     case ResultType::InvalidEdgeChoice:
         os << "ResultType::InvalidEdgeChoice";
         break;
+    case ResultType::InvalidNumberOfArgs:
+        os << "ResultType::InvalidNumberOfArgs";
+        break;
+    case ResultType::InvalidArgumentType:
+        os << "ResultType::InvalidArgumentType";
+        break;
+    case ResultType::BuildingIdOutOfRange:
+        os << "ResultType::BuildingIdOutOfRange";
+        break;
+    case ResultType::NodeIdOutOfRange:
+        os << "ResultType::NodeIdOutOfRange";
+        break;
+    case ResultType::InvalidNodeId:
+        os << "ResultType::InvalidNodeType";
+        break;
+    case ResultType::JunctionNotSettleable:
+        os << "ResultType::NodeIdOutOfRange";
+        break;
     }
     return os;
 }

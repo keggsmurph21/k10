@@ -10,6 +10,12 @@ enum class ResultType {
     Ok,
     InvalidPlayerId,
     InvalidEdgeChoice,
+    InvalidNumberOfArgs,
+    InvalidArgumentType,
+    BuildingIdOutOfRange,
+    NodeIdOutOfRange,
+    InvalidNodeId,
+    JunctionNotSettleable,
 };
 
 struct Result {

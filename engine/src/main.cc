@@ -157,8 +157,25 @@ int main(int /* unused */, char** /* unused */)
                                    { k10engine::State::Edge::Build,
                                      { { k10engine::Game::ActionArgumentType::BuildItemId,
                                          static_cast<size_t>(k10engine::Building::Settlement) },
+                                       { k10engine::Game::ActionArgumentType::NodeId, 1000 } } })
+              << std::endl;
+
+    std::cout << g->execute_action(0,
+                                   { k10engine::State::Edge::Build,
+                                     { { k10engine::Game::ActionArgumentType::BuildItemId,
+                                         static_cast<size_t>(k10engine::Building::Settlement) },
                                        { k10engine::Game::ActionArgumentType::NodeId, 4 } } })
               << std::endl;
+
+    std::cout << *g->junctions().at(4) << std::endl;
+
+    for (const auto player : g->players()) {
+        const auto actions = player->get_available_actions();
+        std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
+        for (const auto& available_action : actions) {
+            std::cout << " - " << available_action << std::endl;
+        }
+    }
 
     delete g;
     delete b;
