@@ -106,6 +106,7 @@ private:
     Player* m_has_longest_road{ nullptr };
 
     void build_settlement(Player*, BoardView::Junction*, Options);
+    void build_road(Player*, BoardView::Road*, Options);
 };
 
 Game* initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);

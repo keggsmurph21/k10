@@ -265,7 +265,40 @@ Result Game::execute_action(size_t player_id, const Action& action)
                 return { ResultType::Ok, {} };
 
             case Building::Road: {
-                assert(false);
+
+                // FIXME: This should be abstracted to a ::parse_road() helper
+                if (action.args.at(1).type != ActionArgumentType::NodeId) {
+                    return { ResultType::InvalidArgumentType, {} };
+                }
+                const auto chosen_node = m_graph->node(action.args.at(1).value);
+                if (chosen_node == nullptr) {
+                    return { ResultType::NodeIdOutOfRange, {} };
+                }
+                const auto chosen_road_entry = m_roads.find(chosen_node->index());
+                if (chosen_road_entry == m_roads.end()) {
+                    return { ResultType::InvalidNodeId, {} };
+                }
+                const auto chosen_road = chosen_road_entry->second;
+                // FIXME: Need to make sure it's adjacent to something we own!
+
+                if (is_first_round() || is_second_round()) {
+                    build_road(player, chosen_road, Options::NoCost);
+                } else {
+                    build_road(player, chosen_road, Options::None);
+                }
+
+                if (is_game_over()) {
+                    std::invalid_argument("Not implemented: setting game over");
+                } else if (is_first_round()) {
+                    player->set_vertex(State::Vertex::WaitForTurn);
+                    increment_turn();
+                } else if (is_second_round()) {
+                    assert(false); // FIXME: Need to implement "InitCollect"
+                } else {
+                    player->set_vertex(State::Vertex::Root);
+                    assert(false);
+                }
+
                 return { ResultType::Ok, {} };
             }
 
@@ -356,6 +389,14 @@ Result Game::execute_action(size_t player_id, const Action& action)
 void Game::build_settlement(Player* player, BoardView::Junction* junction, Options options)
 {
     player->build_settlement(junction, options);
+}
+
+void Game::build_road(Player* player, BoardView::Road* road, Options options)
+{
+    (void)player;
+    (void)road;
+    (void)options;
+    assert(false);
 }
 
 bool Game::is_game_over() const

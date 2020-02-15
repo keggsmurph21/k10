@@ -6,6 +6,7 @@
 
 void dump_actions(const k10engine::Game::Game* g)
 {
+    std::cout << std::endl;
     for (const auto player : g->players()) {
         const auto actions = player->get_available_actions();
         std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
@@ -13,6 +14,7 @@ void dump_actions(const k10engine::Game::Game* g)
             std::cout << " - " << available_action << std::endl;
         }
     }
+    std::cout << std::endl;
 }
 
 int main(int /* unused */, char** /* unused */)
