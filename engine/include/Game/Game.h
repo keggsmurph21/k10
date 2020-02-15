@@ -12,6 +12,7 @@
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"
 #include "Game/Dice.h"
+#include "Game/ExecutionOptions.h"
 #include "Game/Player.h"
 #include "Game/Robber.h"
 #include "Game/Trade.h"
@@ -103,6 +104,8 @@ private:
 
     Player* m_has_largest_army{ nullptr };
     Player* m_has_longest_road{ nullptr };
+
+    void build_settlement(Player*, BoardView::Junction*, Options);
 };
 
 Game* initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);

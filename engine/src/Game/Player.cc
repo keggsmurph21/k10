@@ -288,4 +288,28 @@ std::ostream& operator<<(std::ostream& os, const Player& player)
     return os;
 }
 
+void Player::build_settlement(BoardView::Junction* junction_to_settle, Options options)
+{
+    if ((options & Options::NoCost) != Options::NoCost) {
+        // spend the moneyz
+    }
+
+    junction_to_settle->set_owner(this);
+    junction_to_settle->set_has_settlement();
+    junction_to_settle->set_is_not_settleable();
+    for (const auto& road_neighbor : junction_to_settle->road_neighbors()) {
+        const auto road = road_neighbor.second;
+        for (const auto& junction_neighbor : road->junction_neighbors()) {
+            const auto junction = junction_neighbor.second;
+            if (junction != junction_to_settle) {
+                junction->set_is_not_settleable();
+            }
+        }
+    }
+
+    m_settlements.push_back(junction_to_settle);
+    m_private_victory_points += 1;
+    m_public_victory_points += 1;
+}
+
 } // namespace k10engine::Game

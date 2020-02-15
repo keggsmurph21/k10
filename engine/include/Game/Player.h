@@ -12,6 +12,7 @@
 #include "Core/Vertex.h"
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"
+#include "Game/ExecutionOptions.h"
 #include "Game/Game.h"
 #include "Game/Trade.h"
 
@@ -97,11 +98,10 @@ private:
     void accrue_resources(ResourceCounts);
     void spend_resources(ResourceCounts);
     void collect_resource(Resource);
-    void build_road(BoardView::Road*);
-    void build_road_no_cost(BoardView::Road*);
-    void build_settlement(BoardView::Junction*);
-    void build_settlement_no_cost(BoardView::Junction*);
-    void build_city(BoardView::Junction*);
+    void build_city(BoardView::Junction*, const Options&);
+    void build_development_card(const Options&);
+    void build_road(BoardView::Road*, const Options&);
+    void build_settlement(BoardView::Junction*, Options);
 
     void update_longest_road();
     size_t private_victory_points() const { return m_private_victory_points; }
@@ -112,8 +112,6 @@ private:
     void decline_trade();
     void fail_trade(); // unable to find a trade partner
     void trade_with_bank();
-
-    void buy_development_card(DevelopmentCard);
 
     void move_robber();
 
