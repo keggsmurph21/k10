@@ -17,6 +17,16 @@ void dump_actions(const k10engine::Game::Game* g)
     std::cout << std::endl;
 }
 
+k10engine::Game::Result
+build(k10engine::Game::Game* g, size_t player_id, k10engine::Building b, size_t node_id)
+{
+    return g->execute_action(
+        player_id,
+        { k10engine::State::Edge::Build,
+          { { k10engine::Game::ActionArgumentType::BuildItemId, static_cast<size_t>(b) },
+            { k10engine::Game::ActionArgumentType::NodeId, node_id } } });
+}
+
 int main(int /* unused */, char** /* unused */)
 {
     auto b = k10engine::Board::get_standard_board();
@@ -160,25 +170,13 @@ int main(int /* unused */, char** /* unused */)
 
     dump_actions(g);
 
-    std::cout << g->execute_action(0,
-                                   { k10engine::State::Edge::Build,
-                                     { { k10engine::Game::ActionArgumentType::BuildItemId,
-                                         static_cast<size_t>(k10engine::Building::Settlement) },
-                                       { k10engine::Game::ActionArgumentType::NodeId, 1000 } } })
-              << std::endl;
+    // Round 0, Player 0
+    std::cout << build(g, 0, k10engine::Building::Settlement, 1000)
+              << std::endl; // Result{ ResultType::NodeIdOutOfRange }
+    std::cout << build(g, 0, k10engine::Building::Settlement, 4);
 
-    std::cout << g->execute_action(0,
-                                   { k10engine::State::Edge::Build,
-                                     { { k10engine::Game::ActionArgumentType::BuildItemId,
-                                         static_cast<size_t>(k10engine::Building::Settlement) },
-                                       { k10engine::Game::ActionArgumentType::NodeId, 4 } } })
-              << std::endl;
 
-    std::cout << *g->junctions().at(4) << std::endl;
 
-    dump_actions(g);
-
-    std::cout << g->execute_action(1, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
 
     dump_actions(g);
 
