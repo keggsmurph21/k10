@@ -4,6 +4,17 @@
 #include "Game/Game.h"
 #include "Scenario/Scenario.h"
 
+void dump_actions(const k10engine::Game::Game* g)
+{
+    for (const auto player : g->players()) {
+        const auto actions = player->get_available_actions();
+        std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
+        for (const auto& available_action : actions) {
+            std::cout << " - " << available_action << std::endl;
+        }
+    }
+}
+
 int main(int /* unused */, char** /* unused */)
 {
     auto b = k10engine::Board::get_standard_board();
@@ -145,13 +156,7 @@ int main(int /* unused */, char** /* unused */)
         }
     }
 
-    for (const auto player : g->players()) {
-        const auto actions = player->get_available_actions();
-        std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
-        for (const auto& available_action : actions) {
-            std::cout << " - " << available_action << std::endl;
-        }
-    }
+    dump_actions(g);
 
     std::cout << g->execute_action(0,
                                    { k10engine::State::Edge::Build,
@@ -169,23 +174,11 @@ int main(int /* unused */, char** /* unused */)
 
     std::cout << *g->junctions().at(4) << std::endl;
 
-    for (const auto player : g->players()) {
-        const auto actions = player->get_available_actions();
-        std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
-        for (const auto& available_action : actions) {
-            std::cout << " - " << available_action << std::endl;
-        }
-    }
+    dump_actions(g);
 
     std::cout << g->execute_action(1, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
 
-    for (const auto player : g->players()) {
-        const auto actions = player->get_available_actions();
-        std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
-        for (const auto& available_action : actions) {
-            std::cout << " - " << available_action << std::endl;
-        }
-    }
+    dump_actions(g);
 
     delete g;
     delete b;
