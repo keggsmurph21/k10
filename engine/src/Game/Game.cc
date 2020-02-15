@@ -349,6 +349,32 @@ Result Game::execute_action(size_t player_id, const Action& action)
     case State::Edge::CancelTrade:
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::CancelTrade)");
 
+    case State::Edge::ChooseInitialResources: {
+
+        if (action.args.size() != 1) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
+        if (action.args.at(0).type != ActionArgumentType::NodeId) {
+            return { ResultType::InvalidArgumentType, {} };
+        }
+        const auto chosen_node = m_graph->node(action.args.at(0).value);
+        if (chosen_node == nullptr) {
+            return { ResultType::NodeIdOutOfRange, {} };
+        }
+        for (const auto& settlement : player->settlements()) {
+            if (settlement->node() == chosen_node) {
+                for (const auto& hex_entry : settlement->hex_neighbors()) {
+                    const auto& hex_resource = hex_entry.second->resource();
+                    std::cout << hex_resource << std::endl;
+                }
+                player->set_vertex(State::Vertex::WaitForTurn);
+                increment_turn();
+                return { ResultType::Ok, {} };
+            }
+        }
+        return { ResultType::InvalidNodeId, {} };
+    }
+
     case State::Edge::CollectResources:
         throw std::invalid_argument(
             "Not implemented: execution_action(State::Edge::CollectResources)");
