@@ -11,6 +11,47 @@ std::vector<Action> Player::get_available_actions() const
     // FIXME: Handle first two turns!!
     switch (m_vertex) {
 
+    case State::Vertex::AfterBuildingFreeSettlement: {
+
+        std::set<const BoardView::Road*> reachable_roads;
+
+        // roads a distance of 1 away from our current roads
+        for (const auto owned_road : roads()) {
+            for (const auto junction_neighbor : owned_road->junction_neighbors()) {
+                const auto junction = junction_neighbor.second;
+                if (junction->owner() != nullptr && junction->owner() != this) {
+                    continue; // can't build roads thru other settlements
+                }
+                for (const auto road_neighbor : junction->road_neighbors()) {
+                    const auto reachable_road = road_neighbor.second;
+                    if (reachable_road->owner() == nullptr) {
+                        reachable_roads.insert(reachable_road);
+                    }
+                }
+            }
+        }
+
+        // roads adjacent to our current settlements
+        for (const auto& junction_entry : m_game->junctions()) {
+            const auto junction = junction_entry.second;
+            for (const auto road_neighbor : junction->road_neighbors()) {
+                const auto road = road_neighbor.second;
+                if (junction->owner() == this && road->owner() == nullptr) {
+                    reachable_roads.insert(road);
+                }
+            }
+        }
+
+        for (const auto road : reachable_roads) {
+            available_actions.push_back(
+                { State::Edge::Build,
+                  { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Road) },
+                    { ActionArgumentType::NodeId, road->index() } } });
+        }
+
+        return available_actions;
+    }
+
     case State::Vertex::AfterDiscarding:
         if (is_current_player()) {
             if (num_to_discard() > 0) {

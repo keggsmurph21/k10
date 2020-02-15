@@ -5,6 +5,9 @@ namespace k10engine::State {
 std::ostream& operator<<(std::ostream& os, Vertex vertex)
 {
     switch (vertex) {
+    case Vertex::AfterBuildingFreeSettlement:
+        os << "Vertex::AfterBuildingFreeSettlement";
+        break;
     case Vertex::AfterDiscarding:
         os << "Vertex::AfterDiscarding";
         break;
