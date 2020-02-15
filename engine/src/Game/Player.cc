@@ -34,7 +34,7 @@ std::vector<Action> Player::get_available_actions() const
                 return { { State::Edge::Discard,
                            { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
             }
-            return { { State::Edge::WaitForTurn, {} } };
+            return {}; // i.e., wait
         }
 
     case State::Vertex::AfterMovingRobber:

@@ -74,9 +74,6 @@ std::ostream& operator<<(std::ostream& os, Edge edge)
     case Edge::TradeBank:
         os << "Edge::TradeBank";
         break;
-    case Edge::WaitForTurn:
-        os << "Edge::WaitForTurn";
-        break;
     }
     return os;
 }

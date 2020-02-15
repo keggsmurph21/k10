@@ -28,7 +28,6 @@ enum class Edge {
     TakeTurn,
     ToRoot,
     TradeBank,
-    WaitForTurn,
 };
 
 std::ostream& operator<<(std::ostream&, Edge);
