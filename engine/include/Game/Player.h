@@ -57,7 +57,9 @@ public:
 
     size_t public_victory_points() const { return m_public_victory_points; }
 
+    const std::vector<BoardView::Junction*>& cities() const { return m_cities; }
     const std::vector<BoardView::Road*>& roads() const { return m_roads; }
+    const std::vector<BoardView::Junction*>& settlements() const { return m_settlements; }
 
     ~Player() {}
 
