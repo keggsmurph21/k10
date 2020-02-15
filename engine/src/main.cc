@@ -4,34 +4,9 @@
 #include "Game/Game.h"
 #include "Scenario/Scenario.h"
 
-void dump_actions(const k10engine::Game::Game* g)
+k10engine::Scenario::Scenario get_standard_scenario()
 {
-    std::cout << std::endl;
-    for (const auto player : g->players()) {
-        const auto actions = player->get_available_actions();
-        std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
-        for (const auto& available_action : actions) {
-            std::cout << " - " << available_action << std::endl;
-        }
-    }
-    std::cout << std::endl;
-}
-
-k10engine::Game::Result
-build(k10engine::Game::Game* g, size_t player_id, k10engine::Building b, size_t node_id)
-{
-    return g->execute_action(
-        player_id,
-        { k10engine::State::Edge::Build,
-          { { k10engine::Game::ActionArgumentType::BuildItemId, static_cast<size_t>(b) },
-            { k10engine::Game::ActionArgumentType::NodeId, node_id } } });
-}
-
-int main(int /* unused */, char** /* unused */)
-{
-    auto b = k10engine::Board::get_standard_board();
-
-    auto s = k10engine::Scenario::Scenario(
+    return k10engine::Scenario::Scenario(
         2,  // NOLINT(readability-magic-numbers)
         5,  // NOLINT(readability-magic-numbers)
         8,  // NOLINT(readability-magic-numbers)
@@ -124,12 +99,46 @@ int main(int /* unused */, char** /* unused */)
               },
               3 },
         });
-    auto p = k10engine::Scenario::Parameters{ k10engine::Scenario::IterationType::Fixed,
-                                              k10engine::Scenario::IterationType::Fixed,
-                                              k10engine::Scenario::IterationType::Fixed,
-                                              k10engine::Scenario::IterationType::Fixed,
-                                              4,    // NOLINT(readability-magic-numbers)
-                                              10 }; // NOLINT(readability-magic-numbers)
+}
+
+k10engine::Scenario::Parameters get_standard_parameters()
+{
+    return k10engine::Scenario::Parameters{ k10engine::Scenario::IterationType::Fixed,
+                                            k10engine::Scenario::IterationType::Fixed,
+                                            k10engine::Scenario::IterationType::Fixed,
+                                            k10engine::Scenario::IterationType::Fixed,
+                                            4,    // NOLINT(readability-magic-numbers)
+                                            10 }; // NOLINT(readability-magic-numbers)
+}
+
+void dump_actions(const k10engine::Game::Game* g)
+{
+    std::cout << std::endl;
+    for (const auto player : g->players()) {
+        const auto actions = player->get_available_actions();
+        std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
+        for (const auto& available_action : actions) {
+            std::cout << " - " << available_action << std::endl;
+        }
+    }
+    std::cout << std::endl;
+}
+
+k10engine::Game::Result
+build(k10engine::Game::Game* g, size_t player_id, k10engine::Building b, size_t node_id)
+{
+    return g->execute_action(
+        player_id,
+        { k10engine::State::Edge::Build,
+          { { k10engine::Game::ActionArgumentType::BuildItemId, static_cast<size_t>(b) },
+            { k10engine::Game::ActionArgumentType::NodeId, node_id } } });
+}
+
+int main(int /* unused */, char** /* unused */)
+{
+    auto b = k10engine::Board::get_standard_board();
+    auto s = get_standard_scenario();
+    auto p = get_standard_parameters();
     auto g = k10engine::Game::initialize(b, s, p);
 
     std::cout << std::endl << " ~~~ Hex neighbors ~~~" << std::endl << std::endl;
