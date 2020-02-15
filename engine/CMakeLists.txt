@@ -32,6 +32,7 @@ add_library(k10 SHARED
     src/Game/BoardView/Junction.cc
     src/Game/BoardView/Road.cc
     src/Game/Dice.cc
+    src/Game/ExecutionOptions.cc
     src/Game/Game.cc
     src/Game/Player.cc
     src/Scenario/Scenario.cc
