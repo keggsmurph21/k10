@@ -194,7 +194,15 @@ int main(int /* unused */, char** /* unused */)
     std::cout << g->execute_action(3, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
     std::cout << build(g, 3, k10engine::Building::Settlement, 26) << std::endl;
     std::cout << build(g, 3, k10engine::Building::Road, 32) << std::endl;
+
+    // Round 1, Player 3
     std::cout << g->execute_action(3, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
+    std::cout << build(g, 3, k10engine::Building::Settlement, 27) << std::endl;
+    std::cout << build(g, 3, k10engine::Building::Road, 46) << std::endl;
+    std::cout << g->execute_action(3,
+                                   { k10engine::State::Edge::ChooseInitialResources,
+                                     { { k10engine::Game::ActionArgumentType::NodeId, 27 } } })
+              << std::endl;
 
     dump_actions(g);
 
