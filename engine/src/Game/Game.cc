@@ -218,6 +218,17 @@ Game* initialize(const Board::Graph* graph,
     return new Game(graph, hexes, junctions, roads, deck, scenario, parameters, robber_index);
 }
 
+static bool player_can_execute_edge(const Player* player, const Action& requested_action)
+{
+    const auto valid_actions = player->get_available_actions();
+    for (const auto& valid_action : valid_actions) {
+        if (valid_action.edge == requested_action.edge) {
+            return true;
+        }
+    }
+    return false;
+}
+
 Result Game::execute_action(size_t player_id, const Action& action)
 {
     if (player_id >= m_players.size()) {
@@ -225,12 +236,9 @@ Result Game::execute_action(size_t player_id, const Action& action)
     }
     const auto player = m_players.at(player_id);
 
-    /*
-     * FIXME: implement!
-    if (!player_can_execute(action.edge)) {
+    if (!player_can_execute_edge(player, action)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }
-    */
 
     switch (action.edge) {
 
