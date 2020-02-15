@@ -43,7 +43,7 @@ bool Game::should_wait_for_trade() const // NOLINT(readability-convert-member-fu
 
 int Game::get_round() const
 {
-    return m_turn % players().size();
+    return m_turn / m_players.size();
 }
 
 Game::Game(const Board::Graph* graph,
