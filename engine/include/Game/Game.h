@@ -46,8 +46,8 @@ public:
     void roll_dice();
     int get_dice_total() const;
 
-    int turn() const { return m_turn; }
-    void increment_turn() { ++m_turn; }
+    size_t turn() const { return m_turn; }
+    void increment_turn();
 
     int get_round() const; // turn() // #players
 
@@ -99,7 +99,7 @@ private:
     bool m_has_rolled{ false };
     bool m_is_trade_accepted{ false };
     std::optional<Trade> m_current_trade;
-    int m_turn{ 0 };
+    size_t m_turn{ 0 };
 
     Player* m_has_largest_army{ nullptr };
     Player* m_has_longest_road{ nullptr };

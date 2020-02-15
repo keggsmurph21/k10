@@ -233,6 +233,21 @@ bool Game::is_game_over() const
     }
     return false;
 }
+
+void Game::increment_turn()
+{
+    ++m_turn;
+    if (m_turn == m_players.size()) {
+        // The first round is now over.  Keep m_current_player_index the same.
+    } else if (m_turn == m_players.size() * 2) {
+        // The second round is now over.  Keep m_current_player_index the same.
+    } else if (is_second_round()) {
+        // It's the second round, so we iterate backwards.
+        --m_current_player_index;
+    } else {
+        // The default case.
+        ++m_current_player_index;
+    }
 }
 
 } // namespace k10engine::Game
