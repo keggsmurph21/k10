@@ -100,9 +100,9 @@ private:
     void accrue_resources(ResourceCounts);
     void spend_resources(ResourceCounts);
     void collect_resource(Resource);
-    void build_city(BoardView::Junction*, const Options&);
-    void build_development_card(const Options&);
-    void build_road(BoardView::Road*, const Options&);
+    void build_city(BoardView::Junction*, Options);
+    void build_development_card(Options);
+    void build_road(BoardView::Road*, Options);
     void build_settlement(BoardView::Junction*, Options);
 
     void set_longest_road(size_t longest_road) { m_longest_road = longest_road; }

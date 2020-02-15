@@ -393,10 +393,8 @@ void Game::build_settlement(Player* player, BoardView::Junction* junction, Optio
 
 void Game::build_road(Player* player, BoardView::Road* road, Options options)
 {
-    (void)player;
-    (void)road;
-    (void)options;
-    assert(false);
+    player->build_road(road, options);
+    recalculate_longest_road();
 }
 
 bool Game::is_game_over() const
@@ -439,6 +437,11 @@ int Game::longest_road() const
         return LONGEST_ROAD_THRESHOLD;
     }
     return m_has_longest_road->longest_road();
+}
+
+void Game::recalculate_longest_road()
+{
+    // FIXME: Implement me plz :^)
 }
 
 } // namespace k10engine::Game

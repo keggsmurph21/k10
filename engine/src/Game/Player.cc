@@ -366,4 +366,14 @@ void Player::build_settlement(BoardView::Junction* junction_to_settle, Options o
     m_public_victory_points += 1;
 }
 
+void Player::build_road(BoardView::Road* road, Options options)
+{
+    if ((options & Options::NoCost) != Options::NoCost) {
+        // spend the moneyz
+    }
+
+    road->set_owner(this);
+    m_roads.push_back(road);
+}
+
 } // namespace k10engine::Game

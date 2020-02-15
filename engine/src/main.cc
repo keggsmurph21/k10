@@ -173,10 +173,28 @@ int main(int /* unused */, char** /* unused */)
     // Round 0, Player 0
     std::cout << build(g, 0, k10engine::Building::Settlement, 1000)
               << std::endl; // Result{ ResultType::NodeIdOutOfRange }
-    std::cout << build(g, 0, k10engine::Building::Settlement, 4);
+    std::cout << build(g, 0, k10engine::Building::Settlement, 4) << std::endl;
+    std::cout << build(g, 0, k10engine::Building::Road, 8) << std::endl;
 
+    // Round 0, Player 1
+    std::cout << g->execute_action(1, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
+    std::cout << build(g, 1, k10engine::Building::Settlement, 4)
+              << std::endl; // Result{ ResultType::NodeIdOutOfRange }
+    std::cout << build(g, 1, k10engine::Building::Settlement, 13)
+              << std::endl; // Result{ ResultType::NodeIdOutOfRange }
+    std::cout << build(g, 1, k10engine::Building::Settlement, 5) << std::endl;
+    std::cout << build(g, 1, k10engine::Building::Road, 9) << std::endl;
 
+    // Round 0, Player 2
+    std::cout << g->execute_action(2, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
+    std::cout << build(g, 2, k10engine::Building::Settlement, 6) << std::endl;
+    std::cout << build(g, 2, k10engine::Building::Road, 12) << std::endl;
 
+    // Round 0, Player 3
+    std::cout << g->execute_action(3, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
+    std::cout << build(g, 3, k10engine::Building::Settlement, 26) << std::endl;
+    std::cout << build(g, 3, k10engine::Building::Road, 32) << std::endl;
+    std::cout << g->execute_action(3, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
 
     dump_actions(g);
 

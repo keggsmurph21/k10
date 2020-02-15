@@ -110,6 +110,8 @@ private:
     Player* m_has_largest_army{ nullptr };
     Player* m_has_longest_road{ nullptr };
 
+    void recalculate_longest_road();
+
     void build_settlement(Player*, BoardView::Junction*, Options);
     void build_road(Player*, BoardView::Road*, Options);
 };
