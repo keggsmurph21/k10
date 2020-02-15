@@ -54,9 +54,9 @@ public:
     int largest_army() const;
     int longest_road() const;
 
-    const std::vector<BoardView::Hex*>& hexes() const { return m_hexes; }
-    const std::vector<BoardView::Junction*>& junctions() const { return m_junctions; }
-    const std::vector<BoardView::Road*>& roads() const { return m_roads; }
+    const std::map<size_t, BoardView::Hex*>& hexes() const { return m_hexes; }
+    const std::map<size_t, BoardView::Junction*>& junctions() const { return m_junctions; }
+    const std::map<size_t, BoardView::Road*>& roads() const { return m_roads; }
 
     const Player* current_player() const { return m_players.at(m_current_player_index); }
     const std::vector<Player*>& players() const { return m_players; }
@@ -64,9 +64,9 @@ public:
     Result execute_action(size_t player_id, const Action&);
 
     Game(const Board::Graph*,
-         std::vector<BoardView::Hex*>,
-         std::vector<BoardView::Junction*>,
-         std::vector<BoardView::Road*>,
+         std::map<size_t, BoardView::Hex*>,
+         std::map<size_t, BoardView::Junction*>,
+         std::map<size_t, BoardView::Road*>,
          std::vector<DevelopmentCard>,
          const Scenario::Scenario&,
          const Scenario::Parameters&,
@@ -78,9 +78,9 @@ private:
 
     const Board::Graph* m_graph;
 
-    std::vector<BoardView::Hex*> m_hexes;
-    std::vector<BoardView::Junction*> m_junctions;
-    std::vector<BoardView::Road*> m_roads;
+    std::map<size_t, BoardView::Hex*> m_hexes;
+    std::map<size_t, BoardView::Junction*> m_junctions;
+    std::map<size_t, BoardView::Road*> m_roads;
     std::vector<DevelopmentCard> m_deck;
 
     const Scenario::Scenario& m_scenario;

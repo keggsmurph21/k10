@@ -47,9 +47,9 @@ int Game::get_round() const
 }
 
 Game::Game(const Board::Graph* graph,
-           std::vector<BoardView::Hex*> hexes,
-           std::vector<BoardView::Junction*> junctions,
-           std::vector<BoardView::Road*> roads,
+           std::map<size_t, BoardView::Hex*> hexes,
+           std::map<size_t, BoardView::Junction*> junctions,
+           std::map<size_t, BoardView::Road*> roads,
            std::vector<DevelopmentCard> deck,
            const Scenario::Scenario& scenario,
            const Scenario::Parameters& parameters,
@@ -72,13 +72,13 @@ Game::Game(const Board::Graph* graph,
 Game::~Game()
 {
     for (auto hex : m_hexes) {
-        delete hex;
+        delete hex.second;
     }
     for (auto junction : m_junctions) {
-        delete junction;
+        delete junction.second;
     }
     for (auto road : m_roads) {
-        delete road;
+        delete road.second;
     }
     for (auto player : m_players) {
         delete player;
@@ -100,9 +100,9 @@ Game* initialize(const Board::Graph* graph,
     const auto& resources = scenario.get_resources(parameters.resource_iteration_type);
     const auto& rolls = scenario.get_rolls(parameters.roll_iteration_type);
 
-    std::vector<BoardView::Hex*> hexes;
-    std::vector<BoardView::Junction*> junctions;
-    std::vector<BoardView::Road*> roads;
+    std::map<size_t, BoardView::Hex*> hexes;
+    std::map<size_t, BoardView::Junction*> junctions;
+    std::map<size_t, BoardView::Road*> roads;
 
     std::map<const Board::Node*, BoardView::Hex*> hex_lookup;
     std::map<const Board::Node*, BoardView::Junction*> junction_lookup;
@@ -110,22 +110,22 @@ Game* initialize(const Board::Graph* graph,
 
     int robber_index = -1;
 
-    size_t hex_index = 0;
+    size_t resource_index = 0;
     size_t roll_index = 0;
 
     for (const auto& node : graph->nodes()) {
         switch (node->type()) {
         case Board::NodeType::Hex: { // scope for const
-            if (hex_index >= resources.size()) {
+            if (resource_index >= resources.size()) {
                 return nullptr; // Too few resources
             }
-            const auto& resource = resources.at(hex_index);
+            const auto& resource = resources.at(resource_index);
             BoardView::Hex* hex;
             if (std::holds_alternative<NonYieldingResource>(resource)) {
                 if (robber_index != -1) {
                     return nullptr; // FIXME: Handle multiple robbers?
                 }
-                robber_index = static_cast<int>(hex_index);
+                robber_index = static_cast<int>(node->index());
                 hex = new BoardView::Hex(node, resource, 0);
             } else {
                 if (roll_index >= rolls.size()) {
@@ -136,8 +136,8 @@ Game* initialize(const Board::Graph* graph,
                 hex = new BoardView::Hex(node, resource, roll);
             }
             hex_lookup[node] = hex;
-            hexes.push_back(hex);
-            ++hex_index;
+            hexes[node->index()] = hex;
+            ++resource_index;
         } break;
         case Board::NodeType::Junction: { // scope for const
             const auto port = graph->port(*node);
@@ -154,12 +154,12 @@ Game* initialize(const Board::Graph* graph,
                     new BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
             }
             junction_lookup[node] = junction;
-            junctions.push_back(junction);
+            junctions[node->index()] = junction;
         } break;
         case Board::NodeType::Road: { // scope for const
             auto road = new BoardView::Road(node);
             road_lookup[node] = road;
-            roads.push_back(road);
+            roads[node->index()] = road;
         } break;
         case Board::NodeType::Ocean:
         case Board::NodeType::UnflippedHex:
@@ -167,7 +167,8 @@ Game* initialize(const Board::Graph* graph,
         }
     }
 
-    for (auto hex : hexes) {
+    for (auto hex_entry : hexes) {
+        const auto hex = hex_entry.second;
         for (const auto& direction : Board::AllDirections) {
             const auto neighbor_node = graph->neighbor(hex->node(), direction);
             if (neighbor_node == nullptr) {
@@ -179,7 +180,8 @@ Game* initialize(const Board::Graph* graph,
             }
         }
     }
-    for (auto junction : junctions) {
+    for (auto junction_entry : junctions) {
+        const auto junction = junction_entry.second;
         for (const auto& direction : Board::AllDirections) {
             const auto neighbor_node = graph->neighbor(junction->node(), direction);
             if (neighbor_node == nullptr) {
@@ -194,7 +196,8 @@ Game* initialize(const Board::Graph* graph,
             }
         }
     }
-    for (auto road : roads) {
+    for (auto road_entry : roads) {
+        const auto road = road_entry.second;
         for (const auto& direction : Board::AllDirections) {
             const auto neighbor_node = graph->neighbor(road->node(), direction);
             if (neighbor_node == nullptr) {
@@ -207,7 +210,7 @@ Game* initialize(const Board::Graph* graph,
         }
     }
 
-    if (!(0 <= robber_index && robber_index < static_cast<int>(hexes.size()))) {
+    if (robber_index == -1 || hexes.find(robber_index) == hexes.end()) {
         return nullptr; // something went wrong ... or no Desert given
     }
 

@@ -20,7 +20,8 @@ std::vector<Action> Player::get_available_actions() const
             if (m_game->should_wait_for_discard()) {
                 return {}; // i.e., wait
             }
-            for (const auto& hex : m_game->hexes()) {
+            for (const auto& hex_entry : m_game->hexes()) {
+                const auto hex = hex_entry.second;
                 if (hex->index() != m_game->robber_location()->index()) {
                     available_actions.push_back(
                         { State::Edge::MoveRobber,
@@ -67,7 +68,8 @@ std::vector<Action> Player::get_available_actions() const
         if (m_game->should_wait_for_discard()) {
             return {}; // i.e., wait
         }
-        for (const auto& hex : m_game->hexes()) {
+        for (const auto& hex_entry : m_game->hexes()) {
+            const auto hex = hex_entry.second;
             if (hex->index() != m_game->robber_location()->index()) {
                 available_actions.push_back(
                     { State::Edge::MoveRobber, { { ActionArgumentType::NodeId, hex->index() } } });
@@ -80,7 +82,8 @@ std::vector<Action> Player::get_available_actions() const
 
     case State::Vertex::Root:
         if (m_game->is_first_round()) {
-            for (const auto junction : m_game->junctions()) {
+            for (const auto& junction_entry : m_game->junctions()) {
+                const auto junction = junction_entry.second;
                 if (junction->is_settleable()) {
                     available_actions.push_back(
                         { State::Edge::Build,
@@ -111,7 +114,8 @@ std::vector<Action> Player::get_available_actions() const
                           static_cast<size_t>(Building::DevelopmentCard) } } });
             }
 
-            for (const auto junction : m_game->junctions()) {
+            for (const auto& junction_entry : m_game->junctions()) {
+                const auto junction = junction_entry.second;
                 if (can_build_city) {
                     if (junction->owner() == this) {
                         available_actions.push_back(
@@ -167,7 +171,8 @@ std::vector<Action> Player::get_available_actions() const
                 }
                 switch (development_card) {
                 case DevelopmentCard::Knight:
-                    for (const auto& hex : m_game->hexes()) {
+                    for (const auto& hex_entry : m_game->hexes()) {
+                        const auto hex = hex_entry.second;
                         if (hex->index() != m_game->robber_location()->index()) {
                             available_actions.push_back(
                                 { State::Edge::PlayDevelopmentCard,
