@@ -95,8 +95,17 @@ std::vector<Action> Player::get_available_actions() const
             return available_actions;
         }
         if (m_game->is_second_round()) {
-            // FIXME: do something!
-            return {};
+            for (const auto& junction_entry : m_game->junctions()) {
+                const auto junction = junction_entry.second;
+                if (junction->is_settleable()) {
+                    available_actions.push_back(
+                        { State::Edge::Build,
+                          { { ActionArgumentType::BuildItemId,
+                              static_cast<size_t>(Building::Settlement) },
+                            { ActionArgumentType::NodeId, junction->index() } } });
+                }
+            }
+            return available_actions;
         }
         if (!m_game->has_rolled()) {
             return { { State::Edge::RollDice, {} } };
