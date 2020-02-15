@@ -123,31 +123,6 @@ std::vector<Action> Player::get_available_actions() const
                           static_cast<size_t>(Building::DevelopmentCard) } } });
             }
 
-            for (const auto& junction_entry : m_game->junctions()) {
-                const auto junction = junction_entry.second;
-                if (can_build_city) {
-                    if (junction->owner() == this) {
-                        available_actions.push_back(
-                            { State::Edge::Build,
-                              { { ActionArgumentType::BuildItemId,
-                                  static_cast<size_t>(Building::City) },
-                                { ActionArgumentType::NodeId, junction->index() } } });
-                    }
-                }
-                if (can_build_settlement && junction->is_settleable()) {
-                    for (const auto road_neighbor : junction->road_neighbors()) {
-                        const auto road = road_neighbor.second;
-                        if (road->owner() == this) {
-                            available_actions.push_back(
-                                { State::Edge::Build,
-                                  { { ActionArgumentType::BuildItemId,
-                                      static_cast<size_t>(Building::Settlement) },
-                                    { ActionArgumentType::NodeId, junction->index() } } });
-                        }
-                    }
-                }
-            }
-
             std::set<const BoardView::Road*> reachable_roads;
             for (const auto owned_road : roads()) {
                 for (const auto junction_neighbor : owned_road->junction_neighbors()) {
@@ -163,6 +138,35 @@ std::vector<Action> Player::get_available_actions() const
                     }
                 }
             }
+
+            for (const auto& junction_entry : m_game->junctions()) {
+                const auto junction = junction_entry.second;
+                if (can_build_city) {
+                    if (junction->owner() == this) {
+                        available_actions.push_back(
+                            { State::Edge::Build,
+                              { { ActionArgumentType::BuildItemId,
+                                  static_cast<size_t>(Building::City) },
+                                { ActionArgumentType::NodeId, junction->index() } } });
+                    }
+                }
+                for (const auto road_neighbor : junction->road_neighbors()) {
+                    const auto road = road_neighbor.second;
+                    if (junction->owner() == this && road->owner() == nullptr) {
+                        reachable_roads.insert(road);
+                    }
+                    if (can_build_settlement && junction->is_settleable()) {
+                        if (road->owner() == this) {
+                            available_actions.push_back(
+                                { State::Edge::Build,
+                                  { { ActionArgumentType::BuildItemId,
+                                      static_cast<size_t>(Building::Settlement) },
+                                    { ActionArgumentType::NodeId, junction->index() } } });
+                        }
+                    }
+                }
+            }
+
             if (can_build_road) {
                 for (const auto road : reachable_roads) {
                     available_actions.push_back(
