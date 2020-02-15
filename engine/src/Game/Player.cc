@@ -118,6 +118,13 @@ std::vector<Action> Player::get_available_actions() const
         }
         return available_actions;
 
+    case State::Vertex::ChooseInitialResources:
+        assert(settlements().size() == 2);
+        return { { State::Edge::ChooseInitialResources,
+                   { { ActionArgumentType::NodeId, settlements().at(0)->node()->index() } } },
+                 { State::Edge::ChooseInitialResources,
+                   { { ActionArgumentType::NodeId, settlements().at(1)->node()->index() } } } };
+
     case State::Vertex::GameOver:
         assert(false); // We shouldn't hit this
 
