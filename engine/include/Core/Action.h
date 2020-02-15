@@ -45,15 +45,8 @@ struct Action {
     std::vector<ActionArgument> args;
 };
 
-struct Result {
-    bool was_valid{ false };
-    std::vector<std::string> messages; // used to report *why* not valid
-    std::vector<ActionArgument> args;  // only (?) for ::RollDice
-};
-
 std::ostream& operator<<(std::ostream&, const ActionArgumentType&);
 std::ostream& operator<<(std::ostream&, const ActionArgument&);
 std::ostream& operator<<(std::ostream&, const Action&);
-std::ostream& operator<<(std::ostream&, const Result&);
 
 } // namespace k10engine::Game

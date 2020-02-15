@@ -153,11 +153,12 @@ int main(int /* unused */, char** /* unused */)
         }
     }
 
-    g->execute_action(0,
-                      { k10engine::State::Edge::Build,
-                        { { k10engine::Game::ActionArgumentType::BuildItemId,
-                            static_cast<size_t>(k10engine::Building::Settlement) },
-                          { k10engine::Game::ActionArgumentType::NodeId, 4 } } });
+    std::cout << g->execute_action(0,
+                                   { k10engine::State::Edge::Build,
+                                     { { k10engine::Game::ActionArgumentType::BuildItemId,
+                                         static_cast<size_t>(k10engine::Building::Settlement) },
+                                       { k10engine::Game::ActionArgumentType::NodeId, 4 } } })
+              << std::endl;
 
     delete g;
     delete b;

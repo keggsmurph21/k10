@@ -6,6 +6,7 @@
 
 #include "Board/Graph.h"
 #include "Core/Action.h"
+#include "Core/Result.h"
 #include "Core/Vertex.h"
 #include "Game/BoardView/Hex.h"
 #include "Game/BoardView/Junction.h"
