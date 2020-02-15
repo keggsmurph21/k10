@@ -9,6 +9,7 @@ enum class Vertex {
     AfterDiscarding,
     AfterMovingRobber,
     AfterRoll,
+    ChooseInitialResources,
     GameOver,
     Root,
     WaitForTurn,

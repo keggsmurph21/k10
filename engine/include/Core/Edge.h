@@ -8,6 +8,7 @@ enum class Edge {
     AcceptTrade,
     Build,
     CancelTrade,
+    ChooseInitialResources,
     CollectResources,
     DeclineTrade,
     Discard,

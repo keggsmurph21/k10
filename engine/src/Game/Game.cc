@@ -293,7 +293,7 @@ Result Game::execute_action(size_t player_id, const Action& action)
                     player->set_vertex(State::Vertex::WaitForTurn);
                     increment_turn();
                 } else if (is_second_round()) {
-                    assert(false); // FIXME: Need to implement "InitCollect"
+                    player->set_vertex(State::Vertex::ChooseInitialResources);
                 } else {
                     player->set_vertex(State::Vertex::Root);
                     assert(false);

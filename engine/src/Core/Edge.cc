@@ -14,6 +14,9 @@ std::ostream& operator<<(std::ostream& os, Edge edge)
     case Edge::CancelTrade:
         os << "Edge::CancelTrade";
         break;
+    case Edge::ChooseInitialResources:
+        os << "Edge::ChooseInitialResources";
+        break;
     case Edge::CollectResources:
         os << "Edge::CollectResources";
         break;
