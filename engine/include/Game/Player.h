@@ -54,8 +54,7 @@ public:
     size_t army_size() const;
     size_t longest_road() const;
 
-    size_t public_victory_points() const;
-    size_t private_victory_points() const;
+    size_t public_victory_points() const { return m_public_victory_points; }
 
     const std::vector<BoardView::Road*>& roads() const { return m_roads; }
 
@@ -105,7 +104,7 @@ private:
     void build_city(BoardView::Junction*);
 
     void update_longest_road();
-    void update_victory_points();
+    size_t private_victory_points() const { return m_private_victory_points; }
 
     void accept_trade_as_offerer();
     void accept_trade_as_acceptor();

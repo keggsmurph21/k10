@@ -89,7 +89,7 @@ private:
     Dice m_dice;
     Robber m_robber;
 
-    int m_victory_points_goal;
+    size_t m_victory_points_goal;
 
     std::vector<Player*> m_players;
 
