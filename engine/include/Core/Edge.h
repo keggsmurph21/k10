@@ -6,28 +6,18 @@ namespace k10engine::State {
 
 enum class Edge {
     AcceptTrade,
-    AcceptTradeOther,
-    AfterTradeOther,
-    Build, // City, DevelopmentCard, Road, Settlement
+    Build,
     CancelTrade,
     CollectResources,
     DeclineTrade,
     Discard,
-    EndGame,
-    EndInit,
     FailTradeUnableToFindPartner,
-    InitBuildFirstRoad,
-    InitBuildSecondRoad,
-    InitCollectResources,
-    InitSettle,
     MoveRobber,
     OfferTrade,
-    PlayDevelopmentCard, // Knight, Monopoly, RoadBuilding, VictoryPoint, YearOfPlenty
+    PlayDevelopmentCard,
     RollDice,
     Steal,
-    TakeTurn,
     ToRoot,
-    TradeBank,
 };
 
 std::ostream& operator<<(std::ostream&, Edge);

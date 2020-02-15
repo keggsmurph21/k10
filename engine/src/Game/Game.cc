@@ -237,14 +237,6 @@ Result Game::execute_action(size_t player_id, const Action& action)
     case State::Edge::AcceptTrade:
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::AcceptTrade)");
 
-    case State::Edge::AcceptTradeOther:
-        throw std::invalid_argument(
-            "Not implemented: execution_action(State::Edge::AcceptTradeOther)");
-
-    case State::Edge::AfterTradeOther:
-        throw std::invalid_argument(
-            "Not implemented: execution_action(State::Edge::AfterTradeOther)");
-
     case State::Edge::Build:
         if (action.args.size() != 2) {
             return { ResultType::InvalidNumberOfArgs, {} };
@@ -297,30 +289,9 @@ Result Game::execute_action(size_t player_id, const Action& action)
     case State::Edge::Discard:
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::Discard)");
 
-    case State::Edge::EndGame:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::EndGame)");
-
-    case State::Edge::EndInit:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::EndInit)");
-
     case State::Edge::FailTradeUnableToFindPartner:
         throw std::invalid_argument(
             "Not implemented: execution_action(State::Edge::FailTradeUnableToFindPartner)");
-
-    case State::Edge::InitBuildFirstRoad:
-        throw std::invalid_argument(
-            "Not implemented: execution_action(State::Edge::InitBuildFirstRoad)");
-
-    case State::Edge::InitBuildSecondRoad:
-        throw std::invalid_argument(
-            "Not implemented: execution_action(State::Edge::InitBuildSecondRoad)");
-
-    case State::Edge::InitCollectResources:
-        throw std::invalid_argument(
-            "Not implemented: execution_action(State::Edge::InitCollectResources)");
-
-    case State::Edge::InitSettle:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::InitSettle)");
 
     case State::Edge::MoveRobber:
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::MoveRobber)");
@@ -338,15 +309,9 @@ Result Game::execute_action(size_t player_id, const Action& action)
     case State::Edge::Steal:
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::Steal)");
 
-    case State::Edge::TakeTurn:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::TakeTurn)");
-
     case State::Edge::ToRoot:
         player->set_vertex(State::Vertex::Root);
         return { ResultType::Ok, {} };
-
-    case State::Edge::TradeBank:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::TradeBank)");
     }
     assert(false);
 }
