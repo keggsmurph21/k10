@@ -11,7 +11,7 @@ namespace k10engine::Game::BoardView {
 class Junction;
 
 template<typename T>
-using Neighbors = std::map<Board::Direction, const T*, std::less<>>;
+using Neighbors = std::map<Board::Direction, T*, std::less<>>;
 
 class Hex {
 public:
@@ -35,8 +35,9 @@ public:
         return os;
     }
 
+    Neighbors<Junction>& junction_neighbors() { return m_junction_neighbors; }
     const Neighbors<Junction>& junction_neighbors() const { return m_junction_neighbors; }
-    void add_neighbor(Board::Direction direction, const Junction* junction)
+    void add_neighbor(Board::Direction direction, Junction* junction)
     {
         m_junction_neighbors[direction] = junction;
     }

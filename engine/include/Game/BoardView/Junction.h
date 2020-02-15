@@ -17,7 +17,7 @@ class Hex;
 class Road;
 
 template<typename T>
-using Neighbors = std::map<Board::Direction, const T*, std::less<>>;
+using Neighbors = std::map<Board::Direction, T*, std::less<>>;
 
 class Junction {
 public:
@@ -48,14 +48,13 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Junction&);
 
+    Neighbors<Hex>& hex_neighbors() { return m_hex_neighbors; }
     const Neighbors<Hex>& hex_neighbors() const { return m_hex_neighbors; }
-    void add_neighbor(Board::Direction direction, const Hex* hex)
-    {
-        m_hex_neighbors[direction] = hex;
-    }
+    void add_neighbor(Board::Direction direction, Hex* hex) { m_hex_neighbors[direction] = hex; }
 
+    Neighbors<Road>& road_neighbors() { return m_road_neighbors; }
     const Neighbors<Road>& road_neighbors() const { return m_road_neighbors; }
-    void add_neighbor(Board::Direction direction, const Road* road)
+    void add_neighbor(Board::Direction direction, Road* road)
     {
         m_road_neighbors[direction] = road;
     }
