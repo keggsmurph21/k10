@@ -252,36 +252,65 @@ Result Game::execute_action(size_t player_id, const Action& action)
         if (action.args.at(0).type != ActionArgumentType::BuildItemId) {
             return { ResultType::InvalidArgumentType, {} };
         }
-        if (action.args.at(0).value != static_cast<size_t>(Building::Settlement)) {
-            return { ResultType::BuildingIdOutOfRange, {} };
-        }
-        if (action.args.at(1).type != ActionArgumentType::NodeId) {
-            return { ResultType::InvalidArgumentType, {} };
-        }
         {
-            const auto chosen_node = m_graph->node(action.args.at(1).value);
-            if (chosen_node == nullptr) {
-                return { ResultType::NodeIdOutOfRange, {} };
+            const auto build_item = static_cast<Building>(action.args.at(0).value);
+            switch (build_item) {
+
+            case Building::City:
+                assert(false);
+                return { ResultType::Ok, {} };
+
+            case Building::DevelopmentCard:
+                assert(false);
+                return { ResultType::Ok, {} };
+
+            case Building::Road: {
+                assert(false);
+                return { ResultType::Ok, {} };
             }
-            const auto chosen_junction_entry = m_junctions.find(chosen_node->index());
-            if (chosen_junction_entry == m_junctions.end()) {
-                return { ResultType::InvalidNodeId, {} };
+
+            case Building::Settlement: {
+
+                // FIXME: This should be abstracted to a ::parse_junction() helper
+                if (action.args.at(1).type != ActionArgumentType::NodeId) {
+                    return { ResultType::InvalidArgumentType, {} };
+                }
+                const auto chosen_node = m_graph->node(action.args.at(1).value);
+                if (chosen_node == nullptr) {
+                    return { ResultType::NodeIdOutOfRange, {} };
+                }
+                const auto chosen_junction_entry = m_junctions.find(chosen_node->index());
+                if (chosen_junction_entry == m_junctions.end()) {
+                    return { ResultType::InvalidNodeId, {} };
+                }
+                const auto chosen_junction = chosen_junction_entry->second;
+                if (!chosen_junction->is_settleable()) {
+                    return { ResultType::JunctionNotSettleable, {} };
+                }
+
+                if (is_first_round() || is_second_round()) {
+                    build_settlement(player, chosen_junction, Options::NoCost);
+                } else {
+                    build_settlement(player, chosen_junction, Options::None);
+                }
+
+                if (is_game_over()) {
+                    std::invalid_argument("Not implemented: setting game over");
+                } else if (is_first_round()) {
+                    player->set_vertex(State::Vertex::WaitForTurn);
+                } else if (is_second_round()) {
+                    player->set_vertex(State::Vertex::WaitForTurn);
+                } else {
+                    player->set_vertex(State::Vertex::Root);
+                    assert(false);
+                }
+
+                return { ResultType::Ok, {} };
             }
-            const auto chosen_junction = chosen_junction_entry->second;
-            if (!chosen_junction->is_settleable()) {
-                return { ResultType::JunctionNotSettleable, {} };
+
+            default:
+                return { ResultType::BuildingIdOutOfRange, {} };
             }
-            build_settlement(player, chosen_junction, Options::NoCost);
-            if (is_first_round()) {
-                player->set_vertex(State::Vertex::WaitForTurn);
-                increment_turn();
-            } else if (is_game_over()) {
-                std::invalid_argument("Not implemented: setting game over");
-            } else {
-                player->set_vertex(State::Vertex::Root);
-                std::invalid_argument("Not implemented: settling on an arbitrary turn");
-            }
-            return { ResultType::Ok, {} };
         }
 
     case State::Edge::CancelTrade:
