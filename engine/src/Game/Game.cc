@@ -342,7 +342,8 @@ Result Game::execute_action(size_t player_id, const Action& action)
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::TakeTurn)");
 
     case State::Edge::ToRoot:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::ToRoot)");
+        player->set_vertex(State::Vertex::Root);
+        return { ResultType::Ok, {} };
 
     case State::Edge::TradeBank:
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::TradeBank)");

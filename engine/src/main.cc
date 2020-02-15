@@ -177,6 +177,16 @@ int main(int /* unused */, char** /* unused */)
         }
     }
 
+    std::cout << g->execute_action(1, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
+
+    for (const auto player : g->players()) {
+        const auto actions = player->get_available_actions();
+        std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
+        for (const auto& available_action : actions) {
+            std::cout << " - " << available_action << std::endl;
+        }
+    }
+
     delete g;
     delete b;
 
