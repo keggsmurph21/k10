@@ -8,6 +8,8 @@ namespace k10engine::Game {
 
 enum class ResultType {
     Ok,
+    InvalidPlayerId,
+    InvalidEdgeChoice,
 };
 
 struct Result {

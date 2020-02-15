@@ -8,6 +8,12 @@ std::ostream& operator<<(std::ostream& os, const ResultType& error)
     case ResultType::Ok:
         os << "ResultType::Ok";
         break;
+    case ResultType::InvalidPlayerId:
+        os << "ResultType::InvalidPlayerId";
+        break;
+    case ResultType::InvalidEdgeChoice:
+        os << "ResultType::InvalidEdgeChoice";
+        break;
     }
     return os;
 }

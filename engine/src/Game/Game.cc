@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <stdexcept>
 #include <variant>
@@ -219,9 +220,99 @@ Game* initialize(const Board::Graph* graph,
 
 Result Game::execute_action(size_t player_id, const Action& action)
 {
-    (void)player_id;
-    (void)action;
-    throw std::invalid_argument("Not implemented: execute_action()");
+    if (player_id >= m_players.size()) {
+        return { ResultType::InvalidPlayerId, {} };
+    }
+    const auto player = m_players.at(player_id);
+
+    /*
+     * FIXME: implement!
+    if (!player_can_execute(action.edge)) {
+        return { ResultType::InvalidEdgeChoice, {} };
+    }
+    */
+    (void)player;
+
+    switch (action.edge) {
+
+    case State::Edge::AcceptTrade:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::AcceptTrade)");
+
+    case State::Edge::AcceptTradeOther:
+        throw std::invalid_argument(
+            "Not implemented: execution_action(State::Edge::AcceptTradeOther)");
+
+    case State::Edge::AfterTradeOther:
+        throw std::invalid_argument(
+            "Not implemented: execution_action(State::Edge::AfterTradeOther)");
+
+    case State::Edge::Build:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::Build)");
+
+    case State::Edge::CancelTrade:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::CancelTrade)");
+
+    case State::Edge::CollectResources:
+        throw std::invalid_argument(
+            "Not implemented: execution_action(State::Edge::CollectResources)");
+
+    case State::Edge::DeclineTrade:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::DeclineTrade)");
+
+    case State::Edge::Discard:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::Discard)");
+
+    case State::Edge::EndGame:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::EndGame)");
+
+    case State::Edge::EndInit:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::EndInit)");
+
+    case State::Edge::FailTradeUnableToFindPartner:
+        throw std::invalid_argument(
+            "Not implemented: execution_action(State::Edge::FailTradeUnableToFindPartner)");
+
+    case State::Edge::InitBuildFirstRoad:
+        throw std::invalid_argument(
+            "Not implemented: execution_action(State::Edge::InitBuildFirstRoad)");
+
+    case State::Edge::InitBuildSecondRoad:
+        throw std::invalid_argument(
+            "Not implemented: execution_action(State::Edge::InitBuildSecondRoad)");
+
+    case State::Edge::InitCollectResources:
+        throw std::invalid_argument(
+            "Not implemented: execution_action(State::Edge::InitCollectResources)");
+
+    case State::Edge::InitSettle:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::InitSettle)");
+
+    case State::Edge::MoveRobber:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::MoveRobber)");
+
+    case State::Edge::OfferTrade:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::OfferTrade)");
+
+    case State::Edge::PlayDevelopmentCard:
+        throw std::invalid_argument(
+            "Not implemented: execution_action(State::Edge::PlayDevelopmentCard)");
+
+    case State::Edge::RollDice:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::RollDice)");
+
+    case State::Edge::Steal:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::Steal)");
+
+    case State::Edge::TakeTurn:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::TakeTurn)");
+
+    case State::Edge::ToRoot:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::ToRoot)");
+
+    case State::Edge::TradeBank:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::TradeBank)");
+    }
+    assert(false);
 }
 
 void Game::build_settlement(Player* player, BoardView::Junction* junction, Options options)
