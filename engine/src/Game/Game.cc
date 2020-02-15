@@ -425,4 +425,20 @@ void Game::increment_turn()
     }
 }
 
+int Game::largest_army() const
+{
+    if (m_has_largest_army == nullptr) {
+        return LARGEST_ARMY_THRESHOLD;
+    }
+    return m_has_largest_army->army_size();
+}
+
+int Game::longest_road() const
+{
+    if (m_has_longest_road == nullptr) {
+        return LONGEST_ROAD_THRESHOLD;
+    }
+    return m_has_longest_road->longest_road();
+}
+
 } // namespace k10engine::Game

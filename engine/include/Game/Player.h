@@ -52,8 +52,8 @@ public:
 
     bool can_afford(const ResourceCounts&) const;
 
-    size_t army_size() const;
-    size_t longest_road() const;
+    size_t army_size() const { return m_army_size; }
+    size_t longest_road() const { return m_longest_road; }
 
     size_t public_victory_points() const { return m_public_victory_points; }
 
@@ -92,6 +92,8 @@ private:
     size_t m_public_victory_points{ 0 };
     size_t m_private_victory_points{ 0 };
     size_t m_num_trades_offered_this_turn{ 0 };
+    size_t m_army_size{ 0 };
+    size_t m_longest_road{ 0 };
 
     void set_vertex(State::Vertex vertex) { m_vertex = vertex; }
 
@@ -103,7 +105,7 @@ private:
     void build_road(BoardView::Road*, const Options&);
     void build_settlement(BoardView::Junction*, Options);
 
-    void update_longest_road();
+    void set_longest_road(size_t longest_road) { m_longest_road = longest_road; }
     size_t private_victory_points() const { return m_private_victory_points; }
 
     void accept_trade_as_offerer();

@@ -21,6 +21,11 @@
 
 namespace k10engine::Game {
 
+// If a player has *greater than* these, then they get
+// the corresponding bonus victory points.
+#define LARGEST_ARMY_THRESHOLD 2
+#define LONGEST_ROAD_THRESHOLD 4
+
 class Player;
 
 class Game {
