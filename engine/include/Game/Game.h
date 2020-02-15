@@ -30,8 +30,7 @@ public:
     bool has_rolled() const { return m_has_rolled; }
     void set_has_rolled(bool has_rolled) { m_has_rolled = has_rolled; }
 
-    bool is_game_over() const { return m_is_game_over; }
-    void set_is_game_over(bool is_game_over) { m_is_game_over = is_game_over; }
+    bool is_game_over() const;
 
     bool is_trade_accepted() const { return m_is_trade_accepted; }
     void set_is_trade_accepted(bool is_trade_accepted) { m_is_trade_accepted = is_trade_accepted; }
@@ -98,7 +97,6 @@ private:
 
     bool m_can_steal{ false };
     bool m_has_rolled{ false };
-    bool m_is_game_over{ false };
     bool m_is_trade_accepted{ false };
     std::optional<Trade> m_current_trade;
     int m_turn{ 0 };

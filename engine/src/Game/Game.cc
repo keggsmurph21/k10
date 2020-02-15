@@ -224,4 +224,15 @@ Result Game::execute_action(size_t player_id, const Action& action)
     throw std::invalid_argument("Not implemented: execute_action()");
 }
 
+bool Game::is_game_over() const
+{
+    for (const auto& player : m_players) {
+        if (player->private_victory_points() == m_victory_points_goal) {
+            return true;
+        }
+    }
+    return false;
+}
+}
+
 } // namespace k10engine::Game
