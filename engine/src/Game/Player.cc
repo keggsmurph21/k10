@@ -265,7 +265,7 @@ std::vector<Action> Player::get_available_actions() const
             }
 
             if (m_num_trades_offered_this_turn < MAX_NUM_TRADE_OFFERS_PER_TURN
-                && m_resources.size() > 0) {
+                && num_resources() > 0) {
                 // FIXME: Make sure we handle trading with the bank
                 available_actions.push_back({ State::Edge::OfferTrade, {} });
             }
