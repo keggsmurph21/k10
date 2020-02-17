@@ -282,9 +282,17 @@ Result Game::execute_action(size_t player_id, const Action& action)
                 // FIXME: Need to make sure it's adjacent to something we own!
 
                 if (is_first_round() || is_second_round()) {
-                    build_road(player, chosen_road, Options::NoCost);
-                } else {
-                    build_road(player, chosen_road, Options::None);
+                    if (player->vertex() == State::Vertex::AfterBuildingFreeSettlement) {
+                        build_road(player, chosen_road, Options::NoCost);
+                    } else {
+                        return { ResultType::InvalidEdgeChoice, {} };
+                    }
+                } else if (player->can_afford(Building::Road)) {
+                    if (player->can_afford(Building::Road)) {
+                        build_road(player, chosen_road, Options::None);
+                    } else {
+                        return { ResultType::CannotAfford, {} };
+                    }
                 }
 
                 if (is_game_over()) {
@@ -322,9 +330,17 @@ Result Game::execute_action(size_t player_id, const Action& action)
                 }
 
                 if (is_first_round() || is_second_round()) {
-                    build_settlement(player, chosen_junction, Options::NoCost);
-                } else {
-                    build_settlement(player, chosen_junction, Options::None);
+                    if (player->vertex() == State::Vertex::Root) {
+                        build_settlement(player, chosen_junction, Options::NoCost);
+                    } else {
+                        return { ResultType::InvalidEdgeChoice, {} };
+                    }
+                } else if (player->can_afford(Building::Road)) {
+                    if (player->can_afford(Building::Settlement)) {
+                        build_settlement(player, chosen_junction, Options::None);
+                    } else {
+                        return { ResultType::CannotAfford, {} };
+                    }
                 }
 
                 if (is_game_over()) {
