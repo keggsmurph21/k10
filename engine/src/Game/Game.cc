@@ -329,9 +329,7 @@ Result Game::execute_action(size_t player_id, const Action& action)
 
                 if (is_game_over()) {
                     assert(false);
-                } else if (is_first_round()) {
-                    player->set_vertex(State::Vertex::AfterBuildingFreeSettlement);
-                } else if (is_second_round()) {
+                } else if (is_first_round() || is_second_round()) {
                     player->set_vertex(State::Vertex::AfterBuildingFreeSettlement);
                 } else {
                     player->set_vertex(State::Vertex::Root);
