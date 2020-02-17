@@ -16,6 +16,7 @@ enum class ResultType {
     NodeIdOutOfRange,
     InvalidNodeId,
     JunctionNotSettleable,
+    CannotAfford,
 };
 
 struct Result {
