@@ -339,8 +339,7 @@ bool Player::is_blocking() const // NOLINT(readability-convert-member-functions-
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 bool Player::can_afford(const ResourceCounts& resource_counts) const
 {
-    (void)resource_counts;
-    throw std::invalid_argument("Not implemented: Player::can_afford");
+    return !(m_resources < resource_counts);
 }
 
 std::ostream& operator<<(std::ostream& os, const Player& player)
