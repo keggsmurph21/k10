@@ -119,6 +119,7 @@ private:
     void steal_from(Player*);
 
     bool can_afford(const ResourceCounts&) const;
+    bool can_afford(const Building&) const;
 };
 
 } // namespace k10engine::Game

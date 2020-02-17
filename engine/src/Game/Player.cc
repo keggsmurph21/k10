@@ -342,6 +342,14 @@ bool Player::can_afford(const ResourceCounts& resource_counts) const
     return !(m_resources < resource_counts);
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+bool Player::can_afford(const Building& building) const
+{
+    const auto cost = game()->scenario().cost(building);
+    assert(cost != nullptr);
+    return can_afford(*cost);
+}
+
 std::ostream& operator<<(std::ostream& os, const Player& player)
 {
     os << "Player{ " << player.index() << ", " << player.vertex() << " }";
