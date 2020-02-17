@@ -31,16 +31,9 @@ class Player;
 class Game {
 public:
     bool can_steal() const { return m_can_steal; }
-    void set_can_steal(bool can_steal) { m_can_steal = can_steal; }
-
     bool has_rolled() const { return m_has_rolled; }
-    void set_has_rolled(bool has_rolled) { m_has_rolled = has_rolled; }
-
     bool is_game_over() const;
-
     bool is_trade_accepted() const { return m_is_trade_accepted; }
-    void set_is_trade_accepted(bool is_trade_accepted) { m_is_trade_accepted = is_trade_accepted; }
-
     bool is_first_round() const;
     bool is_second_round() const;
     bool is_roll_seven() const;
@@ -53,7 +46,6 @@ public:
     int get_dice_total() const;
 
     size_t turn() const { return m_turn; }
-    void increment_turn();
 
     int get_round() const; // turn() // #players
 
@@ -114,6 +106,12 @@ private:
 
     void build_settlement(Player*, BoardView::Junction*, Options);
     void build_road(Player*, BoardView::Road*, Options);
+
+    void increment_turn();
+
+    void set_can_steal(bool can_steal) { m_can_steal = can_steal; }
+    void set_has_rolled(bool has_rolled) { m_has_rolled = has_rolled; }
+    void set_is_trade_accepted(bool is_trade_accepted) { m_is_trade_accepted = is_trade_accepted; }
 };
 
 Game* initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);

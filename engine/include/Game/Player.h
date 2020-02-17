@@ -29,16 +29,8 @@ public:
     std::vector<Action> get_available_actions() const;
 
     bool can_accept_trade() const { return m_can_accept_trade; }
-    void set_can_accept_trade(bool can_accept_trade) { m_can_accept_trade = can_accept_trade; }
-
     bool has_declined_trade() const { return m_has_declined_trade; }
-    void set_has_declined_trade(bool has_declined_trade)
-    {
-        m_has_declined_trade = has_declined_trade;
-    }
-
     size_t num_to_discard() const { return m_num_to_discard; }
-    void set_num_to_discard(size_t num_to_discard) { m_num_to_discard = num_to_discard; }
 
     const State::Vertex& vertex() const { return m_vertex; }
 
@@ -106,6 +98,13 @@ private:
     void build_development_card(Options);
     void build_road(BoardView::Road*, Options);
     void build_settlement(BoardView::Junction*, Options);
+
+    void set_can_accept_trade(bool can_accept_trade) { m_can_accept_trade = can_accept_trade; }
+    void set_has_declined_trade(bool has_declined_trade)
+    {
+        m_has_declined_trade = has_declined_trade;
+    }
+    void set_num_to_discard(size_t num_to_discard) { m_num_to_discard = num_to_discard; }
 
     void set_longest_road(size_t longest_road) { m_longest_road = longest_road; }
     size_t private_victory_points() const { return m_private_victory_points; }
