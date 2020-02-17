@@ -410,6 +410,7 @@ Result Game::execute_action(size_t player_id, const Action& action)
     assert(false);
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void Game::build_settlement(Player* player, BoardView::Junction* junction, Options options)
 {
     player->build_settlement(junction, options);
@@ -434,9 +435,9 @@ bool Game::is_game_over() const
 void Game::increment_turn()
 {
     ++m_turn;
-    if (m_turn == m_players.size()) {
+    if (m_turn == m_players.size()) { // NOLINT(bugprone-branch-clone)
         // The first round is now over.  Keep m_current_player_index the same.
-    } else if (m_turn == m_players.size() * 2) {
+    } else if (m_turn == m_players.size() * 2) { // NOLINT(bugprone-branch-clone)
         // The second round is now over.  Keep m_current_player_index the same.
     } else if (is_second_round()) {
         // It's the second round, so we iterate backwards.
