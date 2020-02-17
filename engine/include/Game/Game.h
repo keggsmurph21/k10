@@ -46,8 +46,7 @@ public:
     int get_dice_total() const;
 
     size_t turn() const { return m_turn; }
-
-    int get_round() const; // turn() // #players
+    size_t get_round() const; // turn() // #players
 
     int largest_army() const;
     int longest_road() const;

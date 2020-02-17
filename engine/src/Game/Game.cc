@@ -42,7 +42,7 @@ bool Game::should_wait_for_trade() const // NOLINT(readability-convert-member-fu
     throw std::invalid_argument("Not implemented: Game::should_wait_for_trade");
 }
 
-int Game::get_round() const
+size_t Game::get_round() const
 {
     return m_turn / m_players.size();
 }
