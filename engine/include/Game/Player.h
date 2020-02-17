@@ -42,8 +42,6 @@ public:
     bool is_current_player() const;
     bool is_blocking() const;
 
-    bool can_afford(const ResourceCounts&) const;
-
     size_t army_size() const { return m_army_size; }
     size_t longest_road() const { return m_longest_road; }
 
@@ -119,6 +117,8 @@ private:
     void move_robber();
 
     void steal_from(Player*);
+
+    bool can_afford(const ResourceCounts&) const;
 };
 
 } // namespace k10engine::Game
