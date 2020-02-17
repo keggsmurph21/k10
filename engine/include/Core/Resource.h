@@ -19,7 +19,7 @@ enum class Resource {
     Wood,
 };
 
-typedef std::map<Resource, int, std::less<>> ResourceCounts;
+typedef std::map<Resource, size_t, std::less<>> ResourceCounts;
 typedef std::set<Resource, std::less<>> ResourceCollection;
 typedef std::variant<Resource, NonYieldingResource> AbstractResource;
 
@@ -28,5 +28,7 @@ std::ostream& operator<<(std::ostream&, const Resource&);
 std::ostream& operator<<(std::ostream&, const ResourceCounts&);
 std::ostream& operator<<(std::ostream&, const ResourceCollection&);
 std::ostream& operator<<(std::ostream&, const AbstractResource&);
+
+bool operator<(const ResourceCounts& l_resources, const ResourceCounts& r_resources);
 
 } // namespace k10engine

@@ -74,4 +74,22 @@ std::ostream& operator<<(std::ostream& os, const AbstractResource& abstract_reso
     return os;
 }
 
+bool operator<(const ResourceCounts& l_resources, const ResourceCounts& r_resources)
+{
+    for (const auto& r_entry : r_resources) {
+        const auto& r_resource = r_entry.first;
+        const auto& r_count = r_entry.second;
+        if (r_count == 0) {
+            continue;
+        }
+        if (l_resources.find(r_resource) == l_resources.end()) {
+            return true;
+        }
+        if (l_resources.at(r_resource) < r_count) {
+            return true;
+        }
+    }
+    return false;
+}
+
 } // namespace k10engine

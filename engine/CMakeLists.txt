@@ -50,6 +50,7 @@ add_executable(test_
     src/Board/Test/Graph.cc
     src/Board/Test/Node.cc
     src/Board/Test/Port.cc
+    src/Core/Test/Resource.cc
     src/Game/Test/Game.cc
     src/Scenario/Test/Scenario.cc
 )
