@@ -288,7 +288,7 @@ Result Game::execute_action(size_t player_id, const Action& action)
                 }
 
                 if (is_game_over()) {
-                    std::invalid_argument("Not implemented: setting game over");
+                    assert(false);
                 } else if (is_first_round()) {
                     player->set_vertex(State::Vertex::WaitForTurn);
                     increment_turn();
@@ -328,7 +328,7 @@ Result Game::execute_action(size_t player_id, const Action& action)
                 }
 
                 if (is_game_over()) {
-                    std::invalid_argument("Not implemented: setting game over");
+                    assert(false);
                 } else if (is_first_round()) {
                     player->set_vertex(State::Vertex::AfterBuildingFreeSettlement);
                 } else if (is_second_round()) {
