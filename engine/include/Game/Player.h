@@ -51,6 +51,8 @@ public:
     const std::vector<BoardView::Road*>& roads() const { return m_roads; }
     const std::vector<BoardView::Junction*>& settlements() const { return m_settlements; }
 
+    const Game* game() const { return m_game; }
+
     ~Player() {}
 
     friend Game;
