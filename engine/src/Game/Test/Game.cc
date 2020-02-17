@@ -116,6 +116,7 @@ struct PlayerChecks {
     // bool can_trade_with_bank; // FIXME: Implement
     bool is_current_player;
     // bool is_blocking; // FIXME: Implement
+    size_t num_resources;
     size_t army_size;
     size_t longest_road;
     size_t public_victory_points;
@@ -156,6 +157,7 @@ void check_player(k10engine::Game::Player* p, PlayerChecks c)
     // REQUIRE(p->can_trade_with_bank() == c.can_trade_with_bank);
     REQUIRE(p->is_current_player() == c.is_current_player);
     // REQUIRE(p->is_blocking() == c.is_blocking);
+    REQUIRE(p->num_resources() == c.num_resources);
     REQUIRE(p->army_size() == c.army_size);
     REQUIRE(p->longest_road() == c.longest_road);
     REQUIRE(p->public_victory_points() == c.public_victory_points);
@@ -179,7 +181,8 @@ TEST_CASE("Game initialization", "[Game]")
         REQUIRE(g->players().size() == 1);
 
         check_game(g, { false, false, false, false, true, false, false, 9, 0, 0, 0, 2, 4 });
-        check_player(g->players().at(0), { false, false, 0, Vertex::Root, true, 0, 0, 0, 0, 0, 0 });
+        check_player(g->players().at(0),
+                     { false, false, 0, Vertex::Root, true, 0, 0, 0, 0, 0, 0, 0 });
 
         std::vector<k10engine::Game::Action> actions;
         Result r;
@@ -237,7 +240,7 @@ TEST_CASE("Game initialization", "[Game]")
         check_game(g, { false, false, false, false, true, false, false, 9, 0, 0, 0, 2, 4 });
         check_player(
             g->players().at(0),
-            { false, false, 0, Vertex::AfterBuildingFreeSettlement, true, 0, 0, 1, 0, 0, 1 });
+            { false, false, 0, Vertex::AfterBuildingFreeSettlement, true, 0, 0, 0, 1, 0, 0, 1 });
 
         for (const auto& j_entry : g->junctions()) {
             const auto& j = j_entry.second;
@@ -293,7 +296,7 @@ TEST_CASE("Game initialization", "[Game]")
 
         check_game(g, { false, false, false, false, false, true, false, 9, 0, 1, 1, 2, 4 });
         check_player(g->players().at(0),
-                     { false, false, 0, Vertex::WaitForTurn, true, 0, 0, 1, 0, 1, 1 });
+                     { false, false, 0, Vertex::WaitForTurn, true, 0, 0, 0, 1, 0, 1, 1 });
 
         actions = g->players().at(0)->get_available_actions();
 
@@ -308,7 +311,8 @@ TEST_CASE("Game initialization", "[Game]")
         REQUIRE(r.type == ResType::Ok);
 
         check_game(g, { false, false, false, false, false, true, false, 9, 0, 1, 1, 2, 4 });
-        check_player(g->players().at(0), { false, false, 0, Vertex::Root, true, 0, 0, 1, 0, 1, 1 });
+        check_player(g->players().at(0),
+                     { false, false, 0, Vertex::Root, true, 0, 0, 0, 1, 0, 1, 1 });
 
         actions = g->players().at(0)->get_available_actions();
 
@@ -348,7 +352,7 @@ TEST_CASE("Game initialization", "[Game]")
         check_game(g, { false, false, false, false, false, true, false, 9, 0, 1, 1, 2, 4 });
         check_player(
             g->players().at(0),
-            { false, false, 0, Vertex::AfterBuildingFreeSettlement, true, 0, 0, 2, 0, 1, 2 });
+            { false, false, 0, Vertex::AfterBuildingFreeSettlement, true, 0, 0, 0, 2, 0, 1, 2 });
 
         actions = g->players().at(0)->get_available_actions();
 

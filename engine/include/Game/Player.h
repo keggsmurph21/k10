@@ -42,6 +42,7 @@ public:
     bool is_current_player() const;
     bool is_blocking() const;
 
+    size_t num_resources() const;
     size_t army_size() const { return m_army_size; }
     size_t longest_road() const { return m_longest_road; }
 

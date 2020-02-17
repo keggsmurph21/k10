@@ -390,4 +390,14 @@ void Player::build_road(BoardView::Road* road, Options options)
     m_roads.push_back(road);
 }
 
+size_t Player::num_resources() const
+{
+    size_t total = 0;
+    for (const auto& resource_entry : m_resources) {
+        const auto& count = resource_entry.second;
+        total += count;
+    }
+    return total;
+}
+
 } // namespace k10engine::Game
