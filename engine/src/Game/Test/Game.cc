@@ -86,86 +86,7 @@ using ArgType = k10engine::Game::ActionArgumentType;
 using ResType = k10engine::Game::ResultType;
 using Building = k10engine::Building;
 
-struct GameChecks {
-    bool can_steal;
-    bool has_rolled;
-    bool is_game_over;
-    bool is_trade_accepted;
-    bool is_first_round;
-    bool is_second_round;
-    bool is_roll_seven;
-    // bool should_wait_for_discard; // FIXME: Implement
-    // bool should_wait_for_trade; // FIXME: Implement
-    size_t robber_location;
-    size_t dice_total;
-    size_t turn;
-    size_t round;
-    size_t largest_army;
-    size_t longest_road;
-};
-
-struct PlayerChecks {
-    bool can_accept_trade;
-    bool has_declined_trade;
-    size_t num_to_discard;
-    Vertex vertex;
-    // bool has_heavy_purse; // FIXME: Implement
-    // bool can_build; // FIXME: Implement
-    // bool can_play; // FIXME: Implement
-    // bool can_trade; // FIXME: Implement
-    // bool can_trade_with_bank; // FIXME: Implement
-    bool is_current_player;
-    // bool is_blocking; // FIXME: Implement
-    size_t num_resources;
-    size_t army_size;
-    size_t longest_road;
-    size_t public_victory_points;
-    size_t cities;
-    size_t roads;
-    size_t settlements;
-};
-
-void check_game(k10engine::Game::Game* g, GameChecks c)
-{
-    REQUIRE(g->can_steal() == c.can_steal);
-    REQUIRE(g->has_rolled() == c.has_rolled);
-    REQUIRE(g->is_game_over() == c.is_game_over);
-    REQUIRE(g->is_trade_accepted() == c.is_trade_accepted);
-    REQUIRE(g->is_first_round() == c.is_first_round);
-    REQUIRE(g->is_second_round() == c.is_second_round);
-    REQUIRE(g->is_roll_seven() == c.is_roll_seven);
-    // REQUIRE(g->should_wait_for_discard() == c.should_wait_for_discard);
-    // REQUIRE(g->should_wait_for_trade() == c.should_wait_for_trade);
-    REQUIRE(g->robber_location()->node()->index() == c.robber_location);
-    REQUIRE(g->get_dice_total() == c.dice_total);
-    REQUIRE(g->turn() == c.turn);
-    REQUIRE(g->get_round() == c.round);
-    REQUIRE(g->largest_army() == c.largest_army);
-    REQUIRE(g->longest_road() == c.longest_road);
-}
-
-void check_player(k10engine::Game::Player* p, PlayerChecks c)
-{
-    REQUIRE(p->can_accept_trade() == c.can_accept_trade);
-    REQUIRE(p->has_declined_trade() == c.has_declined_trade);
-    REQUIRE(p->num_to_discard() == c.num_to_discard);
-    REQUIRE(p->vertex() == c.vertex);
-    // REQUIRE(p->has_heavy_purse() == c.has_heavy_purse);
-    // REQUIRE(p->can_build() == c.can_build);
-    // REQUIRE(p->can_play() == c.can_play);
-    // REQUIRE(p->can_trade() == c.can_trade);
-    // REQUIRE(p->can_trade_with_bank() == c.can_trade_with_bank);
-    REQUIRE(p->is_current_player() == c.is_current_player);
-    // REQUIRE(p->is_blocking() == c.is_blocking);
-    REQUIRE(p->num_resources() == c.num_resources);
-    REQUIRE(p->army_size() == c.army_size);
-    REQUIRE(p->longest_road() == c.longest_road);
-    REQUIRE(p->public_victory_points() == c.public_victory_points);
-    REQUIRE(p->cities().size() == c.cities);           // NOLINT(readability-container-size-empty)
-    REQUIRE(p->roads().size() == c.roads);             // NOLINT(readability-container-size-empty)
-    REQUIRE(p->settlements().size() == c.settlements); // NOLINT(readability-container-size-empty)
-}
-
+// NOLINTNEXTLINE(google-readability-function-size)
 TEST_CASE("Game initialization", "[Game]")
 {
     SECTION("Single")
@@ -180,9 +101,82 @@ TEST_CASE("Game initialization", "[Game]")
         REQUIRE(g->roads().size() == 6);
         REQUIRE(g->players().size() == 1);
 
-        check_game(g, { false, false, false, false, true, false, false, 9, 0, 0, 0, 2, 4 });
-        check_player(g->players().at(0),
-                     { false, false, 0, Vertex::Root, true, 0, 0, 0, 0, 0, 0, 0 });
+        bool can_steal = false;
+        bool has_rolled = false;
+        bool is_game_over = false;
+        bool is_trade_accepted = false;
+        bool is_first_round = true;
+        bool is_second_round = false;
+        bool is_roll_seven = false;
+        // bool should_wait_for_discard = false; // FIXME: Implement
+        // bool should_wait_for_trade = false; // FIXME: Implement
+        size_t robber_location = 9;
+        size_t dice_total = 0;
+        size_t turn = 0;
+        size_t round = 0;
+        size_t largest_army = 2;
+        size_t longest_road = 4;
+        bool p0_can_accept_trade = false;
+        bool p0_has_declined_trade = false;
+        size_t p0_num_to_discard = 0;
+        Vertex p0_vertex = Vertex::Root;
+        // bool p0_has_heavy_purse = false; // FIXME: Implement
+        // bool p0_can_build = false; // FIXME: Implement
+        // bool p0_can_play = false; // FIXME: Implement
+        // bool p0_can_trade = false; // FIXME: Implement
+        // bool p0_can_trade_with_bank = false; // FIXME: Implement
+        bool p0_is_current_player = true;
+        // bool p0_is_blocking = false; // FIXME: Implement
+        size_t p0_num_resources = 0;
+        size_t p0_army_size = 0;
+        size_t p0_longest_road = 0;
+        size_t p0_public_victory_points = 0;
+        size_t p0_cities = 0;
+        size_t p0_roads = 0;
+        size_t p0_settlements = 0;
+
+        const auto check = [&]() -> void {
+            REQUIRE(g->can_steal() == can_steal);
+            REQUIRE(g->has_rolled() == has_rolled);
+            REQUIRE(g->is_game_over() == is_game_over);
+            REQUIRE(g->is_trade_accepted() == is_trade_accepted);
+            REQUIRE(g->is_first_round() == is_first_round);
+            REQUIRE(g->is_second_round() == is_second_round);
+            REQUIRE(g->is_roll_seven() == is_roll_seven);
+            // REQUIRE(g->should_wait_for_discard() == should_wait_for_discard);
+            // REQUIRE(g->should_wait_for_trade() == should_wait_for_trade);
+            REQUIRE(g->robber_location()->node()->index() == robber_location);
+            REQUIRE(g->get_dice_total() == dice_total);
+            REQUIRE(g->turn() == turn);
+            REQUIRE(g->get_round() == round);
+            REQUIRE(g->largest_army() == largest_army);
+            REQUIRE(g->longest_road() == longest_road);
+
+            k10engine::Game::Player* p;
+
+            p = g->players().at(0);
+            REQUIRE(p->can_accept_trade() == p0_can_accept_trade);
+            REQUIRE(p->has_declined_trade() == p0_has_declined_trade);
+            REQUIRE(p->num_to_discard() == p0_num_to_discard);
+            REQUIRE(p->vertex() == p0_vertex);
+            // REQUIRE(p->has_heavy_purse() == p0_has_heavy_purse);
+            // REQUIRE(p->can_build() == p0_can_build);
+            // REQUIRE(p->can_play() == p0_can_play);
+            // REQUIRE(p->can_trade() == p0_can_trade);
+            // REQUIRE(p->can_trade_with_bank() == p0_can_trade_with_bank);
+            REQUIRE(p->is_current_player() == p0_is_current_player);
+            // REQUIRE(p->is_blocking() == p0_is_blocking);
+            REQUIRE(p->num_resources() == p0_num_resources);
+            REQUIRE(p->army_size() == p0_army_size);
+            REQUIRE(p->longest_road() == p0_longest_road);
+            REQUIRE(p->public_victory_points() == p0_public_victory_points);
+            REQUIRE(p->cities().size() == p0_cities); // NOLINT(readability-container-size-empty)
+            REQUIRE(p->roads().size() == p0_roads);   // NOLINT(readability-container-size-empty)
+            REQUIRE(p->settlements().size()
+                    == p0_settlements); // NOLINT(readability-container-size-empty)
+        };
+
+        check();
 
         std::vector<k10engine::Game::Action> actions;
         Result r;
@@ -237,10 +231,10 @@ TEST_CASE("Game initialization", "[Game]")
 
         // NB: Can't test ::JunctionNotSettleable yet
 
-        check_game(g, { false, false, false, false, true, false, false, 9, 0, 0, 0, 2, 4 });
-        check_player(
-            g->players().at(0),
-            { false, false, 0, Vertex::AfterBuildingFreeSettlement, true, 0, 0, 0, 1, 0, 0, 1 });
+        p0_vertex = Vertex::AfterBuildingFreeSettlement;
+        p0_settlements = 1;
+        p0_public_victory_points = 1;
+        check();
 
         for (const auto& j_entry : g->junctions()) {
             const auto& j = j_entry.second;
@@ -294,9 +288,13 @@ TEST_CASE("Game initialization", "[Game]")
                                   { ArgType::NodeId, 4 } } });
         REQUIRE(r.type == ResType::Ok);
 
-        check_game(g, { false, false, false, false, false, true, false, 9, 0, 1, 1, 2, 4 });
-        check_player(g->players().at(0),
-                     { false, false, 0, Vertex::WaitForTurn, true, 0, 0, 0, 1, 0, 1, 1 });
+        is_first_round = false;
+        is_second_round = true;
+        round = 1;
+        turn = 1;
+        p0_vertex = Vertex::WaitForTurn;
+        p0_roads = 1;
+        check();
 
         actions = g->players().at(0)->get_available_actions();
 
@@ -307,12 +305,10 @@ TEST_CASE("Game initialization", "[Game]")
         }
 
         r = g->execute_action(0, { Edge::ToRoot, {} });
-
         REQUIRE(r.type == ResType::Ok);
 
-        check_game(g, { false, false, false, false, false, true, false, 9, 0, 1, 1, 2, 4 });
-        check_player(g->players().at(0),
-                     { false, false, 0, Vertex::Root, true, 0, 0, 0, 1, 0, 1, 1 });
+        p0_vertex = Vertex::Root;
+        check();
 
         actions = g->players().at(0)->get_available_actions();
 
@@ -349,10 +345,10 @@ TEST_CASE("Game initialization", "[Game]")
                 { ArgType::NodeId, 12 } } });
         REQUIRE(r.type == ResType::Ok);
 
-        check_game(g, { false, false, false, false, false, true, false, 9, 0, 1, 1, 2, 4 });
-        check_player(
-            g->players().at(0),
-            { false, false, 0, Vertex::AfterBuildingFreeSettlement, true, 0, 0, 0, 2, 0, 1, 2 });
+        p0_vertex = Vertex::AfterBuildingFreeSettlement;
+        p0_settlements = 2;
+        p0_public_victory_points = 2;
+        check();
 
         actions = g->players().at(0)->get_available_actions();
 
@@ -381,10 +377,9 @@ TEST_CASE("Game initialization", "[Game]")
                                   { ArgType::NodeId, 10 } } });
         REQUIRE(r.type == ResType::Ok);
 
-        check_game(g, { false, false, false, false, false, true, false, 9, 0, 1, 1, 2, 4 });
-        check_player(
-            g->players().at(0),
-            { false, false, 0, Vertex::ChooseInitialResources, true, 0, 0, 0, 2, 0, 2, 2 });
+        p0_vertex = Vertex::ChooseInitialResources;
+        p0_roads = 2;
+        check();
 
         actions = g->players().at(0)->get_available_actions();
 
@@ -405,9 +400,11 @@ TEST_CASE("Game initialization", "[Game]")
         r = g->execute_action(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 12 } } });
         REQUIRE(r.type == ResType::Ok);
 
-        check_game(g, { false, false, false, false, false, false, false, 9, 0, 2, 2, 2, 4 });
-        check_player(g->players().at(0),
-                     { false, false, 0, Vertex::WaitForTurn, true, 0, 0, 0, 2, 0, 2, 2 });
+        is_second_round = false;
+        round = 2;
+        turn = 2;
+        p0_vertex = Vertex::WaitForTurn;
+        check();
 
         actions = g->players().at(0)->get_available_actions();
 
@@ -420,9 +417,8 @@ TEST_CASE("Game initialization", "[Game]")
         r = g->execute_action(0, { Edge::ToRoot, {} });
         REQUIRE(r.type == ResType::Ok);
 
-        check_game(g, { false, false, false, false, false, false, false, 9, 0, 2, 2, 2, 4 });
-        check_player(g->players().at(0),
-                     { false, false, 0, Vertex::Root, true, 0, 0, 0, 2, 0, 2, 2 });
+        p0_vertex = Vertex::Root;
+        check();
 
         actions = g->players().at(0)->get_available_actions();
 
