@@ -762,4 +762,269 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         delete g;
         delete b;
     }
+
+    SECTION("Three players")
+    {
+        auto b = Board::get_triple_board();
+        auto s = get_triple_scenario();
+        auto p = get_triple_parameters(3);
+        auto g = Game::initialize(b, s, p);
+
+        bootstrap_tests();
+
+        REQUIRE(g->hexes().size() == 3);
+        REQUIRE(g->junctions().size() == 13);
+        REQUIRE(g->roads().size() == 15);
+        REQUIRE(g->players().size() == 3);
+
+        gs.robber_location = 30;
+        ps[0].is_current_player = true;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[2].vertex = Vertex::WaitForTurn;
+
+        check_state();
+        check_build_settlement(0, 13);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, build(Building::Settlement, 3));
+        settlements[3] = 0;
+        settlements[9] = -1;
+        settlements[10] = -1;
+        check_settlements();
+
+        ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[0].settlements = 1;
+        ps[0].public_victory_points = 1;
+        check_state();
+        check_build_road(0, 2);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, build(Building::Road, 5));
+        roads[5] = 0;
+        check_roads();
+
+        gs.turn = 1;
+        ps[0].is_current_player = false;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[0].roads = 1;
+        ps[1].is_current_player = true;
+        check_state();
+        check_no_actions(0);
+        check_to_root(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::ToRoot, {} });
+
+        ps[1].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_build_settlement(1, 10);
+
+        exec_ok(1, build(Building::Settlement, 4));
+        settlements[4] = 1;
+        settlements[11] = -1;
+        check_settlements();
+
+        ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[1].settlements = 1;
+        ps[1].public_victory_points = 1;
+        check_state();
+        check_no_actions(0);
+        check_build_road(1, 2);
+        check_no_actions(2);
+
+        exec_ok(1, build(Building::Road, 7));
+        roads[7] = 1;
+        check_roads();
+
+        gs.turn = 2;
+        ps[1].is_current_player = false;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[1].roads = 1;
+        ps[2].is_current_player = true;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_to_root(2);
+
+        exec_ok(2, { Edge::ToRoot, {} });
+
+        ps[2].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_build_settlement(2, 8);
+
+        exec_ok(2, build(Building::Settlement, 19));
+        settlements[19] = 2;
+        settlements[26] = -1;
+        check_settlements();
+
+        ps[2].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[2].settlements = 1;
+        ps[2].public_victory_points = 1;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_build_road(2, 2);
+
+        exec_ok(2, build(Building::Road, 13));
+        roads[13] = 2;
+        check_roads();
+
+        gs.is_first_round = false;
+        gs.is_second_round = true;
+        gs.turn = 3;
+        gs.round = 1;
+        ps[2].vertex = Vertex::WaitForTurn;
+        ps[2].roads = 1;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_to_root(2);
+
+        exec_ok(2, { Edge::ToRoot, {} });
+
+        ps[2].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_build_settlement(2, 6);
+
+        exec_ok(2, build(Building::Settlement, 20));
+        settlements[20] = 2;
+        settlements[27] = -1;
+        check_settlements();
+
+        ps[2].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[2].settlements = 2;
+        ps[2].public_victory_points = 2;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_build_road(2, 4);
+
+        exec_ok(2, build(Building::Road, 15));
+        roads[15] = 2;
+        check_roads();
+
+        ps[2].vertex = Vertex::ChooseInitialResources;
+        ps[2].roads = 2;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_choose_initial_resources(2);
+
+        exec_ok(2, { Edge::ChooseInitialResources, { { ArgType::NodeId, 20 } } });
+
+        gs.turn = 4;
+        ps[1].is_current_player = true;
+        ps[2].vertex = Vertex::WaitForTurn;
+        ps[2].is_current_player = false;
+        ps[2].num_resources = 2;
+        check_state();
+        check_no_actions(0);
+        check_to_root(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::ToRoot, {} });
+
+        ps[1].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_build_settlement(1, 4);
+        check_no_actions(2);
+
+        exec_ok(1, build(Building::Settlement, 21));
+        settlements[21] = 1;
+        check_settlements();
+
+        ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[1].settlements = 2;
+        ps[1].public_victory_points = 2;
+        check_state();
+        check_no_actions(0);
+        check_build_road(1, 4);
+        check_no_actions(2);
+
+        exec_ok(1, build(Building::Road, 17));
+        roads[17] = 1;
+        check_roads();
+
+        ps[1].vertex = Vertex::ChooseInitialResources;
+        ps[1].roads = 2;
+        check_state();
+        check_no_actions(0);
+        check_choose_initial_resources(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 4 } } });
+
+        gs.turn = 5;
+        ps[0].is_current_player = true;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[1].is_current_player = false;
+        ps[1].num_resources = 1;
+        check_state();
+        check_to_root(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        ps[0].vertex = Vertex::Root;
+        check_state();
+        check_build_settlement(0, 3);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, build(Building::Settlement, 37));
+        settlements[37] = 0;
+        settlements[33] = -1;
+        settlements[34] = -1;
+        check_settlements();
+
+        ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[0].settlements = 2;
+        ps[0].public_victory_points = 2;
+        check_state();
+        check_build_road(0, 3);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, build(Building::Road, 6));
+        roads[6] = 0;
+        check_roads();
+
+        ps[0].vertex = Vertex::ChooseInitialResources;
+        ps[0].roads = 2;
+        check_state();
+        check_choose_initial_resources(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 37 } } });
+
+        gs.is_second_round = false;
+        gs.turn = 6;
+        gs.round = 2;
+        ps[0].vertex = Vertex::WaitForTurn;
+        check_state();
+        check_to_root(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        ps[0].vertex = Vertex::Root;
+        check_state();
+        check_roll_dice(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        delete g;
+        delete b;
+    }
 }
