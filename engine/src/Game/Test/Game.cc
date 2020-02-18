@@ -360,6 +360,35 @@ void _check_single_action(k10engine::Game::Game* g, size_t player_id, const Edge
     }
 }
 
+void check_settlements(k10engine::Game::Game* g,
+                       const std::map<int, std::set<int>> settlements,
+                       std::set<int> unsettleable)
+{
+    for (const auto& j_entry : g->junctions()) {
+        const auto& j = j_entry.second;
+        if (unsettleable.find(j->index()) == unsettleable.end()) {
+            REQUIRE(j->is_settleable() == true);
+            REQUIRE(j->owner() == nullptr);
+        } else {
+            REQUIRE(j->is_settleable() == false);
+            if (j->owner() != nullptr) {
+                const int owner_id = j->owner()->index();
+                const auto& expected_owned_settlements = settlements.at(owner_id);
+                REQUIRE(expected_owned_settlements.find(j->index())
+                        != expected_owned_settlements.end());
+                bool found = false;
+                for (const auto& s : j->owner()->settlements()) {
+                    if (s->index() == j->index()) {
+                        found = true;
+                        break;
+                    }
+                }
+                REQUIRE(found == true);
+            }
+        }
+    }
+}
+
 // NOLINTNEXTLINE(google-readability-function-size)
 TEST_CASE("Single board", "[Game] [Game.Single]")
 {
@@ -410,18 +439,13 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_build_settlement(0, 6);
 
         exec_ok(0, build(Building::Settlement, 2));
+        check_settlements(g, { { 0, { 2 } } }, { 2, 5, 6 });
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
         ps[0].public_victory_points = 1;
         check_state();
         check_build_road(0, 2);
-
-        for (const auto& j_entry : g->junctions()) {
-            const auto& j = j_entry.second;
-            REQUIRE(j->is_settleable() == (j->index() > 6));
-            REQUIRE(j->owner() == (j->index() == 2 ? g->players().at(0) : nullptr));
-        }
 
         exec_ok(0, build(Building::Road, 4));
 
@@ -441,6 +465,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_build_settlement(0, 3);
 
         exec_ok(0, build(Building::Settlement, 12));
+        check_settlements(g, { { 0, { 2, 12 } } }, { 2, 5, 6, 12, 16 });
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
@@ -525,22 +550,13 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_settlement(0, 13);
 
         exec_ok(0, build(Building::Settlement, 20));
+        check_settlements(g, { { 0, { 20 } } }, { 10, 20, 26, 27 });
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
         ps[0].public_victory_points = 1;
         check_state();
         check_build_road(0, 3);
-
-        for (const auto& j_entry : g->junctions()) {
-            const auto& j = j_entry.second;
-            if (j->index() == 10 || j->index() == 20 || j->index() == 26 || j->index() == 27) {
-                REQUIRE(j->is_settleable() == false);
-            } else {
-                REQUIRE(j->is_settleable() == true);
-            }
-            REQUIRE(j->owner() == (j->index() == 20 ? g->players().at(0) : nullptr));
-        }
 
         exec_ok(0, build(Building::Road, 15));
 
@@ -560,6 +576,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_settlement(0, 9);
 
         exec_ok(0, build(Building::Settlement, 3));
+        check_settlements(g, { { 0, { 3, 20 } } }, { 3, 9, 10, 20, 26, 27 });
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
@@ -644,6 +661,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         exec_error(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
         exec_ok(0, build(Building::Settlement, 20));
+        check_settlements(g, { { 0, { 20 } } }, { 10, 20, 26, 27 });
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
@@ -651,16 +669,6 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_state();
         check_build_road(0, 3);
         check_no_actions(1);
-
-        for (const auto& j_entry : g->junctions()) {
-            const auto& j = j_entry.second;
-            if (j->index() == 10 || j->index() == 20 || j->index() == 26 || j->index() == 27) {
-                REQUIRE(j->is_settleable() == false);
-            } else {
-                REQUIRE(j->is_settleable() == true);
-            }
-            REQUIRE(j->owner() == (j->index() == 20 ? g->players().at(0) : nullptr));
-        }
 
         exec_error(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
         exec_ok(0, build(Building::Road, 15));
@@ -683,6 +691,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_settlement(1, 9);
 
         exec_ok(1, build(Building::Settlement, 3));
+        check_settlements(g, { { 0, { 20 } }, { 1, { 3 } } }, { 3, 9, 10, 20, 26, 27 });
 
         ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[1].settlements = 1;
@@ -713,6 +722,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_settlement(1, 7);
 
         exec_ok(1, build(Building::Settlement, 33));
+        check_settlements(g, { { 0, { 20 } }, { 1, { 3, 33 } } }, { 3, 9, 10, 20, 26, 27, 33, 37 });
 
         ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[1].settlements = 2;
@@ -748,6 +758,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_no_actions(1);
 
         exec_ok(0, build(Building::Settlement, 34));
+        check_settlements(
+            g, { { 0, { 20, 34 } }, { 1, { 3, 33 } } }, { 3, 9, 10, 20, 26, 27, 33, 34, 37 });
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
