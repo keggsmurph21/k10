@@ -384,7 +384,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
                 check_player(g->players().at(i), ps.at(i));
             }
         };
-        const auto exec_result = [&](size_t pid, const Action& a, const ResType& rt) {
+        const auto exec_error = [&](size_t pid, const Action& a, const ResType& rt) {
             _exec_result(g, pid, a, rt);
         };
         const auto exec_ok = [&](size_t pid, const Action& a) {
@@ -499,7 +499,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
                 check_player(g->players().at(i), ps.at(i));
             }
         };
-        const auto exec_result = [&](size_t pid, const Action& a, const ResType& rt) {
+        const auto exec_error = [&](size_t pid, const Action& a, const ResType& rt) {
             _exec_result(g, pid, a, rt);
         };
         const auto exec_ok = [&](size_t pid, const Action& a) {
@@ -615,7 +615,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
                 check_player(g->players().at(i), ps.at(i));
             }
         };
-        const auto exec_result = [&](size_t pid, const Action& a, const ResType& rt) {
+        const auto exec_error = [&](size_t pid, const Action& a, const ResType& rt) {
             _exec_result(g, pid, a, rt);
         };
         const auto exec_ok = [&](size_t pid, const Action& a) {
@@ -642,7 +642,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_settlement(0, 13);
         check_no_actions(1);
 
-        exec_result(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
+        exec_error(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
         exec_ok(0, build(Building::Settlement, 20));
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
@@ -662,7 +662,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
             REQUIRE(j->owner() == (j->index() == 20 ? g->players().at(0) : nullptr));
         }
 
-        exec_result(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
+        exec_error(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
         exec_ok(0, build(Building::Road, 15));
 
         gs.turn = 1;
@@ -674,7 +674,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_to_root(1);
 
-        exec_result(0, { Edge::ToRoot, {} }, ResType::InvalidEdgeChoice);
+        exec_error(0, { Edge::ToRoot, {} }, ResType::InvalidEdgeChoice);
         exec_ok(1, { Edge::ToRoot, {} });
 
         ps[1].vertex = Vertex::Root;
@@ -691,7 +691,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_build_road(1, 2);
 
-        exec_result(0, build(Building::Settlement, 4), ResType::InvalidEdgeChoice);
+        exec_error(0, build(Building::Settlement, 4), ResType::InvalidEdgeChoice);
         exec_ok(1, build(Building::Road, 6));
 
         gs.is_first_round = false;
@@ -704,7 +704,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_to_root(1);
 
-        exec_result(0, { Edge::ToRoot, {} }, ResType::InvalidEdgeChoice);
+        exec_error(0, { Edge::ToRoot, {} }, ResType::InvalidEdgeChoice);
         exec_ok(1, { Edge::ToRoot, {} });
 
         ps[1].vertex = Vertex::Root;
