@@ -593,6 +593,198 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         delete g;
         delete b;
     }
+
+    SECTION("Two players")
+    {
+        auto b = k10engine::Board::get_triple_board();
+        auto s = get_triple_scenario();
+        auto p = get_triple_parameters(2);
+        auto g = k10engine::Game::initialize(b, s, p);
+
+        REQUIRE(g->hexes().size() == 3);
+        REQUIRE(g->junctions().size() == 13);
+        REQUIRE(g->roads().size() == 15);
+        REQUIRE(g->players().size() == 2);
+
+        GameState gs;
+        auto ps = std::vector<PlayerState>(g->players().size());
+
+        const auto check_state = [&]() -> void {
+            check_game(g, gs);
+            for (int i = 0; i < g->players().size(); ++i) {
+                check_player(g->players().at(i), ps.at(i));
+            }
+        };
+        const auto exec_result = [&](size_t pid, const Action& a, const ResType& rt) {
+            _exec_result(g, pid, a, rt);
+        };
+        const auto exec_ok = [&](size_t pid, const Action& a) {
+            _exec_result(g, pid, a, ResType::Ok);
+        };
+        const auto check_no_actions = [&](size_t pid) { _check_no_actions(g, pid); };
+        const auto check_build_settlement = [&](size_t pid, size_t n) {
+            _check_build_settlement(g, pid, n);
+        };
+        const auto check_build_road = [&](size_t pid, size_t n) { _check_build_road(g, pid, n); };
+        const auto check_to_root = [&](size_t pid) { _check_single_action(g, pid, Edge::ToRoot); };
+        const auto check_choose_initial_resources = [&](size_t pid) {
+            _check_choose_initial_resources(g, pid);
+        };
+        const auto check_roll_dice = [&](size_t pid) {
+            _check_single_action(g, pid, Edge::RollDice);
+        };
+
+        gs.robber_location = 30;
+        ps[0].is_current_player = true;
+        ps[1].vertex = Vertex::WaitForTurn;
+
+        check_state();
+        check_build_settlement(0, 13);
+        check_no_actions(1);
+
+        exec_result(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
+        exec_ok(0, build(Building::Settlement, 20));
+
+        ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[0].settlements = 1;
+        ps[0].public_victory_points = 1;
+        check_state();
+        check_build_road(0, 3);
+        check_no_actions(1);
+
+        for (const auto& j_entry : g->junctions()) {
+            const auto& j = j_entry.second;
+            if (j->index() == 10 || j->index() == 20 || j->index() == 26 || j->index() == 27) {
+                REQUIRE(j->is_settleable() == false);
+            } else {
+                REQUIRE(j->is_settleable() == true);
+            }
+            REQUIRE(j->owner() == (j->index() == 20 ? g->players().at(0) : nullptr));
+        }
+
+        exec_result(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
+        exec_ok(0, build(Building::Road, 15));
+
+        gs.turn = 1;
+        ps[0].is_current_player = false;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[0].roads = 1;
+        ps[1].is_current_player = true;
+        check_state();
+        check_no_actions(0);
+        check_to_root(1);
+
+        exec_result(0, { Edge::ToRoot, {} }, ResType::InvalidEdgeChoice);
+        exec_ok(1, { Edge::ToRoot, {} });
+
+        ps[1].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_build_settlement(1, 9);
+
+        exec_ok(1, build(Building::Settlement, 3));
+
+        ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[1].settlements = 1;
+        ps[1].public_victory_points = 1;
+        check_state();
+        check_no_actions(0);
+        check_build_road(1, 2);
+
+        exec_result(0, build(Building::Settlement, 4), ResType::InvalidEdgeChoice);
+        exec_ok(1, build(Building::Road, 6));
+
+        gs.is_first_round = false;
+        gs.is_second_round = true;
+        gs.round = 1;
+        gs.turn = 2;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[1].roads = 1;
+        check_state();
+        check_no_actions(0);
+        check_to_root(1);
+
+        exec_result(0, { Edge::ToRoot, {} }, ResType::InvalidEdgeChoice);
+        exec_ok(1, { Edge::ToRoot, {} });
+
+        ps[1].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_build_settlement(1, 7);
+
+        exec_ok(1, build(Building::Settlement, 33));
+
+        ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[1].settlements = 2;
+        ps[1].public_victory_points = 2;
+        check_state();
+        check_no_actions(0);
+        check_build_road(1, 4);
+
+        exec_ok(1, build(Building::Road, 29));
+
+        ps[1].vertex = Vertex::ChooseInitialResources;
+        ps[1].roads = 2;
+        check_state();
+        check_no_actions(0);
+        check_choose_initial_resources(1);
+
+        exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 3 } } });
+
+        gs.turn = 3;
+        ps[0].is_current_player = true;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[1].is_current_player = false;
+        ps[1].num_resources = 1;
+        check_state();
+        check_to_root(0);
+        check_no_actions(1);
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        ps[0].vertex = Vertex::Root;
+        check_state();
+        check_build_settlement(0, 5);
+        check_no_actions(1);
+
+        exec_ok(0, build(Building::Settlement, 34));
+
+        ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[0].settlements = 2;
+        ps[0].public_victory_points = 2;
+        check_state();
+        check_build_road(0, 5);
+        check_no_actions(1);
+
+        exec_ok(0, build(Building::Road, 7));
+
+        ps[0].vertex = Vertex::ChooseInitialResources;
+        ps[0].roads = 2;
+        check_state();
+        check_choose_initial_resources(0);
+        check_no_actions(1);
+
+        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 20 } } });
+
+        gs.is_second_round = false;
+        gs.turn = 4;
+        gs.round = 2;
+        ps[0].num_resources = 2;
+        ps[0].vertex = Vertex::WaitForTurn;
+        check_state();
+        check_to_root(0);
+        check_no_actions(1);
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        ps[0].vertex = Vertex::Root;
+        check_state();
+        check_roll_dice(0);
+        check_no_actions(1);
+
+        delete g;
+        delete b;
+    }
 }
 
 } // namespace k10engine::Game
