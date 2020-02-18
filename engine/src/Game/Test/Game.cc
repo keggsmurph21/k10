@@ -82,9 +82,16 @@ namespace k10engine::Game {
 
 using Edge = k10engine::State::Edge;
 using Vertex = k10engine::State::Vertex;
+using Action = k10engine::Game::Action;
 using ArgType = k10engine::Game::ActionArgumentType;
 using ResType = k10engine::Game::ResultType;
 using Building = k10engine::Building;
+
+Action build(Building b, size_t node_id)
+{
+    return { Edge::Build,
+             { { ArgType::BuildItemId, static_cast<size_t>(b) }, { ArgType::NodeId, node_id } } };
+}
 
 // NOLINTNEXTLINE(google-readability-function-size)
 TEST_CASE("Game initialization", "[Game]")
@@ -95,11 +102,6 @@ TEST_CASE("Game initialization", "[Game]")
         auto s = get_single_scenario();
         auto p = get_single_parameters();
         auto g = k10engine::Game::initialize(b, s, p);
-
-        REQUIRE(g->hexes().size() == 1);
-        REQUIRE(g->junctions().size() == 6);
-        REQUIRE(g->roads().size() == 6);
-        REQUIRE(g->players().size() == 1);
 
         bool can_steal = false;
         bool has_rolled = false;
@@ -176,10 +178,24 @@ TEST_CASE("Game initialization", "[Game]")
                     == p0_settlements); // NOLINT(readability-container-size-empty)
         };
 
+        const auto exec_result =
+            [&](size_t player_id, const Action& action, ResType res_type) -> void {
+            const auto& res = g->execute_action(player_id, action);
+            REQUIRE(res.type == res_type);
+        };
+
+        const auto exec_ok = [&](size_t player_id, const Action& action) -> void {
+            exec_result(player_id, action, ResType::Ok);
+        };
+
         check();
 
-        std::vector<k10engine::Game::Action> actions;
-        Result r;
+        REQUIRE(g->hexes().size() == 1);
+        REQUIRE(g->junctions().size() == 6);
+        REQUIRE(g->roads().size() == 6);
+        REQUIRE(g->players().size() == 1);
+
+        std::vector<Action> actions;
 
         actions = g->players().at(0)->get_available_actions();
         REQUIRE(actions.size() == 6);
@@ -194,42 +210,21 @@ TEST_CASE("Game initialization", "[Game]")
             REQUIRE(g->junctions().at(node_id)->is_settleable() == true);
         }
 
-        r = g->execute_action(1, { Edge::AcceptTrade, {} });
-        REQUIRE(r.type == ResType::InvalidPlayerId);
-        r = g->execute_action(0, { Edge::AcceptTrade, {} });
-        REQUIRE(r.type == ResType::InvalidEdgeChoice);
-        r = g->execute_action(0, { Edge::Build, {} });
-        REQUIRE(r.type == ResType::InvalidNumberOfArgs);
-        r = g->execute_action(0,
-                              { Edge::Build, { { ArgType::NodeId, 1 }, { ArgType::NodeId, 1 } } });
-        REQUIRE(r.type == ResType::InvalidArgumentType);
-        r = g->execute_action(
-            0,
-            { Edge::Build,
-              { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },
-                { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) } } });
-        REQUIRE(r.type == ResType::InvalidArgumentType);
-        r = g->execute_action(
-            0,
-            { Edge::Build,
-              { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },
-                { ArgType::NodeId, 1000 } } });
-        REQUIRE(r.type == ResType::NodeIdOutOfRange);
-        r = g->execute_action(
-            0,
-            { Edge::Build,
-              { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },
-                { ArgType::NodeId, 1 } } });
-        REQUIRE(r.type == ResType::InvalidNodeId);
-
-        r = g->execute_action(
-            0,
-            { Edge::Build,
-              { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },
-                { ArgType::NodeId, 2 } } });
-        REQUIRE(r.type == ResType::Ok);
-
+        exec_result(1, { Edge::AcceptTrade, {} }, ResType::InvalidPlayerId);
+        exec_result(0, { Edge::AcceptTrade, {} }, ResType::InvalidEdgeChoice);
+        exec_result(0, { Edge::Build, {} }, ResType::InvalidNumberOfArgs);
+        exec_result(0,
+                    { Edge::Build, { { ArgType::NodeId, 1 }, { ArgType::NodeId, 1 } } },
+                    ResType::InvalidArgumentType);
+        exec_result(0,
+                    { Edge::Build,
+                      { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },
+                        { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) } } },
+                    ResType::InvalidArgumentType);
+        exec_result(0, build(Building::Settlement, 1000), ResType::NodeIdOutOfRange);
+        exec_result(0, build(Building::Settlement, 1), ResType::InvalidNodeId);
         // NB: Can't test ::JunctionNotSettleable yet
+        exec_ok(0, build(Building::Settlement, 2));
 
         p0_vertex = Vertex::AfterBuildingFreeSettlement;
         p0_settlements = 1;
@@ -256,37 +251,20 @@ TEST_CASE("Game initialization", "[Game]")
             REQUIRE(g->roads().at(node_id)->owner() == nullptr);
         }
 
-        r = g->execute_action(1, { Edge::AcceptTrade, {} });
-        REQUIRE(r.type == ResType::InvalidPlayerId);
-        r = g->execute_action(0, { Edge::AcceptTrade, {} });
-        REQUIRE(r.type == ResType::InvalidEdgeChoice);
-        r = g->execute_action(0, { Edge::Build, {} });
-        REQUIRE(r.type == ResType::InvalidNumberOfArgs);
-        r = g->execute_action(0,
-                              { Edge::Build, { { ArgType::NodeId, 4 }, { ArgType::NodeId, 4 } } });
-        REQUIRE(r.type == ResType::InvalidArgumentType);
-        r = g->execute_action(
-            0,
-            { Edge::Build,
-              { { ArgType::BuildItemId, static_cast<size_t>(Building::Road) },
-                { ArgType::BuildItemId, static_cast<size_t>(Building::Road) } } });
-        REQUIRE(r.type == ResType::InvalidArgumentType);
-        r = g->execute_action(0,
-                              { Edge::Build,
-                                { { ArgType::BuildItemId, static_cast<size_t>(Building::Road) },
-                                  { ArgType::NodeId, 1000 } } });
-        REQUIRE(r.type == ResType::NodeIdOutOfRange);
-        r = g->execute_action(0,
-                              { Edge::Build,
-                                { { ArgType::BuildItemId, static_cast<size_t>(Building::Road) },
-                                  { ArgType::NodeId, 1 } } });
-        REQUIRE(r.type == ResType::InvalidNodeId);
-
-        r = g->execute_action(0,
-                              { Edge::Build,
-                                { { ArgType::BuildItemId, static_cast<size_t>(Building::Road) },
-                                  { ArgType::NodeId, 4 } } });
-        REQUIRE(r.type == ResType::Ok);
+        exec_result(1, { Edge::AcceptTrade, {} }, ResType::InvalidPlayerId);
+        exec_result(0, { Edge::AcceptTrade, {} }, ResType::InvalidEdgeChoice);
+        exec_result(0, { Edge::Build, {} }, ResType::InvalidNumberOfArgs);
+        exec_result(0,
+                    { Edge::Build, { { ArgType::NodeId, 4 }, { ArgType::NodeId, 4 } } },
+                    ResType::InvalidArgumentType);
+        exec_result(0,
+                    { Edge::Build,
+                      { { ArgType::BuildItemId, static_cast<size_t>(Building::Road) },
+                        { ArgType::BuildItemId, static_cast<size_t>(Building::Road) } } },
+                    ResType::InvalidArgumentType);
+        exec_result(0, build(Building::Road, 1000), ResType::NodeIdOutOfRange);
+        exec_result(0, build(Building::Road, 1), ResType::InvalidNodeId);
+        exec_ok(0, build(Building::Road, 4));
 
         is_first_round = false;
         is_second_round = true;
@@ -304,8 +282,7 @@ TEST_CASE("Game initialization", "[Game]")
             REQUIRE(action.args.size() == 0); // NOLINT(readability-container-size-empty)
         }
 
-        r = g->execute_action(0, { Edge::ToRoot, {} });
-        REQUIRE(r.type == ResType::Ok);
+        exec_ok(0, { Edge::ToRoot, {} });
 
         p0_vertex = Vertex::Root;
         check();
@@ -324,26 +301,9 @@ TEST_CASE("Game initialization", "[Game]")
             REQUIRE(g->junctions().at(node_id)->is_settleable() == true);
         }
 
-        r = g->execute_action(
-            0,
-            { Edge::Build,
-              { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },
-                { ArgType::NodeId, 5 } } });
-        REQUIRE(r.type == ResType::JunctionNotSettleable);
-
-        r = g->execute_action(
-            0,
-            { Edge::Build,
-              { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },
-                { ArgType::NodeId, 6 } } });
-        REQUIRE(r.type == ResType::JunctionNotSettleable);
-
-        r = g->execute_action(
-            0,
-            { Edge::Build,
-              { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },
-                { ArgType::NodeId, 12 } } });
-        REQUIRE(r.type == ResType::Ok);
+        exec_result(0, build(Building::Settlement, 5), ResType::JunctionNotSettleable);
+        exec_result(0, build(Building::Settlement, 6), ResType::JunctionNotSettleable);
+        exec_ok(0, build(Building::Settlement, 12));
 
         p0_vertex = Vertex::AfterBuildingFreeSettlement;
         p0_settlements = 2;
@@ -364,18 +324,8 @@ TEST_CASE("Game initialization", "[Game]")
             REQUIRE(g->roads().at(node_id)->owner() == nullptr);
         }
 
-        r = g->execute_action(
-            0,
-            { Edge::Build,
-              { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },
-                { ArgType::NodeId, 13 } } });
-        REQUIRE(r.type == ResType::InvalidEdgeChoice);
-
-        r = g->execute_action(0,
-                              { Edge::Build,
-                                { { ArgType::BuildItemId, static_cast<size_t>(Building::Road) },
-                                  { ArgType::NodeId, 10 } } });
-        REQUIRE(r.type == ResType::Ok);
+        exec_result(0, build(Building::Settlement, 13), ResType::InvalidEdgeChoice);
+        exec_ok(0, build(Building::Road, 10));
 
         p0_vertex = Vertex::ChooseInitialResources;
         p0_roads = 2;
@@ -397,8 +347,7 @@ TEST_CASE("Game initialization", "[Game]")
                     != settlements.end());
         }
 
-        r = g->execute_action(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 12 } } });
-        REQUIRE(r.type == ResType::Ok);
+        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 12 } } });
 
         is_second_round = false;
         round = 2;
@@ -414,8 +363,7 @@ TEST_CASE("Game initialization", "[Game]")
             REQUIRE(action.args.size() == 0); // NOLINT(readability-container-size-empty)
         }
 
-        r = g->execute_action(0, { Edge::ToRoot, {} });
-        REQUIRE(r.type == ResType::Ok);
+        exec_ok(0, { Edge::ToRoot, {} });
 
         p0_vertex = Vertex::Root;
         check();
