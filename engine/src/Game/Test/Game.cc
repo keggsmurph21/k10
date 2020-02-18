@@ -360,51 +360,37 @@ void _check_single_action(k10engine::Game::Game* g, size_t player_id, const Edge
     }
 }
 
-void check_settlements(k10engine::Game::Game* g,
-                       const std::map<int, std::set<int>> settlements,
-                       std::set<int> unsettleable)
+void _check_settlements(k10engine::Game::Game* g, const std::map<int, int>& jid_to_pid)
 {
     for (const auto& j_entry : g->junctions()) {
         const auto& j = j_entry.second;
-        if (unsettleable.find(j->index()) == unsettleable.end()) {
+        const auto& map_entry = jid_to_pid.find(j->index());
+        if (map_entry == jid_to_pid.end()) {
             REQUIRE(j->is_settleable() == true);
             REQUIRE(j->owner() == nullptr);
         } else {
             REQUIRE(j->is_settleable() == false);
-            if (j->owner() != nullptr) {
-                const int owner_id = j->owner()->index();
-                const auto& expected_owned_settlements = settlements.at(owner_id);
-                REQUIRE(expected_owned_settlements.find(j->index())
-                        != expected_owned_settlements.end());
-                bool found = false;
-                for (const auto& s : j->owner()->settlements()) {
-                    if (s->index() == j->index()) {
-                        found = true;
-                        break;
-                    }
-                }
-                REQUIRE(found == true);
+            const auto& pid = jid_to_pid.at(j->index());
+            if (pid == -1) {
+                REQUIRE(j->owner() == nullptr);
+            } else {
+                REQUIRE(j->owner() != nullptr);
+                REQUIRE(j->owner()->index() == pid);
             }
         }
     }
 }
 
-void check_roads(k10engine::Game::Game* g, const std::map<int, std::set<int>>& roads)
+void _check_roads(k10engine::Game::Game* g, const std::map<int, int>& rid_to_pid)
 {
     for (const auto& r_entry : g->roads()) {
         const auto& r = r_entry.second;
-        if (r->owner() != nullptr) {
-            const int owner_id = r->owner()->index();
-            const auto& expected_owned_roads = roads.at(owner_id);
-            REQUIRE(expected_owned_roads.find(r->index()) != expected_owned_roads.end());
-            bool found = false;
-            for (const auto& actual_r : r->owner()->roads()) {
-                if (actual_r->index() == r->index()) {
-                    found = true;
-                    break;
-                }
-            }
-            REQUIRE(found == true);
+        const auto& map_entry = rid_to_pid.find(r->index());
+        if (map_entry == rid_to_pid.end()) {
+            REQUIRE(r->owner() == nullptr);
+        } else {
+            const auto& pid = rid_to_pid.at(r->index());
+            REQUIRE(r->owner()->index() == pid);
         }
     }
 }
@@ -426,6 +412,8 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
 
         GameState gs;
         auto ps = std::vector<PlayerState>(g->players().size());
+        std::map<int, int> settlements;
+        std::map<int, int> roads;
 
         const auto check_state = [&]() -> void {
             check_game(g, gs);
@@ -451,6 +439,8 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         const auto check_roll_dice = [&](size_t pid) {
             _check_single_action(g, pid, Edge::RollDice);
         };
+        const auto check_settlements = [&]() { _check_settlements(g, settlements); };
+        const auto check_roads = [&]() { _check_roads(g, roads); };
 
         gs.robber_location = 9;
         ps[0].is_current_player = true;
@@ -459,7 +449,10 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_build_settlement(0, 6);
 
         exec_ok(0, build(Building::Settlement, 2));
-        check_settlements(g, { { 0, { 2 } } }, { 2, 5, 6 });
+        settlements[2] = 0;
+        settlements[5] = -1;
+        settlements[6] = -1;
+        check_settlements();
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
@@ -468,7 +461,8 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_build_road(0, 2);
 
         exec_ok(0, build(Building::Road, 4));
-        check_roads(g, { { 0, { 4 } } });
+        roads[4] = 0;
+        check_roads();
 
         gs.is_first_round = false;
         gs.is_second_round = true;
@@ -486,7 +480,9 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_build_settlement(0, 3);
 
         exec_ok(0, build(Building::Settlement, 12));
-        check_settlements(g, { { 0, { 2, 12 } } }, { 2, 5, 6, 12, 16 });
+        settlements[12] = 0;
+        settlements[16] = -1;
+        check_settlements();
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
@@ -495,7 +491,8 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_build_road(0, 4);
 
         exec_ok(0, build(Building::Road, 10));
-        check_roads(g, { { 0, { 4, 10 } } });
+        roads[10] = 0;
+        check_roads();
 
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
@@ -539,6 +536,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         GameState gs;
         auto ps = std::vector<PlayerState>(g->players().size());
+        std::map<int, int> settlements;
+        std::map<int, int> roads;
 
         const auto check_state = [&]() -> void {
             check_game(g, gs);
@@ -564,6 +563,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         const auto check_roll_dice = [&](size_t pid) {
             _check_single_action(g, pid, Edge::RollDice);
         };
+        const auto check_settlements = [&]() { _check_settlements(g, settlements); };
+        const auto check_roads = [&]() { _check_roads(g, roads); };
 
         gs.robber_location = 30;
         ps[0].is_current_player = true;
@@ -572,7 +573,11 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_settlement(0, 13);
 
         exec_ok(0, build(Building::Settlement, 20));
-        check_settlements(g, { { 0, { 20 } } }, { 10, 20, 26, 27 });
+        settlements[20] = 0;
+        settlements[10] = -1;
+        settlements[26] = -1;
+        settlements[27] = -1;
+        check_settlements();
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
@@ -581,7 +586,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_road(0, 3);
 
         exec_ok(0, build(Building::Road, 15));
-        check_roads(g, { { 0, { 15 } } });
+        roads[15] = 0;
+        check_roads();
 
         gs.is_first_round = false;
         gs.is_second_round = true;
@@ -599,7 +605,9 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_settlement(0, 9);
 
         exec_ok(0, build(Building::Settlement, 3));
-        check_settlements(g, { { 0, { 3, 20 } } }, { 3, 9, 10, 20, 26, 27 });
+        settlements[3] = 0;
+        settlements[9] = -1;
+        check_settlements();
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
@@ -608,7 +616,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_road(0, 5);
 
         exec_ok(0, build(Building::Road, 7));
-        check_roads(g, { { 0, { 7, 15 } } });
+        roads[7] = 0;
+        check_roads();
 
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
@@ -649,6 +658,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         GameState gs;
         auto ps = std::vector<PlayerState>(g->players().size());
+        std::map<int, int> settlements;
+        std::map<int, int> roads;
 
         const auto check_state = [&]() -> void {
             check_game(g, gs);
@@ -674,6 +685,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         const auto check_roll_dice = [&](size_t pid) {
             _check_single_action(g, pid, Edge::RollDice);
         };
+        const auto check_settlements = [&]() { _check_settlements(g, settlements); };
+        const auto check_roads = [&]() { _check_roads(g, roads); };
 
         gs.robber_location = 30;
         ps[0].is_current_player = true;
@@ -685,7 +698,11 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         exec_error(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
         exec_ok(0, build(Building::Settlement, 20));
-        check_settlements(g, { { 0, { 20 } } }, { 10, 20, 26, 27 });
+        settlements[20] = 0;
+        settlements[10] = -1;
+        settlements[26] = -1;
+        settlements[27] = -1;
+        check_settlements();
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
@@ -696,7 +713,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         exec_error(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
         exec_ok(0, build(Building::Road, 15));
-        check_roads(g, { { 0, { 15 } } });
+        roads[15] = 0;
+        check_roads();
 
         gs.turn = 1;
         ps[0].is_current_player = false;
@@ -716,7 +734,9 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_settlement(1, 9);
 
         exec_ok(1, build(Building::Settlement, 3));
-        check_settlements(g, { { 0, { 20 } }, { 1, { 3 } } }, { 3, 9, 10, 20, 26, 27 });
+        settlements[3] = 1;
+        settlements[9] = -1;
+        check_settlements();
 
         ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[1].settlements = 1;
@@ -727,7 +747,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         exec_error(0, build(Building::Settlement, 4), ResType::InvalidEdgeChoice);
         exec_ok(1, build(Building::Road, 6));
-        check_roads(g, { { 0, { 15 } }, { 1, { 6 } } });
+        roads[6] = 1;
+        check_roads();
 
         gs.is_first_round = false;
         gs.is_second_round = true;
@@ -748,7 +769,9 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_settlement(1, 7);
 
         exec_ok(1, build(Building::Settlement, 33));
-        check_settlements(g, { { 0, { 20 } }, { 1, { 3, 33 } } }, { 3, 9, 10, 20, 26, 27, 33, 37 });
+        settlements[33] = 1;
+        settlements[37] = -1;
+        check_settlements();
 
         ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[1].settlements = 2;
@@ -758,7 +781,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_road(1, 4);
 
         exec_ok(1, build(Building::Road, 29));
-        check_roads(g, { { 0, { 15 } }, { 1, { 6, 29 } } });
+        roads[29] = 1;
+        check_roads();
 
         ps[1].vertex = Vertex::ChooseInitialResources;
         ps[1].roads = 2;
@@ -785,8 +809,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_no_actions(1);
 
         exec_ok(0, build(Building::Settlement, 34));
-        check_settlements(
-            g, { { 0, { 20, 34 } }, { 1, { 3, 33 } } }, { 3, 9, 10, 20, 26, 27, 33, 34, 37 });
+        settlements[34] = 0;
+        check_settlements();
 
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
@@ -796,7 +820,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_no_actions(1);
 
         exec_ok(0, build(Building::Road, 7));
-        check_roads(g, { { 0, { 7, 15 } }, { 1, { 6, 29 } } });
+        roads[7] = 0;
+        check_roads();
 
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
