@@ -381,6 +381,61 @@ TEST_CASE("Game initialization", "[Game]")
                                   { ArgType::NodeId, 10 } } });
         REQUIRE(r.type == ResType::Ok);
 
+        check_game(g, { false, false, false, false, false, true, false, 9, 0, 1, 1, 2, 4 });
+        check_player(
+            g->players().at(0),
+            { false, false, 0, Vertex::ChooseInitialResources, true, 0, 0, 0, 2, 0, 2, 2 });
+
+        actions = g->players().at(0)->get_available_actions();
+
+        REQUIRE(actions.size() == 2);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::ChooseInitialResources);
+            REQUIRE(action.args.size() == 1);
+            REQUIRE(action.args.at(0).type == ArgType::NodeId);
+            const auto node_id = action.args.at(0).value;
+            REQUIRE(g->junctions().find(node_id) != g->junctions().end());
+            const auto junction = g->junctions().at(node_id);
+            REQUIRE(junction->owner() == g->players().at(0));
+            const auto settlements = g->players().at(0)->settlements();
+            REQUIRE(std::find(settlements.begin(), settlements.end(), junction)
+                    != settlements.end());
+        }
+
+        r = g->execute_action(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 12 } } });
+        REQUIRE(r.type == ResType::Ok);
+
+        check_game(g, { false, false, false, false, false, false, false, 9, 0, 2, 2, 2, 4 });
+        check_player(g->players().at(0),
+                     { false, false, 0, Vertex::WaitForTurn, true, 0, 0, 0, 2, 0, 2, 2 });
+
+        actions = g->players().at(0)->get_available_actions();
+
+        REQUIRE(actions.size() == 1);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::ToRoot);
+            REQUIRE(action.args.size() == 0); // NOLINT(readability-container-size-empty)
+        }
+
+        r = g->execute_action(0, { Edge::ToRoot, {} });
+        REQUIRE(r.type == ResType::Ok);
+
+        check_game(g, { false, false, false, false, false, false, false, 9, 0, 2, 2, 2, 4 });
+        check_player(g->players().at(0),
+                     { false, false, 0, Vertex::Root, true, 0, 0, 0, 2, 0, 2, 2 });
+
+        actions = g->players().at(0)->get_available_actions();
+
+        REQUIRE(actions.size() == 1);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::RollDice);
+            REQUIRE(action.args.size() == 0); // NOLINT(readability-container-size-empty)
+        }
+
+        for (const auto& action : g->players().at(0)->get_available_actions()) {
+            std::cout << action << std::endl;
+        }
+
         delete g;
         delete b;
     }
