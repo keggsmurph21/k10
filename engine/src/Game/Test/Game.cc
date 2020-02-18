@@ -389,6 +389,26 @@ void check_settlements(k10engine::Game::Game* g,
     }
 }
 
+void check_roads(k10engine::Game::Game* g, const std::map<int, std::set<int>>& roads)
+{
+    for (const auto& r_entry : g->roads()) {
+        const auto& r = r_entry.second;
+        if (r->owner() != nullptr) {
+            const int owner_id = r->owner()->index();
+            const auto& expected_owned_roads = roads.at(owner_id);
+            REQUIRE(expected_owned_roads.find(r->index()) != expected_owned_roads.end());
+            bool found = false;
+            for (const auto& actual_r : r->owner()->roads()) {
+                if (actual_r->index() == r->index()) {
+                    found = true;
+                    break;
+                }
+            }
+            REQUIRE(found == true);
+        }
+    }
+}
+
 // NOLINTNEXTLINE(google-readability-function-size)
 TEST_CASE("Single board", "[Game] [Game.Single]")
 {
@@ -448,6 +468,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_build_road(0, 2);
 
         exec_ok(0, build(Building::Road, 4));
+        check_roads(g, { { 0, { 4 } } });
 
         gs.is_first_round = false;
         gs.is_second_round = true;
@@ -474,6 +495,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_build_road(0, 4);
 
         exec_ok(0, build(Building::Road, 10));
+        check_roads(g, { { 0, { 4, 10 } } });
 
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
@@ -559,6 +581,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_road(0, 3);
 
         exec_ok(0, build(Building::Road, 15));
+        check_roads(g, { { 0, { 15 } } });
 
         gs.is_first_round = false;
         gs.is_second_round = true;
@@ -585,6 +608,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_road(0, 5);
 
         exec_ok(0, build(Building::Road, 7));
+        check_roads(g, { { 0, { 7, 15 } } });
 
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
@@ -672,6 +696,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         exec_error(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
         exec_ok(0, build(Building::Road, 15));
+        check_roads(g, { { 0, { 15 } } });
 
         gs.turn = 1;
         ps[0].is_current_player = false;
@@ -702,6 +727,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         exec_error(0, build(Building::Settlement, 4), ResType::InvalidEdgeChoice);
         exec_ok(1, build(Building::Road, 6));
+        check_roads(g, { { 0, { 15 } }, { 1, { 6 } } });
 
         gs.is_first_round = false;
         gs.is_second_round = true;
@@ -732,6 +758,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_build_road(1, 4);
 
         exec_ok(1, build(Building::Road, 29));
+        check_roads(g, { { 0, { 15 } }, { 1, { 6, 29 } } });
 
         ps[1].vertex = Vertex::ChooseInitialResources;
         ps[1].roads = 2;
@@ -769,6 +796,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_no_actions(1);
 
         exec_ok(0, build(Building::Road, 7));
+        check_roads(g, { { 0, { 7, 15 } }, { 1, { 6, 29 } } });
 
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
