@@ -400,4 +400,23 @@ size_t Player::num_resources() const
     return total;
 }
 
+void Player::accrue_resources(const ResourceCounts& counts)
+{
+    for (const auto& entry : counts) {
+        const auto& resource = entry.first;
+        const auto& count = entry.second;
+        if (m_resources.find(resource) == m_resources.end()) {
+            m_resources[resource] = count;
+        } else {
+            m_resources[resource] += count;
+        }
+    }
+}
+
+void Player::spend_resources(const ResourceCounts& counts)
+{
+    (void)counts;
+    assert(false); // not implemented
+}
+
 } // namespace k10engine::Game

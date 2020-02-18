@@ -379,7 +379,9 @@ Result Game::execute_action(size_t player_id, const Action& action)
             if (settlement->node() == chosen_node) {
                 for (const auto& hex_entry : settlement->hex_neighbors()) {
                     const auto& hex_resource = hex_entry.second->resource();
-                    std::cout << hex_resource << std::endl;
+                    if (std::holds_alternative<Resource>(hex_resource)) {
+                        player->accrue_resources({ { std::get<Resource>(hex_resource), 1 } });
+                    }
                 }
                 player->set_vertex(State::Vertex::WaitForTurn);
                 increment_turn();

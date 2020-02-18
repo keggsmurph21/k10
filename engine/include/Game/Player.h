@@ -92,8 +92,8 @@ private:
 
     void set_vertex(State::Vertex vertex) { m_vertex = vertex; }
 
-    void accrue_resources(ResourceCounts);
-    void spend_resources(ResourceCounts);
+    void accrue_resources(const ResourceCounts&);
+    void spend_resources(const ResourceCounts&);
     void collect_resource(Resource);
     void build_city(BoardView::Junction*, Options);
     void build_development_card(Options);
