@@ -78,6 +78,79 @@ k10engine::Scenario::Parameters get_single_parameters()
                                             3 }; // NOLINT(readability-magic-numbers)
 }
 
+k10engine::Scenario::Scenario get_triple_scenario()
+{
+    return k10engine::Scenario::Scenario(
+        1, // NOLINT(readability-magic-numbers)
+        3, // NOLINT(readability-magic-numbers)
+        3, // NOLINT(readability-magic-numbers)
+        6, // NOLINT(readability-magic-numbers)
+        { {
+              k10engine::Building::City,
+              { { k10engine::Resource::Ore, 3 }, { k10engine::Resource::Wheat, 2 } },
+          },
+          {
+              k10engine::Building::DevelopmentCard,
+              { { k10engine::Resource::Ore, 1 },
+                { k10engine::Resource::Sheep, 1 },
+                { k10engine::Resource::Wheat, 1 } },
+          },
+          {
+              k10engine::Building::Road,
+              {
+                  { k10engine::Resource::Brick, 1 },
+                  { k10engine::Resource::Wood, 1 },
+              },
+          },
+          {
+              k10engine::Building::Settlement,
+              { { k10engine::Resource::Brick, 1 },
+                { k10engine::Resource::Sheep, 1 },
+                { k10engine::Resource::Wheat, 1 },
+                { k10engine::Resource::Wood, 1 } },
+          } },
+        {
+            { k10engine::Building::City, 3 },
+            { k10engine::Building::DevelopmentCard, 25 }, // NOLINT(readability-magic-numbers)
+            { k10engine::Building::Road, 10 },            // NOLINT(readability-magic-numbers)
+            { k10engine::Building::Settlement, 4 },       // NOLINT(readability-magic-numbers)
+        },
+        {
+            { k10engine::DevelopmentCard::Knight, 14 }, // NOLINT(readability-magic-numbers)
+            { k10engine::DevelopmentCard::Monopoly, 2 },
+            { k10engine::DevelopmentCard::RoadBuilding, 2 },
+            { k10engine::DevelopmentCard::VictoryPoint, 5 }, // NOLINT(readability-magic-numbers)
+            { k10engine::DevelopmentCard::YearOfPlenty, 2 },
+        },
+        {
+            { k10engine::Resource::Brick, 1 },
+            { k10engine::Resource::Wood, 1 },
+            { k10engine::NonYieldingResource::Desert, 1 },
+        },
+        { 6, 9 },
+        {
+            { { k10engine::Resource::Brick }, 3 },
+            { { k10engine::Resource::Wood }, 3 },
+            { { k10engine::Resource::Wheat }, 3 },
+            { { k10engine::Resource::Brick,
+                k10engine::Resource::Ore,
+                k10engine::Resource::Sheep,
+                k10engine::Resource::Wheat,
+                k10engine::Resource::Wood },
+              4 },
+        });
+}
+
+k10engine::Scenario::Parameters get_triple_parameters(int num_players)
+{
+    return k10engine::Scenario::Parameters{ k10engine::Scenario::IterationType::Fixed,
+                                            k10engine::Scenario::IterationType::Fixed,
+                                            k10engine::Scenario::IterationType::Fixed,
+                                            k10engine::Scenario::IterationType::Fixed,
+                                            num_players, // NOLINT(readability-magic-numbers)
+                                            3 };         // NOLINT(readability-magic-numbers)
+}
+
 namespace k10engine::Game {
 
 using Edge = k10engine::State::Edge;
@@ -97,7 +170,7 @@ struct GameState {
     bool is_roll_seven = false;
     // bool should_wait_for_discard = false; // FIXME: Implement
     // bool should_wait_for_trade = false; // FIXME: Implement
-    size_t robber_location = 9;
+    size_t robber_location = 0;
     size_t dice_total = 0;
     size_t turn = 0;
     size_t round = 0;
@@ -208,6 +281,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
             exec_result(player_id, action, ResType::Ok);
         };
 
+        gs.robber_location = 9;
         ps[0].is_current_player = true;
 
         check();
@@ -365,6 +439,241 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         }
 
         exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 12 } } });
+
+        gs.is_second_round = false;
+        gs.round = 2;
+        gs.turn = 2;
+        ps[0].vertex = Vertex::WaitForTurn;
+        check();
+
+        actions = g->players().at(0)->get_available_actions();
+
+        REQUIRE(actions.size() == 1);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::ToRoot);
+            REQUIRE(action.args.size() == 0); // NOLINT(readability-container-size-empty)
+        }
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        ps[0].vertex = Vertex::Root;
+        check();
+
+        actions = g->players().at(0)->get_available_actions();
+
+        REQUIRE(actions.size() == 1);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::RollDice);
+            REQUIRE(action.args.size() == 0); // NOLINT(readability-container-size-empty)
+        }
+
+        for (const auto& action : g->players().at(0)->get_available_actions()) {
+            std::cout << action << std::endl;
+        }
+
+        delete g;
+        delete b;
+    }
+}
+
+// NOLINTNEXTLINE(google-readability-function-size)
+TEST_CASE("Triple board", "[Game] [Game.Triple]")
+{
+    SECTION("One player")
+    {
+        auto b = k10engine::Board::get_triple_board();
+        auto s = get_triple_scenario();
+        auto p = get_triple_parameters(1);
+        auto g = k10engine::Game::initialize(b, s, p);
+
+        REQUIRE(g->hexes().size() == 3);
+        REQUIRE(g->junctions().size() == 13);
+        REQUIRE(g->roads().size() == 15);
+        REQUIRE(g->players().size() == 1);
+
+        GameState gs;
+        auto ps = std::vector<PlayerState>(g->players().size());
+
+        const auto check = [&]() -> void {
+            check_game(g, gs);
+            for (int i = 0; i < g->players().size(); ++i) {
+                check_player(g->players().at(i), ps.at(i));
+            }
+        };
+
+        const auto exec_result =
+            [&](size_t player_id, const Action& action, ResType res_type) -> void {
+            const auto& res = g->execute_action(player_id, action);
+            REQUIRE(res.type == res_type);
+        };
+
+        const auto exec_ok = [&](size_t player_id, const Action& action) -> void {
+            exec_result(player_id, action, ResType::Ok);
+        };
+
+        gs.robber_location = 30;
+        ps[0].is_current_player = true;
+
+        check();
+
+        std::vector<Action> actions;
+
+        actions = g->players().at(0)->get_available_actions();
+        REQUIRE(actions.size() == 13);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::Build);
+            REQUIRE(action.args.size() == 2);
+            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);
+            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Settlement));
+            REQUIRE(action.args.at(1).type == ArgType::NodeId);
+            const auto node_id = action.args.at(1).value;
+            REQUIRE(g->junctions().find(node_id) != g->junctions().end());
+            REQUIRE(g->junctions().at(node_id)->is_settleable() == true);
+        }
+
+        exec_result(1, { Edge::AcceptTrade, {} }, ResType::InvalidPlayerId);
+        exec_result(0, { Edge::AcceptTrade, {} }, ResType::InvalidEdgeChoice);
+        exec_result(0, { Edge::Build, {} }, ResType::InvalidNumberOfArgs);
+        exec_result(0,
+                    { Edge::Build, { { ArgType::NodeId, 1 }, { ArgType::NodeId, 1 } } },
+                    ResType::InvalidArgumentType);
+        exec_result(0,
+                    { Edge::Build,
+                      { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },
+                        { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) } } },
+                    ResType::InvalidArgumentType);
+        exec_result(0, build(Building::Settlement, 1000), ResType::NodeIdOutOfRange);
+        exec_result(0, build(Building::Settlement, 1), ResType::InvalidNodeId);
+        // NB: Can't test ::JunctionNotSettleable yet
+        exec_ok(0, build(Building::Settlement, 20));
+
+        ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[0].settlements = 1;
+        ps[0].public_victory_points = 1;
+        check();
+
+        for (const auto& j_entry : g->junctions()) {
+            const auto& j = j_entry.second;
+            if (j->index() == 10 || j->index() == 20 || j->index() == 26 || j->index() == 27) {
+                REQUIRE(j->is_settleable() == false);
+            } else {
+                REQUIRE(j->is_settleable() == true);
+            }
+            REQUIRE(j->owner() == (j->index() == 20 ? g->players().at(0) : nullptr));
+        }
+
+        actions = g->players().at(0)->get_available_actions();
+
+        REQUIRE(actions.size() == 3);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::Build);
+            REQUIRE(action.args.size() == 2);
+            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);
+            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Road));
+            REQUIRE(action.args.at(1).type == ArgType::NodeId);
+            const auto node_id = action.args.at(1).value;
+            REQUIRE(g->roads().find(node_id) != g->roads().end());
+            REQUIRE(g->roads().at(node_id)->owner() == nullptr);
+        }
+
+        exec_result(1, { Edge::AcceptTrade, {} }, ResType::InvalidPlayerId);
+        exec_result(0, { Edge::AcceptTrade, {} }, ResType::InvalidEdgeChoice);
+        exec_result(0, { Edge::Build, {} }, ResType::InvalidNumberOfArgs);
+        exec_result(0,
+                    { Edge::Build, { { ArgType::NodeId, 4 }, { ArgType::NodeId, 4 } } },
+                    ResType::InvalidArgumentType);
+        exec_result(0,
+                    { Edge::Build,
+                      { { ArgType::BuildItemId, static_cast<size_t>(Building::Road) },
+                        { ArgType::BuildItemId, static_cast<size_t>(Building::Road) } } },
+                    ResType::InvalidArgumentType);
+        exec_result(0, build(Building::Road, 1000), ResType::NodeIdOutOfRange);
+        exec_result(0, build(Building::Road, 1), ResType::InvalidNodeId);
+        exec_ok(0, build(Building::Road, 15));
+
+        gs.is_first_round = false;
+        gs.is_second_round = true;
+        gs.round = 1;
+        gs.turn = 1;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[0].roads = 1;
+        check();
+
+        actions = g->players().at(0)->get_available_actions();
+
+        REQUIRE(actions.size() == 1);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::ToRoot);
+            REQUIRE(action.args.size() == 0); // NOLINT(readability-container-size-empty)
+        }
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        ps[0].vertex = Vertex::Root;
+        check();
+
+        actions = g->players().at(0)->get_available_actions();
+
+        REQUIRE(actions.size() == 9);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::Build);
+            REQUIRE(action.args.size() == 2);
+            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);
+            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Settlement));
+            REQUIRE(action.args.at(1).type == ArgType::NodeId);
+            const auto node_id = action.args.at(1).value;
+            REQUIRE(g->junctions().find(node_id) != g->junctions().end());
+            REQUIRE(g->junctions().at(node_id)->is_settleable() == true);
+        }
+
+        exec_result(0, build(Building::Settlement, 10), ResType::JunctionNotSettleable);
+        exec_result(0, build(Building::Settlement, 26), ResType::JunctionNotSettleable);
+        exec_result(0, build(Building::Settlement, 27), ResType::JunctionNotSettleable);
+        exec_ok(0, build(Building::Settlement, 3));
+
+        ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[0].settlements = 2;
+        ps[0].public_victory_points = 2;
+        check();
+
+        actions = g->players().at(0)->get_available_actions();
+
+        REQUIRE(actions.size() == 5);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::Build);
+            REQUIRE(action.args.size() == 2);
+            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);
+            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Road));
+            REQUIRE(action.args.at(1).type == ArgType::NodeId);
+            const auto node_id = action.args.at(1).value;
+            REQUIRE(g->roads().find(node_id) != g->roads().end());
+            REQUIRE(g->roads().at(node_id)->owner() == nullptr);
+        }
+
+        exec_result(0, build(Building::Settlement, 4), ResType::InvalidEdgeChoice);
+        exec_ok(0, build(Building::Road, 7));
+
+        ps[0].vertex = Vertex::ChooseInitialResources;
+        ps[0].roads = 2;
+        check();
+
+        actions = g->players().at(0)->get_available_actions();
+
+        REQUIRE(actions.size() == 2);
+        for (const auto& action : actions) {
+            REQUIRE(action.edge == Edge::ChooseInitialResources);
+            REQUIRE(action.args.size() == 1);
+            REQUIRE(action.args.at(0).type == ArgType::NodeId);
+            const auto node_id = action.args.at(0).value;
+            REQUIRE(g->junctions().find(node_id) != g->junctions().end());
+            const auto junction = g->junctions().at(node_id);
+            REQUIRE(junction->owner() == g->players().at(0));
+            const auto settlements = g->players().at(0)->settlements();
+            REQUIRE(std::find(settlements.begin(), settlements.end(), junction)
+                    != settlements.end());
+        }
+
+        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 3 } } });
 
         gs.is_second_round = false;
         gs.round = 2;
