@@ -486,6 +486,20 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_state();
         check_roll_dice(0);
 
+        exec_error(
+            0, { Edge::RollDice, { { ArgType::DiceRoll, 1 } } }, ResType::DiceRollOutOfRange);
+        exec_error(
+            0, { Edge::RollDice, { { ArgType::DiceRoll, 13 } } }, ResType::DiceRollOutOfRange);
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 12;
+        check_state();
+
+        for (const auto& action : g->players().at(0)->get_available_actions()) {
+            std::cout << action << std::endl;
+        }
+
         delete g;
         delete b;
     }
@@ -581,6 +595,17 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         ps[0].vertex = Vertex::Root;
         check_state();
         check_roll_dice(0);
+
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 6 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 6;
+        ps[0].num_resources += 2;
+        check_state();
+
+        for (const auto& action : g->players().at(0)->get_available_actions()) {
+            std::cout << action << std::endl;
+        }
 
         delete g;
         delete b;
@@ -758,6 +783,17 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_state();
         check_roll_dice(0);
         check_no_actions(1);
+
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 6 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 6;
+        ps[0].num_resources += 1;
+        ps[1].num_resources += 1;
+
+        for (const auto& action : g->players().at(0)->get_available_actions()) {
+            std::cout << action << std::endl;
+        }
 
         delete g;
         delete b;
@@ -1023,6 +1059,18 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_roll_dice(0);
         check_no_actions(1);
         check_no_actions(2);
+
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 6 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 6;
+        ps[0].num_resources += 1;
+        ps[2].num_resources += 2;
+        check_state();
+
+        for (const auto& action : g->players().at(0)->get_available_actions()) {
+            std::cout << action << std::endl;
+        }
 
         delete g;
         delete b;
