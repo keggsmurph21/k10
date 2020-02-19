@@ -12,7 +12,7 @@ void Game::roll_dice() // NOLINT(readability-convert-member-functions-to-static)
     throw std::invalid_argument("Not implemented: Game::roll_dice");
 }
 
-int Game::get_dice_total() const
+size_t Game::get_dice_total() const
 {
     return m_dice.get_total();
 }

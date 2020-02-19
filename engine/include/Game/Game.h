@@ -42,8 +42,7 @@ public:
 
     const BoardView::Hex* robber_location() const { return m_robber.location(); }
 
-    void roll_dice();
-    int get_dice_total() const;
+    size_t get_dice_total() const;
 
     size_t turn() const { return m_turn; }
     size_t get_round() const; // turn() // #players

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 namespace k10engine::Game {
 
 #define k10_DICE_MIN 1
@@ -11,11 +13,11 @@ class Dice {
 public:
     Dice() {}
     void roll();
-    int get_total() const;
+    size_t get_total() const;
 
 private:
-    int m_die_0{ 0 };
-    int m_die_1{ 0 };
+    size_t m_die_0{ 0 };
+    size_t m_die_1{ 0 };
 };
 
 } // namespace k10engine::Game

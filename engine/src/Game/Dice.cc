@@ -1,7 +1,7 @@
 #include "Game/Dice.h"
 #include "Core/Random.h"
 
-static auto s_dice_dist = std::uniform_int_distribution<int>(k10_DICE_MIN, k10_DICE_MAX);
+static auto s_dice_dist = std::uniform_int_distribution<size_t>(k10_DICE_MIN, k10_DICE_MAX);
 
 namespace k10engine::Game {
 
@@ -12,7 +12,7 @@ void Dice::roll()
     m_die_1 = s_dice_dist(rng);
 }
 
-int Dice::get_total() const
+size_t Dice::get_total() const
 {
     return m_die_0 + m_die_1;
 }
