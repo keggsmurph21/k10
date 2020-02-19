@@ -9,11 +9,16 @@ namespace k10engine::Game {
 
 #define k10_ROBBER_DICE_ROLL 7
 
+#define k10_ENABLE_ROLL_DICE_EXACT
+
 class Dice {
 public:
     Dice() {}
     void roll();
     size_t get_total() const;
+#ifdef k10_ENABLE_ROLL_DICE_EXACT
+    void set_total(size_t);
+#endif
 
 private:
     size_t m_die_0{ 0 };
