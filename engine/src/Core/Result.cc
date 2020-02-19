@@ -35,6 +35,9 @@ std::ostream& operator<<(std::ostream& os, const ResultType& error)
     case ResultType::CannotAfford:
         os << "ResultType::CannotAfford";
         break;
+    case ResultType::DiceRollOutOfRange:
+        os << "ResultType::DiceRollOutOfRange";
+        break;
     }
     return os;
 }
