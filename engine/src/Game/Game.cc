@@ -410,8 +410,49 @@ Result Game::execute_action(size_t player_id, const Action& action)
         throw std::invalid_argument(
             "Not implemented: execution_action(State::Edge::PlayDevelopmentCard)");
 
-    case State::Edge::RollDice:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::RollDice)");
+    case State::Edge::RollDice: {
+        if (action.args.empty()) {
+            m_dice.roll();
+#ifdef k10_ENABLE_ROLL_DICE_EXACT
+        } else if (action.args.size() == 1) {
+            if (action.args.at(0).type != ActionArgumentType::DiceRoll) {
+                return { ResultType::InvalidArgumentType, {} };
+            }
+            const auto roll = action.args.at(0).value;
+            if (roll < 2 || 12 < roll) {
+                return { ResultType::DiceRollOutOfRange, {} };
+            }
+            m_dice.set_total(roll);
+#endif
+        } else {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
+
+        m_has_rolled = true;
+
+        const auto dice_total = get_dice_total();
+        for (const auto& hex_entry : hexes()) {
+            const auto& hex = hex_entry.second;
+            if (hex->roll_number() != dice_total) {
+                continue;
+            }
+            const auto& hex_resource = hex->resource();
+            if (std::holds_alternative<NonYieldingResource>(hex_resource)) {
+                continue;
+            }
+            const auto& resource = std::get<Resource>(hex_resource);
+            for (const auto& junction_neighbor : hex->junction_neighbors()) {
+                const auto& junction = junction_neighbor.second;
+                if (junction->owner() == nullptr) {
+                    continue;
+                }
+                const auto count = junction->has_city() ? 2 : 1;
+                m_players.at(junction->owner()->index())->accrue_resources({ { resource, count } });
+            }
+        }
+
+        return { ResultType::Ok, { { ActionArgumentType::DiceRoll, dice_total } } };
+    }
 
     case State::Edge::Steal:
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::Steal)");
