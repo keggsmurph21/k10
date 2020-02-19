@@ -469,7 +469,7 @@ void Game::increment_turn()
 int Game::largest_army() const
 {
     if (m_has_largest_army == nullptr) {
-        return LARGEST_ARMY_THRESHOLD;
+        return k10_LARGEST_ARMY_THRESHOLD;
     }
     return m_has_largest_army->army_size();
 }
@@ -477,7 +477,7 @@ int Game::largest_army() const
 int Game::longest_road() const
 {
     if (m_has_longest_road == nullptr) {
-        return LONGEST_ROAD_THRESHOLD;
+        return k10_LONGEST_ROAD_THRESHOLD;
     }
     return m_has_longest_road->longest_road();
 }
