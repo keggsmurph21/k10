@@ -398,12 +398,11 @@ Scenario_ get_triple_scenario()
 
 Parameters get_triple_parameters(int num_players)
 {
-    return Parameters{ IterationType::Fixed,
-                       IterationType::Fixed,
-                       IterationType::Fixed,
-                       IterationType::Fixed,
-                       num_players, // NOLINT(readability-magic-numbers)
-                       3 };         // NOLINT(readability-magic-numbers)
+    return Parameters{
+        IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,
+        IterationType::Fixed, num_players,          3
+    }; // NOLINT(readability-magic-numbers)
+}
 }
 
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
