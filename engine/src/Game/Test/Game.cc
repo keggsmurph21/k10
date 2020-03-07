@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Board/generated/Single.h"
+#include "Board/generated/Standard.h"
 #include "Board/generated/Triple.h"
 #include "Game/Game.h"
 #include "Scenario/Parameters.h"
@@ -403,6 +404,92 @@ Parameters get_triple_parameters(int num_players)
         IterationType::Fixed, num_players,          3
     }; // NOLINT(readability-magic-numbers)
 }
+
+Scenario_ get_standard_scenario()
+{
+    return Scenario_(
+        2,  // NOLINT(readability-magic-numbers)
+        5,  // NOLINT(readability-magic-numbers)
+        8,  // NOLINT(readability-magic-numbers)
+        12, // NOLINT(readability-magic-numbers)
+        { {
+              Building::City,
+              { { Resource::Ore, 3 }, { Resource::Wheat, 2 } },
+          },
+          {
+              Building::DevelopmentCard,
+              { { Resource::Ore, 1 }, { Resource::Sheep, 1 }, { Resource::Wheat, 1 } },
+          },
+          {
+              Building::Road,
+              {
+                  { Resource::Brick, 1 },
+                  { Resource::Wood, 1 },
+              },
+          },
+          {
+              Building::Settlement,
+              { { Resource::Brick, 1 },
+                { Resource::Sheep, 1 },
+                { Resource::Wheat, 1 },
+                { Resource::Wood, 1 } },
+          } },
+        {
+            { Building::City, 4 },
+            { Building::DevelopmentCard, 25 }, // NOLINT(readability-magic-numbers)
+            { Building::Road, 15 },            // NOLINT(readability-magic-numbers)
+            { Building::Settlement, 5 },       // NOLINT(readability-magic-numbers)
+        },
+        {
+            { DevelopmentCard::Knight, 14 }, // NOLINT(readability-magic-numbers)
+            { DevelopmentCard::Monopoly, 2 },
+            { DevelopmentCard::RoadBuilding, 2 },
+            { DevelopmentCard::VictoryPoint, 5 }, // NOLINT(readability-magic-numbers)
+            { DevelopmentCard::YearOfPlenty, 2 },
+        },
+        { { Resource::Brick, 3 },
+          { Resource::Ore, 3 },
+          { Resource::Sheep, 4 },
+          { Resource::Wheat, 4 },
+          { Resource::Wood, 4 },
+          { NonYieldingResource::Desert, 1 } },
+        // NOLINTNEXTLINE(readability-magic-numbers)
+        { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 },
+        {
+            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
+              4 },
+            { { Resource::Wheat }, 3 },
+            { {
+                  Resource::Ore,
+              },
+              3 },
+            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
+              4 },
+            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
+              4 },
+            { {
+                  Resource::Sheep,
+              },
+              3 },
+            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
+              4 },
+            { {
+                  Resource::Brick,
+              },
+              3 },
+            { {
+                  Resource::Wood,
+              },
+              3 },
+        });
+}
+
+Parameters get_standard_parameters(int num_players)
+{
+    return Parameters{
+        IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,
+        IterationType::Fixed, num_players,          10
+    }; // NOLINT(readability-magic-numbers)
 }
 
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
@@ -816,6 +903,286 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         REQUIRE(g->junctions().size() == 13);
         REQUIRE(g->roads().size() == 15);
         REQUIRE(g->players().size() == 3);
+
+        gs.robber_location = 30;
+        ps[0].is_current_player = true;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[2].vertex = Vertex::WaitForTurn;
+
+        check_state();
+        check_build_settlement(0, 13);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, build(Building::Settlement, 3));
+        settlements[3] = 0;
+        settlements[9] = -1;
+        settlements[10] = -1;
+        check_settlements();
+
+        ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[0].settlements = 1;
+        ps[0].public_victory_points = 1;
+        check_state();
+        check_build_road(0, 2);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, build(Building::Road, 5));
+        roads[5] = 0;
+        check_roads();
+
+        gs.turn = 1;
+        ps[0].is_current_player = false;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[0].roads = 1;
+        ps[1].is_current_player = true;
+        check_state();
+        check_no_actions(0);
+        check_to_root(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::ToRoot, {} });
+
+        ps[1].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_build_settlement(1, 10);
+
+        exec_ok(1, build(Building::Settlement, 4));
+        settlements[4] = 1;
+        settlements[11] = -1;
+        check_settlements();
+
+        ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[1].settlements = 1;
+        ps[1].public_victory_points = 1;
+        check_state();
+        check_no_actions(0);
+        check_build_road(1, 2);
+        check_no_actions(2);
+
+        exec_ok(1, build(Building::Road, 7));
+        roads[7] = 1;
+        check_roads();
+
+        gs.turn = 2;
+        ps[1].is_current_player = false;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[1].roads = 1;
+        ps[2].is_current_player = true;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_to_root(2);
+
+        exec_ok(2, { Edge::ToRoot, {} });
+
+        ps[2].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_build_settlement(2, 8);
+
+        exec_ok(2, build(Building::Settlement, 19));
+        settlements[19] = 2;
+        settlements[26] = -1;
+        check_settlements();
+
+        ps[2].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[2].settlements = 1;
+        ps[2].public_victory_points = 1;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_build_road(2, 2);
+
+        exec_ok(2, build(Building::Road, 13));
+        roads[13] = 2;
+        check_roads();
+
+        gs.is_first_round = false;
+        gs.is_second_round = true;
+        gs.turn = 3;
+        gs.round = 1;
+        ps[2].vertex = Vertex::WaitForTurn;
+        ps[2].roads = 1;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_to_root(2);
+
+        exec_ok(2, { Edge::ToRoot, {} });
+
+        ps[2].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_build_settlement(2, 6);
+
+        exec_ok(2, build(Building::Settlement, 20));
+        settlements[20] = 2;
+        settlements[27] = -1;
+        check_settlements();
+
+        ps[2].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[2].settlements = 2;
+        ps[2].public_victory_points = 2;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_build_road(2, 4);
+
+        exec_ok(2, build(Building::Road, 15));
+        roads[15] = 2;
+        check_roads();
+
+        ps[2].vertex = Vertex::ChooseInitialResources;
+        ps[2].roads = 2;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_choose_initial_resources(2);
+
+        exec_ok(2, { Edge::ChooseInitialResources, { { ArgType::NodeId, 20 } } });
+
+        gs.turn = 4;
+        ps[1].is_current_player = true;
+        ps[2].vertex = Vertex::WaitForTurn;
+        ps[2].is_current_player = false;
+        ps[2].num_resources = 2;
+        check_state();
+        check_no_actions(0);
+        check_to_root(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::ToRoot, {} });
+
+        ps[1].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_build_settlement(1, 4);
+        check_no_actions(2);
+
+        exec_ok(1, build(Building::Settlement, 21));
+        settlements[21] = 1;
+        check_settlements();
+
+        ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[1].settlements = 2;
+        ps[1].public_victory_points = 2;
+        check_state();
+        check_no_actions(0);
+        check_build_road(1, 4);
+        check_no_actions(2);
+
+        exec_ok(1, build(Building::Road, 17));
+        roads[17] = 1;
+        check_roads();
+
+        ps[1].vertex = Vertex::ChooseInitialResources;
+        ps[1].roads = 2;
+        check_state();
+        check_no_actions(0);
+        check_choose_initial_resources(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 4 } } });
+
+        gs.turn = 5;
+        ps[0].is_current_player = true;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[1].is_current_player = false;
+        ps[1].num_resources = 1;
+        check_state();
+        check_to_root(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        ps[0].vertex = Vertex::Root;
+        check_state();
+        check_build_settlement(0, 3);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, build(Building::Settlement, 37));
+        settlements[37] = 0;
+        settlements[33] = -1;
+        settlements[34] = -1;
+        check_settlements();
+
+        ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
+        ps[0].settlements = 2;
+        ps[0].public_victory_points = 2;
+        check_state();
+        check_build_road(0, 3);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, build(Building::Road, 6));
+        roads[6] = 0;
+        check_roads();
+
+        ps[0].vertex = Vertex::ChooseInitialResources;
+        ps[0].roads = 2;
+        check_state();
+        check_choose_initial_resources(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 37 } } });
+
+        gs.is_second_round = false;
+        gs.turn = 6;
+        gs.round = 2;
+        ps[0].vertex = Vertex::WaitForTurn;
+        check_state();
+        check_to_root(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        ps[0].vertex = Vertex::Root;
+        check_state();
+        check_roll_dice(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 6 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 6;
+        ps[0].num_resources += 1;
+        ps[2].num_resources += 2;
+        check_state();
+
+        for (const auto& action : g->players().at(0)->get_available_actions()) {
+            std::cout << action << std::endl;
+        }
+
+        delete g;
+        delete b;
+    }
+}
+
+TEST_CASE("Standard board", "[Game] [Game.Standard]")
+{
+    SECTION("Two players")
+    {
+        auto b = Board::get_standard_board();
+        auto s = get_standard_scenario();
+        auto p = get_standard_parameters(2);
+        auto g = Game::initialize(b, s, p);
+
+        bootstrap_tests();
+
+        REQUIRE(g->hexes().size() == 19);
+        REQUIRE(g->junctions().size() == 44);
+        REQUIRE(g->roads().size() == 15);
+        REQUIRE(g->players().size() == 2);
 
         gs.robber_location = 30;
         ps[0].is_current_player = true;
