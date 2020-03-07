@@ -225,6 +225,15 @@ struct PlayerState {
                                                                                                 \
     const auto check_roll_dice = [&](size_t player_index) {                                     \
         check_single_action(player_index, Edge::RollDice);                                      \
+        exec_error(player_index,                                                                \
+                   { Edge::RollDice, { { ArgType::DiceRoll, 0 } } },                            \
+                   ResType::DiceRollOutOfRange);                                                \
+        exec_error(player_index,                                                                \
+                   { Edge::RollDice, { { ArgType::DiceRoll, 1 } } },                            \
+                   ResType::DiceRollOutOfRange);                                                \
+        exec_error(player_index,                                                                \
+                   { Edge::RollDice, { { ArgType::DiceRoll, 13 } } },                           \
+                   ResType::DiceRollOutOfRange);                                                \
     };                                                                                          \
                                                                                                 \
     const auto check_settlements = [&]() {                                                      \
@@ -486,10 +495,6 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_state();
         check_roll_dice(0);
 
-        exec_error(
-            0, { Edge::RollDice, { { ArgType::DiceRoll, 1 } } }, ResType::DiceRollOutOfRange);
-        exec_error(
-            0, { Edge::RollDice, { { ArgType::DiceRoll, 13 } } }, ResType::DiceRollOutOfRange);
         exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
 
         gs.has_rolled = true;
