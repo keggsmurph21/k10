@@ -1,42 +1,47 @@
 #!/usr/bin/env python3
 
-from collections import Counter
-from collections import defaultdict
+from typing import Dict, Generator, List, Optional, Tuple
 
 import os
 import sys
 
 
 class Position:
-    def __init__(self, num, dx, dy):
+    def __init__(self, num: int, dx: int, dy: int):
         self.num = num
         self.dx = dx
         self.dy = dy
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Clock{self.num}"
 
-    def __eq__(self, other):
-        return self.num == other.num and self.dx == other.dx and self.dy == other.dy
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, Position)
+            and self.num == other.num
+            and self.dx == other.dx
+            and self.dy == other.dy
+        )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.num, self.dx, self.dy))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Direction::Clock{self.num}"
 
-    def opposite(self):
+    def opposite(self) -> "Position":
         return Position((self.num + 6) % 12 or 12, -self.dx, -self.dy)
 
 
 class Node:
-    char = None
+    char: str
+    node_type: str
 
-    def __init__(self, num, x, y):
+    def __init__(self, num: int, x: int, y: int):
         self.num = num
         self.x = x
         self.y = y
-        self.neighbors = {
+        self.neighbors: Dict[Position, Optional[Node]] = {
             Position(12, -3, 0): None,
             Position(2, -1, 4): None,
             Position(4, 1, 4): None,
@@ -45,15 +50,15 @@ class Node:
             Position(10, -1, -4): None,
         }
 
-    def __iter__(self):
+    def __iter__(self) -> Generator[Tuple[Position, "Node"], None, None]:
         for pos, neighbor in self.neighbors.items():
             if neighbor is not None:
                 yield (pos, neighbor)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len([_ for _ in self])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.char} #{self.num} ({self.x},{self.y})"
 
 
@@ -80,7 +85,7 @@ class Junction(Node):
     char = "."
     node_type = "Junction"
 
-    def __init__(self, num, x, y):
+    def __init__(self, num: int, x: int, y: int):
         super().__init__(num, x, y)
         self.neighbors.update(
             {
@@ -98,13 +103,12 @@ class Port(Junction):
     char = "p"
     node_type = "Junction"
 
-    def __init__(self, num, x, y):
+    def __init__(self, num: int, x: int, y: int):
         super().__init__(num, x, y)
-        self.partner = None
-        self.pos = None
+        self.partner: Optional["Port"] = None
+        self.pos: Optional[str] = None
 
-    def set_partner(self, position, partner):
-        assert isinstance(partner, Port)
+    def set_partner(self, position: Position, partner: "Port") -> None:
         assert self.partner is None
         self.partner = partner
         self.pos = str(position)
@@ -116,7 +120,7 @@ class Road(Node):
     char = "r"
     node_type = "Road"
 
-    def __init__(self, num, x, y, orientation):
+    def __init__(self, num: int, x: int, y: int, orientation: str):
         super().__init__(num, x, y)
         self.char = self.orientation = orientation
         if self.orientation == "|":
@@ -137,14 +141,14 @@ class Road(Node):
 
 
 class Board:
-    def __init__(self, name, src_dir, tar_dir):
+    def __init__(self, name: str, src_dir: str, tar_dir: str):
 
         self.name = name
         self.board_file = os.path.join(src_dir, name + ".board")
         self.cpp_file = os.path.join(tar_dir, name + ".h")
 
-        self.tokens = []
-        self.ports = []
+        self.tokens: List[Node] = []
+        self.ports: List[Port] = []
 
         with open(self.board_file) as fp:
 
@@ -154,7 +158,7 @@ class Board:
             for line in fp:
                 self.height += 1
                 self.width = max(self.width, len(line))
-            self.arr = [
+            self.arr: List[List[Node]] = [
                 [Whitespace(-1, i, j) for j in range(self.width)]
                 for i in range(self.height)
             ]
@@ -164,6 +168,7 @@ class Board:
             num = 0
             for x, line in enumerate(fp):
                 for y, ch in enumerate(line):
+                    token: Node
                     if ch in (" ", "\n"):
                         continue
                     elif ch == ".":
@@ -208,10 +213,12 @@ class Board:
                     and isinstance(neighbor, Road)
                     and isinstance(neighbor.neighbors[pos], Port)
                 ):
-                    token.set_partner(pos, neighbor.neighbors[pos])
-                    neighbor.neighbors[pos].set_partner(pos.opposite(), token)
+                    second_neighbor_in_direction = neighbor.neighbors[pos]
+                    assert isinstance(second_neighbor_in_direction, Port)
+                    token.set_partner(pos, second_neighbor_in_direction)
+                    second_neighbor_in_direction.set_partner(pos.opposite(), token)
 
-    def generate_cpp(self):
+    def generate_cpp(self) -> None:
         with open(self.cpp_file, "w") as fp:
             fp.write(
                 f"""\
@@ -241,6 +248,7 @@ Graph* get_{self.name.lower()}_board()
                     fp.write(f"{{ {token.num}, {neighbor.num}, {pos} }}, ")
             fp.write(f"""}}, {{ """)
             for port in self.ports:
+                assert port.partner is not None
                 if port.num < port.partner.num:
                     fp.write(
                         f"{{ {port.num}, {port.partner.num}, get_orientation({port.pos}) }}, "
