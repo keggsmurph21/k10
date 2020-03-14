@@ -358,7 +358,8 @@ std::ostream& operator<<(std::ostream& os, const Player& player)
 void Player::build_settlement(BoardView::Junction* junction_to_settle, Options options)
 {
     if ((options & Options::NoCost) != Options::NoCost) {
-        // spend the moneyz
+        const auto& cost = m_game->scenario().cost(Building::Road);
+        spend_resources(*cost);
     }
 
     junction_to_settle->set_owner(this);
@@ -382,7 +383,8 @@ void Player::build_settlement(BoardView::Junction* junction_to_settle, Options o
 void Player::build_road(BoardView::Road* road, Options options)
 {
     if ((options & Options::NoCost) != Options::NoCost) {
-        // spend the moneyz
+        const auto& cost = m_game->scenario().cost(Building::Road);
+        spend_resources(*cost);
     }
 
     road->set_owner(this);
@@ -414,8 +416,12 @@ void Player::accrue_resources(const ResourceCounts& counts)
 
 void Player::spend_resources(const ResourceCounts& counts)
 {
-    (void)counts;
-    assert(false); // not implemented
+    assert(can_afford(counts));
+    for (const auto& it : counts) {
+        const auto& resource = it.first;
+        const auto& count = it.second;
+        m_resources.at(resource) -= count;
+    }
 }
 
 } // namespace k10engine::Game
