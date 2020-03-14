@@ -50,6 +50,8 @@ public:
     int largest_army() const;
     int longest_road() const;
 
+    size_t num_built(Building) const;
+
     const std::map<size_t, BoardView::Hex*>& hexes() const { return m_hexes; }
     const std::map<size_t, BoardView::Junction*>& junctions() const { return m_junctions; }
     const std::map<size_t, BoardView::Road*>& roads() const { return m_roads; }
@@ -103,6 +105,8 @@ private:
     Player* m_has_longest_road{ nullptr };
 
     void recalculate_longest_road();
+
+    std::map<Building, size_t> m_buildings_built;
 
     void build_settlement(Player*, BoardView::Junction*, Options);
     void build_road(Player*, BoardView::Road*, Options);

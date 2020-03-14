@@ -464,16 +464,23 @@ Result Game::execute_action(size_t player_id, const Action& action)
     assert(false);
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void Game::build_settlement(Player* player, BoardView::Junction* junction, Options options)
 {
     player->build_settlement(junction, options);
+    if (m_buildings_built.find(Building::Settlement) == m_buildings_built.end()) {
+        m_buildings_built[Building::Settlement] = 0;
+    }
+    m_buildings_built[Building::Settlement] += 1;
 }
 
 void Game::build_road(Player* player, BoardView::Road* road, Options options)
 {
     player->build_road(road, options);
     recalculate_longest_road();
+    if (m_buildings_built.find(Building::Settlement) == m_buildings_built.end()) {
+        m_buildings_built[Building::Settlement] = 0;
+    }
+    m_buildings_built[Building::Settlement] += 1;
 }
 
 bool Game::is_game_over() const
@@ -516,6 +523,14 @@ int Game::longest_road() const
         return k10_LONGEST_ROAD_THRESHOLD;
     }
     return m_has_longest_road->longest_road();
+}
+
+size_t Game::num_built(Building building) const
+{
+    if (m_buildings_built.find(building) == m_buildings_built.end()) {
+        return 0;
+    }
+    return m_buildings_built.at(building);
 }
 
 void Game::recalculate_longest_road()
