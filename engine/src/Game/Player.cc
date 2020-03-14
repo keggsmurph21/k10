@@ -302,11 +302,12 @@ bool Player::has_heavy_purse() const // NOLINT(readability-convert-member-functi
     throw std::invalid_argument("Not implemented: Player::has_heavy_purse");
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 bool Player::can_build(const Building& building) const
 {
-    (void)building;
-    throw std::invalid_argument("Not implemented: Player::can_build");
+    const auto& num_built = m_game->num_built(building);
+    const auto& num_buildable = m_game->scenario().count(building);
+    const auto& cost = m_game->scenario().cost(building);
+    return (num_built < num_buildable) && can_afford(*cost);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
