@@ -214,6 +214,9 @@ int main(int /* unused */, char** /* unused */)
 
     dump_actions(g);
 
+    std::cout << g->graph()->width() << "x" << g->graph()->height() << std::endl;
+    std::cout << *g->graph()->node(0, 12) << std::endl;
+
     delete g;
 
     return 0;

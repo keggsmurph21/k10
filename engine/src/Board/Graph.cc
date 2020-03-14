@@ -49,6 +49,7 @@ Graph::Graph(Dimensions dimensions,
     for (const auto& it : node_specs) {
         const auto node = new Node(index, it.x, it.y, it.type);
         m_nodes.push_back(node);
+        m_node_matrix[it.x][it.y] = node;
         ++index;
     }
     for (const auto& it : edge_specs) {
@@ -113,6 +114,17 @@ const Node* Graph::node(const size_t index) const
         return m_nodes.at(index);
     }
     return nullptr;
+}
+
+const Node* Graph::node(const size_t x, const size_t y) const
+{
+    if (x >= width()) {
+        return nullptr;
+    }
+    if (y >= height()) {
+        return nullptr;
+    }
+    return m_node_matrix.at(x).at(y);
 }
 
 bool Graph::has_neighbor(const Node* n, const Direction d) const

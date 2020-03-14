@@ -50,6 +50,7 @@ public:
 
     const std::vector<const Node*>& nodes() const { return m_nodes; }
     const Node* node(const size_t index) const;
+    const Node* node(const size_t x, const size_t y) const;
 
     int size() const { return m_nodes.size(); }
 
