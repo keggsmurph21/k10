@@ -56,6 +56,7 @@ public:
     const std::map<size_t, BoardView::Junction*>& junctions() const { return m_junctions; }
     const std::map<size_t, BoardView::Road*>& roads() const { return m_roads; }
 
+    const Board::Graph* graph() const { return m_graph; }
     const Scenario::Scenario& scenario() const { return m_scenario; }
 
     const Player* current_player() const { return m_players.at(m_current_player_index); }
