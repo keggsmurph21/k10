@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <map>
-#include <tuple>
 #include <vector>
 
 #include "Board/Direction.h"

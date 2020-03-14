@@ -40,27 +40,25 @@ Graph::Graph(const NodeSpecs& node_specs, const EdgeSpecs& edge_specs, const Por
         m_nodes.push_back(node);
         ++index;
     }
-    for (const auto& edge_spec : edge_specs) {
-        const auto node_0 = node(std::get<0>(edge_spec));
-        const auto node_1 = node(std::get<1>(edge_spec));
-        const auto direction = std::get<2>(edge_spec);
+    for (const auto& it : edge_specs) {
+        const auto node_0 = node(it.node_0_index);
+        const auto node_1 = node(it.node_1_index);
         if (node_0 == nullptr || node_1 == nullptr) {
             goto clean_up_failed_construction;
         }
-        if (has_neighbor(node_0, direction)) {
+        if (has_neighbor(node_0, it.direction)) {
             goto clean_up_failed_construction;
         }
-        std::pair<const Node*, const Direction> key = { node_0, direction };
+        std::pair<const Node*, const Direction> key = { node_0, it.direction };
         m_edges[key] = node_1;
     }
-    for (auto port_spec : port_specs) {
-        const auto node_0 = node(std::get<0>(port_spec));
-        const auto node_1 = node(std::get<1>(port_spec));
-        const auto orientation = std::get<2>(port_spec);
-        if (!nodes_can_make_port(node_0, node_1, orientation)) {
+    for (auto it : port_specs) {
+        const auto node_0 = node(it.node_0_index);
+        const auto node_1 = node(it.node_1_index);
+        if (!nodes_can_make_port(node_0, node_1, it.orientation)) {
             goto clean_up_failed_construction;
         }
-        const auto port = new Port(port_index, { node_0, node_1 }, orientation);
+        const auto port = new Port(port_index, { node_0, node_1 }, it.orientation);
         ++port_index;
         m_ports.push_back(port);
         // FIXME: Assert that we don't assign a port to an index if

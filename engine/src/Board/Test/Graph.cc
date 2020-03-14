@@ -102,7 +102,7 @@ TEST_CASE("Graph initialization", "[Board][Board.Graph]")
         auto g = Graph(node_specs,
                        { { 0, 1, Direction::Clock2 }, { 1, 2, Direction::Clock2 } },
                        { { 0, 2, Orientation::Clock2Clock8 } });
-        for (int i = 3; i < 7; ++i) {
+        for (size_t i = 3; i < 7; ++i) {
             REQUIRE_THROWS_AS(Graph(node_specs,
                                     { { 0, 1, Direction::Clock2 }, { 1, i, Direction::Clock2 } },
                                     { { 0, i, Orientation::Clock2Clock8 } }),
