@@ -45,8 +45,8 @@ Graph::Graph(Dimensions dimensions,
     }
     int index = 0;
     size_t port_index = 0;
-    for (auto it : node_specs) {
-        auto node = new Node(index, it.x, it.y, it.type);
+    for (const auto& it : node_specs) {
+        const auto node = new Node(index, it.x, it.y, it.type);
         m_nodes.push_back(node);
         ++index;
     }
@@ -62,7 +62,7 @@ Graph::Graph(Dimensions dimensions,
         std::pair<const Node*, const Direction> key = { node_0, it.direction };
         m_edges[key] = node_1;
     }
-    for (auto it : port_specs) {
+    for (const auto& it : port_specs) {
         const auto node_0 = node(it.node_0_index);
         const auto node_1 = node(it.node_1_index);
         if (!nodes_can_make_port(node_0, node_1, it.orientation)) {
@@ -106,10 +106,9 @@ Graph::~Graph()
     m_nodes.clear();
 }
 
-const Node* Graph::node(const int index) const
+const Node* Graph::node(const size_t index) const
 {
-    // FIXME: Should these take in a size_t param?
-    if (0 <= index && index < static_cast<int>(m_nodes.size())) {
+    if (index < m_nodes.size()) {
         return m_nodes.at(index);
     }
     return nullptr;

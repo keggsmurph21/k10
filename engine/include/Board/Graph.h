@@ -49,10 +49,9 @@ public:
     ~Graph();
 
     const std::vector<const Node*>& nodes() const { return m_nodes; }
-    const Node* node(const int) const;
+    const Node* node(const size_t index) const;
 
     int size() const { return m_nodes.size(); }
-    int size() { return m_nodes.size(); }
 
     bool has_neighbor(const Node*, const Direction) const;
     const Node* neighbor(const Node*, const Direction) const;
