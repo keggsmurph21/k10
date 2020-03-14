@@ -72,7 +72,7 @@ static std::unordered_map<char, const std::vector<NeighborSpec>*> neighbor_specs
     { '/', &forwardslash_road_neighbor_specs }, { '\\', &backslash_road_neighbor_specs },
 };
 
-static const Graph from_stream(std::istream& char_stream)
+static Graph from_stream(std::istream& char_stream)
 {
     NodeSpecs nodes;
     EdgeSpecs edges;
@@ -140,8 +140,8 @@ static const Graph from_stream(std::istream& char_stream)
     }
 
     // Build up the neighbors
-    for (auto token_row : token_matrix) {
-        for (auto token : token_row) {
+    for (const auto& token_row : token_matrix) {
+        for (const auto& token : token_row) {
             if (token.num == -1) {
                 continue;
             }
@@ -191,13 +191,13 @@ static const Graph from_stream(std::istream& char_stream)
     return Graph(nodes, edges, ports);
 }
 
-const Graph from_string(const std::string& board_string)
+Graph from_string(const std::string& board_string)
 {
     std::stringstream board_sstream(board_string);
     return from_stream(board_sstream);
 }
 
-const Graph from_file(const std::string& filename)
+Graph from_file(const std::string& filename)
 {
     std::ifstream board_fstream(filename);
     return from_stream(board_fstream);
