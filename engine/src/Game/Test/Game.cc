@@ -286,6 +286,16 @@ struct PlayerState {
                 REQUIRE(r->owner()->index() == player_index);                                   \
             }                                                                                   \
         }                                                                                       \
+    };                                                                                          \
+                                                                                                \
+    const auto dump_actions = [&]() {                                                           \
+        for (const auto& player : g->players()) {                                               \
+            std::cout << *player << std::endl;                                                  \
+            for (const auto& action : player->get_available_actions()) {                        \
+                std::cout << " - " << action << std::endl;                                      \
+            }                                                                                   \
+        }                                                                                       \
+        std::cout << std::endl;                                                                 \
     };
 
 Action build(Building b, size_t node_index)
@@ -610,9 +620,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_state();
         check_end_turn(0);
 
-        for (const auto& action : g->players().at(0)->get_available_actions()) {
-            std::cout << action << std::endl;
-        }
+        dump_actions();
 
         delete g;
     }
@@ -721,9 +729,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_state();
         check_end_turn(0);
 
-        for (const auto& action : g->players().at(0)->get_available_actions()) {
-            std::cout << action << std::endl;
-        }
+        dump_actions();
 
         delete g;
     }
@@ -917,9 +923,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         ps[1].num_resources += 1;
         check_end_turn(0);
 
-        for (const auto& action : g->players().at(0)->get_available_actions()) {
-            std::cout << action << std::endl;
-        }
+        dump_actions();
 
         delete g;
     }
@@ -1206,9 +1210,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_state();
         check_end_turn(0);
 
-        for (const auto& action : g->players().at(0)->get_available_actions()) {
-            std::cout << action << std::endl;
-        }
+        dump_actions();
 
         delete g;
     }
@@ -1420,9 +1422,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_roll_dice(1);
 
-        for (const auto& action : g->players().at(1)->get_available_actions()) {
-            std::cout << action << std::endl;
-        }
+        dump_actions();
 
         delete g;
     }
@@ -1736,9 +1736,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         check_roll_dice(1);
         check_no_actions(2);
 
-        for (const auto& action : g->players().at(1)->get_available_actions()) {
-            std::cout << action << std::endl;
-        }
+        dump_actions();
 
         delete g;
     }
