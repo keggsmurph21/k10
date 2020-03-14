@@ -397,7 +397,9 @@ Result Game::execute_action(size_t player_id, const Action& action)
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::Discard)");
 
     case State::Edge::EndTurn:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::EndTurn)");
+        player->set_vertex(State::Vertex::WaitForTurn);
+        increment_turn();
+        return { ResultType::Ok, {} };
 
     case State::Edge::FailTradeUnableToFindPartner:
         throw std::invalid_argument(
