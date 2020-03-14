@@ -514,6 +514,7 @@ void Game::increment_turn()
         // The default case.
         ++m_current_player_index;
     }
+    m_has_rolled = false;
 }
 
 int Game::largest_army() const
