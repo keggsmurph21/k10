@@ -81,7 +81,7 @@ static Graph from_stream(std::istream& char_stream)
     char ch;
 
     // Calculate dimensions
-    int height = 1;
+    int height = 0;
     int line_width = 0;
     int max_width = 0;
     while (char_stream.get(ch)) {
