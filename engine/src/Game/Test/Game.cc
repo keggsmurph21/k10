@@ -1399,8 +1399,27 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         gs.dice_total = 6;
         check_state();
         check_end_turn(0);
+        check_no_actions(1);
 
-        for (const auto& action : g->players().at(0)->get_available_actions()) {
+        exec_ok(0, { Edge::EndTurn, {} });
+
+        gs.turn = 5;
+        gs.has_rolled = false;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[0].is_current_player = false;
+        ps[1].is_current_player = true;
+        check_state();
+        check_no_actions(0);
+        check_to_root(1);
+
+        exec_ok(1, { Edge::ToRoot, {} });
+
+        ps[1].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_roll_dice(1);
+
+        for (const auto& action : g->players().at(1)->get_available_actions()) {
             std::cout << action << std::endl;
         }
 
