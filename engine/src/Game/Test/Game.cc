@@ -38,6 +38,10 @@ struct GameState {
     size_t round = 0;
     size_t largest_army = 2;
     size_t longest_road = 4;
+    size_t cities_built = 0;
+    size_t development_cards_built = 0;
+    size_t roads_built = 0;
+    size_t settlements_built = 0;
 };
 
 struct PlayerState {
@@ -88,6 +92,10 @@ struct PlayerState {
         REQUIRE(g->get_round() == gs.round);                                                    \
         REQUIRE(g->largest_army() == gs.largest_army);                                          \
         REQUIRE(g->longest_road() == gs.longest_road);                                          \
+        REQUIRE(g->num_built(Building::City) == gs.cities_built);                               \
+        REQUIRE(g->num_built(Building::DevelopmentCard) == gs.development_cards_built);         \
+        REQUIRE(g->num_built(Building::Road) == gs.roads_built);                                \
+        REQUIRE(g->num_built(Building::Settlement) == gs.settlements_built);                    \
         for (int i = 0; i < g->players().size(); ++i) {                                         \
             REQUIRE(g->players().at(i)->can_accept_trade() == ps.at(i).can_accept_trade);       \
             REQUIRE(g->players().at(i)->has_declined_trade() == ps.at(i).has_declined_trade);   \
@@ -519,6 +527,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         settlements[6] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
         ps[0].public_victory_points = 1;
@@ -529,6 +538,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         roads[4] = 0;
         check_roads();
 
+        gs.roads_built += 1;
         gs.is_first_round = false;
         gs.is_second_round = true;
         gs.round = 1;
@@ -549,6 +559,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         settlements[16] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
         ps[0].public_victory_points = 2;
@@ -559,6 +570,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         roads[10] = 0;
         check_roads();
 
+        gs.roads_built += 1;
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
         check_state();
@@ -623,6 +635,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[27] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
         ps[0].public_victory_points = 1;
@@ -633,6 +646,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[15] = 0;
         check_roads();
 
+        gs.roads_built += 1;
         gs.is_first_round = false;
         gs.is_second_round = true;
         gs.round = 1;
@@ -653,6 +667,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[9] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
         ps[0].public_victory_points = 2;
@@ -663,6 +678,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[7] = 0;
         check_roads();
 
+        gs.roads_built += 1;
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
         check_state();
@@ -728,6 +744,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[27] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
         ps[0].public_victory_points = 1;
@@ -740,6 +757,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[15] = 0;
         check_roads();
 
+        gs.roads_built += 1;
         gs.turn = 1;
         ps[0].is_current_player = false;
         ps[0].vertex = Vertex::WaitForTurn;
@@ -762,6 +780,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[9] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[1].settlements = 1;
         ps[1].public_victory_points = 1;
@@ -774,6 +793,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[6] = 1;
         check_roads();
 
+        gs.roads_built += 1;
         gs.is_first_round = false;
         gs.is_second_round = true;
         gs.round = 1;
@@ -797,6 +817,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[37] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[1].settlements = 2;
         ps[1].public_victory_points = 2;
@@ -808,6 +829,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[29] = 1;
         check_roads();
 
+        gs.roads_built += 1;
         ps[1].vertex = Vertex::ChooseInitialResources;
         ps[1].roads = 2;
         check_state();
@@ -836,6 +858,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[34] = 0;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
         ps[0].public_victory_points = 2;
@@ -847,6 +870,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[7] = 0;
         check_roads();
 
+        gs.roads_built += 1;
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
         check_state();
@@ -915,6 +939,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[10] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
         ps[0].public_victory_points = 1;
@@ -927,6 +952,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[5] = 0;
         check_roads();
 
+        gs.roads_built += 1;
         gs.turn = 1;
         ps[0].is_current_player = false;
         ps[0].vertex = Vertex::WaitForTurn;
@@ -949,6 +975,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[11] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[1].settlements = 1;
         ps[1].public_victory_points = 1;
@@ -961,6 +988,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[7] = 1;
         check_roads();
 
+        gs.roads_built += 1;
         gs.turn = 2;
         ps[1].is_current_player = false;
         ps[1].vertex = Vertex::WaitForTurn;
@@ -984,6 +1012,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[26] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[2].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[2].settlements = 1;
         ps[2].public_victory_points = 1;
@@ -996,6 +1025,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[13] = 2;
         check_roads();
 
+        gs.roads_built += 1;
         gs.is_first_round = false;
         gs.is_second_round = true;
         gs.turn = 3;
@@ -1020,6 +1050,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[27] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[2].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[2].settlements = 2;
         ps[2].public_victory_points = 2;
@@ -1032,6 +1063,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[15] = 2;
         check_roads();
 
+        gs.roads_built += 1;
         ps[2].vertex = Vertex::ChooseInitialResources;
         ps[2].roads = 2;
         check_state();
@@ -1063,6 +1095,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[21] = 1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[1].settlements = 2;
         ps[1].public_victory_points = 2;
@@ -1075,6 +1108,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[17] = 1;
         check_roads();
 
+        gs.roads_built += 1;
         ps[1].vertex = Vertex::ChooseInitialResources;
         ps[1].roads = 2;
         check_state();
@@ -1108,6 +1142,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         settlements[34] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
         ps[0].public_victory_points = 2;
@@ -1120,6 +1155,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         roads[6] = 0;
         check_roads();
 
+        gs.roads_built += 1;
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
         check_state();
@@ -1192,6 +1228,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         settlements[14] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 1;
         ps[0].public_victory_points = 1;
@@ -1203,6 +1240,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         roads[7] = 0;
         check_roads();
 
+        gs.roads_built += 1;
         gs.turn = 1;
         ps[0].is_current_player = false;
         ps[0].vertex = Vertex::WaitForTurn;
@@ -1224,6 +1262,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         settlements[15] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[1].settlements = 1;
         ps[1].public_victory_points = 1;
@@ -1235,6 +1274,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         roads[9] = 1;
         check_roads();
 
+        gs.roads_built += 1;
         gs.turn = 2;
         gs.round = 1;
         gs.is_first_round = false;
@@ -1257,6 +1297,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         settlements[16] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[1].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[1].settlements = 2;
         ps[1].public_victory_points = 2;
@@ -1268,6 +1309,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         roads[10] = 1;
         check_roads();
 
+        gs.roads_built += 1;
         ps[1].vertex = Vertex::ChooseInitialResources;
         ps[1].roads = 2;
         check_state();
@@ -1298,6 +1340,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         settlements[39] = -1;
         check_settlements();
 
+        gs.settlements_built += 1;
         ps[0].vertex = Vertex::AfterBuildingFreeSettlement;
         ps[0].settlements = 2;
         ps[0].public_victory_points = 2;
@@ -1309,6 +1352,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         roads[18] = 0;
         check_roads();
 
+        gs.roads_built += 1;
         ps[0].vertex = Vertex::ChooseInitialResources;
         ps[0].roads = 2;
         check_state();
