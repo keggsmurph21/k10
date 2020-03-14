@@ -31,9 +31,7 @@ bool Graph::nodes_can_make_port(const Node* n0, const Node* n1, Orientation o)
     return false;
 }
 
-Graph::Graph(const _NodeSpecs& node_specs,
-             const _EdgeSpecs& edge_specs,
-             const _PortSpecs& port_specs)
+Graph::Graph(const NodeSpecs& node_specs, const EdgeSpecs& edge_specs, const PortSpecs& port_specs)
 {
     int index = 0;
     size_t port_index = 0;

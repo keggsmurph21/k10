@@ -13,9 +13,9 @@
 
 namespace k10engine::Board {
 
-typedef std::vector<NodeType> _NodeSpecs;
-typedef std::vector<std::tuple<int, int, Direction>> _EdgeSpecs;
-typedef std::vector<std::tuple<int, int, Orientation>> _PortSpecs;
+typedef std::vector<NodeType> NodeSpecs;
+typedef std::vector<std::tuple<int, int, Direction>> EdgeSpecs;
+typedef std::vector<std::tuple<int, int, Orientation>> PortSpecs;
 
 typedef std::vector<const Node*> Nodes;
 typedef std::map<std::pair<const Node*, const Direction>, const Node*, std::less<>> Edges;
@@ -25,7 +25,7 @@ class Base;
 
 class Graph {
 public:
-    Graph(const _NodeSpecs&, const _EdgeSpecs&, const _PortSpecs&);
+    Graph(const NodeSpecs&, const EdgeSpecs&, const PortSpecs&);
     ~Graph();
     // Graph(const Graph&);
     // Graph& operator=(const Graph&);
