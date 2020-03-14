@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Board/generated/Standard.h"
+#include "Board/Parser.h"
 #include "Game/Game.h"
 #include "Scenario/Scenario.h"
 
@@ -136,10 +136,10 @@ build(k10engine::Game::Game* g, size_t player_id, k10engine::Building b, size_t 
 
 int main(int /* unused */, char** /* unused */)
 {
-    auto b = k10engine::Board::get_standard_board();
+    auto b = k10engine::Board::from_file("static/boards/Standard.board");
     auto s = get_standard_scenario();
     auto p = get_standard_parameters();
-    auto g = k10engine::Game::initialize(b, s, p);
+    auto g = k10engine::Game::initialize(&b, s, p);
 
     std::cout << std::endl << " ~~~ Hex neighbors ~~~" << std::endl << std::endl;
     for (const auto& hex_entry : g->hexes()) {
@@ -216,7 +216,6 @@ int main(int /* unused */, char** /* unused */)
     dump_actions(g);
 
     delete g;
-    delete b;
 
     return 0;
 }

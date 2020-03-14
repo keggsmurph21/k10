@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(k10)
 
-# Generate the Standard.h file
-if (${CMAKE_SOURCE_DIR}/static/boards/Standard.board IS_NEWER_THAN ${CMAKE_SOURCE_DIR}/include/Board/generated/Standard.h)
-    execute_process(
-        COMMAND ./scripts/generate-boards --names Standard
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    )
-endif()
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=bugprone-*,google-*,readability-*,misc-*,modernize-*,performance-*,portability-*,-modernize-use-trailing-return-type,-google-readability-namespace-comments)
 

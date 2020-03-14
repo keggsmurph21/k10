@@ -2,9 +2,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "Board/generated/Single.h"
-#include "Board/generated/Standard.h"
-#include "Board/generated/Triple.h"
+#include "Board/Parser.h"
 #include "Game/Game.h"
 #include "Scenario/Parameters.h"
 #include "Scenario/Scenario.h"
@@ -497,10 +495,10 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
 {
     SECTION("One player")
     {
-        auto b = Board::get_single_board();
+        auto b = Board::from_file("static/boards/Single.board");
         auto s = get_single_scenario();
         auto p = get_single_parameters();
-        auto g = Game::initialize(b, s, p);
+        auto g = Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -592,7 +590,6 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         }
 
         delete g;
-        delete b;
     }
 }
 
@@ -601,10 +598,10 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 {
     SECTION("One player")
     {
-        auto b = Board::get_triple_board();
+        auto b = Board::from_file("static/boards/Triple.board");
         auto s = get_triple_scenario();
         auto p = get_triple_parameters(1);
-        auto g = Game::initialize(b, s, p);
+        auto g = Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -699,15 +696,14 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         }
 
         delete g;
-        delete b;
     }
 
     SECTION("Two players")
     {
-        auto b = Board::get_triple_board();
+        auto b = Board::from_file("static/boards/Triple.board");
         auto s = get_triple_scenario();
         auto p = get_triple_parameters(2);
-        auto g = Game::initialize(b, s, p);
+        auto g = Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -887,15 +883,14 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         }
 
         delete g;
-        delete b;
     }
 
     SECTION("Three players")
     {
-        auto b = Board::get_triple_board();
+        auto b = Board::from_file("static/boards/Triple.board");
         auto s = get_triple_scenario();
         auto p = get_triple_parameters(3);
-        auto g = Game::initialize(b, s, p);
+        auto g = Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -1164,7 +1159,6 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         }
 
         delete g;
-        delete b;
     }
 }
 
@@ -1172,10 +1166,10 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
 {
     SECTION("Two players")
     {
-        auto b = Board::get_standard_board();
+        auto b = Board::from_file("static/boards/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(2);
-        auto g = Game::initialize(b, s, p);
+        auto g = Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -1444,6 +1438,5 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         }
 
         delete g;
-        delete b;
     }
 }

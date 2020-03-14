@@ -1,9 +1,7 @@
 #include <stdexcept>
 
 #include "Board/Graph.h"
-#include "Board/generated/Portless.h"
-#include "Board/generated/Standard.h"
-#include "Board/generated/Tall.h"
+#include "Board/Parser.h"
 #include "Test/catch.h"
 
 namespace k10engine::Board {
@@ -122,26 +120,23 @@ TEST_CASE("Loading generated boards", "[Board][Board.Graph]")
 {
     SECTION("Standard")
     {
-        auto g = get_standard_board();
-        REQUIRE(g->size() == 163);
+        auto g = from_file("static/boards/Standard.board");
+        REQUIRE(g.size() == 163);
         // REQUIRE(b->ports().size() == 9);
-        delete g;
     }
 
     SECTION("Portless")
     {
-        auto g = get_portless_board();
-        REQUIRE(g->size() == 163);
+        auto g = from_file("static/boards/Portless.board");
+        REQUIRE(g.size() == 163);
         // REQUIRE(b->ports().size() == 0);
-        delete g;
     }
 
     SECTION("Tall")
     {
-        auto g = get_tall_board();
-        REQUIRE(g->size() == 295);
+        auto g = from_file("static/boards/Tall.board");
+        REQUIRE(g.size() == 295);
         // REQUIRE(b->ports().size() == 13);
-        delete g;
     }
 }
 
