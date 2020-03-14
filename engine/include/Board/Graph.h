@@ -13,6 +13,12 @@
 namespace k10engine::Board {
 
 typedef struct {
+    size_t x;
+    size_t y;
+    NodeType type;
+} NodeSpec;
+
+typedef struct {
     size_t node_0_index;
     size_t node_1_index;
     Direction direction;
@@ -24,7 +30,7 @@ typedef struct {
     Orientation orientation;
 } PortSpec;
 
-typedef std::vector<NodeType> NodeSpecs;
+typedef std::vector<NodeSpec> NodeSpecs;
 typedef std::vector<EdgeSpec> EdgeSpecs;
 typedef std::vector<PortSpec> PortSpecs;
 

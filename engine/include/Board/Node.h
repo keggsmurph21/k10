@@ -11,8 +11,10 @@ namespace k10engine::Board {
 
 class Node {
 public:
-    Node(const size_t index, const NodeType type)
+    Node(size_t index, size_t x, size_t y, NodeType type)
         : m_index(index)
+        , m_x(x)
+        , m_y(y)
         , m_type(type)
     {
     }

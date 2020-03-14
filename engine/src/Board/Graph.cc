@@ -35,8 +35,8 @@ Graph::Graph(const NodeSpecs& node_specs, const EdgeSpecs& edge_specs, const Por
 {
     int index = 0;
     size_t port_index = 0;
-    for (auto type : node_specs) {
-        auto node = new Node(index, type);
+    for (auto it : node_specs) {
+        auto node = new Node(index, it.x, it.y, it.type);
         m_nodes.push_back(node);
         ++index;
     }

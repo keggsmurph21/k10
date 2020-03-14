@@ -134,7 +134,7 @@ static Graph from_stream(std::istream& char_stream)
             assert(false);
         }
         token_matrix[y][x] = token;
-        nodes.push_back(node_type(token.ch));
+        nodes.push_back({ static_cast<size_t>(x), static_cast<size_t>(y), node_type(token.ch) });
         ++num;
         ++x;
     }
