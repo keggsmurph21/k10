@@ -553,8 +553,8 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         gs.roads_built += 1;
         gs.is_first_round = false;
         gs.is_second_round = true;
-        gs.round = 1;
-        gs.turn = 1;
+        gs.round += 1;
+        gs.turn += 1;
         ps[0].vertex = Vertex::WaitForTurn;
         ps[0].roads = 1;
         check_state();
@@ -591,8 +591,8 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 12 } } });
 
         gs.is_second_round = false;
-        gs.round = 2;
-        gs.turn = 2;
+        gs.round += 1;
+        gs.turn += 1;
         ps[0].vertex = Vertex::WaitForTurn;
         check_state();
         check_to_root(0);
@@ -662,8 +662,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         gs.roads_built += 1;
         gs.is_first_round = false;
         gs.is_second_round = true;
-        gs.round = 1;
-        gs.turn = 1;
+        gs.round += 1;
+        gs.turn += 1;
         ps[0].vertex = Vertex::WaitForTurn;
         ps[0].roads = 1;
         check_state();
@@ -700,8 +700,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 3 } } });
 
         gs.is_second_round = false;
-        gs.round = 2;
-        gs.turn = 2;
+        gs.round += 1;
+        gs.turn += 1;
         ps[0].vertex = Vertex::WaitForTurn;
         ps[0].num_resources = 1;
         check_state();
@@ -772,7 +772,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_roads();
 
         gs.roads_built += 1;
-        gs.turn = 1;
+        gs.turn += 1;
         ps[0].is_current_player = false;
         ps[0].vertex = Vertex::WaitForTurn;
         ps[0].roads = 1;
@@ -810,8 +810,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         gs.roads_built += 1;
         gs.is_first_round = false;
         gs.is_second_round = true;
-        gs.round = 1;
-        gs.turn = 2;
+        gs.round += 1;
+        gs.turn += 1;
         ps[1].vertex = Vertex::WaitForTurn;
         ps[1].roads = 1;
         check_state();
@@ -852,7 +852,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 3 } } });
 
-        gs.turn = 3;
+        gs.turn += 1;
         ps[0].is_current_player = true;
         ps[1].vertex = Vertex::WaitForTurn;
         ps[1].is_current_player = false;
@@ -894,8 +894,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 20 } } });
 
         gs.is_second_round = false;
-        gs.turn = 4;
-        gs.round = 2;
+        gs.turn += 1;
+        gs.round += 1;
         ps[0].num_resources = 2;
         ps[0].vertex = Vertex::WaitForTurn;
         check_state();
@@ -968,7 +968,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_roads();
 
         gs.roads_built += 1;
-        gs.turn = 1;
+        gs.turn += 1;
         ps[0].is_current_player = false;
         ps[0].vertex = Vertex::WaitForTurn;
         ps[0].roads = 1;
@@ -1004,7 +1004,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_roads();
 
         gs.roads_built += 1;
-        gs.turn = 2;
+        gs.turn += 1;
         ps[1].is_current_player = false;
         ps[1].vertex = Vertex::WaitForTurn;
         ps[1].roads = 1;
@@ -1043,8 +1043,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         gs.roads_built += 1;
         gs.is_first_round = false;
         gs.is_second_round = true;
-        gs.turn = 3;
-        gs.round = 1;
+        gs.turn += 1;
+        gs.round += 1;
         ps[2].vertex = Vertex::WaitForTurn;
         ps[2].roads = 1;
         check_state();
@@ -1088,7 +1088,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         exec_ok(2, { Edge::ChooseInitialResources, { { ArgType::NodeId, 20 } } });
 
-        gs.turn = 4;
+        gs.turn += 1;
         ps[1].is_current_player = true;
         ps[2].vertex = Vertex::WaitForTurn;
         ps[2].is_current_player = false;
@@ -1133,7 +1133,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
 
         exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 4 } } });
 
-        gs.turn = 5;
+        gs.turn += 1;
         ps[0].is_current_player = true;
         ps[1].vertex = Vertex::WaitForTurn;
         ps[1].is_current_player = false;
@@ -1181,8 +1181,8 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 37 } } });
 
         gs.is_second_round = false;
-        gs.turn = 6;
-        gs.round = 2;
+        gs.turn += 1;
+        gs.round += 1;
         ps[0].vertex = Vertex::WaitForTurn;
         check_state();
         check_to_root(0);
@@ -1258,7 +1258,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         check_roads();
 
         gs.roads_built += 1;
-        gs.turn = 1;
+        gs.turn += 1;
         ps[0].is_current_player = false;
         ps[0].vertex = Vertex::WaitForTurn;
         ps[0].roads = 1;
@@ -1292,8 +1292,8 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         check_roads();
 
         gs.roads_built += 1;
-        gs.turn = 2;
-        gs.round = 1;
+        gs.turn += 1;
+        gs.round += 1;
         gs.is_first_round = false;
         gs.is_second_round = true;
         ps[1].vertex = Vertex::WaitForTurn;
@@ -1335,7 +1335,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
 
         exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 5 } } });
 
-        gs.turn = 3;
+        gs.turn += 1;
         ps[0].is_current_player = true;
         ps[1].vertex = Vertex::WaitForTurn;
         ps[1].is_current_player = false;
@@ -1379,8 +1379,8 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 26 } } });
 
         gs.is_second_round = false;
-        gs.turn = 4;
-        gs.round = 2;
+        gs.turn += 1;
+        gs.round += 1;
         ps[0].vertex = Vertex::WaitForTurn;
         ps[0].num_resources = 2;
         check_state();
@@ -1404,7 +1404,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
 
         exec_ok(0, { Edge::EndTurn, {} });
 
-        gs.turn = 5;
+        gs.turn += 1;
         gs.has_rolled = false;
         ps[0].vertex = Vertex::WaitForTurn;
         ps[0].is_current_player = false;
@@ -1548,7 +1548,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
 
         gs.roads_built += 1;
         gs.turn += 1;
-        gs.round = 1;
+        gs.round += 1;
         gs.is_first_round = false;
         gs.is_second_round = true;
         ps[2].vertex = Vertex::WaitForTurn;
@@ -1691,7 +1691,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
 
         gs.is_second_round = false;
         gs.turn += 1;
-        gs.round = 2;
+        gs.round += 1;
         ps[0].vertex = Vertex::WaitForTurn;
         ps[0].num_resources = 2;
         check_state();
