@@ -23,7 +23,7 @@ template<typename T>
 using Costs = std::map<T, ResourceCounts, std::less<T>>;
 
 template<typename T>
-using Counts = std::map<T, int, std::less<T>>;
+using Counts = std::map<T, size_t, std::less<T>>;
 
 struct _PortSpec {
     ResourceCollection resources;
@@ -36,10 +36,10 @@ struct _PortSpec {
 
 class Scenario {
 public:
-    int min_players_count() const { return m_min_players_count; }
-    int max_players_count() const { return m_max_players_count; }
-    int min_victory_points_goal() const { return m_min_victory_points_goal; }
-    int max_victory_points_goal() const { return m_max_victory_points_goal; }
+    size_t min_players_count() const { return m_min_players_count; }
+    size_t max_players_count() const { return m_max_players_count; }
+    size_t min_victory_points_goal() const { return m_min_victory_points_goal; }
+    size_t max_victory_points_goal() const { return m_max_victory_points_goal; }
 
     const Costs<Building>& building_costs() const { return m_building_costs; }
     const Counts<Building>& building_counts() const { return m_building_counts; }
@@ -51,13 +51,13 @@ public:
 
     bool is_valid(const Building&) const;
     const ResourceCounts* cost(const Building&) const;
-    int count(const Building&) const;
+    size_t count(const Building&) const;
 
     bool is_valid(const DevelopmentCard&) const;
-    int count(const DevelopmentCard&) const;
+    size_t count(const DevelopmentCard&) const;
 
     bool is_valid(const AbstractResource&) const;
-    int count(const AbstractResource&) const;
+    size_t count(const AbstractResource&) const;
 
     std::vector<DevelopmentCard>
         get_development_card_deck(IterationType) const;               // gets a fresh copy
@@ -67,10 +67,10 @@ public:
 
     bool is_valid(const Parameters&) const;
 
-    Scenario(int min_players_count,
-             int max_players_count,
-             int min_victory_points_goal,
-             int max_victory_points_goal,
+    Scenario(size_t min_players_count,
+             size_t max_players_count,
+             size_t min_victory_points_goal,
+             size_t max_victory_points_goal,
              Costs<Building> building_costs,
              Counts<Building> building_counts,
              Counts<DevelopmentCard> development_card_counts,
@@ -84,20 +84,20 @@ public:
         , m_rolls(rolls)
         , m_ports(ports)
     {
-        m_min_players_count = std::max<int>(min_players_count, k10_SCENARIO_MIN_PLAYERS_COUNT);
-        m_max_players_count = std::min<int>(max_players_count, k10_SCENARIO_MAX_PLAYERS_COUNT);
+        m_min_players_count = std::max<size_t>(min_players_count, k10_SCENARIO_MIN_PLAYERS_COUNT);
+        m_max_players_count = std::min<size_t>(max_players_count, k10_SCENARIO_MAX_PLAYERS_COUNT);
         m_min_victory_points_goal =
-            std::max<int>(min_victory_points_goal, k10_SCENARIO_MIN_VICTORY_POINTS_GOAL);
+            std::max<size_t>(min_victory_points_goal, k10_SCENARIO_MIN_VICTORY_POINTS_GOAL);
         m_max_victory_points_goal =
-            std::min<int>(max_victory_points_goal, k10_SCENARIO_MAX_VICTORY_POINTS_GOAL);
+            std::min<size_t>(max_victory_points_goal, k10_SCENARIO_MAX_VICTORY_POINTS_GOAL);
     }
     ~Scenario();
 
 protected:
-    int m_min_players_count;
-    int m_max_players_count;
-    int m_min_victory_points_goal;
-    int m_max_victory_points_goal;
+    size_t m_min_players_count;
+    size_t m_max_players_count;
+    size_t m_min_victory_points_goal;
+    size_t m_max_victory_points_goal;
 
     Costs<Building> m_building_costs;
     Counts<Building> m_building_counts;

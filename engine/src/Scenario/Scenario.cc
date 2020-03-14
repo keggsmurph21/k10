@@ -19,7 +19,7 @@ const ResourceCounts* Scenario::cost(const Building& building) const
     return &m_building_costs.at(building);
 }
 
-int Scenario::count(const Building& building) const
+size_t Scenario::count(const Building& building) const
 {
     if (!is_valid(building)) {
         return 0;
@@ -32,7 +32,7 @@ bool Scenario::is_valid(const DevelopmentCard& development_card) const
     return m_development_card_counts.find(development_card) != m_development_card_counts.end();
 }
 
-int Scenario::count(const DevelopmentCard& development_card) const
+size_t Scenario::count(const DevelopmentCard& development_card) const
 {
     if (!is_valid(development_card)) {
         return 0;
@@ -45,7 +45,7 @@ bool Scenario::is_valid(const AbstractResource& resource) const
     return m_resource_counts.find(resource) != m_resource_counts.end();
 }
 
-int Scenario::count(const AbstractResource& resource) const
+size_t Scenario::count(const AbstractResource& resource) const
 {
     if (!is_valid(resource)) {
         return 0;
@@ -58,7 +58,7 @@ std::vector<DevelopmentCard> Scenario::get_development_card_deck(IterationType t
     std::vector<DevelopmentCard> deck;
     for (const auto& item : m_development_card_counts) {
         auto count = item.second;
-        for (int i = 0; i < count; ++i) {
+        for (size_t i = 0; i < count; ++i) {
             deck.push_back(item.first);
         }
     }
@@ -77,7 +77,7 @@ std::vector<AbstractResource> Scenario::get_resources(IterationType type) const
     std::vector<AbstractResource> resources;
     for (const auto& item : m_resource_counts) {
         auto count = item.second;
-        for (int i = 0; i < count; ++i) {
+        for (size_t i = 0; i < count; ++i) {
             resources.push_back(item.first);
         }
     }

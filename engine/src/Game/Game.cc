@@ -59,7 +59,7 @@ Game::Game(const Board::Graph* graph,
     , m_robber(m_hexes.at(robber_index))
     , m_victory_points_goal(parameters.victory_points_goal)
 {
-    for (int i = 0; i < parameters.players_count; ++i) {
+    for (size_t i = 0; i < parameters.players_count; ++i) {
         m_players.push_back(new Player(i, this));
     }
     current_player()->set_vertex(State::Vertex::Root);

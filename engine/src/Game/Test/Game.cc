@@ -395,7 +395,7 @@ Scenario_ get_triple_scenario()
         });
 }
 
-Parameters get_triple_parameters(int num_players)
+Parameters get_triple_parameters(size_t num_players)
 {
     return Parameters{
         IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,
@@ -482,7 +482,7 @@ Scenario_ get_standard_scenario()
         });
 }
 
-Parameters get_standard_parameters(int num_players)
+Parameters get_standard_parameters(size_t num_players)
 {
     return Parameters{
         IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,

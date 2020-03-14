@@ -11,8 +11,8 @@ typedef struct {
     IterationType port_iteration_type;
     IterationType resource_iteration_type;
     IterationType roll_iteration_type;
-    int players_count;
-    int victory_points_goal;
+    size_t players_count;
+    size_t victory_points_goal;
 } Parameters;
 
 } // namespace Scenario

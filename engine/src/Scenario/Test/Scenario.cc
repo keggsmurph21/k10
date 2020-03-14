@@ -461,7 +461,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(!actual_resources.empty());
             REQUIRE(actual_resources.size() == expected_resources.size());
             // NOLINTNEXTLINE(modernize-loop-convert)
-            for (int i = 0; i < expected_resources.size(); ++i) {
+            for (size_t i = 0; i < expected_resources.size(); ++i) {
                 const auto expected_resource = expected_resources.at(i);
                 const auto actual_resource = actual_resources.at(i);
                 if (std::holds_alternative<k10engine::Resource>(actual_resource)) {
@@ -491,7 +491,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(!actual_resources.empty());
             REQUIRE(actual_resources.size() == expected_resources.size());
             // NOLINTNEXTLINE(modernize-loop-convert)
-            for (int i = 0; i < expected_resources.size(); ++i) {
+            for (size_t i = 0; i < expected_resources.size(); ++i) {
                 const auto expected_resource = expected_resources.at(i);
                 const auto actual_resource = actual_resources.at(i);
                 if (std::holds_alternative<k10engine::Resource>(actual_resource)) {
@@ -615,7 +615,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(!actual_development_cards.empty());
             REQUIRE(actual_development_cards.size() == expected_development_cards.size());
             // NOLINTNEXTLINE(modernize-loop-convert)
-            for (int i = 0; i < expected_development_cards.size(); ++i) {
+            for (size_t i = 0; i < expected_development_cards.size(); ++i) {
                 const auto expected_development_card = expected_development_cards.at(i);
                 const auto actual_development_card = actual_development_cards.at(i);
                 REQUIRE(actual_development_card == expected_development_card);
@@ -639,7 +639,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(!actual_development_cards.empty());
             REQUIRE(actual_development_cards.size() == expected_development_cards.size());
             // NOLINTNEXTLINE(modernize-loop-convert)
-            for (int i = 0; i < expected_development_cards.size(); ++i) {
+            for (size_t i = 0; i < expected_development_cards.size(); ++i) {
                 const auto expected_development_card = expected_development_cards.at(i);
                 const auto actual_development_card = actual_development_cards.at(i);
                 REQUIRE(actual_development_card == expected_development_card);
@@ -722,7 +722,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(!actual_rolls.empty());
             REQUIRE(actual_rolls.size() == expected_rolls.size());
             // NOLINTNEXTLINE(modernize-loop-convert)
-            for (int i = 0; i < expected_rolls.size(); ++i) {
+            for (size_t i = 0; i < expected_rolls.size(); ++i) {
                 const auto expected_roll = expected_rolls.at(i);
                 const auto actual_roll = actual_rolls.at(i);
                 REQUIRE(actual_roll == expected_roll);
@@ -733,7 +733,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(!actual_rolls.empty());
             REQUIRE(actual_rolls.size() == expected_rolls.size());
             // NOLINTNEXTLINE(modernize-loop-convert)
-            for (int i = 0; i < expected_rolls.size(); ++i) {
+            for (size_t i = 0; i < expected_rolls.size(); ++i) {
                 const auto expected_roll = expected_rolls.at(i);
                 const auto actual_roll = actual_rolls.at(i);
                 REQUIRE(actual_roll == expected_roll);
@@ -811,7 +811,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
             REQUIRE(fixed_ports.size() == expected_ports.size());
-            for (int i = 0; i < expected_ports.size(); ++i) {
+            for (size_t i = 0; i < expected_ports.size(); ++i) {
                 REQUIRE(fixed_ports.at(i) == expected_ports.at(i));
             }
             expected_ports = {
@@ -821,7 +821,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const auto& random_ports = s.get_ports(IterationType::Random);
             REQUIRE(!random_ports.empty());
             REQUIRE(random_ports.size() == expected_ports.size());
-            for (int i = 0; i < expected_ports.size(); ++i) {
+            for (size_t i = 0; i < expected_ports.size(); ++i) {
                 REQUIRE(random_ports.at(i) == expected_ports.at(i));
             }
         }
@@ -879,7 +879,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(!actual_ports.empty());
             REQUIRE(actual_ports.size() == expected_ports.size());
             // NOLINTNEXTLINE(modernize-loop-convert)
-            for (int i = 0; i < expected_ports.size(); ++i) {
+            for (size_t i = 0; i < expected_ports.size(); ++i) {
                 const auto expected_port = expected_ports.at(i);
                 const auto actual_port = actual_ports.at(i);
                 REQUIRE(actual_port == expected_port);
@@ -934,7 +934,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             REQUIRE(!actual_ports.empty());
             REQUIRE(actual_ports.size() == expected_ports.size());
             // NOLINTNEXTLINE(modernize-loop-convert)
-            for (int i = 0; i < expected_ports.size(); ++i) {
+            for (size_t i = 0; i < expected_ports.size(); ++i) {
                 const auto expected_port = expected_ports.at(i);
                 const auto actual_port = actual_ports.at(i);
                 REQUIRE(actual_port == expected_port);
@@ -945,10 +945,10 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
 TEST_CASE("Parameter validation", "[Scenario]")
 {
-    const int standard_min_players_count = 2;
-    const int standard_max_players_count = 5;
-    const int standard_min_victory_points_goal = 8;
-    const int standard_max_victory_points_goal = 12;
+    const size_t standard_min_players_count = 2;
+    const size_t standard_max_players_count = 5;
+    const size_t standard_min_victory_points_goal = 8;
+    const size_t standard_max_victory_points_goal = 12;
     const auto s = Scenario(standard_min_players_count,
                             standard_max_players_count,
                             standard_min_victory_points_goal,
@@ -959,10 +959,10 @@ TEST_CASE("Parameter validation", "[Scenario]")
                             {},
                             {},
                             {});
-    for (int players_count = standard_min_players_count;
+    for (size_t players_count = standard_min_players_count;
          players_count <= standard_max_players_count;
          ++players_count) {
-        for (int victory_points_goal = standard_min_victory_points_goal;
+        for (size_t victory_points_goal = standard_min_victory_points_goal;
              victory_points_goal <= standard_max_victory_points_goal;
              ++victory_points_goal) {
 
