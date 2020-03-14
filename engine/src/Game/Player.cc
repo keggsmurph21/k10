@@ -32,8 +32,8 @@ std::vector<Action> Player::get_available_actions() const
         }
 
         // roads adjacent to our current settlements
-        for (const auto& junction_entry : m_game->junctions()) {
-            const auto junction = junction_entry.second;
+        for (const auto& it : m_game->junctions()) {
+            const auto junction = it.second;
             for (const auto road_neighbor : junction->road_neighbors()) {
                 const auto road = road_neighbor.second;
                 if (junction->owner() == this && road->owner() == nullptr) {
@@ -61,8 +61,8 @@ std::vector<Action> Player::get_available_actions() const
             if (m_game->should_wait_for_discard()) {
                 return {}; // i.e., wait
             }
-            for (const auto& hex_entry : m_game->hexes()) {
-                const auto hex = hex_entry.second;
+            for (const auto& it : m_game->hexes()) {
+                const auto hex = it.second;
                 if (hex->index() != m_game->robber_location()->index()) {
                     available_actions.push_back(
                         { State::Edge::MoveRobber,
@@ -109,8 +109,8 @@ std::vector<Action> Player::get_available_actions() const
         if (m_game->should_wait_for_discard()) {
             return {}; // i.e., wait
         }
-        for (const auto& hex_entry : m_game->hexes()) {
-            const auto hex = hex_entry.second;
+        for (const auto& it : m_game->hexes()) {
+            const auto hex = it.second;
             if (hex->index() != m_game->robber_location()->index()) {
                 available_actions.push_back(
                     { State::Edge::MoveRobber, { { ActionArgumentType::NodeId, hex->index() } } });
@@ -130,8 +130,8 @@ std::vector<Action> Player::get_available_actions() const
 
     case State::Vertex::Root:
         if (m_game->is_first_round()) {
-            for (const auto& junction_entry : m_game->junctions()) {
-                const auto junction = junction_entry.second;
+            for (const auto& it : m_game->junctions()) {
+                const auto junction = it.second;
                 if (junction->is_settleable()) {
                     available_actions.push_back(
                         { State::Edge::Build,
@@ -143,8 +143,8 @@ std::vector<Action> Player::get_available_actions() const
             return available_actions;
         }
         if (m_game->is_second_round()) {
-            for (const auto& junction_entry : m_game->junctions()) {
-                const auto junction = junction_entry.second;
+            for (const auto& it : m_game->junctions()) {
+                const auto junction = it.second;
                 if (junction->is_settleable()) {
                     available_actions.push_back(
                         { State::Edge::Build,
@@ -187,8 +187,8 @@ std::vector<Action> Player::get_available_actions() const
                 }
             }
 
-            for (const auto& junction_entry : m_game->junctions()) {
-                const auto junction = junction_entry.second;
+            for (const auto& it : m_game->junctions()) {
+                const auto junction = it.second;
                 if (can_build_city) {
                     if (junction->owner() == this) {
                         available_actions.push_back(
@@ -232,8 +232,8 @@ std::vector<Action> Player::get_available_actions() const
                 }
                 switch (development_card) {
                 case DevelopmentCard::Knight:
-                    for (const auto& hex_entry : m_game->hexes()) {
-                        const auto hex = hex_entry.second;
+                    for (const auto& it : m_game->hexes()) {
+                        const auto hex = it.second;
                         if (hex->index() != m_game->robber_location()->index()) {
                             available_actions.push_back(
                                 { State::Edge::PlayDevelopmentCard,
@@ -394,8 +394,8 @@ void Player::build_road(BoardView::Road* road, Options options)
 size_t Player::num_resources() const
 {
     size_t total = 0;
-    for (const auto& resource_entry : m_resources) {
-        const auto& count = resource_entry.second;
+    for (const auto& it : m_resources) {
+        const auto& count = it.second;
         total += count;
     }
     return total;
@@ -403,9 +403,9 @@ size_t Player::num_resources() const
 
 void Player::accrue_resources(const ResourceCounts& counts)
 {
-    for (const auto& entry : counts) {
-        const auto& resource = entry.first;
-        const auto& count = entry.second;
+    for (const auto& it : counts) {
+        const auto& resource = it.first;
+        const auto& count = it.second;
         if (m_resources.find(resource) == m_resources.end()) {
             m_resources[resource] = count;
         } else {
