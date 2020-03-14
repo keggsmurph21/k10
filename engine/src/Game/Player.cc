@@ -307,6 +307,7 @@ bool Player::can_build(const Building& building) const
     const auto& num_built = m_game->num_built(building);
     const auto& num_buildable = m_game->scenario().count(building);
     const auto& cost = m_game->scenario().cost(building);
+    assert(cost != nullptr);
     return (num_built < num_buildable) && can_afford(*cost);
 }
 
@@ -359,6 +360,7 @@ void Player::build_settlement(BoardView::Junction* junction_to_settle, Options o
 {
     if ((options & Options::NoCost) != Options::NoCost) {
         const auto& cost = m_game->scenario().cost(Building::Road);
+        assert(cost != nullptr);
         spend_resources(*cost);
     }
 
@@ -384,6 +386,7 @@ void Player::build_road(BoardView::Road* road, Options options)
 {
     if ((options & Options::NoCost) != Options::NoCost) {
         const auto& cost = m_game->scenario().cost(Building::Road);
+        assert(cost != nullptr);
         spend_resources(*cost);
     }
 
