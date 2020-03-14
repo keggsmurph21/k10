@@ -337,13 +337,11 @@ bool Player::is_blocking() const // NOLINT(readability-convert-member-functions-
     throw std::invalid_argument("Not implemented: Player::is_blocking");
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 bool Player::can_afford(const ResourceCounts& resource_counts) const
 {
     return !(m_resources < resource_counts);
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 bool Player::can_afford(const Building& building) const
 {
     const auto cost = game()->scenario().cost(building);
