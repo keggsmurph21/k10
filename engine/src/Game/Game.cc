@@ -464,23 +464,25 @@ Result Game::execute_action(size_t player_id, const Action& action)
     assert(false);
 }
 
+void Game::increment_num_built(Building building)
+{
+    if (m_buildings_built.find(building) == m_buildings_built.end()) {
+        m_buildings_built[building] = 0;
+    }
+    m_buildings_built[building] += 1;
+}
+
 void Game::build_settlement(Player* player, BoardView::Junction* junction, Options options)
 {
     player->build_settlement(junction, options);
-    if (m_buildings_built.find(Building::Settlement) == m_buildings_built.end()) {
-        m_buildings_built[Building::Settlement] = 0;
-    }
-    m_buildings_built[Building::Settlement] += 1;
+    increment_num_built(Building::Settlement);
 }
 
 void Game::build_road(Player* player, BoardView::Road* road, Options options)
 {
     player->build_road(road, options);
     recalculate_longest_road();
-    if (m_buildings_built.find(Building::Settlement) == m_buildings_built.end()) {
-        m_buildings_built[Building::Settlement] = 0;
-    }
-    m_buildings_built[Building::Settlement] += 1;
+    increment_num_built(Building::Road);
 }
 
 bool Game::is_game_over() const

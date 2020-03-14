@@ -107,6 +107,7 @@ private:
     void recalculate_longest_road();
 
     std::map<Building, size_t> m_buildings_built;
+    void increment_num_built(Building);
 
     void build_settlement(Player*, BoardView::Junction*, Options);
     void build_road(Player*, BoardView::Road*, Options);
