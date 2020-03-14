@@ -716,7 +716,6 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
                                     {});
             std::vector<int> expected_rolls;
             std::vector<int> actual_rolls;
-            // NOLINTNEXTLINE(readability-magic-numbers)
             expected_rolls = { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 };
             actual_rolls = s.get_rolls(IterationType::Fixed);
             REQUIRE(!actual_rolls.empty());
@@ -727,7 +726,6 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
                 const auto actual_roll = actual_rolls.at(i);
                 REQUIRE(actual_roll == expected_roll);
             }
-            // NOLINTNEXTLINE(readability-magic-numbers)
             expected_rolls = { 3, 5, 11, 2, 5, 8, 9, 9, 10, 4, 10, 12, 3, 4, 8, 11, 6, 6 };
             actual_rolls = s.get_rolls(IterationType::Random);
             REQUIRE(!actual_rolls.empty());

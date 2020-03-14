@@ -7,10 +7,10 @@
 k10engine::Scenario::Scenario get_standard_scenario()
 {
     return k10engine::Scenario::Scenario(
-        2,  // NOLINT(readability-magic-numbers)
-        5,  // NOLINT(readability-magic-numbers)
-        8,  // NOLINT(readability-magic-numbers)
-        12, // NOLINT(readability-magic-numbers)
+        2,
+        5,
+        8,
+        12,
         { {
               k10engine::Building::City,
               { { k10engine::Resource::Ore, 3 }, { k10engine::Resource::Wheat, 2 } },
@@ -37,15 +37,15 @@ k10engine::Scenario::Scenario get_standard_scenario()
           } },
         {
             { k10engine::Building::City, 4 },
-            { k10engine::Building::DevelopmentCard, 25 }, // NOLINT(readability-magic-numbers)
-            { k10engine::Building::Road, 15 },            // NOLINT(readability-magic-numbers)
-            { k10engine::Building::Settlement, 5 },       // NOLINT(readability-magic-numbers)
+            { k10engine::Building::DevelopmentCard, 25 },
+            { k10engine::Building::Road, 15 },
+            { k10engine::Building::Settlement, 5 },
         },
         {
-            { k10engine::DevelopmentCard::Knight, 14 }, // NOLINT(readability-magic-numbers)
+            { k10engine::DevelopmentCard::Knight, 14 },
             { k10engine::DevelopmentCard::Monopoly, 2 },
             { k10engine::DevelopmentCard::RoadBuilding, 2 },
-            { k10engine::DevelopmentCard::VictoryPoint, 5 }, // NOLINT(readability-magic-numbers)
+            { k10engine::DevelopmentCard::VictoryPoint, 5 },
             { k10engine::DevelopmentCard::YearOfPlenty, 2 },
         },
         { { k10engine::Resource::Brick, 3 },
@@ -54,7 +54,6 @@ k10engine::Scenario::Scenario get_standard_scenario()
           { k10engine::Resource::Wheat, 4 },
           { k10engine::Resource::Wood, 4 },
           { k10engine::NonYieldingResource::Desert, 1 } },
-        // NOLINTNEXTLINE(readability-magic-numbers)
         { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 },
         {
             { { k10engine::Resource::Brick,
@@ -107,8 +106,8 @@ k10engine::Scenario::Parameters get_standard_parameters()
                                             k10engine::Scenario::IterationType::Fixed,
                                             k10engine::Scenario::IterationType::Fixed,
                                             k10engine::Scenario::IterationType::Fixed,
-                                            4,    // NOLINT(readability-magic-numbers)
-                                            10 }; // NOLINT(readability-magic-numbers)
+                                            4,
+                                            10 };
 }
 
 void dump_actions(const k10engine::Game::Game* g)

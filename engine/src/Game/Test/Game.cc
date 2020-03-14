@@ -308,10 +308,10 @@ Action build(Building b, size_t node_index)
 Scenario_ get_single_scenario()
 {
     return Scenario_(
-        1, // NOLINT(readability-magic-numbers)
-        2, // NOLINT(readability-magic-numbers)
-        3, // NOLINT(readability-magic-numbers)
-        6, // NOLINT(readability-magic-numbers)
+        1,
+        2,
+        3,
+        6,
         { {
               Building::City,
               { { Resource::Ore, 3 }, { Resource::Wheat, 2 } },
@@ -336,15 +336,15 @@ Scenario_ get_single_scenario()
           } },
         {
             { Building::City, 2 },
-            { Building::DevelopmentCard, 25 }, // NOLINT(readability-magic-numbers)
-            { Building::Road, 6 },             // NOLINT(readability-magic-numbers)
-            { Building::Settlement, 2 },       // NOLINT(readability-magic-numbers)
+            { Building::DevelopmentCard, 25 },
+            { Building::Road, 6 },
+            { Building::Settlement, 2 },
         },
         {
-            { DevelopmentCard::Knight, 14 }, // NOLINT(readability-magic-numbers)
+            { DevelopmentCard::Knight, 14 },
             { DevelopmentCard::Monopoly, 2 },
             { DevelopmentCard::RoadBuilding, 2 },
-            { DevelopmentCard::VictoryPoint, 5 }, // NOLINT(readability-magic-numbers)
+            { DevelopmentCard::VictoryPoint, 5 },
             { DevelopmentCard::YearOfPlenty, 2 },
         },
         {
@@ -360,21 +360,18 @@ Scenario_ get_single_scenario()
 
 Parameters get_single_parameters()
 {
-    return Parameters{ IterationType::Fixed,
-                       IterationType::Fixed,
-                       IterationType::Fixed,
-                       IterationType::Fixed,
-                       1,   // NOLINT(readability-magic-numbers)
-                       3 }; // NOLINT(readability-magic-numbers)
+    return Parameters{
+        IterationType::Fixed, IterationType::Fixed, IterationType::Fixed, IterationType::Fixed, 1, 3
+    };
 }
 
 Scenario_ get_triple_scenario()
 {
     return Scenario_(
-        1, // NOLINT(readability-magic-numbers)
-        3, // NOLINT(readability-magic-numbers)
-        3, // NOLINT(readability-magic-numbers)
-        6, // NOLINT(readability-magic-numbers)
+        1,
+        3,
+        3,
+        6,
         { {
               Building::City,
               { { Resource::Ore, 3 }, { Resource::Wheat, 2 } },
@@ -399,15 +396,15 @@ Scenario_ get_triple_scenario()
           } },
         {
             { Building::City, 3 },
-            { Building::DevelopmentCard, 25 }, // NOLINT(readability-magic-numbers)
-            { Building::Road, 10 },            // NOLINT(readability-magic-numbers)
-            { Building::Settlement, 4 },       // NOLINT(readability-magic-numbers)
+            { Building::DevelopmentCard, 25 },
+            { Building::Road, 10 },
+            { Building::Settlement, 4 },
         },
         {
-            { DevelopmentCard::Knight, 14 }, // NOLINT(readability-magic-numbers)
+            { DevelopmentCard::Knight, 14 },
             { DevelopmentCard::Monopoly, 2 },
             { DevelopmentCard::RoadBuilding, 2 },
-            { DevelopmentCard::VictoryPoint, 5 }, // NOLINT(readability-magic-numbers)
+            { DevelopmentCard::VictoryPoint, 5 },
             { DevelopmentCard::YearOfPlenty, 2 },
         },
         {
@@ -427,19 +424,17 @@ Scenario_ get_triple_scenario()
 
 Parameters get_triple_parameters(size_t num_players)
 {
-    return Parameters{
-        IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,
-        IterationType::Fixed, num_players,          3
-    }; // NOLINT(readability-magic-numbers)
+    return Parameters{ IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,
+                       IterationType::Fixed, num_players,          3 };
 }
 
 Scenario_ get_standard_scenario()
 {
     return Scenario_(
-        2,  // NOLINT(readability-magic-numbers)
-        5,  // NOLINT(readability-magic-numbers)
-        8,  // NOLINT(readability-magic-numbers)
-        12, // NOLINT(readability-magic-numbers)
+        2,
+        5,
+        8,
+        12,
         { {
               Building::City,
               { { Resource::Ore, 3 }, { Resource::Wheat, 2 } },
@@ -464,15 +459,15 @@ Scenario_ get_standard_scenario()
           } },
         {
             { Building::City, 4 },
-            { Building::DevelopmentCard, 25 }, // NOLINT(readability-magic-numbers)
-            { Building::Road, 15 },            // NOLINT(readability-magic-numbers)
-            { Building::Settlement, 5 },       // NOLINT(readability-magic-numbers)
+            { Building::DevelopmentCard, 25 },
+            { Building::Road, 15 },
+            { Building::Settlement, 5 },
         },
         {
-            { DevelopmentCard::Knight, 14 }, // NOLINT(readability-magic-numbers)
+            { DevelopmentCard::Knight, 14 },
             { DevelopmentCard::Monopoly, 2 },
             { DevelopmentCard::RoadBuilding, 2 },
-            { DevelopmentCard::VictoryPoint, 5 }, // NOLINT(readability-magic-numbers)
+            { DevelopmentCard::VictoryPoint, 5 },
             { DevelopmentCard::YearOfPlenty, 2 },
         },
         { { Resource::Brick, 3 },
@@ -481,7 +476,6 @@ Scenario_ get_standard_scenario()
           { Resource::Wheat, 4 },
           { Resource::Wood, 4 },
           { NonYieldingResource::Desert, 1 } },
-        // NOLINTNEXTLINE(readability-magic-numbers)
         { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 },
         {
             { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
@@ -514,10 +508,8 @@ Scenario_ get_standard_scenario()
 
 Parameters get_standard_parameters(size_t num_players)
 {
-    return Parameters{
-        IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,
-        IterationType::Fixed, num_players,          10
-    }; // NOLINT(readability-magic-numbers)
+    return Parameters{ IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,
+                       IterationType::Fixed, num_players,          10 };
 }
 
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
