@@ -60,6 +60,9 @@ public:
     const Port* port(const Node&) const;
     const Port* port(size_t port_index) const;
 
+    size_t width() const { return m_dimensions.width; }
+    size_t height() const { return m_dimensions.height; }
+
 private:
     bool nodes_can_make_port(const Node*, const Node*, const Orientation);
 
@@ -69,6 +72,7 @@ private:
 
     std::map<int, const Port*> m_node_index_to_port_map;
 
+    const Dimensions m_dimensions;
     std::vector<std::vector<const Node*>> m_node_matrix;
 };
 

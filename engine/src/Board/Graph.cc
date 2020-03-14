@@ -36,6 +36,7 @@ Graph::Graph(Dimensions dimensions,
              const NodeSpecs& node_specs,
              const EdgeSpecs& edge_specs,
              const PortSpecs& port_specs)
+    : m_dimensions(dimensions)
 {
     m_node_matrix.reserve(dimensions.width);
     for (size_t i = 0; i < dimensions.width; ++i) {
