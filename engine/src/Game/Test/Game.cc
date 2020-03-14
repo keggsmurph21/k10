@@ -230,6 +230,18 @@ struct PlayerState {
         check_single_action(player_index, Edge::ToRoot);                                        \
     };                                                                                          \
                                                                                                 \
+    const auto check_end_turn = [&](size_t player_index) {                                      \
+        const auto actions = g->players().at(player_index)->get_available_actions();            \
+        bool found = false;                                                                     \
+        for (const auto& action : actions) {                                                    \
+            if (action.edge == Edge::EndTurn) {                                                 \
+                found = true;                                                                   \
+                break;                                                                          \
+            }                                                                                   \
+        }                                                                                       \
+        REQUIRE(found == true);                                                                 \
+    };                                                                                          \
+                                                                                                \
     const auto check_roll_dice = [&](size_t player_index) {                                     \
         check_single_action(player_index, Edge::RollDice);                                      \
         exec_error(player_index,                                                                \
@@ -596,6 +608,7 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         gs.has_rolled = true;
         gs.dice_total = 12;
         check_state();
+        check_end_turn(0);
 
         for (const auto& action : g->players().at(0)->get_available_actions()) {
             std::cout << action << std::endl;
@@ -706,6 +719,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         gs.dice_total = 6;
         ps[0].num_resources += 2;
         check_state();
+        check_end_turn(0);
 
         for (const auto& action : g->players().at(0)->get_available_actions()) {
             std::cout << action << std::endl;
@@ -901,6 +915,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         gs.dice_total = 6;
         ps[0].num_resources += 1;
         ps[1].num_resources += 1;
+        check_end_turn(0);
 
         for (const auto& action : g->players().at(0)->get_available_actions()) {
             std::cout << action << std::endl;
@@ -1189,6 +1204,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         ps[0].num_resources += 1;
         ps[2].num_resources += 2;
         check_state();
+        check_end_turn(0);
 
         for (const auto& action : g->players().at(0)->get_available_actions()) {
             std::cout << action << std::endl;
@@ -1382,6 +1398,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         gs.has_rolled = true;
         gs.dice_total = 6;
         check_state();
+        check_end_turn(0);
 
         for (const auto& action : g->players().at(0)->get_available_actions()) {
             std::cout << action << std::endl;
