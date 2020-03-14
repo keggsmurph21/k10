@@ -20,6 +20,7 @@ add_library(k10 SHARED
     src/Board/Node.cc
     src/Board/NodeType.cc
     src/Board/Orientation.cc
+    src/Board/Parser.cc
     src/Board/Port.cc
     src/Core/Action.cc
     src/Core/Edge.cc
@@ -49,6 +50,7 @@ add_executable(test_
     src/test.cc
     src/Board/Test/Graph.cc
     src/Board/Test/Node.cc
+    src/Board/Test/Parser.cc
     src/Board/Test/Port.cc
     src/Core/Test/Resource.cc
     src/Game/Test/Game.cc
