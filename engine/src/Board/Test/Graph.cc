@@ -13,14 +13,14 @@ TEST_CASE("Graph initialization", "[Board][Board.Graph]")
 
     SECTION("Trivial")
     {
-        const auto g = Graph({}, {}, {});
+        const auto g = Graph({ 0, 0 }, {}, {}, {});
         REQUIRE(g.size() == 0);
         REQUIRE(g.node(0) == nullptr);
     }
 
     SECTION("1 ocean, no edges")
     {
-        const auto g = Graph({ { 0, 0, NodeType::Ocean } }, {}, {});
+        const auto g = Graph({ 1, 1 }, { { 0, 0, NodeType::Ocean } }, {}, {});
         auto n = g.node(0);
         REQUIRE(n != nullptr);
         REQUIRE(n->index() == 0);
@@ -43,12 +43,14 @@ TEST_CASE("Graph initialization", "[Board][Board.Graph]")
 
     SECTION("Edges without nodes should throw")
     {
-        REQUIRE_THROWS_AS(Graph({}, { { 0, 1, Direction::Clock2 } }, {}), std::invalid_argument);
+        REQUIRE_THROWS_AS(Graph({ 0, 0 }, {}, { { 0, 1, Direction::Clock2 } }, {}),
+                          std::invalid_argument);
     }
 
     SECTION("Multiple edges in a Direction should throw")
     {
-        REQUIRE_THROWS_AS(Graph({ { 0, 0, NodeType::Ocean },
+        REQUIRE_THROWS_AS(Graph({ 3, 3 },
+                                { { 0, 0, NodeType::Ocean },
                                   { 1, 1, NodeType::Junction },
                                   { 2, 2, NodeType::Road } },
                                 { { 0, 1, Direction::Clock2 }, { 0, 2, Direction::Clock2 } },
@@ -58,7 +60,8 @@ TEST_CASE("Graph initialization", "[Board][Board.Graph]")
 
     SECTION("2 nodes, 1 edge")
     {
-        const auto g = Graph({ { 0, 0, NodeType::Ocean }, { 1, 1, NodeType::Junction } },
+        const auto g = Graph({ 2, 2 },
+                             { { 0, 0, NodeType::Ocean }, { 1, 1, NodeType::Junction } },
                              { { 0, 1, Direction::Clock2 } },
                              {});
         auto n0 = g.node(0);
@@ -73,24 +76,26 @@ TEST_CASE("Graph initialization", "[Board][Board.Graph]")
 
     SECTION("0 nodes, 1 port should throw")
     {
-        REQUIRE_THROWS_AS(Graph({}, {}, { { 0, 1, o } }), std::invalid_argument);
+        REQUIRE_THROWS_AS(Graph({ 0, 0 }, {}, {}, { { 0, 1, o } }), std::invalid_argument);
     }
 
     SECTION("2 nodes, 1 port should throw")
     {
-        REQUIRE_THROWS_AS(Graph({ { 0, 0, j }, { 1, 1, j } }, {}, { { 0, 1, o } }),
+        REQUIRE_THROWS_AS(Graph({ 2, 2 }, { { 0, 0, j }, { 1, 1, j } }, {}, { { 0, 1, o } }),
                           std::invalid_argument);
     }
 
     SECTION("3 nodes, 1 port should throw if they're not 'connected'")
     {
-        REQUIRE_THROWS_AS(Graph({ { 0, 0, j }, { 1, 1, j }, { 2, 2, j } }, {}, { { 0, 2, o } }),
-                          std::invalid_argument);
+        REQUIRE_THROWS_AS(
+            Graph({ 3, 3 }, { { 0, 0, j }, { 1, 1, j }, { 2, 2, j } }, {}, { { 0, 2, o } }),
+            std::invalid_argument);
     }
 
     SECTION("3 nodes, 1 port")
     {
-        auto g = Graph({ { 0, 0, NodeType::Junction },
+        auto g = Graph({ 3, 3 },
+                       { { 0, 0, NodeType::Junction },
                          { 1, 1, NodeType::Road },
                          { 2, 2, NodeType::Junction } },
                        { { 0, 1, Direction::Clock2 },
@@ -110,15 +115,18 @@ TEST_CASE("Graph initialization", "[Board][Board.Graph]")
             { 4, 4, NodeType::Ocean },    { 5, 5, NodeType::UnflippedHex },
             { 6, 6, NodeType::Road },
         };
-        auto g = Graph(node_specs,
+        auto g = Graph({ 7, 7 },
+                       node_specs,
                        { { 0, 1, Direction::Clock2 }, { 1, 2, Direction::Clock2 } },
                        { { 0, 2, Orientation::Clock2Clock8 } });
         for (size_t i = 3; i < 7; ++i) {
-            REQUIRE_THROWS_AS(Graph(node_specs,
+            REQUIRE_THROWS_AS(Graph({ 7, 7 },
+                                    node_specs,
                                     { { 0, 1, Direction::Clock2 }, { 1, i, Direction::Clock2 } },
                                     { { 0, i, Orientation::Clock2Clock8 } }),
                               std::invalid_argument);
-            REQUIRE_THROWS_AS(Graph(node_specs,
+            REQUIRE_THROWS_AS(Graph({ 7, 7 },
+                                    node_specs,
                                     { { 0, 1, Direction::Clock8 }, { 1, i, Direction::Clock8 } },
                                     { { 0, i, Orientation::Clock2Clock8 } }),
                               std::invalid_argument);

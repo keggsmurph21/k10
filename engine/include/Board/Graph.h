@@ -13,6 +13,11 @@
 namespace k10engine::Board {
 
 typedef struct {
+    size_t width;
+    size_t height;
+} Dimensions;
+
+typedef struct {
     size_t x;
     size_t y;
     NodeType type;
@@ -40,7 +45,7 @@ typedef std::vector<const Port*> Ports;
 
 class Graph {
 public:
-    Graph(const NodeSpecs&, const EdgeSpecs&, const PortSpecs&);
+    Graph(Dimensions, const NodeSpecs&, const EdgeSpecs&, const PortSpecs&);
     ~Graph();
 
     const std::vector<const Node*>& nodes() const { return m_nodes; }
@@ -64,6 +69,8 @@ private:
     Ports m_ports;
 
     std::map<int, const Port*> m_node_index_to_port_map;
+
+    std::vector<std::vector<const Node*>> m_node_matrix;
 };
 
 } // namespace k10engine::Board

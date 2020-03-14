@@ -192,7 +192,8 @@ static Graph from_stream(std::istream& char_stream)
         }
     }
 
-    return Graph(nodes, edges, ports);
+    return Graph(
+        { static_cast<size_t>(max_width), static_cast<size_t>(height) }, nodes, edges, ports);
 }
 
 Graph from_string(const std::string& board_string)

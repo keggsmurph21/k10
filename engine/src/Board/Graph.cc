@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <stdexcept>
 
 #include "Board/Graph.h"
@@ -31,8 +32,17 @@ bool Graph::nodes_can_make_port(const Node* n0, const Node* n1, Orientation o)
     return false;
 }
 
-Graph::Graph(const NodeSpecs& node_specs, const EdgeSpecs& edge_specs, const PortSpecs& port_specs)
+Graph::Graph(Dimensions dimensions,
+             const NodeSpecs& node_specs,
+             const EdgeSpecs& edge_specs,
+             const PortSpecs& port_specs)
 {
+    m_node_matrix.reserve(dimensions.width);
+    for (size_t i = 0; i < dimensions.width; ++i) {
+        std::vector<const Node*> row(dimensions.height);
+        std::fill(row.begin(), row.end(), nullptr);
+        m_node_matrix.push_back(row);
+    }
     int index = 0;
     size_t port_index = 0;
     for (auto it : node_specs) {
