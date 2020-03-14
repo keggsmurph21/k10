@@ -12,6 +12,7 @@ enum class Edge {
     CollectResources,
     DeclineTrade,
     Discard,
+    EndTurn,
     FailTradeUnableToFindPartner,
     MoveRobber,
     OfferTrade,

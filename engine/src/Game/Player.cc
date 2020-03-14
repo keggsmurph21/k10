@@ -8,7 +8,6 @@ namespace k10engine::Game {
 std::vector<Action> Player::get_available_actions() const
 {
     std::vector<Action> available_actions;
-    // FIXME: Handle first two turns!!
     switch (m_vertex) {
 
     case State::Vertex::AfterBuildingFreeSettlement: {
@@ -159,6 +158,8 @@ std::vector<Action> Player::get_available_actions() const
             return { { State::Edge::RollDice, {} } };
         }
         {
+            available_actions.push_back({ State::Edge::EndTurn, {} });
+
             const bool can_build_city = can_build(Building::City);
             const bool can_build_development_card = can_build(Building::DevelopmentCard);
             const bool can_build_road = can_build(Building::Road);
@@ -269,8 +270,9 @@ std::vector<Action> Player::get_available_actions() const
                 // FIXME: Make sure we handle trading with the bank
                 available_actions.push_back({ State::Edge::OfferTrade, {} });
             }
+
+            return available_actions;
         }
-        return available_actions;
 
     case State::Vertex::WaitForTurn:
         if (is_current_player()) {

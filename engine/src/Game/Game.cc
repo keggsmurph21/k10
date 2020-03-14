@@ -396,6 +396,9 @@ Result Game::execute_action(size_t player_id, const Action& action)
     case State::Edge::Discard:
         throw std::invalid_argument("Not implemented: execution_action(State::Edge::Discard)");
 
+    case State::Edge::EndTurn:
+        throw std::invalid_argument("Not implemented: execution_action(State::Edge::EndTurn)");
+
     case State::Edge::FailTradeUnableToFindPartner:
         throw std::invalid_argument(
             "Not implemented: execution_action(State::Edge::FailTradeUnableToFindPartner)");
