@@ -21,14 +21,10 @@ typedef std::vector<const Node*> Nodes;
 typedef std::map<std::pair<const Node*, const Direction>, const Node*, std::less<>> Edges;
 typedef std::vector<const Port*> Ports;
 
-class Base;
-
 class Graph {
 public:
     Graph(const NodeSpecs&, const EdgeSpecs&, const PortSpecs&);
     ~Graph();
-    // Graph(const Graph&);
-    // Graph& operator=(const Graph&);
 
     const std::vector<const Node*>& nodes() const { return m_nodes; }
     const Node* node(const int) const;

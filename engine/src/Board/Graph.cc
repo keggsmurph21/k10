@@ -98,23 +98,6 @@ Graph::~Graph()
     m_nodes.clear();
 }
 
-/*
-Graph::Graph(const Graph& other)
-{
-    std::cout << "copy constructor" << std::endl;
-    for (int i = 0; i < other.size(); ++i) {
-        m_nodes.push_back(*other.node(i));
-    }
-}
-
-Graph& Graph::operator=(const Graph& other)
-{
-    (void)other;
-    std::cout << "copy assignment" << std::endl;
-    throw std::invalid_argument("?!");
-}
-*/
-
 const Node* Graph::node(const int index) const
 {
     // FIXME: Should these take in a size_t param?
