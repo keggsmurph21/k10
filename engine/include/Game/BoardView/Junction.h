@@ -30,6 +30,8 @@ public:
     bool is_settleable() const { return m_is_settleable; }
     void set_is_not_settleable() { m_is_settleable = false; }
 
+    bool is_port() const { return port_exchange_rate() > 0; }
+
     size_t port_exchange_rate() const { return m_port_exchange_rate; }
     const ResourceCollection& port_resources() const { return m_port_resources; }
 
