@@ -38,9 +38,9 @@ Graph::Graph(Dimensions dimensions,
              const PortSpecs& port_specs)
     : m_dimensions(dimensions)
 {
-    m_node_matrix.reserve(dimensions.width);
-    for (size_t i = 0; i < dimensions.width; ++i) {
-        std::vector<const Node*> row(dimensions.height);
+    m_node_matrix.reserve(dimensions.height);
+    for (size_t i = 0; i < dimensions.height; ++i) {
+        std::vector<const Node*> row(dimensions.width);
         std::fill(row.begin(), row.end(), nullptr);
         m_node_matrix.push_back(row);
     }
@@ -49,7 +49,7 @@ Graph::Graph(Dimensions dimensions,
     for (const auto& it : node_specs) {
         const auto node = new Node(index, it.x, it.y, it.type);
         m_nodes.push_back(node);
-        m_node_matrix[it.x][it.y] = node;
+        m_node_matrix[it.y][it.x] = node;
         ++index;
     }
     for (const auto& it : edge_specs) {
@@ -124,7 +124,7 @@ const Node* Graph::node(const size_t x, const size_t y) const
     if (y >= height()) {
         return nullptr;
     }
-    return m_node_matrix.at(x).at(y);
+    return m_node_matrix.at(y).at(x);
 }
 
 bool Graph::has_neighbor(const Node* n, const Direction d) const
