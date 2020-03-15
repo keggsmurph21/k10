@@ -217,6 +217,8 @@ int main(int /* unused */, char** /* unused */)
     std::cout << g->graph()->width() << "x" << g->graph()->height() << std::endl;
     std::cout << *g->graph()->node(0, 12) << std::endl;
 
+    std::cout << *g << std::endl;
+
     delete g;
 
     return 0;

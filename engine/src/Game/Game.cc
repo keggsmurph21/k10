@@ -546,4 +546,101 @@ void Game::recalculate_longest_road()
     // FIXME: Implement me plz :^)
 }
 
+std::ostream& operator<<(std::ostream& os, const Game& game)
+{
+    const auto robber_hex = game.robber_location();
+    for (size_t y = 0; y < game.graph()->height(); ++y) {
+        for (size_t x = 0; x < game.graph()->width(); ++x) {
+            const auto node = game.graph()->node(x, y);
+            if (node == nullptr) {
+                os << " ";
+                continue;
+            }
+            switch (node->type()) {
+            case Board::NodeType::Ocean:
+                os << '~';
+                continue;
+            case Board::NodeType::UnflippedHex:
+                os << "?";
+                continue;
+            case Board::NodeType::Junction: {
+                const auto junction = game.junctions().at(node->index());
+                const auto owner = junction->owner();
+                if (owner != nullptr) {
+                    os << owner->index();
+                    continue;
+                }
+                if (junction->is_port()) {
+                    os << "*";
+                    continue;
+                }
+                os << ".";
+                continue;
+            }
+            case Board::NodeType::Road: {
+                const auto road = game.roads().at(node->index());
+                const auto owner = road->owner();
+                if (owner != nullptr) {
+                    os << owner->index();
+                    continue;
+                }
+                if (game.graph()->has_neighbor(node, Board::Direction::Clock6)
+                    || game.graph()->has_neighbor(node, Board::Direction::Clock12)) {
+                    os << '|';
+                    continue;
+                }
+                if (game.graph()->has_neighbor(node, Board::Direction::Clock2)
+                    || game.graph()->has_neighbor(node, Board::Direction::Clock8)) {
+                    os << '/';
+                    continue;
+                }
+                if (game.graph()->has_neighbor(node, Board::Direction::Clock4)
+                    || game.graph()->has_neighbor(node, Board::Direction::Clock10)) {
+                    os << '\\';
+                    continue;
+                }
+                assert(false);
+            }
+            case Board::NodeType::Hex: {
+                const auto hex = game.hexes().at(node->index());
+                if (hex == robber_hex) {
+                    os << "X";
+                    continue;
+                }
+                const auto abstract_resource = hex->resource();
+                if (std::holds_alternative<NonYieldingResource>(abstract_resource)) {
+                    switch (std::get<NonYieldingResource>(abstract_resource)) {
+                    case NonYieldingResource::Desert:
+                        os << "d";
+                        continue;
+                    }
+                } else {
+                    switch (std::get<Resource>(abstract_resource)) {
+                    case Resource::Brick:
+                        os << "b";
+                        continue;
+                    case Resource::Ore:
+                        os << "o";
+                        continue;
+                    case Resource::Sheep:
+                        os << "s";
+                        continue;
+                    case Resource::Wheat:
+                        os << "h";
+                        continue;
+                    case Resource::Wood:
+                        os << "w";
+                        continue;
+                    }
+                }
+                assert(false);
+            }
+            }
+            assert(false);
+        }
+        os << std::endl;
+    }
+    return os;
+}
+
 } // namespace k10engine::Game

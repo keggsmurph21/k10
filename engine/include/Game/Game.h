@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <iostream>
 #include <optional>
 #include <vector>
 
@@ -61,6 +62,8 @@ public:
 
     const Player* current_player() const { return m_players.at(m_current_player_index); }
     const std::vector<Player*>& players() const { return m_players; }
+
+    friend std::ostream& operator<<(std::ostream&, const Game&);
 
     Result execute_action(size_t player_id, const Action&);
 
