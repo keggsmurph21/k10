@@ -641,7 +641,9 @@ std::ostream& operator<<(std::ostream& os, const Game& game)
             }
             assert(false);
         }
-        os << std::endl;
+        if (y < game.graph()->height() - 1) {
+            os << std::endl;
+        }
     }
     return os;
 }
