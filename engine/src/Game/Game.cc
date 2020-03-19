@@ -513,6 +513,9 @@ void Game::increment_turn()
     } else {
         // The default case.
         ++m_current_player_index;
+        if (m_current_player_index == m_players.size()) {
+            m_current_player_index = 0;
+        }
     }
     m_has_rolled = false;
 }
