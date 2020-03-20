@@ -1730,6 +1730,37 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_roll_dice(1);
         check_no_actions(2);
 
+        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 4 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 4;
+        ps[0].num_resources += 1;
+        check_state();
+        check_no_actions(0);
+        check_end_turn(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::EndTurn, {} });
+
+        gs.turn += 1;
+        gs.has_rolled = false;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[1].is_current_player = false;
+        ps[2].is_current_player = true;
+
+        exec_ok(2, { Edge::ToRoot, {} });
+
+        ps[2].vertex = Vertex::Root;
+
+        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 10;
+        ps[2].num_resources += 2;
+
+        check_state();
+
+        std::cout << *g << std::endl;
         dump_actions();
 
         delete g;
