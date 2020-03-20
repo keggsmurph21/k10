@@ -256,6 +256,247 @@ static BoardView::Junction* parse_junction(const Game* game, const ActionArgumen
     return junction_it->second;
 }
 
+Result Game::execute_accept_trade(Player*, const Action&)
+{
+    assert(false);
+}
+
+Result Game::execute_build_city(Player*, const ActionArgument&)
+{
+    assert(false);
+}
+
+Result Game::execute_build_development_card(Player*, const ActionArgument&)
+{
+    assert(false);
+}
+
+Result Game::execute_build_road(Player* player, const ActionArgument& arg)
+{
+    const auto road = parse_road(this, arg);
+    if (road == nullptr) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+
+    // FIXME: Need to make sure it's adjacent to something we own!
+
+    if (is_first_round() || is_second_round()) {
+        if (player->vertex() == State::Vertex::AfterBuildingFreeSettlement) {
+            build_road(player, road, Options::NoCost);
+        } else {
+            return { ResultType::InvalidEdgeChoice, {} };
+        }
+    } else if (player->can_afford(Building::Road)) {
+        build_road(player, road, Options::None);
+    } else {
+        return { ResultType::CannotAfford, {} };
+    }
+
+    if (is_game_over()) {
+        assert(false);
+    } else if (is_first_round()) {
+        player->set_vertex(State::Vertex::WaitForTurn);
+        increment_turn();
+    } else if (is_second_round()) {
+        player->set_vertex(State::Vertex::ChooseInitialResources);
+    } else {
+        player->set_vertex(State::Vertex::Root);
+        assert(false);
+    }
+
+    return { ResultType::Ok, {} };
+}
+
+Result Game::execute_build_settlement(Player* player, const ActionArgument& arg)
+{
+    const auto junction = parse_junction(this, arg);
+    if (junction == nullptr) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+    if (!junction->is_settleable()) {
+        return { ResultType::JunctionNotSettleable, {} };
+    }
+
+    if (is_first_round() || is_second_round()) {
+        if (player->vertex() == State::Vertex::Root) {
+            build_settlement(player, junction, Options::NoCost);
+        } else {
+            return { ResultType::InvalidEdgeChoice, {} };
+        }
+    } else if (player->can_afford(Building::Road)) {
+        if (player->can_afford(Building::Settlement)) {
+            build_settlement(player, junction, Options::None);
+        } else {
+            return { ResultType::CannotAfford, {} };
+        }
+    }
+
+    if (is_game_over()) {
+        assert(false);
+    } else if (is_first_round() || is_second_round()) {
+        player->set_vertex(State::Vertex::AfterBuildingFreeSettlement);
+    } else {
+        player->set_vertex(State::Vertex::Root);
+        assert(false);
+    }
+
+    return { ResultType::Ok, {} };
+}
+
+Result Game::execute_build(Player* player, const Action& action)
+{
+    if (action.args.size() != 2) {
+        return { ResultType::InvalidNumberOfArgs, {} };
+    }
+    if (action.args.at(0).type != ActionArgumentType::BuildItemId) {
+        return { ResultType::InvalidArgumentType, {} };
+    }
+    const auto build_item = static_cast<Building>(action.args.at(0).value);
+    switch (build_item) {
+    case Building::City:
+        return execute_build_city(player, action.args.at(1));
+    case Building::DevelopmentCard:
+        return execute_build_development_card(player, action.args.at(1));
+    case Building::Road:
+        return execute_build_road(player, action.args.at(1));
+    case Building::Settlement:
+        return execute_build_settlement(player, action.args.at(1));
+    default:
+        return { ResultType::BuildingIdOutOfRange, {} };
+    }
+}
+
+Result Game::execute_cancel_trade(Player*, const Action&)
+{
+    assert(false);
+}
+
+Result Game::execute_choose_initial_resources(Player* player, const Action& action)
+{
+    if (action.args.size() != 1) {
+        return { ResultType::InvalidNumberOfArgs, {} };
+    }
+    if (action.args.at(0).type != ActionArgumentType::NodeId) {
+        return { ResultType::InvalidArgumentType, {} };
+    }
+    const auto junction = parse_junction(this, action.args.at(0));
+    if (junction == nullptr) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+    for (const auto& settlement : player->settlements()) {
+        if (settlement == junction) {
+            for (const auto& hex_entry : settlement->hex_neighbors()) {
+                const auto& hex_resource = hex_entry.second->resource();
+                if (std::holds_alternative<Resource>(hex_resource)) {
+                    player->accrue_resources({ { std::get<Resource>(hex_resource), 1 } });
+                }
+            }
+            player->set_vertex(State::Vertex::WaitForTurn);
+            increment_turn();
+            return { ResultType::Ok, {} };
+        }
+    }
+    return { ResultType::InvalidNodeId, {} };
+}
+
+Result Game::execute_collect_resources(Player*, const Action&)
+{
+    assert(false);
+}
+
+Result Game::execute_decline_trade(Player*, const Action&)
+{
+    assert(false);
+}
+
+Result Game::execute_discard(Player*, const Action&)
+{
+    assert(false);
+}
+
+Result Game::execute_end_turn(Player* player, const Action&)
+{
+    player->set_vertex(State::Vertex::WaitForTurn);
+    increment_turn();
+    return { ResultType::Ok, {} };
+}
+
+Result Game::execute_fail_trade_unable_to_find_partner(Player*, const Action&)
+{
+    assert(false);
+}
+
+Result Game::execute_move_robber(Player*, const Action&)
+{
+    assert(false);
+}
+
+Result Game::execute_offer_trade(Player*, const Action&)
+{
+    assert(false);
+}
+
+Result Game::execute_play_development_card(Player*, const Action&)
+{
+    assert(false);
+}
+
+Result Game::execute_roll_dice(Player*, const Action& action)
+{
+    if (action.args.empty()) {
+        m_dice.roll();
+#ifdef k10_ENABLE_ROLL_DICE_EXACT
+    } else if (action.args.size() == 1) {
+        if (action.args.at(0).type != ActionArgumentType::DiceRoll) {
+            return { ResultType::InvalidArgumentType, {} };
+        }
+        const auto roll = action.args.at(0).value;
+        if (roll < 2 || 12 < roll) {
+            return { ResultType::DiceRollOutOfRange, {} };
+        }
+        m_dice.set_total(roll);
+#endif
+    } else {
+        return { ResultType::InvalidNumberOfArgs, {} };
+    }
+
+    m_has_rolled = true;
+
+    const auto dice_total = get_dice_total();
+    for (const auto& hex_entry : hexes()) {
+        const auto& hex = hex_entry.second;
+        if (hex->roll_number() != dice_total) {
+            continue;
+        }
+        const auto& hex_resource = hex->resource();
+        if (std::holds_alternative<NonYieldingResource>(hex_resource)) {
+            continue;
+        }
+        const auto& resource = std::get<Resource>(hex_resource);
+        for (const auto& junction_neighbor : hex->junction_neighbors()) {
+            const auto& junction = junction_neighbor.second;
+            if (junction->owner() == nullptr) {
+                continue;
+            }
+            const auto count = junction->has_city() ? 2 : 1;
+            m_players.at(junction->owner()->index())->accrue_resources({ { resource, count } });
+        }
+    }
+
+    return { ResultType::Ok, { { ActionArgumentType::DiceRoll, dice_total } } };
+}
+
+Result Game::execute_steal(Player*, const Action&)
+{
+    assert(false);
+}
+
+Result Game::execute_to_root(Player* player, const Action&)
+{
+    player->set_vertex(State::Vertex::Root);
+    return { ResultType::Ok, {} };
+}
+
 Result Game::execute_action(size_t player_id, const Action& action)
 {
     if (player_id >= m_players.size()) {
@@ -268,218 +509,39 @@ Result Game::execute_action(size_t player_id, const Action& action)
     }
 
     switch (action.edge) {
-
     case State::Edge::AcceptTrade:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::AcceptTrade)");
-
+        return execute_accept_trade(player, action);
     case State::Edge::Build:
-        if (action.args.size() != 2) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        if (action.args.at(0).type != ActionArgumentType::BuildItemId) {
-            return { ResultType::InvalidArgumentType, {} };
-        }
-        {
-            const auto build_item = static_cast<Building>(action.args.at(0).value);
-            switch (build_item) {
-
-            case Building::City:
-                assert(false);
-                return { ResultType::Ok, {} };
-
-            case Building::DevelopmentCard:
-                assert(false);
-                return { ResultType::Ok, {} };
-
-            case Building::Road: {
-
-                const auto road = parse_road(this, action.args.at(1));
-                if (road == nullptr) {
-                    return { ResultType::InvalidNodeId, {} };
-                }
-
-                // FIXME: Need to make sure it's adjacent to something we own!
-
-                if (is_first_round() || is_second_round()) {
-                    if (player->vertex() == State::Vertex::AfterBuildingFreeSettlement) {
-                        build_road(player, road, Options::NoCost);
-                    } else {
-                        return { ResultType::InvalidEdgeChoice, {} };
-                    }
-                } else if (player->can_afford(Building::Road)) {
-                    build_road(player, road, Options::None);
-                } else {
-                    return { ResultType::CannotAfford, {} };
-                }
-
-                if (is_game_over()) {
-                    assert(false);
-                } else if (is_first_round()) {
-                    player->set_vertex(State::Vertex::WaitForTurn);
-                    increment_turn();
-                } else if (is_second_round()) {
-                    player->set_vertex(State::Vertex::ChooseInitialResources);
-                } else {
-                    player->set_vertex(State::Vertex::Root);
-                    assert(false);
-                }
-
-                return { ResultType::Ok, {} };
-            }
-
-            case Building::Settlement: {
-
-                const auto junction = parse_junction(this, action.args.at(1));
-                if (junction == nullptr) {
-                    return { ResultType::InvalidNodeId, {} };
-                }
-                if (!junction->is_settleable()) {
-                    return { ResultType::JunctionNotSettleable, {} };
-                }
-
-                if (is_first_round() || is_second_round()) {
-                    if (player->vertex() == State::Vertex::Root) {
-                        build_settlement(player, junction, Options::NoCost);
-                    } else {
-                        return { ResultType::InvalidEdgeChoice, {} };
-                    }
-                } else if (player->can_afford(Building::Road)) {
-                    if (player->can_afford(Building::Settlement)) {
-                        build_settlement(player, junction, Options::None);
-                    } else {
-                        return { ResultType::CannotAfford, {} };
-                    }
-                }
-
-                if (is_game_over()) {
-                    assert(false);
-                } else if (is_first_round() || is_second_round()) {
-                    player->set_vertex(State::Vertex::AfterBuildingFreeSettlement);
-                } else {
-                    player->set_vertex(State::Vertex::Root);
-                    assert(false);
-                }
-
-                return { ResultType::Ok, {} };
-            }
-
-            default:
-                return { ResultType::BuildingIdOutOfRange, {} };
-            }
-        }
-
+        return execute_build(player, action);
     case State::Edge::CancelTrade:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::CancelTrade)");
-
-    case State::Edge::ChooseInitialResources: {
-
-        if (action.args.size() != 1) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        if (action.args.at(0).type != ActionArgumentType::NodeId) {
-            return { ResultType::InvalidArgumentType, {} };
-        }
-        const auto junction = parse_junction(this, action.args.at(0));
-        if (junction == nullptr) {
-            return { ResultType::InvalidNodeId, {} };
-        }
-        for (const auto& settlement : player->settlements()) {
-            if (settlement == junction) {
-                for (const auto& hex_entry : settlement->hex_neighbors()) {
-                    const auto& hex_resource = hex_entry.second->resource();
-                    if (std::holds_alternative<Resource>(hex_resource)) {
-                        player->accrue_resources({ { std::get<Resource>(hex_resource), 1 } });
-                    }
-                }
-                player->set_vertex(State::Vertex::WaitForTurn);
-                increment_turn();
-                return { ResultType::Ok, {} };
-            }
-        }
-        return { ResultType::InvalidNodeId, {} };
-    }
-
+        return execute_cancel_trade(player, action);
+    case State::Edge::ChooseInitialResources:
+        return execute_choose_initial_resources(player, action);
     case State::Edge::CollectResources:
-        throw std::invalid_argument(
-            "Not implemented: execution_action(State::Edge::CollectResources)");
-
+        return execute_collect_resources(player, action);
     case State::Edge::DeclineTrade:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::DeclineTrade)");
-
+        return execute_decline_trade(player, action);
     case State::Edge::Discard:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::Discard)");
-
+        return execute_discard(player, action);
     case State::Edge::EndTurn:
-        player->set_vertex(State::Vertex::WaitForTurn);
-        increment_turn();
-        return { ResultType::Ok, {} };
-
+        return execute_end_turn(player, action);
     case State::Edge::FailTradeUnableToFindPartner:
-        throw std::invalid_argument(
-            "Not implemented: execution_action(State::Edge::FailTradeUnableToFindPartner)");
-
+        return execute_fail_trade_unable_to_find_partner(player, action);
     case State::Edge::MoveRobber:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::MoveRobber)");
-
+        return execute_move_robber(player, action);
     case State::Edge::OfferTrade:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::OfferTrade)");
-
+        return execute_offer_trade(player, action);
     case State::Edge::PlayDevelopmentCard:
-        throw std::invalid_argument(
-            "Not implemented: execution_action(State::Edge::PlayDevelopmentCard)");
-
-    case State::Edge::RollDice: {
-        if (action.args.empty()) {
-            m_dice.roll();
-#ifdef k10_ENABLE_ROLL_DICE_EXACT
-        } else if (action.args.size() == 1) {
-            if (action.args.at(0).type != ActionArgumentType::DiceRoll) {
-                return { ResultType::InvalidArgumentType, {} };
-            }
-            const auto roll = action.args.at(0).value;
-            if (roll < 2 || 12 < roll) {
-                return { ResultType::DiceRollOutOfRange, {} };
-            }
-            m_dice.set_total(roll);
-#endif
-        } else {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-
-        m_has_rolled = true;
-
-        const auto dice_total = get_dice_total();
-        for (const auto& hex_entry : hexes()) {
-            const auto& hex = hex_entry.second;
-            if (hex->roll_number() != dice_total) {
-                continue;
-            }
-            const auto& hex_resource = hex->resource();
-            if (std::holds_alternative<NonYieldingResource>(hex_resource)) {
-                continue;
-            }
-            const auto& resource = std::get<Resource>(hex_resource);
-            for (const auto& junction_neighbor : hex->junction_neighbors()) {
-                const auto& junction = junction_neighbor.second;
-                if (junction->owner() == nullptr) {
-                    continue;
-                }
-                const auto count = junction->has_city() ? 2 : 1;
-                m_players.at(junction->owner()->index())->accrue_resources({ { resource, count } });
-            }
-        }
-
-        return { ResultType::Ok, { { ActionArgumentType::DiceRoll, dice_total } } };
-    }
-
+        return execute_play_development_card(player, action);
+    case State::Edge::RollDice:
+        return execute_roll_dice(player, action);
     case State::Edge::Steal:
-        throw std::invalid_argument("Not implemented: execution_action(State::Edge::Steal)");
-
+        return execute_steal(player, action);
     case State::Edge::ToRoot:
-        player->set_vertex(State::Vertex::Root);
-        return { ResultType::Ok, {} };
+        return execute_to_root(player, action);
     }
-    assert(false);
+
+    return { ResultType::InvalidEdgeChoice, {} };
 }
 
 void Game::increment_num_built(Building building)

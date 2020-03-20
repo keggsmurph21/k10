@@ -121,6 +121,27 @@ private:
     void set_can_steal(bool can_steal) { m_can_steal = can_steal; }
     void set_has_rolled(bool has_rolled) { m_has_rolled = has_rolled; }
     void set_is_trade_accepted(bool is_trade_accepted) { m_is_trade_accepted = is_trade_accepted; }
+
+    Result execute_accept_trade(Player*, const Action&);
+    Result execute_build(Player*, const Action&);
+    Result execute_cancel_trade(Player*, const Action&);
+    Result execute_choose_initial_resources(Player*, const Action&);
+    Result execute_collect_resources(Player*, const Action&);
+    Result execute_decline_trade(Player*, const Action&);
+    Result execute_discard(Player*, const Action&);
+    Result execute_end_turn(Player*, const Action&);
+    Result execute_fail_trade_unable_to_find_partner(Player*, const Action&);
+    Result execute_move_robber(Player*, const Action&);
+    Result execute_offer_trade(Player*, const Action&);
+    Result execute_play_development_card(Player*, const Action&);
+    Result execute_roll_dice(Player*, const Action&);
+    Result execute_steal(Player*, const Action&);
+    Result execute_to_root(Player*, const Action&);
+
+    Result execute_build_city(Player*, const ActionArgument&);
+    Result execute_build_development_card(Player*, const ActionArgument&);
+    Result execute_build_road(Player*, const ActionArgument&);
+    Result execute_build_settlement(Player*, const ActionArgument&);
 };
 
 Game* initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);
