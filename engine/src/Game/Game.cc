@@ -283,11 +283,9 @@ Result Game::execute_action(size_t player_id, const Action& action)
                         return { ResultType::InvalidEdgeChoice, {} };
                     }
                 } else if (player->can_afford(Building::Road)) {
-                    if (player->can_afford(Building::Road)) {
-                        build_road(player, chosen_road, Options::None);
-                    } else {
-                        return { ResultType::CannotAfford, {} };
-                    }
+                    build_road(player, chosen_road, Options::None);
+                } else {
+                    return { ResultType::CannotAfford, {} };
                 }
 
                 if (is_game_over()) {
