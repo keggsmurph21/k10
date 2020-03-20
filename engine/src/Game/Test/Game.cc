@@ -513,7 +513,7 @@ Parameters get_standard_parameters(size_t num_players)
 }
 
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
-TEST_CASE("Single board", "[Game] [Game.Single]")
+TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
 {
     SECTION("One player")
     {
@@ -612,14 +612,14 @@ TEST_CASE("Single board", "[Game] [Game.Single]")
         check_state();
         check_end_turn(0);
 
-        dump_actions();
+        // dump_actions();
 
         delete g;
     }
 }
 
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
-TEST_CASE("Triple board", "[Game] [Game.Triple]")
+TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
 {
     SECTION("One player")
     {
@@ -721,7 +721,7 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_state();
         check_end_turn(0);
 
-        dump_actions();
+        // dump_actions();
 
         delete g;
     }
@@ -913,9 +913,10 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         gs.dice_total = 6;
         ps[0].num_resources += 1;
         ps[1].num_resources += 1;
+        check_state();
         check_end_turn(0);
 
-        dump_actions();
+        // dump_actions();
 
         delete g;
     }
@@ -1202,14 +1203,14 @@ TEST_CASE("Triple board", "[Game] [Game.Triple]")
         check_state();
         check_end_turn(0);
 
-        dump_actions();
+        // dump_actions();
 
         delete g;
     }
 }
 
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
-TEST_CASE("Standard board", "[Game] [Game.Standard]")
+TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
 {
     SECTION("Two players")
     {
@@ -1414,7 +1415,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_roll_dice(1);
 
-        dump_actions();
+        // dump_actions();
 
         delete g;
     }
@@ -1719,6 +1720,7 @@ TEST_CASE("Standard board", "[Game] [Game.Standard]")
         check_state();
         check_no_actions(0);
         check_to_root(1);
+        check_no_actions(2);
 
         exec_ok(1, { Edge::ToRoot, {} });
 
