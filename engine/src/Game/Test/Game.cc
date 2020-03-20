@@ -156,10 +156,9 @@ struct PlayerState {
                    { Edge::Build,                                                                  \
                      { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },        \
                        { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) } } },    \
-                   ResType::InvalidArgumentType);                                                  \
-        exec_error(player_index,                                                                   \
-                   build(Building::Settlement, large_node_index),                                  \
-                   ResType::NodeIdOutOfRange);                                                     \
+                   ResType::InvalidNodeId);                                                        \
+        exec_error(                                                                                \
+            player_index, build(Building::Settlement, large_node_index), ResType::InvalidNodeId);  \
         exec_error(player_index,                                                                   \
                    build(Building::Settlement, invalid_node_index),                                \
                    ResType::InvalidNodeId);                                                        \

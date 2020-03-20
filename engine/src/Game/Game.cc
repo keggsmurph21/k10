@@ -240,6 +240,22 @@ static BoardView::Road* parse_road(const Game* game, const ActionArgument& arg)
     return road_it->second;
 }
 
+static BoardView::Junction* parse_junction(const Game* game, const ActionArgument& arg)
+{
+    if (arg.type != ActionArgumentType::NodeId) {
+        return nullptr;
+    }
+    const auto node = game->graph()->node(arg.value);
+    if (node == nullptr) {
+        return nullptr;
+    }
+    const auto junction_it = game->junctions().find(node->index());
+    if (junction_it == game->junctions().end()) {
+        return nullptr;
+    }
+    return junction_it->second;
+}
+
 Result Game::execute_action(size_t player_id, const Action& action)
 {
     if (player_id >= m_players.size()) {
@@ -313,32 +329,23 @@ Result Game::execute_action(size_t player_id, const Action& action)
 
             case Building::Settlement: {
 
-                // FIXME: This should be abstracted to a ::parse_junction() helper
-                if (action.args.at(1).type != ActionArgumentType::NodeId) {
-                    return { ResultType::InvalidArgumentType, {} };
-                }
-                const auto chosen_node = m_graph->node(action.args.at(1).value);
-                if (chosen_node == nullptr) {
-                    return { ResultType::NodeIdOutOfRange, {} };
-                }
-                const auto chosen_junction_entry = m_junctions.find(chosen_node->index());
-                if (chosen_junction_entry == m_junctions.end()) {
+                const auto junction = parse_junction(this, action.args.at(1));
+                if (junction == nullptr) {
                     return { ResultType::InvalidNodeId, {} };
                 }
-                const auto chosen_junction = chosen_junction_entry->second;
-                if (!chosen_junction->is_settleable()) {
+                if (!junction->is_settleable()) {
                     return { ResultType::JunctionNotSettleable, {} };
                 }
 
                 if (is_first_round() || is_second_round()) {
                     if (player->vertex() == State::Vertex::Root) {
-                        build_settlement(player, chosen_junction, Options::NoCost);
+                        build_settlement(player, junction, Options::NoCost);
                     } else {
                         return { ResultType::InvalidEdgeChoice, {} };
                     }
                 } else if (player->can_afford(Building::Road)) {
                     if (player->can_afford(Building::Settlement)) {
-                        build_settlement(player, chosen_junction, Options::None);
+                        build_settlement(player, junction, Options::None);
                     } else {
                         return { ResultType::CannotAfford, {} };
                     }
@@ -372,12 +379,12 @@ Result Game::execute_action(size_t player_id, const Action& action)
         if (action.args.at(0).type != ActionArgumentType::NodeId) {
             return { ResultType::InvalidArgumentType, {} };
         }
-        const auto chosen_node = m_graph->node(action.args.at(0).value);
-        if (chosen_node == nullptr) {
-            return { ResultType::NodeIdOutOfRange, {} };
+        const auto junction = parse_junction(this, action.args.at(0));
+        if (junction == nullptr) {
+            return { ResultType::InvalidNodeId, {} };
         }
         for (const auto& settlement : player->settlements()) {
-            if (settlement->node() == chosen_node) {
+            if (settlement == junction) {
                 for (const auto& hex_entry : settlement->hex_neighbors()) {
                     const auto& hex_resource = hex_entry.second->resource();
                     if (std::holds_alternative<Resource>(hex_resource)) {
