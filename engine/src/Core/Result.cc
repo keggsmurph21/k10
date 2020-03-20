@@ -38,6 +38,9 @@ std::ostream& operator<<(std::ostream& os, const ResultType& error)
     case ResultType::DiceRollOutOfRange:
         os << "ResultType::DiceRollOutOfRange";
         break;
+    case ResultType::InvalidTrade:
+        os << "ResultType::InvalidTrade";
+        break;
     }
     return os;
 }

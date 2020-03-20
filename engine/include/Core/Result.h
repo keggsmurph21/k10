@@ -18,6 +18,7 @@ enum class ResultType {
     JunctionNotSettleable,
     CannotAfford,
     DiceRollOutOfRange,
+    InvalidTrade,
 };
 
 struct Result {
