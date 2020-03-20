@@ -1,3 +1,5 @@
+#include <unordered_set>
+
 #include "Core/Resource.h"
 
 namespace k10engine {
@@ -90,6 +92,36 @@ bool operator<(const ResourceCounts& l_resources, const ResourceCounts& r_resour
         }
     }
     return false;
+}
+
+bool operator==(const ResourceCounts& l_resources, const ResourceCounts& r_resources)
+{
+    std::unordered_set<Resource> seen;
+    for (const auto& r_it : r_resources) {
+        const auto& r_resource = r_it.first;
+        const auto& r_count = r_it.second;
+        if (r_count == 0) {
+            continue;
+        }
+        seen.insert(r_resource);
+        if (l_resources.find(r_resource) == l_resources.end()) {
+            return false;
+        }
+        if (l_resources.at(r_resource) != r_count) {
+            return false;
+        }
+    }
+    for (const auto& l_it : l_resources) {
+        const auto& l_resource = l_it.first;
+        const auto& l_count = l_it.second;
+        if (l_count == 0) {
+            continue;
+        }
+        if (seen.find(l_resource) == seen.end()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 } // namespace k10engine
