@@ -267,6 +267,28 @@ static Player* parse_player(const Game* game, const ActionArgument& arg)
     return game->players().at(arg.value);
 }
 
+static std::optional<Resource> parse_resource(const Game* /* unused */, const ActionArgument& arg)
+{
+    if (arg.type != ActionArgumentType::GiveResourceType
+        && arg.type != ActionArgumentType::TakeResourceType) {
+        return {};
+    }
+    switch (static_cast<Resource>(arg.value)) { // yuck ...
+    case Resource::Brick:
+        return Resource::Brick;
+    case Resource::Ore:
+        return Resource::Ore;
+    case Resource::Sheep:
+        return Resource::Sheep;
+    case Resource::Wheat:
+        return Resource::Wheat;
+    case Resource::Wood:
+        return Resource::Wood;
+    default:
+        return {};
+    }
+}
+
 Result Game::execute_accept_trade(Player*, const Action&)
 {
     assert(false);
