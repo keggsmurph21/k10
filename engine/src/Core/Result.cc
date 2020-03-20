@@ -27,7 +27,7 @@ std::ostream& operator<<(std::ostream& os, const ResultType& error)
         os << "ResultType::NodeIdOutOfRange";
         break;
     case ResultType::InvalidNodeId:
-        os << "ResultType::InvalidNodeType";
+        os << "ResultType::InvalidNodeId";
         break;
     case ResultType::JunctionNotSettleable:
         os << "ResultType::JunctionNotSettleable";
