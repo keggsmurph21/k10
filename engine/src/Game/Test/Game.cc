@@ -254,10 +254,10 @@ struct PlayerState {
     };                                                                                             \
                                                                                                    \
     const auto check_settlements = [&]() {                                                         \
-        for (const auto& j_entry : g->junctions()) {                                               \
-            const auto& j = j_entry.second;                                                        \
-            const auto& map_entry = settlements.find(j->index());                                  \
-            if (map_entry == settlements.end()) {                                                  \
+        for (const auto& j_it : g->junctions()) {                                                  \
+            const auto& j = j_it.second;                                                           \
+            const auto& map_it = settlements.find(j->index());                                     \
+            if (map_it == settlements.end()) {                                                     \
                 REQUIRE(j->is_settleable() == true);                                               \
                 REQUIRE(j->owner() == nullptr);                                                    \
             } else {                                                                               \
@@ -274,10 +274,10 @@ struct PlayerState {
     };                                                                                             \
                                                                                                    \
     const auto check_roads = [&]() {                                                               \
-        for (const auto& r_entry : g->roads()) {                                                   \
-            const auto& r = r_entry.second;                                                        \
-            const auto& map_entry = roads.find(r->index());                                        \
-            if (map_entry == roads.end()) {                                                        \
+        for (const auto& r_it : g->roads()) {                                                      \
+            const auto& r = r_it.second;                                                           \
+            const auto& map_it = roads.find(r->index());                                           \
+            if (map_it == roads.end()) {                                                           \
                 REQUIRE(r->owner() == nullptr);                                                    \
             } else {                                                                               \
                 const auto& player_index = roads.at(r->index());                                   \

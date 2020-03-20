@@ -76,9 +76,9 @@ std::ostream& operator<<(std::ostream& os, const AbstractResource& abstract_reso
 
 bool operator<(const ResourceCounts& l_resources, const ResourceCounts& r_resources)
 {
-    for (const auto& r_entry : r_resources) {
-        const auto& r_resource = r_entry.first;
-        const auto& r_count = r_entry.second;
+    for (const auto& r_it : r_resources) {
+        const auto& r_resource = r_it.first;
+        const auto& r_count = r_it.second;
         if (r_count == 0) {
             continue;
         }

@@ -163,8 +163,8 @@ Game* initialize(const Board::Graph* graph,
         }
     }
 
-    for (auto hex_entry : hexes) {
-        const auto hex = hex_entry.second;
+    for (auto hex_it : hexes) {
+        const auto hex = hex_it.second;
         for (const auto& direction : Board::AllDirections) {
             const auto neighbor_node = graph->neighbor(hex->node(), direction);
             if (neighbor_node == nullptr) {
@@ -176,8 +176,8 @@ Game* initialize(const Board::Graph* graph,
             }
         }
     }
-    for (auto junction_entry : junctions) {
-        const auto junction = junction_entry.second;
+    for (auto junction_it : junctions) {
+        const auto junction = junction_it.second;
         for (const auto& direction : Board::AllDirections) {
             const auto neighbor_node = graph->neighbor(junction->node(), direction);
             if (neighbor_node == nullptr) {
@@ -192,8 +192,8 @@ Game* initialize(const Board::Graph* graph,
             }
         }
     }
-    for (auto road_entry : roads) {
-        const auto road = road_entry.second;
+    for (auto road_it : roads) {
+        const auto road = road_it.second;
         for (const auto& direction : Board::AllDirections) {
             const auto neighbor_node = graph->neighbor(road->node(), direction);
             if (neighbor_node == nullptr) {
@@ -385,8 +385,8 @@ Result Game::execute_choose_initial_resources(Player* player, const Action& acti
     }
     for (const auto& settlement : player->settlements()) {
         if (settlement == junction) {
-            for (const auto& hex_entry : settlement->hex_neighbors()) {
-                const auto& hex_resource = hex_entry.second->resource();
+            for (const auto& hex_it : settlement->hex_neighbors()) {
+                const auto& hex_resource = hex_it.second->resource();
                 if (std::holds_alternative<Resource>(hex_resource)) {
                     player->accrue_resources({ { std::get<Resource>(hex_resource), 1 } });
                 }
@@ -463,8 +463,8 @@ Result Game::execute_roll_dice(Player*, const Action& action)
     m_has_rolled = true;
 
     const auto dice_total = get_dice_total();
-    for (const auto& hex_entry : hexes()) {
-        const auto& hex = hex_entry.second;
+    for (const auto& hex_it : hexes()) {
+        const auto& hex = hex_it.second;
         if (hex->roll_number() != dice_total) {
             continue;
         }
