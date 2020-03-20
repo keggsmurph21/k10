@@ -256,6 +256,17 @@ static BoardView::Junction* parse_junction(const Game* game, const ActionArgumen
     return junction_it->second;
 }
 
+static Player* parse_player(const Game* game, const ActionArgument& arg)
+{
+    if (arg.type != ActionArgumentType::PlayerId) {
+        return nullptr;
+    }
+    if (arg.value >= game->players().size()) {
+        return nullptr;
+    }
+    return game->players().at(arg.value);
+}
+
 Result Game::execute_accept_trade(Player*, const Action&)
 {
     assert(false);
