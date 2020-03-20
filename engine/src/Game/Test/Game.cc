@@ -71,231 +71,230 @@ struct PlayerState {
     size_t settlements = 0;
 };
 
-#define bootstrap_tests()                                                                       \
-                                                                                                \
-    GameState gs;                                                                               \
-    auto ps = std::vector<PlayerState>(g->players().size());                                    \
-    std::map<int, int> settlements;                                                             \
-    std::map<int, int> roads;                                                                   \
-                                                                                                \
-    const auto check_state = [&]() -> void {                                                    \
-        REQUIRE(g->can_steal() == gs.can_steal);                                                \
-        REQUIRE(g->has_rolled() == gs.has_rolled);                                              \
-        REQUIRE(g->is_game_over() == gs.is_game_over);                                          \
-        REQUIRE(g->is_trade_accepted() == gs.is_trade_accepted);                                \
-        REQUIRE(g->is_first_round() == gs.is_first_round);                                      \
-        REQUIRE(g->is_second_round() == gs.is_second_round);                                    \
-        REQUIRE(g->is_roll_seven() == gs.is_roll_seven);                                        \
-        REQUIRE(g->robber_location()->node()->index() == gs.robber_location);                   \
-        REQUIRE(g->get_dice_total() == gs.dice_total);                                          \
-        REQUIRE(g->turn() == gs.turn);                                                          \
-        REQUIRE(g->get_round() == gs.round);                                                    \
-        REQUIRE(g->largest_army() == gs.largest_army);                                          \
-        REQUIRE(g->longest_road() == gs.longest_road);                                          \
-        REQUIRE(g->num_built(Building::City) == gs.cities_built);                               \
-        REQUIRE(g->num_built(Building::DevelopmentCard) == gs.development_cards_built);         \
-        REQUIRE(g->num_built(Building::Road) == gs.roads_built);                                \
-        REQUIRE(g->num_built(Building::Settlement) == gs.settlements_built);                    \
-        for (int i = 0; i < g->players().size(); ++i) {                                         \
-            REQUIRE(g->players().at(i)->can_accept_trade() == ps.at(i).can_accept_trade);       \
-            REQUIRE(g->players().at(i)->has_declined_trade() == ps.at(i).has_declined_trade);   \
-            REQUIRE(g->players().at(i)->num_to_discard() == ps.at(i).num_to_discard);           \
-            REQUIRE(g->players().at(i)->vertex() == ps.at(i).vertex);                           \
-            REQUIRE(g->players().at(i)->is_current_player() == ps.at(i).is_current_player);     \
-            REQUIRE(g->players().at(i)->num_resources() == ps.at(i).num_resources);             \
-            REQUIRE(g->players().at(i)->army_size() == ps.at(i).army_size);                     \
-            REQUIRE(g->players().at(i)->longest_road() == ps.at(i).longest_road);               \
-            REQUIRE(g->players().at(i)->public_victory_points()                                 \
-                    == ps.at(i).public_victory_points);                                         \
-            REQUIRE(g->players().at(i)->cities().size() == ps.at(i).cities);                    \
-            REQUIRE(g->players().at(i)->roads().size() == ps.at(i).roads);                      \
-            REQUIRE(g->players().at(i)->settlements().size() == ps.at(i).settlements);          \
-        }                                                                                       \
-    };                                                                                          \
-                                                                                                \
-    const auto exec_error =                                                                     \
-        [&](size_t player_index, const Action& action, const ResType& res_type) {               \
-            const auto& res = g->execute_action(player_index, action);                          \
-            REQUIRE(res.type == res_type);                                                      \
-        };                                                                                      \
-                                                                                                \
-    const auto exec_ok = [&](size_t player_index, const Action& action) {                       \
-        exec_error(player_index, action, ResType::Ok);                                          \
-    };                                                                                          \
-                                                                                                \
-    const auto check_no_actions = [&](size_t player_index) {                                    \
-        const auto actions = g->players().at(player_index)->get_available_actions();            \
-        REQUIRE(actions.empty());                                                               \
-    };                                                                                          \
-                                                                                                \
-    const auto check_build_settlement = [&](size_t player_index, size_t num_expected) {         \
-        const auto invalid_player_index = 100;                                                  \
-        const auto large_node_index = 1000;                                                     \
-        const auto invalid_node_index = 0;                                                      \
-        const auto actions = g->players().at(player_index)->get_available_actions();            \
-        REQUIRE(actions.size() == num_expected);                                                \
-        for (const auto& action : actions) {                                                    \
-            REQUIRE(action.edge == Edge::Build);                                                \
-            REQUIRE(action.args.size() == 2);                                                   \
-            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                            \
-            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Settlement));      \
-            REQUIRE(action.args.at(1).type == ArgType::NodeId);                                 \
-            const auto node_index = action.args.at(1).value;                                    \
-            REQUIRE(g->junctions().find(node_index) != g->junctions().end());                   \
-            REQUIRE(g->junctions().at(node_index)->is_settleable() == true);                    \
-        }                                                                                       \
-        exec_error(invalid_player_index,                                                        \
-                   build(Building::Settlement, large_node_index),                               \
-                   ResType::InvalidPlayerId);                                                   \
-        exec_error(player_index, { Edge::AcceptTrade, {} }, ResType::InvalidEdgeChoice);        \
-        exec_error(player_index, { Edge::Build, {} }, ResType::InvalidNumberOfArgs);            \
-        exec_error(player_index,                                                                \
-                   { Edge::Build, { { ArgType::NodeId, 1 }, { ArgType::NodeId, 1 } } },         \
-                   ResType::InvalidArgumentType);                                               \
-        exec_error(player_index,                                                                \
-                   { Edge::Build,                                                               \
-                     { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },     \
-                       { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) } } }, \
-                   ResType::InvalidArgumentType);                                               \
-        exec_error(player_index,                                                                \
-                   build(Building::Settlement, large_node_index),                               \
-                   ResType::NodeIdOutOfRange);                                                  \
-        exec_error(player_index,                                                                \
-                   build(Building::Settlement, invalid_node_index),                             \
-                   ResType::InvalidNodeId);                                                     \
-    };                                                                                          \
-                                                                                                \
-    const auto check_build_road = [&](size_t player_index, size_t num_expected) {               \
-        const auto invalid_player_index = 100;                                                  \
-        const auto large_node_index = 1000;                                                     \
-        const auto invalid_node_index = 0;                                                      \
-        const auto actions = g->players().at(player_index)->get_available_actions();            \
-        REQUIRE(actions.size() == num_expected);                                                \
-        for (const auto& action : actions) {                                                    \
-            REQUIRE(action.edge == Edge::Build);                                                \
-            REQUIRE(action.args.size() == 2);                                                   \
-            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                            \
-            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Road));            \
-            REQUIRE(action.args.at(1).type == ArgType::NodeId);                                 \
-            const auto node_index = action.args.at(1).value;                                    \
-            REQUIRE(g->roads().find(node_index) != g->roads().end());                           \
-            REQUIRE(g->roads().at(node_index)->owner() == nullptr);                             \
-        }                                                                                       \
-        exec_error(invalid_player_index,                                                        \
-                   build(Building::Road, large_node_index),                                     \
-                   ResType::InvalidPlayerId);                                                   \
-        exec_error(player_index, { Edge::AcceptTrade, {} }, ResType::InvalidEdgeChoice);        \
-        exec_error(player_index, { Edge::Build, {} }, ResType::InvalidNumberOfArgs);            \
-        exec_error(player_index,                                                                \
-                   { Edge::Build, { { ArgType::NodeId, 4 }, { ArgType::NodeId, 4 } } },         \
-                   ResType::InvalidArgumentType);                                               \
-        exec_error(player_index,                                                                \
-                   { Edge::Build,                                                               \
-                     { { ArgType::BuildItemId, static_cast<size_t>(Building::Road) },           \
-                       { ArgType::BuildItemId, static_cast<size_t>(Building::Road) } } },       \
-                   ResType::InvalidArgumentType);                                               \
-        exec_error(                                                                             \
-            player_index, build(Building::Road, large_node_index), ResType::NodeIdOutOfRange);  \
-        exec_error(                                                                             \
-            player_index, build(Building::Road, invalid_node_index), ResType::InvalidNodeId);   \
-    };                                                                                          \
-                                                                                                \
-    const auto check_choose_initial_resources = [&](size_t player_index) {                      \
-        const auto actions = g->players().at(player_index)->get_available_actions();            \
-        REQUIRE(actions.size() == 2);                                                           \
-        for (const auto& action : actions) {                                                    \
-            REQUIRE(action.edge == Edge::ChooseInitialResources);                               \
-            REQUIRE(action.args.size() == 1);                                                   \
-            REQUIRE(action.args.at(0).type == ArgType::NodeId);                                 \
-            const auto node_index = action.args.at(0).value;                                    \
-            REQUIRE(g->junctions().find(node_index) != g->junctions().end());                   \
-            const auto junction = g->junctions().at(node_index);                                \
-            REQUIRE(junction->owner() == g->players().at(player_index));                        \
-            const auto settlements = g->players().at(player_index)->settlements();              \
-            REQUIRE(std::find(settlements.begin(), settlements.end(), junction)                 \
-                    != settlements.end());                                                      \
-        }                                                                                       \
-    };                                                                                          \
-                                                                                                \
-    const auto check_single_action = [&](size_t player_index, const Edge& edge) {               \
-        const auto actions = g->players().at(player_index)->get_available_actions();            \
-        REQUIRE(actions.size() == 1);                                                           \
-        for (const auto& action : actions) {                                                    \
-            REQUIRE(action.edge == edge);                                                       \
-            REQUIRE(action.args.empty());                                                       \
-        }                                                                                       \
-    };                                                                                          \
-                                                                                                \
-    const auto check_to_root = [&](size_t player_index) {                                       \
-        check_single_action(player_index, Edge::ToRoot);                                        \
-    };                                                                                          \
-                                                                                                \
-    const auto check_end_turn = [&](size_t player_index) {                                      \
-        const auto actions = g->players().at(player_index)->get_available_actions();            \
-        bool found = false;                                                                     \
-        for (const auto& action : actions) {                                                    \
-            if (action.edge == Edge::EndTurn) {                                                 \
-                found = true;                                                                   \
-                break;                                                                          \
-            }                                                                                   \
-        }                                                                                       \
-        REQUIRE(found == true);                                                                 \
-    };                                                                                          \
-                                                                                                \
-    const auto check_roll_dice = [&](size_t player_index) {                                     \
-        check_single_action(player_index, Edge::RollDice);                                      \
-        exec_error(player_index,                                                                \
-                   { Edge::RollDice, { { ArgType::DiceRoll, 0 } } },                            \
-                   ResType::DiceRollOutOfRange);                                                \
-        exec_error(player_index,                                                                \
-                   { Edge::RollDice, { { ArgType::DiceRoll, 1 } } },                            \
-                   ResType::DiceRollOutOfRange);                                                \
-        exec_error(player_index,                                                                \
-                   { Edge::RollDice, { { ArgType::DiceRoll, 13 } } },                           \
-                   ResType::DiceRollOutOfRange);                                                \
-    };                                                                                          \
-                                                                                                \
-    const auto check_settlements = [&]() {                                                      \
-        for (const auto& j_entry : g->junctions()) {                                            \
-            const auto& j = j_entry.second;                                                     \
-            const auto& map_entry = settlements.find(j->index());                               \
-            if (map_entry == settlements.end()) {                                               \
-                REQUIRE(j->is_settleable() == true);                                            \
-                REQUIRE(j->owner() == nullptr);                                                 \
-            } else {                                                                            \
-                REQUIRE(j->is_settleable() == false);                                           \
-                const auto& player_index = settlements.at(j->index());                          \
-                if (player_index == -1) {                                                       \
-                    REQUIRE(j->owner() == nullptr);                                             \
-                } else {                                                                        \
-                    REQUIRE(j->owner() != nullptr);                                             \
-                    REQUIRE(j->owner()->index() == player_index);                               \
-                }                                                                               \
-            }                                                                                   \
-        }                                                                                       \
-    };                                                                                          \
-                                                                                                \
-    const auto check_roads = [&]() {                                                            \
-        for (const auto& r_entry : g->roads()) {                                                \
-            const auto& r = r_entry.second;                                                     \
-            const auto& map_entry = roads.find(r->index());                                     \
-            if (map_entry == roads.end()) {                                                     \
-                REQUIRE(r->owner() == nullptr);                                                 \
-            } else {                                                                            \
-                const auto& player_index = roads.at(r->index());                                \
-                REQUIRE(r->owner()->index() == player_index);                                   \
-            }                                                                                   \
-        }                                                                                       \
-    };                                                                                          \
-                                                                                                \
-    const auto dump_actions = [&]() {                                                           \
-        for (const auto& player : g->players()) {                                               \
-            std::cout << *player << std::endl;                                                  \
-            for (const auto& action : player->get_available_actions()) {                        \
-                std::cout << " - " << action << std::endl;                                      \
-            }                                                                                   \
-        }                                                                                       \
-        std::cout << std::endl;                                                                 \
+#define bootstrap_tests()                                                                          \
+                                                                                                   \
+    GameState gs;                                                                                  \
+    auto ps = std::vector<PlayerState>(g->players().size());                                       \
+    std::map<int, int> settlements;                                                                \
+    std::map<int, int> roads;                                                                      \
+                                                                                                   \
+    const auto check_state = [&]() -> void {                                                       \
+        REQUIRE(g->can_steal() == gs.can_steal);                                                   \
+        REQUIRE(g->has_rolled() == gs.has_rolled);                                                 \
+        REQUIRE(g->is_game_over() == gs.is_game_over);                                             \
+        REQUIRE(g->is_trade_accepted() == gs.is_trade_accepted);                                   \
+        REQUIRE(g->is_first_round() == gs.is_first_round);                                         \
+        REQUIRE(g->is_second_round() == gs.is_second_round);                                       \
+        REQUIRE(g->is_roll_seven() == gs.is_roll_seven);                                           \
+        REQUIRE(g->robber_location()->node()->index() == gs.robber_location);                      \
+        REQUIRE(g->get_dice_total() == gs.dice_total);                                             \
+        REQUIRE(g->turn() == gs.turn);                                                             \
+        REQUIRE(g->get_round() == gs.round);                                                       \
+        REQUIRE(g->largest_army() == gs.largest_army);                                             \
+        REQUIRE(g->longest_road() == gs.longest_road);                                             \
+        REQUIRE(g->num_built(Building::City) == gs.cities_built);                                  \
+        REQUIRE(g->num_built(Building::DevelopmentCard) == gs.development_cards_built);            \
+        REQUIRE(g->num_built(Building::Road) == gs.roads_built);                                   \
+        REQUIRE(g->num_built(Building::Settlement) == gs.settlements_built);                       \
+        for (int i = 0; i < g->players().size(); ++i) {                                            \
+            REQUIRE(g->players().at(i)->can_accept_trade() == ps.at(i).can_accept_trade);          \
+            REQUIRE(g->players().at(i)->has_declined_trade() == ps.at(i).has_declined_trade);      \
+            REQUIRE(g->players().at(i)->num_to_discard() == ps.at(i).num_to_discard);              \
+            REQUIRE(g->players().at(i)->vertex() == ps.at(i).vertex);                              \
+            REQUIRE(g->players().at(i)->is_current_player() == ps.at(i).is_current_player);        \
+            REQUIRE(g->players().at(i)->num_resources() == ps.at(i).num_resources);                \
+            REQUIRE(g->players().at(i)->army_size() == ps.at(i).army_size);                        \
+            REQUIRE(g->players().at(i)->longest_road() == ps.at(i).longest_road);                  \
+            REQUIRE(g->players().at(i)->public_victory_points()                                    \
+                    == ps.at(i).public_victory_points);                                            \
+            REQUIRE(g->players().at(i)->cities().size() == ps.at(i).cities);                       \
+            REQUIRE(g->players().at(i)->roads().size() == ps.at(i).roads);                         \
+            REQUIRE(g->players().at(i)->settlements().size() == ps.at(i).settlements);             \
+        }                                                                                          \
+    };                                                                                             \
+                                                                                                   \
+    const auto exec_error =                                                                        \
+        [&](size_t player_index, const Action& action, const ResType& res_type) {                  \
+            const auto& res = g->execute_action(player_index, action);                             \
+            REQUIRE(res.type == res_type);                                                         \
+        };                                                                                         \
+                                                                                                   \
+    const auto exec_ok = [&](size_t player_index, const Action& action) {                          \
+        exec_error(player_index, action, ResType::Ok);                                             \
+    };                                                                                             \
+                                                                                                   \
+    const auto check_no_actions = [&](size_t player_index) {                                       \
+        const auto actions = g->players().at(player_index)->get_available_actions();               \
+        REQUIRE(actions.empty());                                                                  \
+    };                                                                                             \
+                                                                                                   \
+    const auto check_build_settlement = [&](size_t player_index, size_t num_expected) {            \
+        const auto invalid_player_index = 100;                                                     \
+        const auto large_node_index = 1000;                                                        \
+        const auto invalid_node_index = 0;                                                         \
+        const auto actions = g->players().at(player_index)->get_available_actions();               \
+        REQUIRE(actions.size() == num_expected);                                                   \
+        for (const auto& action : actions) {                                                       \
+            REQUIRE(action.edge == Edge::Build);                                                   \
+            REQUIRE(action.args.size() == 2);                                                      \
+            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                               \
+            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Settlement));         \
+            REQUIRE(action.args.at(1).type == ArgType::NodeId);                                    \
+            const auto node_index = action.args.at(1).value;                                       \
+            REQUIRE(g->junctions().find(node_index) != g->junctions().end());                      \
+            REQUIRE(g->junctions().at(node_index)->is_settleable() == true);                       \
+        }                                                                                          \
+        exec_error(invalid_player_index,                                                           \
+                   build(Building::Settlement, large_node_index),                                  \
+                   ResType::InvalidPlayerId);                                                      \
+        exec_error(player_index, { Edge::AcceptTrade, {} }, ResType::InvalidEdgeChoice);           \
+        exec_error(player_index, { Edge::Build, {} }, ResType::InvalidNumberOfArgs);               \
+        exec_error(player_index,                                                                   \
+                   { Edge::Build, { { ArgType::NodeId, 1 }, { ArgType::NodeId, 1 } } },            \
+                   ResType::InvalidArgumentType);                                                  \
+        exec_error(player_index,                                                                   \
+                   { Edge::Build,                                                                  \
+                     { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },        \
+                       { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) } } },    \
+                   ResType::InvalidArgumentType);                                                  \
+        exec_error(player_index,                                                                   \
+                   build(Building::Settlement, large_node_index),                                  \
+                   ResType::NodeIdOutOfRange);                                                     \
+        exec_error(player_index,                                                                   \
+                   build(Building::Settlement, invalid_node_index),                                \
+                   ResType::InvalidNodeId);                                                        \
+    };                                                                                             \
+                                                                                                   \
+    const auto check_build_road = [&](size_t player_index, size_t num_expected) {                  \
+        const auto invalid_player_index = 100;                                                     \
+        const auto large_node_index = 1000;                                                        \
+        const auto invalid_node_index = 0;                                                         \
+        const auto actions = g->players().at(player_index)->get_available_actions();               \
+        REQUIRE(actions.size() == num_expected);                                                   \
+        for (const auto& action : actions) {                                                       \
+            REQUIRE(action.edge == Edge::Build);                                                   \
+            REQUIRE(action.args.size() == 2);                                                      \
+            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                               \
+            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Road));               \
+            REQUIRE(action.args.at(1).type == ArgType::NodeId);                                    \
+            const auto node_index = action.args.at(1).value;                                       \
+            REQUIRE(g->roads().find(node_index) != g->roads().end());                              \
+            REQUIRE(g->roads().at(node_index)->owner() == nullptr);                                \
+        }                                                                                          \
+        exec_error(invalid_player_index,                                                           \
+                   build(Building::Road, large_node_index),                                        \
+                   ResType::InvalidPlayerId);                                                      \
+        exec_error(player_index, { Edge::AcceptTrade, {} }, ResType::InvalidEdgeChoice);           \
+        exec_error(player_index, { Edge::Build, {} }, ResType::InvalidNumberOfArgs);               \
+        exec_error(player_index,                                                                   \
+                   { Edge::Build, { { ArgType::NodeId, 4 }, { ArgType::NodeId, 4 } } },            \
+                   ResType::InvalidArgumentType);                                                  \
+        exec_error(player_index,                                                                   \
+                   { Edge::Build,                                                                  \
+                     { { ArgType::BuildItemId, static_cast<size_t>(Building::Road) },              \
+                       { ArgType::BuildItemId, static_cast<size_t>(Building::Road) } } },          \
+                   ResType::InvalidNodeId);                                                        \
+        exec_error(player_index, build(Building::Road, large_node_index), ResType::InvalidNodeId); \
+        exec_error(                                                                                \
+            player_index, build(Building::Road, invalid_node_index), ResType::InvalidNodeId);      \
+    };                                                                                             \
+                                                                                                   \
+    const auto check_choose_initial_resources = [&](size_t player_index) {                         \
+        const auto actions = g->players().at(player_index)->get_available_actions();               \
+        REQUIRE(actions.size() == 2);                                                              \
+        for (const auto& action : actions) {                                                       \
+            REQUIRE(action.edge == Edge::ChooseInitialResources);                                  \
+            REQUIRE(action.args.size() == 1);                                                      \
+            REQUIRE(action.args.at(0).type == ArgType::NodeId);                                    \
+            const auto node_index = action.args.at(0).value;                                       \
+            REQUIRE(g->junctions().find(node_index) != g->junctions().end());                      \
+            const auto junction = g->junctions().at(node_index);                                   \
+            REQUIRE(junction->owner() == g->players().at(player_index));                           \
+            const auto settlements = g->players().at(player_index)->settlements();                 \
+            REQUIRE(std::find(settlements.begin(), settlements.end(), junction)                    \
+                    != settlements.end());                                                         \
+        }                                                                                          \
+    };                                                                                             \
+                                                                                                   \
+    const auto check_single_action = [&](size_t player_index, const Edge& edge) {                  \
+        const auto actions = g->players().at(player_index)->get_available_actions();               \
+        REQUIRE(actions.size() == 1);                                                              \
+        for (const auto& action : actions) {                                                       \
+            REQUIRE(action.edge == edge);                                                          \
+            REQUIRE(action.args.empty());                                                          \
+        }                                                                                          \
+    };                                                                                             \
+                                                                                                   \
+    const auto check_to_root = [&](size_t player_index) {                                          \
+        check_single_action(player_index, Edge::ToRoot);                                           \
+    };                                                                                             \
+                                                                                                   \
+    const auto check_end_turn = [&](size_t player_index) {                                         \
+        const auto actions = g->players().at(player_index)->get_available_actions();               \
+        bool found = false;                                                                        \
+        for (const auto& action : actions) {                                                       \
+            if (action.edge == Edge::EndTurn) {                                                    \
+                found = true;                                                                      \
+                break;                                                                             \
+            }                                                                                      \
+        }                                                                                          \
+        REQUIRE(found == true);                                                                    \
+    };                                                                                             \
+                                                                                                   \
+    const auto check_roll_dice = [&](size_t player_index) {                                        \
+        check_single_action(player_index, Edge::RollDice);                                         \
+        exec_error(player_index,                                                                   \
+                   { Edge::RollDice, { { ArgType::DiceRoll, 0 } } },                               \
+                   ResType::DiceRollOutOfRange);                                                   \
+        exec_error(player_index,                                                                   \
+                   { Edge::RollDice, { { ArgType::DiceRoll, 1 } } },                               \
+                   ResType::DiceRollOutOfRange);                                                   \
+        exec_error(player_index,                                                                   \
+                   { Edge::RollDice, { { ArgType::DiceRoll, 13 } } },                              \
+                   ResType::DiceRollOutOfRange);                                                   \
+    };                                                                                             \
+                                                                                                   \
+    const auto check_settlements = [&]() {                                                         \
+        for (const auto& j_entry : g->junctions()) {                                               \
+            const auto& j = j_entry.second;                                                        \
+            const auto& map_entry = settlements.find(j->index());                                  \
+            if (map_entry == settlements.end()) {                                                  \
+                REQUIRE(j->is_settleable() == true);                                               \
+                REQUIRE(j->owner() == nullptr);                                                    \
+            } else {                                                                               \
+                REQUIRE(j->is_settleable() == false);                                              \
+                const auto& player_index = settlements.at(j->index());                             \
+                if (player_index == -1) {                                                          \
+                    REQUIRE(j->owner() == nullptr);                                                \
+                } else {                                                                           \
+                    REQUIRE(j->owner() != nullptr);                                                \
+                    REQUIRE(j->owner()->index() == player_index);                                  \
+                }                                                                                  \
+            }                                                                                      \
+        }                                                                                          \
+    };                                                                                             \
+                                                                                                   \
+    const auto check_roads = [&]() {                                                               \
+        for (const auto& r_entry : g->roads()) {                                                   \
+            const auto& r = r_entry.second;                                                        \
+            const auto& map_entry = roads.find(r->index());                                        \
+            if (map_entry == roads.end()) {                                                        \
+                REQUIRE(r->owner() == nullptr);                                                    \
+            } else {                                                                               \
+                const auto& player_index = roads.at(r->index());                                   \
+                REQUIRE(r->owner()->index() == player_index);                                      \
+            }                                                                                      \
+        }                                                                                          \
+    };                                                                                             \
+                                                                                                   \
+    const auto dump_actions = [&]() {                                                              \
+        for (const auto& player : g->players()) {                                                  \
+            std::cout << *player << std::endl;                                                     \
+            for (const auto& action : player->get_available_actions()) {                           \
+                std::cout << " - " << action << std::endl;                                         \
+            }                                                                                      \
+        }                                                                                          \
+        std::cout << std::endl;                                                                    \
     };
 
 Action build(Building b, size_t node_index)

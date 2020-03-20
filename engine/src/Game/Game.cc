@@ -224,6 +224,22 @@ static bool player_can_execute_edge(const Player* player, const Action& requeste
     return false;
 }
 
+static BoardView::Road* parse_road(const Game* game, const ActionArgument& arg)
+{
+    if (arg.type != ActionArgumentType::NodeId) {
+        return nullptr;
+    }
+    const auto node = game->graph()->node(arg.value);
+    if (node == nullptr) {
+        return nullptr;
+    }
+    const auto road_it = game->roads().find(node->index());
+    if (road_it == game->roads().end()) {
+        return nullptr;
+    }
+    return road_it->second;
+}
+
 Result Game::execute_action(size_t player_id, const Action& action)
 {
     if (player_id >= m_players.size()) {
@@ -261,29 +277,21 @@ Result Game::execute_action(size_t player_id, const Action& action)
 
             case Building::Road: {
 
-                // FIXME: This should be abstracted to a ::parse_road() helper
-                if (action.args.at(1).type != ActionArgumentType::NodeId) {
-                    return { ResultType::InvalidArgumentType, {} };
-                }
-                const auto chosen_node = m_graph->node(action.args.at(1).value);
-                if (chosen_node == nullptr) {
-                    return { ResultType::NodeIdOutOfRange, {} };
-                }
-                const auto chosen_road_entry = m_roads.find(chosen_node->index());
-                if (chosen_road_entry == m_roads.end()) {
+                const auto road = parse_road(this, action.args.at(1));
+                if (road == nullptr) {
                     return { ResultType::InvalidNodeId, {} };
                 }
-                const auto chosen_road = chosen_road_entry->second;
+
                 // FIXME: Need to make sure it's adjacent to something we own!
 
                 if (is_first_round() || is_second_round()) {
                     if (player->vertex() == State::Vertex::AfterBuildingFreeSettlement) {
-                        build_road(player, chosen_road, Options::NoCost);
+                        build_road(player, road, Options::NoCost);
                     } else {
                         return { ResultType::InvalidEdgeChoice, {} };
                     }
                 } else if (player->can_afford(Building::Road)) {
-                    build_road(player, chosen_road, Options::None);
+                    build_road(player, road, Options::None);
                 } else {
                     return { ResultType::CannotAfford, {} };
                 }
