@@ -289,6 +289,56 @@ static std::optional<Resource> parse_resource(const Game* /* unused */, const Ac
     }
 }
 
+static Trade*
+parse_trade(const Game* game, Player* offerer, const std::vector<ActionArgument>& args)
+{
+    std::vector<Player*> offered_to;
+    ResourceCounts give_resources{};
+    ResourceCounts take_resources{};
+
+    std::optional<Resource> resource;
+    Player* parsed_player;
+
+    for (const auto& arg : args) {
+        switch (arg.type) {
+        case ActionArgumentType::PlayerId:
+            parsed_player = parse_player(game, arg);
+            if (parsed_player == nullptr) {
+                return nullptr;
+            }
+            if (parsed_player == offerer) {
+                return nullptr;
+            }
+            offered_to.push_back(parsed_player);
+            break;
+        case ActionArgumentType::GiveResourceType:
+            resource = parse_resource(game, arg);
+            if (!resource) {
+                return nullptr;
+            }
+            if (give_resources.find(*resource) == give_resources.end()) {
+                give_resources[*resource] = 0;
+            }
+            give_resources[*resource] += 1;
+            break;
+        case ActionArgumentType::TakeResourceType:
+            resource = parse_resource(game, arg);
+            if (!resource) {
+                return nullptr;
+            }
+            if (take_resources.find(*resource) == take_resources.end()) {
+                take_resources[*resource] = 0;
+            }
+            take_resources[*resource] += 1;
+            break;
+        default:
+            return nullptr;
+        }
+    }
+
+    return new Trade{ offerer, offered_to, give_resources, take_resources };
+}
+
 Result Game::execute_accept_trade(Player*, const Action&)
 {
     assert(false);
