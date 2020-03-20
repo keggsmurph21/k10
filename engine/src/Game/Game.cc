@@ -514,8 +514,21 @@ Result Game::execute_move_robber(Player*, const Action&)
     assert(false);
 }
 
-Result Game::execute_offer_trade(Player*, const Action&)
+Result Game::execute_offer_trade(Player* player, const Action& action)
 {
+    const auto trade = parse_trade(this, player, action.args);
+    if (trade == nullptr) {
+        return { ResultType::InvalidTrade, {} };
+    }
+    if (trade->offered_to.empty()) {
+        return { ResultType::InvalidTrade, {} };
+    }
+    if (trade->from_offerer.empty()) {
+        return { ResultType::InvalidTrade, {} };
+    }
+    if (trade->to_offerer.empty()) {
+        return { ResultType::InvalidTrade, {} };
+    }
     assert(false);
 }
 

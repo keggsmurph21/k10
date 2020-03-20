@@ -1812,7 +1812,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        // exec_ok(0, { Edge::OfferTrade, {} });
+        exec_ok(0, { Edge::OfferTrade, {} });
 
         // REQUIRE(g->players().at(0)->can_afford({ { Resource::Brick, 1 } }) == true);
         // REQUIRE(g->players().at(2)->can_afford({ { Resource::Wood, 1 } }) == true);
