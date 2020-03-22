@@ -33,6 +33,7 @@ public:
     const State::Vertex& vertex() const { return m_vertex; }
 
     bool has_heavy_purse() const;
+    size_t num_built(const Building&) const;
     bool can_build(const Building&) const;
     bool can_play(const DevelopmentCard&) const;
     bool can_trade() const;

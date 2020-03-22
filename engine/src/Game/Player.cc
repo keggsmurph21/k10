@@ -336,10 +336,41 @@ bool Player::has_heavy_purse() const // NOLINT(readability-convert-member-functi
     throw std::invalid_argument("Not implemented: Player::has_heavy_purse");
 }
 
+size_t Player::num_built(const Building& building) const
+{
+    size_t count = 0;
+    switch (building) {
+    case Building::City:
+        for (const auto& settlement : m_settlements) {
+            if (settlement->has_city()) {
+                ++count;
+            }
+        }
+        return count;
+    case Building::DevelopmentCard:
+        return m_played_development_cards.size() + m_playable_development_cards.size()
+               + m_unplayable_development_cards.size();
+    case Building::Road:
+        return m_roads.size();
+    case Building::Settlement:
+        for (const auto& settlement : m_settlements) {
+            if (!settlement->has_city()) {
+                ++count;
+            }
+        }
+        return count;
+    }
+    assert(false);
+}
+
 bool Player::can_build(const Building& building) const
 {
-    const auto& num_built = m_game->num_built(building);
-    const auto& num_buildable = m_game->scenario().count(building);
+    size_t num_built = m_game->num_built(building);
+    size_t num_buildable = m_game->scenario().count(building);
+    if (num_buildable == 0) {
+        num_built = Player::num_built(building);
+        num_buildable = m_game->scenario().count_per_player(building);
+    }
     const auto& cost = m_game->scenario().cost(building);
     assert(cost != nullptr);
     return (num_built < num_buildable) && can_afford(*cost);
