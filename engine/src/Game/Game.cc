@@ -46,12 +46,20 @@ void Game::set_current_trade(Trade* trade)
 {
     delete m_current_trade;
     m_current_trade = trade;
-    for (const auto& player : trade->offered_to) {
-        if (player->can_afford(trade->to_offerer)) {
-            player->set_can_accept_trade(true);
+    if (trade == nullptr) {
+        for (const auto& player : m_players) {
+            player->set_can_accept_trade(false);
+            player->set_has_declined_trade(false);
         }
+    } else {
+        for (const auto& player : trade->offered_to) {
+            if (player->can_afford(trade->to_offerer)) {
+                player->set_can_accept_trade(true);
+                player->set_has_declined_trade(false);
+            }
+        }
+        ++m_num_trades_offered_this_turn;
     }
-    ++m_num_trades_offered_this_turn;
 }
 
 size_t Game::get_round() const
@@ -467,9 +475,11 @@ Result Game::execute_build(Player* player, const Action& action)
     }
 }
 
-Result Game::execute_cancel_trade(Player*, const Action&)
+Result Game::execute_cancel_trade(Player* player, const Action& /* unused */)
 {
-    assert(false);
+    set_current_trade(nullptr);
+    player->set_vertex(State::Vertex::Root);
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_choose_initial_resources(Player* player, const Action& action)
@@ -560,6 +570,7 @@ Result Game::execute_offer_trade(Player* player, const Action& action)
     }
 
     set_current_trade(trade);
+    player->set_vertex(State::Vertex::WaitForTradeResponses);
 
     return { ResultType::Ok, {} };
 }
@@ -721,10 +732,6 @@ void Game::increment_turn()
         }
     }
     m_has_rolled = false;
-    for (const auto& player : m_players) {
-        player->set_can_accept_trade(false);
-        player->set_has_declined_trade(false);
-    }
     m_num_trades_offered_this_turn = 0;
 }
 
