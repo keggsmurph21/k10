@@ -28,6 +28,7 @@ add_library(k10 SHARED
     src/Game/ExecutionOptions.cc
     src/Game/Game.cc
     src/Game/Player.cc
+    src/Game/Trade.cc
     src/Scenario/Scenario.cc
 )
 target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)

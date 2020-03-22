@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 
 #include "Core/Resource.h"
@@ -14,5 +15,7 @@ struct Trade {
     const ResourceCounts from_offerer;
     const ResourceCounts to_offerer;
 };
+
+std::ostream& operator<<(std::ostream&, const Trade&);
 
 } // namespace k10engine::Game
