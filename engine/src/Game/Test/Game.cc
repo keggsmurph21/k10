@@ -354,6 +354,80 @@ struct PlayerState {
             }                                                                                      \
         }                                                                                          \
         std::cout << std::endl;                                                                    \
+    };                                                                                             \
+                                                                                                   \
+    const auto do_first_two_rounds_standard_3p = [&]() {                                           \
+        gs.robber_location = 143;                                                                  \
+        exec_ok(0, build(Building::Settlement, 4));                                                \
+        exec_ok(0, build(Building::Road, 7));                                                      \
+        exec_ok(1, { Edge::ToRoot, {} });                                                          \
+        exec_ok(1, build(Building::Settlement, 5));                                                \
+        exec_ok(1, build(Building::Road, 9));                                                      \
+        exec_ok(2, { Edge::ToRoot, {} });                                                          \
+        exec_ok(2, build(Building::Settlement, 90));                                               \
+        exec_ok(2, build(Building::Road, 80));                                                     \
+        exec_ok(2, { Edge::ToRoot, {} });                                                          \
+        exec_ok(2, build(Building::Settlement, 91));                                               \
+        exec_ok(2, build(Building::Road, 63));                                                     \
+        exec_ok(2, { Edge::ChooseInitialResources, { { ArgType::NodeId, 91 } } });                 \
+        exec_ok(1, { Edge::ToRoot, {} });                                                          \
+        exec_ok(1, build(Building::Settlement, 6));                                                \
+        exec_ok(1, build(Building::Road, 10));                                                     \
+        exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 6 } } });                  \
+        exec_ok(0, { Edge::ToRoot, {} });                                                          \
+        exec_ok(0, build(Building::Settlement, 26));                                               \
+        exec_ok(0, build(Building::Road, 18));                                                     \
+        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 26 } } });                 \
+                                                                                                   \
+        gs.is_first_round = false;                                                                 \
+        gs.is_second_round = false;                                                                \
+        gs.roads_built = 6;                                                                        \
+        gs.settlements_built = 6;                                                                  \
+        gs.turn = 6;                                                                               \
+        gs.round = 2;                                                                              \
+        ps[0].vertex = Vertex::WaitForTurn;                                                        \
+        ps[0].num_resources = 2;                                                                   \
+        ps[0].is_current_player = true;                                                            \
+        ps[0].settlements = 2;                                                                     \
+        ps[0].roads = 2;                                                                           \
+        ps[0].public_victory_points = 2;                                                           \
+        ps[1].vertex = Vertex::WaitForTurn;                                                        \
+        ps[1].num_resources = 1;                                                                   \
+        ps[1].settlements = 2;                                                                     \
+        ps[1].roads = 2;                                                                           \
+        ps[1].public_victory_points = 2;                                                           \
+        ps[2].vertex = Vertex::WaitForTurn;                                                        \
+        ps[2].num_resources = 3;                                                                   \
+        ps[2].settlements = 2;                                                                     \
+        ps[2].roads = 2;                                                                           \
+        ps[2].public_victory_points = 2;                                                           \
+        roads[7] = 0;                                                                              \
+        roads[9] = 1;                                                                              \
+        roads[10] = 1;                                                                             \
+        roads[18] = 0;                                                                             \
+        roads[63] = 2;                                                                             \
+        roads[80] = 2;                                                                             \
+        settlements[4] = 0;                                                                        \
+        settlements[5] = 1;                                                                        \
+        settlements[6] = 1;                                                                        \
+        settlements[13] = -1;                                                                      \
+        settlements[14] = -1;                                                                      \
+        settlements[15] = -1;                                                                      \
+        settlements[16] = -1;                                                                      \
+        settlements[26] = 0;                                                                       \
+        settlements[38] = -1;                                                                      \
+        settlements[39] = -1;                                                                      \
+        settlements[71] = -1;                                                                      \
+        settlements[72] = -1;                                                                      \
+        settlements[90] = 2;                                                                       \
+        settlements[91] = 2;                                                                       \
+        settlements[105] = -1;                                                                     \
+        settlements[106] = -1;                                                                     \
+        settlements[107] = -1;                                                                     \
+        check_state();                                                                             \
+        check_to_root(0);                                                                          \
+        check_no_actions(1);                                                                       \
+        check_no_actions(2);                                                                       \
     };
 
 Action build(Building b, size_t node_index)
