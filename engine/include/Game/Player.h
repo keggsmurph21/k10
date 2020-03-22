@@ -128,7 +128,7 @@ private:
     std::vector<Action> get_actions_at_choose_initial_resources() const;
     std::vector<Action> get_actions_at_root() const;
     std::vector<Action> get_actions_at_wait_for_turn() const;
-    std::vector<Action> get_actions_at_waiting_for_trade_responses() const;
+    std::vector<Action> get_actions_at_wait_for_trade_responses() const;
 };
 
 } // namespace k10engine::Game

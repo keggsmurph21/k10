@@ -29,8 +29,8 @@ std::ostream& operator<<(std::ostream& os, Vertex vertex)
     case Vertex::WaitForTurn:
         os << "Vertex::WaitForTurn";
         break;
-    case Vertex::WaitingForTradeResponses:
-        os << "Vertex::WaitingForTradeResponses";
+    case Vertex::WaitForTradeResponses:
+        os << "Vertex::WaitForTradeResponses";
         break;
     }
     return os;

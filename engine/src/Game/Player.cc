@@ -298,7 +298,7 @@ std::vector<Action> Player::get_actions_at_wait_for_turn() const
     return {};
 }
 
-std::vector<Action> Player::get_actions_at_waiting_for_trade_responses() const
+std::vector<Action> Player::get_actions_at_wait_for_trade_responses() const
 {
     if (m_game->is_trade_accepted()) {
         return { { State::Edge::AcceptTrade, {} } };
@@ -329,8 +329,8 @@ std::vector<Action> Player::get_available_actions() const
         return get_actions_at_root();
     case State::Vertex::WaitForTurn:
         return get_actions_at_wait_for_turn();
-    case State::Vertex::WaitingForTradeResponses:
-        return get_actions_at_waiting_for_trade_responses();
+    case State::Vertex::WaitForTradeResponses:
+        return get_actions_at_wait_for_trade_responses();
     }
     assert(false);
 }

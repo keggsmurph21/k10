@@ -13,7 +13,7 @@ enum class Vertex {
     GameOver,
     Root,
     WaitForTurn,
-    WaitingForTradeResponses,
+    WaitForTradeResponses,
 };
 
 std::ostream& operator<<(std::ostream&, Vertex);
