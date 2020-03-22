@@ -174,8 +174,15 @@ struct PlayerState {
         const auto large_node_index = 1000;                                                        \
         const auto invalid_node_index = 0;                                                         \
         const auto actions = g->players().at(player_index)->get_available_actions();               \
-        REQUIRE(actions.size() == num_expected);                                                   \
+        size_t num_buildable_roads_found = 0;                                                      \
         for (const auto& action : actions) {                                                       \
+            if (action.edge != Edge::Build) {                                                      \
+                continue;                                                                          \
+            }                                                                                      \
+            if (static_cast<Building>(action.args.at(0).value) != Building::Road) {                \
+                continue;                                                                          \
+            }                                                                                      \
+            ++num_buildable_roads_found;                                                           \
             REQUIRE(action.edge == Edge::Build);                                                   \
             REQUIRE(action.args.size() == 2);                                                      \
             REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                               \
@@ -185,6 +192,7 @@ struct PlayerState {
             REQUIRE(g->roads().find(node_index) != g->roads().end());                              \
             REQUIRE(g->roads().at(node_index)->owner() == nullptr);                                \
         }                                                                                          \
+        REQUIRE(num_buildable_roads_found == num_expected);                                        \
         exec_error(invalid_player_index,                                                           \
                    build(Building::Road, large_node_index),                                        \
                    ResType::InvalidPlayerId);                                                      \
@@ -2242,6 +2250,83 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
 
         // dump_actions();
+
+        delete g;
+    }
+
+    SECTION("Three players building roads")
+    {
+        auto b = Board::from_file("static/boards/Standard.board");
+        auto s = get_standard_scenario();
+        auto p = get_standard_parameters(3);
+        auto g = Game::initialize(&b, s, p);
+
+        bootstrap_tests();
+
+        do_first_two_rounds_standard_3p();
+
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+        exec_ok(0, { Edge::EndTurn, {} });
+
+        exec_ok(1, { Edge::ToRoot, {} });
+        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+        exec_ok(1, { Edge::EndTurn, {} });
+
+        exec_ok(2, { Edge::ToRoot, {} });
+        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+
+        exec_ok(2, trade({ 0 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
+        exec_ok(0, { Edge::AcceptTrade, {} });
+        exec_ok(2, trade({ 1 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
+        exec_ok(1, { Edge::AcceptTrade, {} });
+
+        gs.dice_total = 10;
+        gs.has_rolled = true;
+        gs.turn += 2;
+        gs.num_trades_offered_this_turn = 2;
+        ps[0].is_current_player = false;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[2].is_current_player = true;
+        ps[2].num_resources += 6;
+        ps[2].vertex = Vertex::Root;
+
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_end_turn(2);
+
+        /*
+         * p0 has { ore: 1, wheat: 1 }
+         * p1 has { wheat: 1 }
+         * p2 has { brick: 2, sheep: 1, wood: 4, wheat: 2 }
+         */
+
+        check_build_road(2, 8);
+
+        exec_ok(2, build(Building::Road, 48));
+        roads[48] = 2;
+        check_roads();
+
+        gs.roads_built += 1;
+        ps[2].roads += 1;
+        ps[2].num_resources -= 2;
+        check_state();
+
+        check_build_road(2, 9);
+
+        exec_ok(2, build(Building::Road, 33));
+        roads[33] = 2;
+        check_roads();
+
+        gs.roads_built += 1;
+        ps[2].roads += 1;
+        ps[2].num_resources -= 2;
+        check_state();
+
+        std::cout << *g << std::endl;
+        dump_actions();
 
         delete g;
     }
