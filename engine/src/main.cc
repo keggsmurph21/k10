@@ -36,8 +36,10 @@ k10engine::Scenario::Scenario get_standard_scenario()
                 { k10engine::Resource::Wood, 1 } },
           } },
         {
-            { k10engine::Building::City, 4 },
             { k10engine::Building::DevelopmentCard, 25 },
+        },
+        {
+            { k10engine::Building::City, 4 },
             { k10engine::Building::Road, 15 },
             { k10engine::Building::Settlement, 5 },
         },

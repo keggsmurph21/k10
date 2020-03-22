@@ -495,8 +495,10 @@ Scenario_ get_single_scenario()
                 { Resource::Wood, 1 } },
           } },
         {
-            { Building::City, 2 },
             { Building::DevelopmentCard, 25 },
+        },
+        {
+            { Building::City, 2 },
             { Building::Road, 6 },
             { Building::Settlement, 2 },
         },
@@ -555,8 +557,10 @@ Scenario_ get_triple_scenario()
                 { Resource::Wood, 1 } },
           } },
         {
-            { Building::City, 3 },
             { Building::DevelopmentCard, 25 },
+        },
+        {
+            { Building::City, 3 },
             { Building::Road, 10 },
             { Building::Settlement, 4 },
         },
@@ -618,8 +622,10 @@ Scenario_ get_standard_scenario()
                 { Resource::Wood, 1 } },
           } },
         {
-            { Building::City, 4 },
             { Building::DevelopmentCard, 25 },
+        },
+        {
+            { Building::City, 4 },
             { Building::Road, 15 },
             { Building::Settlement, 5 },
         },

@@ -43,6 +43,10 @@ public:
 
     const Costs<Building>& building_costs() const { return m_building_costs; }
     const Counts<Building>& building_counts() const { return m_building_counts; }
+    const Counts<Building>& building_counts_per_player() const
+    {
+        return m_building_counts_per_player;
+    }
     const Counts<AbstractResource>& resource_counts() const { return m_resource_counts; }
     const Counts<DevelopmentCard>& development_card_counts() const
     {
@@ -52,6 +56,7 @@ public:
     bool is_valid(const Building&) const;
     const ResourceCounts* cost(const Building&) const;
     size_t count(const Building&) const;
+    size_t count_per_player(const Building&) const;
 
     bool is_valid(const DevelopmentCard&) const;
     size_t count(const DevelopmentCard&) const;
@@ -73,12 +78,14 @@ public:
              size_t max_victory_points_goal,
              Costs<Building> building_costs,
              Counts<Building> building_counts,
+             Counts<Building> building_counts_per_player,
              Counts<DevelopmentCard> development_card_counts,
              Counts<AbstractResource> resource_counts,
              std::vector<int> rolls,
              std::vector<_PortSpec> ports)
         : m_building_costs(building_costs)
         , m_building_counts(building_counts)
+        , m_building_counts_per_player(building_counts_per_player)
         , m_development_card_counts(development_card_counts)
         , m_resource_counts(resource_counts)
         , m_rolls(rolls)
@@ -101,6 +108,7 @@ protected:
 
     Costs<Building> m_building_costs;
     Counts<Building> m_building_counts;
+    Counts<Building> m_building_counts_per_player;
     Counts<DevelopmentCard> m_development_card_counts;
     Counts<AbstractResource> m_resource_counts;
     std::vector<int> m_rolls;

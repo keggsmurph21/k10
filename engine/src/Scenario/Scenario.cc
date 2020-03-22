@@ -21,10 +21,18 @@ const ResourceCounts* Scenario::cost(const Building& building) const
 
 size_t Scenario::count(const Building& building) const
 {
-    if (!is_valid(building)) {
+    if (m_building_counts.find(building) == m_building_counts.end()) {
         return 0;
     }
     return m_building_counts.at(building);
+}
+
+size_t Scenario::count_per_player(const Building& building) const
+{
+    if (m_building_counts_per_player.find(building) == m_building_counts_per_player.end()) {
+        return 0;
+    }
+    return m_building_counts_per_player.at(building);
 }
 
 bool Scenario::is_valid(const DevelopmentCard& development_card) const
