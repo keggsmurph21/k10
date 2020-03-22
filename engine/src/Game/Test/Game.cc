@@ -31,8 +31,7 @@ struct GameState {
     bool is_roll_seven = false;
     // bool should_wait_for_discard = false; // FIXME: Implement:
     // REQUIRE(g->should_wait_for_discard() == gs.should_wait_for_discard);
-    // bool should_wait_for_trade = false; // FIXME: Implement:
-    // REQUIRE(g->should_wait_for_trade() == gs.should_wait_for_trade);
+    bool should_wait_for_trade = false;
     size_t num_trades_offered_this_turn = 0;
     size_t robber_location = 0;
     size_t dice_total = 0;
@@ -88,6 +87,7 @@ struct PlayerState {
         REQUIRE(g->is_first_round() == gs.is_first_round);                                         \
         REQUIRE(g->is_second_round() == gs.is_second_round);                                       \
         REQUIRE(g->is_roll_seven() == gs.is_roll_seven);                                           \
+        REQUIRE(g->should_wait_for_trade() == gs.should_wait_for_trade);                           \
         REQUIRE(g->num_trades_offered_this_turn() == gs.num_trades_offered_this_turn);             \
         REQUIRE(g->robber_location()->node()->index() == gs.robber_location);                      \
         REQUIRE(g->get_dice_total() == gs.dice_total);                                             \
@@ -1978,6 +1978,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         exec_ok(2, trade({ 0, 1 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
 
+        gs.should_wait_for_trade = true;
         gs.num_trades_offered_this_turn += 1;
         ps[0].can_accept_trade = true;
         ps[1].can_accept_trade = true;

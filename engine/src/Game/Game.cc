@@ -32,9 +32,14 @@ bool Game::should_wait_for_discard() const // NOLINT(readability-convert-member-
     throw std::invalid_argument("Not implemented: Game::should_wait_for_discard");
 }
 
-bool Game::should_wait_for_trade() const // NOLINT(readability-convert-member-functions-to-static)
+bool Game::should_wait_for_trade() const
 {
-    throw std::invalid_argument("Not implemented: Game::should_wait_for_trade");
+    for (const auto& player : m_players) {
+        if (player->can_accept_trade() && !player->has_declined_trade()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Game::set_current_trade(Trade* trade)
@@ -718,6 +723,7 @@ void Game::increment_turn()
     m_has_rolled = false;
     for (const auto& player : m_players) {
         player->set_can_accept_trade(false);
+        player->set_has_declined_trade(false);
     }
     m_num_trades_offered_this_turn = 0;
 }
