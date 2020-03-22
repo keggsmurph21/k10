@@ -1871,6 +1871,179 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
 TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 {
+    SECTION("Three players immediately ending turns")
+    {
+        auto b = Board::from_file("static/boards/Standard.board");
+        auto s = get_standard_scenario();
+        auto p = get_standard_parameters(3);
+        auto g = Game::initialize(&b, s, p);
+
+        bootstrap_tests();
+
+        do_first_two_rounds_standard_3p();
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        ps[0].vertex = Vertex::Root;
+        check_state();
+        check_roll_dice(0);
+        check_no_actions(1);
+        check_no_actions(1);
+
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 10;
+        ps[0].vertex = Vertex::Root;
+        ps[2].num_resources += 2;
+        check_state();
+        check_end_turn(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::EndTurn, {} });
+
+        gs.turn += 1;
+        gs.has_rolled = false;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[0].is_current_player = false;
+        ps[1].is_current_player = true;
+        check_state();
+        check_no_actions(0);
+        check_to_root(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::ToRoot, {} });
+
+        ps[1].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_roll_dice(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 8 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 8;
+        ps[2].num_resources += 3;
+        check_state();
+        check_no_actions(0);
+        check_end_turn(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::EndTurn, {} });
+
+        gs.turn += 1;
+        gs.has_rolled = false;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[1].is_current_player = false;
+        ps[2].is_current_player = true;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_to_root(2);
+
+        exec_ok(2, { Edge::ToRoot, {} });
+
+        ps[2].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_roll_dice(2);
+
+        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 5 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 5;
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_end_turn(2);
+
+        exec_ok(2, { Edge::EndTurn, {} });
+
+        gs.turn += 1;
+        gs.round += 1;
+        gs.has_rolled = false;
+        ps[0].is_current_player = true;
+        ps[2].vertex = Vertex::WaitForTurn;
+        ps[2].is_current_player = false;
+        check_state();
+        check_to_root(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        ps[0].vertex = Vertex::Root;
+        check_state();
+        check_roll_dice(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 9 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 9;
+        check_state();
+        check_end_turn(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        exec_ok(0, { Edge::EndTurn, {} });
+
+        gs.turn += 1;
+        gs.has_rolled = false;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[0].is_current_player = false;
+        ps[1].is_current_player = true;
+        check_state();
+        check_no_actions(0);
+        check_to_root(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::ToRoot, {} });
+
+        ps[1].vertex = Vertex::Root;
+        check_state();
+        check_no_actions(0);
+        check_roll_dice(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 4 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 4;
+        ps[0].num_resources += 1;
+        check_state();
+        check_no_actions(0);
+        check_end_turn(1);
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::EndTurn, {} });
+
+        gs.turn += 1;
+        gs.has_rolled = false;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[1].is_current_player = false;
+        ps[2].is_current_player = true;
+
+        exec_ok(2, { Edge::ToRoot, {} });
+
+        ps[2].vertex = Vertex::Root;
+
+        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+
+        gs.has_rolled = true;
+        gs.dice_total = 10;
+        ps[2].num_resources += 2;
+        check_state();
+
+        // dump_actions();
+
+        delete g;
+    }
+
     SECTION("Three players offering trades")
     {
         auto b = Board::from_file("static/boards/Standard.board");
@@ -1880,79 +2053,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         bootstrap_tests();
 
-        gs.robber_location = 143;
-        exec_ok(0, build(Building::Settlement, 4));
-        exec_ok(0, build(Building::Road, 7));
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, build(Building::Settlement, 5));
-        exec_ok(1, build(Building::Road, 9));
-        exec_ok(2, { Edge::ToRoot, {} });
-        exec_ok(2, build(Building::Settlement, 90));
-        exec_ok(2, build(Building::Road, 80));
-        exec_ok(2, { Edge::ToRoot, {} });
-        exec_ok(2, build(Building::Settlement, 91));
-        exec_ok(2, build(Building::Road, 63));
-        exec_ok(2, { Edge::ChooseInitialResources, { { ArgType::NodeId, 91 } } });
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, build(Building::Settlement, 6));
-        exec_ok(1, build(Building::Road, 10));
-        exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 6 } } });
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, build(Building::Settlement, 26));
-        exec_ok(0, build(Building::Road, 18));
-        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 26 } } });
-
-        gs.is_first_round = false;
-        gs.is_second_round = false;
-        gs.roads_built = 6;
-        gs.settlements_built = 6;
-        gs.turn = 6;
-        gs.round = 2;
-        ps[0].vertex = Vertex::WaitForTurn;
-        ps[0].num_resources = 2;
-        ps[0].is_current_player = true;
-        ps[0].settlements = 2;
-        ps[0].roads = 2;
-        ps[0].public_victory_points = 2;
-        ps[1].vertex = Vertex::WaitForTurn;
-        ps[1].num_resources = 1;
-        ps[1].settlements = 2;
-        ps[1].roads = 2;
-        ps[1].public_victory_points = 2;
-        ps[2].vertex = Vertex::WaitForTurn;
-        ps[2].num_resources = 3;
-        ps[2].settlements = 2;
-        ps[2].roads = 2;
-        ps[2].public_victory_points = 2;
-        roads[7] = 0;
-        roads[9] = 1;
-        roads[10] = 1;
-        roads[18] = 0;
-        roads[63] = 2;
-        roads[80] = 2;
-        settlements[4] = 0;
-        settlements[5] = 1;
-        settlements[6] = 1;
-        settlements[13] = -1;
-        settlements[14] = -1;
-        settlements[15] = -1;
-        settlements[16] = -1;
-        settlements[26] = 0;
-        settlements[38] = -1;
-        settlements[39] = -1;
-        settlements[71] = -1;
-        settlements[72] = -1;
-        settlements[90] = 2;
-        settlements[91] = 2;
-        settlements[105] = -1;
-        settlements[106] = -1;
-        settlements[107] = -1;
-        check_state();
-        check_to_root(0);
-        check_no_actions(1);
-        check_no_actions(2);
-
-        // </first two rounds>
+        do_first_two_rounds_standard_3p();
 
         /*
         check_offer_trade(0, 1);
@@ -2121,90 +2222,26 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].vertex = Vertex::Root;
         check_state();
 
-        /*
-        exec_ok(2, { Edge::EndTurn, {} });
+        exec_ok(2, trade({ 0, 1 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
+        exec_ok(1, { Edge::DeclineTrade, {} });
+        exec_ok(2, { Edge::FailTradeUnableToFindPartner, {} });
 
-        gs.turn += 1;
-        gs.round += 1;
-        gs.has_rolled = false;
-        ps[0].is_current_player = true;
-        ps[2].vertex = Vertex::WaitForTurn;
-        ps[2].is_current_player = false;
+        gs.num_trades_offered_this_turn += 1;
         check_state();
-        check_to_root(0);
-        check_no_actions(1);
-        check_no_actions(2);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(2, trade({ 0, 1 }, { { Resource::Wheat, 1 } }, { { Resource::Wood, 1 } }));
+        exec_ok(2, { Edge::FailTradeUnableToFindPartner, {} });
 
-        ps[0].vertex = Vertex::Root;
+        gs.num_trades_offered_this_turn += 1;
         check_state();
-        check_roll_dice(0);
-        check_no_actions(1);
-        check_no_actions(2);
 
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 9 } } });
+        exec_ok(2, trade({ 0 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
+        exec_ok(2, { Edge::FailTradeUnableToFindPartner, {} });
 
-        gs.has_rolled = true;
-        gs.dice_total = 9;
+        gs.num_trades_offered_this_turn += 1;
         check_state();
-        check_end_turn(0);
-        check_no_actions(1);
-        check_no_actions(2);
 
-        exec_ok(0, { Edge::EndTurn, {} });
-
-        gs.turn += 1;
-        gs.has_rolled = false;
-        ps[0].vertex = Vertex::WaitForTurn;
-        ps[0].is_current_player = false;
-        ps[1].is_current_player = true;
-        check_state();
-        check_no_actions(0);
-        check_to_root(1);
-        check_no_actions(2);
-
-        exec_ok(1, { Edge::ToRoot, {} });
-
-        ps[1].vertex = Vertex::Root;
-        check_state();
-        check_no_actions(0);
-        check_roll_dice(1);
-        check_no_actions(2);
-
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 4 } } });
-
-        gs.has_rolled = true;
-        gs.dice_total = 4;
-        ps[0].num_resources += 1;
-        check_state();
-        check_no_actions(0);
-        check_end_turn(1);
-        check_no_actions(2);
-
-        exec_ok(1, { Edge::EndTurn, {} });
-
-        gs.turn += 1;
-        gs.has_rolled = false;
-        ps[1].vertex = Vertex::WaitForTurn;
-        ps[1].is_current_player = false;
-        ps[2].is_current_player = true;
-
-        exec_ok(2, { Edge::ToRoot, {} });
-
-        ps[2].vertex = Vertex::Root;
-
-        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
-
-        gs.has_rolled = true;
-        gs.dice_total = 10;
-        ps[2].num_resources += 2;
-
-        check_state();
-        */
-
-        std::cout << *g << std::endl;
-        dump_actions();
+        // dump_actions();
 
         delete g;
     }
