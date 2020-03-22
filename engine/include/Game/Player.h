@@ -120,6 +120,15 @@ private:
 
     bool can_afford(const ResourceCounts&) const;
     bool can_afford(const Building&) const;
+
+    std::vector<Action> get_actions_at_after_building_free_settlement() const;
+    std::vector<Action> get_actions_at_after_discarding() const;
+    std::vector<Action> get_actions_at_after_moving_robber() const;
+    std::vector<Action> get_actions_at_after_roll() const;
+    std::vector<Action> get_actions_at_choose_initial_resources() const;
+    std::vector<Action> get_actions_at_root() const;
+    std::vector<Action> get_actions_at_wait_for_turn() const;
+    std::vector<Action> get_actions_at_waiting_for_trade_responses() const;
 };
 
 } // namespace k10engine::Game

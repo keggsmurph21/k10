@@ -5,102 +5,54 @@
 
 namespace k10engine::Game {
 
-std::vector<Action> Player::get_available_actions() const
+std::vector<Action> Player::get_actions_at_after_building_free_settlement() const
 {
-    std::vector<Action> available_actions;
-    switch (m_vertex) {
+    std::set<const BoardView::Road*> reachable_roads;
 
-    case State::Vertex::AfterBuildingFreeSettlement: {
-
-        std::set<const BoardView::Road*> reachable_roads;
-
-        // roads a distance of 1 away from our current roads
-        for (const auto owned_road : roads()) {
-            for (const auto junction_neighbor : owned_road->junction_neighbors()) {
-                const auto junction = junction_neighbor.second;
-                if (junction->owner() != nullptr && junction->owner() != this) {
-                    continue; // can't build roads thru other settlements
-                }
-                for (const auto road_neighbor : junction->road_neighbors()) {
-                    const auto reachable_road = road_neighbor.second;
-                    if (reachable_road->owner() == nullptr) {
-                        reachable_roads.insert(reachable_road);
-                    }
-                }
+    // roads a distance of 1 away from our current roads
+    for (const auto owned_road : roads()) {
+        for (const auto junction_neighbor : owned_road->junction_neighbors()) {
+            const auto junction = junction_neighbor.second;
+            if (junction->owner() != nullptr && junction->owner() != this) {
+                continue; // can't build roads thru other settlements
             }
-        }
-
-        // roads adjacent to our current settlements
-        for (const auto& it : m_game->junctions()) {
-            const auto junction = it.second;
             for (const auto road_neighbor : junction->road_neighbors()) {
-                const auto road = road_neighbor.second;
-                if (junction->owner() == this && road->owner() == nullptr) {
-                    reachable_roads.insert(road);
+                const auto reachable_road = road_neighbor.second;
+                if (reachable_road->owner() == nullptr) {
+                    reachable_roads.insert(reachable_road);
                 }
             }
         }
-
-        for (const auto road : reachable_roads) {
-            available_actions.push_back(
-                { State::Edge::Build,
-                  { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Road) },
-                    { ActionArgumentType::NodeId, road->index() } } });
-        }
-
-        return available_actions;
     }
 
-    case State::Vertex::AfterDiscarding:
-        if (is_current_player()) {
-            if (num_to_discard() > 0) {
-                return { { State::Edge::Discard,
-                           { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
+    // roads adjacent to our current settlements
+    for (const auto& it : m_game->junctions()) {
+        const auto junction = it.second;
+        for (const auto road_neighbor : junction->road_neighbors()) {
+            const auto road = road_neighbor.second;
+            if (junction->owner() == this && road->owner() == nullptr) {
+                reachable_roads.insert(road);
             }
-            if (m_game->should_wait_for_discard()) {
-                return {}; // i.e., wait
-            }
-            for (const auto& it : m_game->hexes()) {
-                const auto hex = it.second;
-                if (hex->index() != m_game->robber_location()->index()) {
-                    available_actions.push_back(
-                        { State::Edge::MoveRobber,
-                          { { ActionArgumentType::NodeId, hex->index() } } });
-                }
-            }
-            return available_actions;
-        } else {
-            if (num_to_discard() > 0) {
-                return { { State::Edge::Discard,
-                           { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
-            }
-            return {}; // i.e., wait
         }
+    }
 
-    case State::Vertex::AfterMovingRobber:
-        if (m_game->can_steal()) {
-            const auto robber_location = m_game->robber_location();
-            std::set<const Player*> players_to_steal_from;
-            for (const auto& junction_neighbor : robber_location->junction_neighbors()) {
-                const auto junction = junction_neighbor.second;
-                const auto owner = junction->owner();
-                if (owner != nullptr && owner != this) {
-                    players_to_steal_from.insert(owner);
-                }
-            }
-            for (const auto player_to_steal_from : players_to_steal_from) {
-                available_actions.push_back(
-                    { State::Edge::Steal,
-                      { { ActionArgumentType::PlayerId, player_to_steal_from->index() } } });
-            }
-            return available_actions;
-        }
-        return { { State::Edge::ToRoot, {} } };
+    std::vector<Action> available_actions;
+    available_actions.reserve(reachable_roads.size());
 
-    case State::Vertex::AfterRoll:
-        if (!m_game->is_roll_seven()) {
-            return { { State::Edge::CollectResources, {} } };
-        }
+    for (const auto road : reachable_roads) {
+        available_actions.push_back(
+            { State::Edge::Build,
+              { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Road) },
+                { ActionArgumentType::NodeId, road->index() } } });
+    }
+
+    return available_actions;
+}
+
+std::vector<Action> Player::get_actions_at_after_discarding() const
+{
+    std::vector<Action> available_actions;
+    if (is_current_player()) {
         if (num_to_discard() > 0) {
             return { { State::Edge::Discard,
                        { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
@@ -116,189 +68,269 @@ std::vector<Action> Player::get_available_actions() const
             }
         }
         return available_actions;
+    }
+    if (num_to_discard() > 0) {
+        return { { State::Edge::Discard,
+                   { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
+    }
+    return {}; // i.e., wait
+}
 
-    case State::Vertex::ChooseInitialResources:
-        assert(settlements().size() == 2);
-        return { { State::Edge::ChooseInitialResources,
-                   { { ActionArgumentType::NodeId, settlements().at(0)->node()->index() } } },
-                 { State::Edge::ChooseInitialResources,
-                   { { ActionArgumentType::NodeId, settlements().at(1)->node()->index() } } } };
-
-    case State::Vertex::GameOver:
-        assert(false); // We shouldn't hit this
-
-    case State::Vertex::Root:
-        if (m_game->is_first_round()) {
-            for (const auto& it : m_game->junctions()) {
-                const auto junction = it.second;
-                if (junction->is_settleable()) {
-                    available_actions.push_back(
-                        { State::Edge::Build,
-                          { { ActionArgumentType::BuildItemId,
-                              static_cast<size_t>(Building::Settlement) },
-                            { ActionArgumentType::NodeId, junction->index() } } });
-                }
+std::vector<Action> Player::get_actions_at_after_moving_robber() const
+{
+    std::vector<Action> available_actions;
+    if (m_game->can_steal()) {
+        const auto robber_location = m_game->robber_location();
+        std::set<const Player*> players_to_steal_from;
+        for (const auto& junction_neighbor : robber_location->junction_neighbors()) {
+            const auto junction = junction_neighbor.second;
+            const auto owner = junction->owner();
+            if (owner != nullptr && owner != this) {
+                players_to_steal_from.insert(owner);
             }
-            return available_actions;
         }
-        if (m_game->is_second_round()) {
-            for (const auto& it : m_game->junctions()) {
-                const auto junction = it.second;
-                if (junction->is_settleable()) {
-                    available_actions.push_back(
-                        { State::Edge::Build,
-                          { { ActionArgumentType::BuildItemId,
-                              static_cast<size_t>(Building::Settlement) },
-                            { ActionArgumentType::NodeId, junction->index() } } });
-                }
-            }
-            return available_actions;
+        for (const auto player_to_steal_from : players_to_steal_from) {
+            available_actions.push_back(
+                { State::Edge::Steal,
+                  { { ActionArgumentType::PlayerId, player_to_steal_from->index() } } });
         }
-        if (!m_game->has_rolled()) {
-            return { { State::Edge::RollDice, {} } };
-        }
-        if (m_game->has_current_trade()) {
-            return { { State::Edge::CancelTrade, {} } };
-        }
-        {
-            available_actions.push_back({ State::Edge::EndTurn, {} });
+        return available_actions;
+    }
+    return { { State::Edge::ToRoot, {} } };
+}
 
-            const bool can_build_city = can_build(Building::City);
-            const bool can_build_development_card = can_build(Building::DevelopmentCard);
-            const bool can_build_road = can_build(Building::Road);
-            const bool can_build_settlement = can_build(Building::Settlement);
+std::vector<Action> Player::get_actions_at_after_roll() const
+{
+    if (!m_game->is_roll_seven()) {
+        return { { State::Edge::CollectResources, {} } };
+    }
+    if (num_to_discard() > 0) {
+        return { { State::Edge::Discard,
+                   { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
+    }
+    if (m_game->should_wait_for_discard()) {
+        return {}; // i.e., wait
+    }
+    std::vector<Action> available_actions;
+    for (const auto& it : m_game->hexes()) {
+        const auto hex = it.second;
+        if (hex->index() != m_game->robber_location()->index()) {
+            available_actions.push_back(
+                { State::Edge::MoveRobber, { { ActionArgumentType::NodeId, hex->index() } } });
+        }
+    }
+    return available_actions;
+}
 
-            if (can_build_development_card) {
+std::vector<Action> Player::get_actions_at_choose_initial_resources() const
+{
+    assert(settlements().size() == 2);
+    return { { State::Edge::ChooseInitialResources,
+               { { ActionArgumentType::NodeId, settlements().at(0)->node()->index() } } },
+             { State::Edge::ChooseInitialResources,
+               { { ActionArgumentType::NodeId, settlements().at(1)->node()->index() } } } };
+}
+
+std::vector<Action> Player::get_actions_at_root() const
+{
+    std::vector<Action> available_actions;
+    if (m_game->is_first_round()) {
+        for (const auto& it : m_game->junctions()) {
+            const auto junction = it.second;
+            if (junction->is_settleable()) {
                 available_actions.push_back(
                     { State::Edge::Build,
                       { { ActionArgumentType::BuildItemId,
-                          static_cast<size_t>(Building::DevelopmentCard) } } });
+                          static_cast<size_t>(Building::Settlement) },
+                        { ActionArgumentType::NodeId, junction->index() } } });
             }
-
-            std::set<const BoardView::Road*> reachable_roads;
-            for (const auto owned_road : roads()) {
-                for (const auto junction_neighbor : owned_road->junction_neighbors()) {
-                    const auto junction = junction_neighbor.second;
-                    if (junction->owner() != nullptr && junction->owner() != this) {
-                        continue; // can't build roads thru other settlements
-                    }
-                    for (const auto road_neighbor : junction->road_neighbors()) {
-                        const auto reachable_road = road_neighbor.second;
-                        if (reachable_road->owner() == nullptr) {
-                            reachable_roads.insert(reachable_road);
-                        }
-                    }
-                }
+        }
+        return available_actions;
+    }
+    if (m_game->is_second_round()) {
+        for (const auto& it : m_game->junctions()) {
+            const auto junction = it.second;
+            if (junction->is_settleable()) {
+                available_actions.push_back(
+                    { State::Edge::Build,
+                      { { ActionArgumentType::BuildItemId,
+                          static_cast<size_t>(Building::Settlement) },
+                        { ActionArgumentType::NodeId, junction->index() } } });
             }
+        }
+        return available_actions;
+    }
+    if (!m_game->has_rolled()) {
+        return { { State::Edge::RollDice, {} } };
+    }
+    if (m_game->has_current_trade()) {
+        return { { State::Edge::CancelTrade, {} } };
+    }
+    {
+        available_actions.push_back({ State::Edge::EndTurn, {} });
 
-            for (const auto& it : m_game->junctions()) {
-                const auto junction = it.second;
-                if (can_build_city) {
-                    if (junction->owner() == this) {
-                        available_actions.push_back(
-                            { State::Edge::Build,
-                              { { ActionArgumentType::BuildItemId,
-                                  static_cast<size_t>(Building::City) },
-                                { ActionArgumentType::NodeId, junction->index() } } });
-                    }
+        const bool can_build_city = can_build(Building::City);
+        const bool can_build_development_card = can_build(Building::DevelopmentCard);
+        const bool can_build_road = can_build(Building::Road);
+        const bool can_build_settlement = can_build(Building::Settlement);
+
+        if (can_build_development_card) {
+            available_actions.push_back({ State::Edge::Build,
+                                          { { ActionArgumentType::BuildItemId,
+                                              static_cast<size_t>(Building::DevelopmentCard) } } });
+        }
+
+        std::set<const BoardView::Road*> reachable_roads;
+        for (const auto owned_road : roads()) {
+            for (const auto junction_neighbor : owned_road->junction_neighbors()) {
+                const auto junction = junction_neighbor.second;
+                if (junction->owner() != nullptr && junction->owner() != this) {
+                    continue; // can't build roads thru other settlements
                 }
                 for (const auto road_neighbor : junction->road_neighbors()) {
-                    const auto road = road_neighbor.second;
-                    if (junction->owner() == this && road->owner() == nullptr) {
-                        reachable_roads.insert(road);
-                    }
-                    if (can_build_settlement && junction->is_settleable()) {
-                        if (road->owner() == this) {
-                            available_actions.push_back(
-                                { State::Edge::Build,
-                                  { { ActionArgumentType::BuildItemId,
-                                      static_cast<size_t>(Building::Settlement) },
-                                    { ActionArgumentType::NodeId, junction->index() } } });
-                        }
+                    const auto reachable_road = road_neighbor.second;
+                    if (reachable_road->owner() == nullptr) {
+                        reachable_roads.insert(reachable_road);
                     }
                 }
             }
+        }
 
-            if (can_build_road) {
-                for (const auto road : reachable_roads) {
+        for (const auto& it : m_game->junctions()) {
+            const auto junction = it.second;
+            if (can_build_city) {
+                if (junction->owner() == this) {
                     available_actions.push_back(
                         { State::Edge::Build,
                           { { ActionArgumentType::BuildItemId,
-                              static_cast<size_t>(Building::Road) },
-                            { ActionArgumentType::NodeId, road->index() } } });
+                              static_cast<size_t>(Building::City) },
+                            { ActionArgumentType::NodeId, junction->index() } } });
                 }
             }
-
-            std::set<DevelopmentCard> seen_development_cards;
-            for (const auto& development_card : m_playable_development_cards) {
-                if (seen_development_cards.find(development_card) != seen_development_cards.end()) {
-                    continue;
+            for (const auto road_neighbor : junction->road_neighbors()) {
+                const auto road = road_neighbor.second;
+                if (junction->owner() == this && road->owner() == nullptr) {
+                    reachable_roads.insert(road);
                 }
-                switch (development_card) {
-                case DevelopmentCard::Knight:
-                    for (const auto& it : m_game->hexes()) {
-                        const auto hex = it.second;
-                        if (hex->index() != m_game->robber_location()->index()) {
-                            available_actions.push_back(
-                                { State::Edge::PlayDevelopmentCard,
-                                  { { ActionArgumentType::DevelopmentCardId,
-                                      static_cast<size_t>(development_card) },
-                                    { ActionArgumentType::NodeId, hex->index() } } });
-                        }
+                if (can_build_settlement && junction->is_settleable()) {
+                    if (road->owner() == this) {
+                        available_actions.push_back(
+                            { State::Edge::Build,
+                              { { ActionArgumentType::BuildItemId,
+                                  static_cast<size_t>(Building::Settlement) },
+                                { ActionArgumentType::NodeId, junction->index() } } });
                     }
-                    break;
-                case DevelopmentCard::RoadBuilding:
-                    // NB: This structured as ONE ROAD PER ACTION, even though we expect players to
-                    //     "execute" it with (up to) TWO ROADS in the action.
-                    for (const auto road : reachable_roads) {
+                }
+            }
+        }
+
+        if (can_build_road) {
+            for (const auto road : reachable_roads) {
+                available_actions.push_back(
+                    { State::Edge::Build,
+                      { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Road) },
+                        { ActionArgumentType::NodeId, road->index() } } });
+            }
+        }
+
+        std::set<DevelopmentCard> seen_development_cards;
+        for (const auto& development_card : m_playable_development_cards) {
+            if (seen_development_cards.find(development_card) != seen_development_cards.end()) {
+                continue;
+            }
+            switch (development_card) {
+            case DevelopmentCard::Knight:
+                for (const auto& it : m_game->hexes()) {
+                    const auto hex = it.second;
+                    if (hex->index() != m_game->robber_location()->index()) {
                         available_actions.push_back(
                             { State::Edge::PlayDevelopmentCard,
                               { { ActionArgumentType::DevelopmentCardId,
                                   static_cast<size_t>(development_card) },
-                                { ActionArgumentType::NodeId, road->index() } } });
+                                { ActionArgumentType::NodeId, hex->index() } } });
                     }
-                    break;
-                case DevelopmentCard::Monopoly:
-                case DevelopmentCard::VictoryPoint:
-                case DevelopmentCard::YearOfPlenty:
-                    available_actions.push_back({ State::Edge::PlayDevelopmentCard,
-                                                  { { ActionArgumentType::DevelopmentCardId,
-                                                      static_cast<size_t>(development_card) } } });
-                    break;
                 }
+                break;
+            case DevelopmentCard::RoadBuilding:
+                // NB: This structured as ONE ROAD PER ACTION, even though we expect players to
+                //     "execute" it with (up to) TWO ROADS in the action.
+                for (const auto road : reachable_roads) {
+                    available_actions.push_back(
+                        { State::Edge::PlayDevelopmentCard,
+                          { { ActionArgumentType::DevelopmentCardId,
+                              static_cast<size_t>(development_card) },
+                            { ActionArgumentType::NodeId, road->index() } } });
+                }
+                break;
+            case DevelopmentCard::Monopoly:
+            case DevelopmentCard::VictoryPoint:
+            case DevelopmentCard::YearOfPlenty:
+                available_actions.push_back({ State::Edge::PlayDevelopmentCard,
+                                              { { ActionArgumentType::DevelopmentCardId,
+                                                  static_cast<size_t>(development_card) } } });
+                break;
             }
-
-            if (!m_game->has_current_trade()
-                && m_game->num_trades_offered_this_turn() < MAX_NUM_TRADE_OFFERS_PER_TURN
-                && num_resources() > 0) {
-                // FIXME: Make sure we handle trading with the bank
-                available_actions.push_back({ State::Edge::OfferTrade, {} });
-            }
-
-            return available_actions;
         }
 
+        if (!m_game->has_current_trade()
+            && m_game->num_trades_offered_this_turn() < MAX_NUM_TRADE_OFFERS_PER_TURN
+            && num_resources() > 0) {
+            // FIXME: Make sure we handle trading with the bank
+            available_actions.push_back({ State::Edge::OfferTrade, {} });
+        }
+
+        return available_actions;
+    }
+}
+
+std::vector<Action> Player::get_actions_at_wait_for_turn() const
+{
+    if (is_current_player()) {
+        return { { State::Edge::ToRoot, {} } };
+    }
+    if (num_to_discard() > 0) {
+        return { { State::Edge::Discard,
+                   { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
+    }
+    if (can_accept_trade()) {
+        return { { State::Edge::AcceptTrade, {} }, { State::Edge::DeclineTrade, {} } };
+    }
+    return {};
+}
+
+std::vector<Action> Player::get_actions_at_waiting_for_trade_responses() const
+{
+    if (m_game->is_trade_accepted()) {
+        return { { State::Edge::AcceptTrade, {} } };
+    }
+    if (m_game->should_wait_for_trade()) {
+        return { { State::Edge::CancelTrade, {} } }; // or do nothing and wait
+    }
+    return { { State::Edge::FailTradeUnableToFindPartner, {} } };
+}
+
+std::vector<Action> Player::get_available_actions() const
+{
+    std::vector<Action> available_actions;
+    switch (m_vertex) {
+    case State::Vertex::AfterBuildingFreeSettlement:
+        return get_actions_at_after_building_free_settlement();
+    case State::Vertex::AfterDiscarding:
+        return get_actions_at_after_discarding();
+    case State::Vertex::AfterMovingRobber:
+        return get_actions_at_after_moving_robber();
+    case State::Vertex::AfterRoll:
+        return get_actions_at_after_roll();
+    case State::Vertex::ChooseInitialResources:
+        return get_actions_at_choose_initial_resources();
+    case State::Vertex::GameOver:
+        assert(false); // We shouldn't hit this
+    case State::Vertex::Root:
+        return get_actions_at_root();
     case State::Vertex::WaitForTurn:
-        if (is_current_player()) {
-            return { { State::Edge::ToRoot, {} } };
-        }
-        if (num_to_discard() > 0) {
-            return { { State::Edge::Discard,
-                       { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
-        }
-        if (can_accept_trade()) {
-            return { { State::Edge::AcceptTrade, {} }, { State::Edge::DeclineTrade, {} } };
-        }
-        return {};
-
+        return get_actions_at_wait_for_turn();
     case State::Vertex::WaitingForTradeResponses:
-        if (m_game->is_trade_accepted()) {
-            return { { State::Edge::AcceptTrade, {} } };
-        }
-        if (m_game->should_wait_for_trade()) {
-            return { { State::Edge::CancelTrade, {} } }; // or do nothing and wait
-        }
-        return { { State::Edge::FailTradeUnableToFindPartner, {} } };
+        return get_actions_at_waiting_for_trade_responses();
     }
     assert(false);
 }
