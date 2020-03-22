@@ -826,6 +826,11 @@ std::ostream& operator<<(std::ostream& os, const Game& game)
                         continue;
                     }
                 } else {
+                    /*
+                    const auto roll = hex->roll_number();
+                    os << (roll >= 10 ? roll - 10 : roll);
+                    continue;
+                    */
                     switch (std::get<Resource>(abstract_resource)) {
                     case Resource::Brick:
                         os << "b";
