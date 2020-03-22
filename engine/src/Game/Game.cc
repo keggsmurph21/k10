@@ -408,11 +408,7 @@ Result Game::execute_build_road(Player* player, const ActionArgument& arg)
     // FIXME: Need to make sure it's adjacent to something we own!
 
     if (is_first_round() || is_second_round()) {
-        if (player->vertex() == State::Vertex::AfterBuildingFreeSettlement) {
-            build_road(player, road, Options::NoCost);
-        } else {
-            return { ResultType::InvalidEdgeChoice, {} };
-        }
+        build_road(player, road, Options::NoCost);
     } else if (player->can_afford(Building::Road)) {
         build_road(player, road, Options::None);
     } else {
