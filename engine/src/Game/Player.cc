@@ -288,7 +288,7 @@ std::vector<Action> Player::get_actions_at_wait_for_turn() const
         return { { State::Edge::Discard,
                    { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
     }
-    if (can_accept_trade()) {
+    if (can_accept_trade() && !has_declined_trade()) {
         return { { State::Edge::AcceptTrade, {} }, { State::Edge::DeclineTrade, {} } };
     }
     return {};

@@ -515,9 +515,10 @@ Result Game::execute_collect_resources(Player*, const Action&)
     assert(false);
 }
 
-Result Game::execute_decline_trade(Player*, const Action&)
+Result Game::execute_decline_trade(Player* player, const Action& /* unused */)
 {
-    assert(false);
+    player->set_has_declined_trade(true);
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_discard(Player*, const Action&)
