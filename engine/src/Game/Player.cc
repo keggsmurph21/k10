@@ -424,7 +424,7 @@ std::ostream& operator<<(std::ostream& os, const Player& player)
 void Player::build_settlement(BoardView::Junction* junction_to_settle, Options options)
 {
     if ((options & Options::NoCost) != Options::NoCost) {
-        const auto& cost = m_game->scenario().cost(Building::Road);
+        const auto& cost = m_game->scenario().cost(Building::Settlement);
         assert(cost != nullptr);
         spend_resources(*cost);
     }
