@@ -465,17 +465,11 @@ Result Game::execute_build_settlement(Player* player, const ActionArgument& arg)
     }
 
     if (is_first_round() || is_second_round()) {
-        if (player->vertex() == State::Vertex::Root) {
-            build_settlement(player, junction, Options::NoCost);
-        } else {
-            return { ResultType::InvalidEdgeChoice, {} };
-        }
-    } else if (player->can_afford(Building::Road)) {
-        if (player->can_afford(Building::Settlement)) {
-            build_settlement(player, junction, Options::None);
-        } else {
-            return { ResultType::CannotAfford, {} };
-        }
+        build_settlement(player, junction, Options::NoCost);
+    } else if (player->can_afford(Building::Settlement)) {
+        build_settlement(player, junction, Options::None);
+    } else {
+        return { ResultType::CannotAfford, {} };
     }
 
     if (is_game_over()) {
