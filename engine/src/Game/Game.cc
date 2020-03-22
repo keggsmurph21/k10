@@ -533,9 +533,11 @@ Result Game::execute_end_turn(Player* player, const Action&)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_fail_trade_unable_to_find_partner(Player*, const Action&)
+Result Game::execute_fail_trade_unable_to_find_partner(Player* player, const Action& /* unused */)
 {
-    assert(false);
+    set_current_trade(nullptr);
+    player->set_vertex(State::Vertex::Root);
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_move_robber(Player*, const Action&)

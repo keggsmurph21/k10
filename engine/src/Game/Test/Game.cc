@@ -2010,9 +2010,23 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         ps[0].has_declined_trade = true;
         check_state();
+        exec_ok(1, { Edge::DeclineTrade, {} });
+
+        gs.should_wait_for_trade = false;
+        ps[1].has_declined_trade = true;
+        check_state();
+
+        exec_ok(2, { Edge::FailTradeUnableToFindPartner, {} });
+
+        gs.has_current_trade = false;
+        ps[0].can_accept_trade = false;
+        ps[0].has_declined_trade = false;
+        ps[1].can_accept_trade = false;
+        ps[1].has_declined_trade = false;
+        ps[2].vertex = Vertex::Root;
+        check_state();
+
         /*
-
-
         exec_ok(2, { Edge::EndTurn, {} });
 
         gs.turn += 1;
