@@ -46,7 +46,7 @@ void Game::set_current_trade(Trade* trade)
             player->set_can_accept_trade(true);
         }
     }
-    // FIXME: Enforce max num on trades offered per turn
+    ++m_num_trades_offered_this_turn;
 }
 
 size_t Game::get_round() const
@@ -719,6 +719,7 @@ void Game::increment_turn()
     for (const auto& player : m_players) {
         player->set_can_accept_trade(false);
     }
+    m_num_trades_offered_this_turn = 0;
 }
 
 int Game::largest_army() const

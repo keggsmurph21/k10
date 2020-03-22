@@ -27,6 +27,8 @@ namespace k10engine::Game {
 #define k10_LARGEST_ARMY_THRESHOLD 2
 #define k10_LONGEST_ROAD_THRESHOLD 4
 
+#define MAX_NUM_TRADE_OFFERS_PER_TURN 42
+
 class Player;
 
 class Game {
@@ -41,6 +43,7 @@ public:
     bool should_wait_for_discard() const;
     bool should_wait_for_trade() const;
 
+    size_t num_trades_offered_this_turn() const { return m_num_trades_offered_this_turn; };
     bool has_current_trade() const { return m_current_trade != nullptr; }
     const Trade* current_trade() const { return m_current_trade; }
 
@@ -106,6 +109,7 @@ private:
     bool m_has_rolled{ false };
 
     bool m_is_trade_accepted{ false };
+    size_t m_num_trades_offered_this_turn{ 0 };
     Trade* m_current_trade{ nullptr };
 
     size_t m_turn{ 0 };
