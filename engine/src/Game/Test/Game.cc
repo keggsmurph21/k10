@@ -13,6 +13,7 @@ using namespace k10engine; // NOLINT(google-build-using-namespace)
 using Edge = State::Edge;
 using Vertex = State::Vertex;
 using Action = Game::Action;
+using ActionArgument = Game::ActionArgument;
 using ArgType = Game::ActionArgumentType;
 using ResType = Game::ResultType;
 using Building = Building;
@@ -198,6 +199,61 @@ struct PlayerState {
             player_index, build(Building::Road, invalid_node_index), ResType::InvalidNodeId);      \
     };                                                                                             \
                                                                                                    \
+    const auto check_offer_trade = [&](size_t current_player_index, size_t other_player_index) {   \
+        const auto invalid_player_index = 100;                                                     \
+        exec_error(current_player_index, { Edge::OfferTrade, {} }, ResType::InvalidTrade);         \
+        exec_error(current_player_index,                                                           \
+                   { Edge::OfferTrade, { { ArgType::NodeId, 0 } } },                               \
+                   ResType::InvalidTrade);                                                         \
+        exec_error(current_player_index,                                                           \
+                   { Edge::OfferTrade,                                                             \
+                     { { ArgType::GiveResourceType, static_cast<size_t>(Resource::Wheat) },        \
+                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
+                   ResType::InvalidTrade);                                                         \
+        exec_error(current_player_index,                                                           \
+                   { Edge::OfferTrade,                                                             \
+                     { { ArgType::PlayerId, current_player_index },                                \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Wheat) },        \
+                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
+                   ResType::InvalidTrade);                                                         \
+        exec_error(current_player_index,                                                           \
+                   { Edge::OfferTrade,                                                             \
+                     { { ArgType::PlayerId, invalid_player_index },                                \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Wheat) },        \
+                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
+                   ResType::InvalidTrade);                                                         \
+        exec_error(current_player_index,                                                           \
+                   { Edge::OfferTrade,                                                             \
+                     { { ArgType::PlayerId, other_player_index },                                  \
+                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
+                   ResType::InvalidTrade);                                                         \
+        exec_error(current_player_index,                                                           \
+                   { Edge::OfferTrade,                                                             \
+                     { { ArgType::PlayerId, other_player_index },                                  \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
+                   ResType::InvalidTrade);                                                         \
+        exec_error(current_player_index,                                                           \
+                   { Edge::OfferTrade,                                                             \
+                     { { ArgType::PlayerId, other_player_index },                                  \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
+                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
+                   ResType::InvalidTrade);                                                         \
+        exec_error(current_player_index,                                                           \
+                   { Edge::OfferTrade,                                                             \
+                     { { ArgType::PlayerId, other_player_index },                                  \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
+                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
+                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Wheat) } } },    \
+                   ResType::CannotAfford);                                                         \
+    };                                                                                             \
+                                                                                                   \
     const auto check_choose_initial_resources = [&](size_t player_index) {                         \
         const auto actions = g->players().at(player_index)->get_available_actions();               \
         REQUIRE(actions.size() == 2);                                                              \
@@ -301,6 +357,26 @@ Action build(Building b, size_t node_index)
     return { Edge::Build,
              { { ArgType::BuildItemId, static_cast<size_t>(b) },
                { ArgType::NodeId, node_index } } };
+}
+
+Action trade(std::vector<size_t> players, ResourceCounts from, ResourceCounts to)
+{
+    std::vector<ActionArgument> args;
+    args.reserve(players.size() + 10);
+    for (const size_t player_index : players) {
+        args.push_back({ ArgType::PlayerId, player_index });
+    }
+    for (const auto from_it : from) {
+        for (size_t i = 0; i < from_it.second; ++i) {
+            args.push_back({ ArgType::GiveResourceType, static_cast<size_t>(from_it.first) });
+        }
+    }
+    for (const auto to_it : to) {
+        for (size_t i = 0; i < to_it.second; ++i) {
+            args.push_back({ ArgType::TakeResourceType, static_cast<size_t>(to_it.first) });
+        }
+    }
+    return { Edge::OfferTrade, args };
 }
 
 Scenario_ get_single_scenario()
@@ -1800,82 +1876,111 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         // </first two rounds>
 
+        /*
+        check_offer_trade(0, 1);
+        exec_error(0,
+                   trade({ 1 }, { { Resource::Brick, 2 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(0,
+                   trade({ 1 }, { { Resource::Ore, 2 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(0,
+                   trade({ 1 }, { { Resource::Sheep, 1 } }, { { Resource::Brick, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(0,
+                   trade({ 1 }, { { Resource::Wheat, 1 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(0,
+                   trade({ 1 }, { { Resource::Wood, 1 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        // exec_error(0,trade({ 1}, { { Resource::Brick, 1 } }, { { Resource::Sheep, 1 } }),
+        // ResType::CannotAfford); exec_error(0,trade({ 1}, { { Resource::Ore, 1 } }, { {
+        // Resource::Sheep, 1 } }), ResType::CannotAfford);
+
+        // ...
+
+        check_offer_trade(1, 0);
+        exec_error(1,
+                   trade({ 0 }, { { Resource::Brick, 2 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(1,
+                   trade({ 0 }, { { Resource::Ore, 1 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(1,
+                   trade({ 0 }, { { Resource::Sheep, 1 } }, { { Resource::Brick, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(1,
+                   trade({ 0 }, { { Resource::Wheat, 1 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(1,
+                   trade({ 0 }, { { Resource::Wood, 1 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        // exec_error(1,trade({ 0}, { { Resource::Brick, 1 } }, { { Resource::Sheep, 1 } }),
+        // ResType::CannotAfford);
+
+        // ...
+
+        check_offer_trade(2, 0);
+        exec_error(2,
+                   trade({ 0 }, { { Resource::Brick, 1 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(2,
+                   trade({ 0 }, { { Resource::Ore, 1 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(2,
+                   trade({ 0 }, { { Resource::Sheep, 2 } }, { { Resource::Brick, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(2,
+                   trade({ 0 }, { { Resource::Wheat, 5 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        exec_error(2,
+                   trade({ 0 }, { { Resource::Wood, 5 } }, { { Resource::Sheep, 1 } }),
+                   ResType::CannotAfford);
+        // exec_error(2,trade({ 0}, { { Resource::Sheep, 1 } }, { { Resource::Brick, 1 } }),
+        // ResType::CannotAfford); exec_error(2,trade({ 0}, { { Resource::Wheat, 4 } }, { {
+        // Resource::Sheep, 1 } }), ResType::CannotAfford); exec_error(2,trade({ 0}, { {
+        // Resource::Wood, 4 } }, { { Resource::Sheep, 1 } }), ResType::CannotAfford);
+        */
+
         exec_ok(0, { Edge::ToRoot, {} });
         exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
-
-        gs.has_rolled = true;
-        gs.dice_total = 10;
-        ps[0].vertex = Vertex::Root;
-        ps[2].num_resources += 2;
-        check_state();
-        check_end_turn(0);
-        check_no_actions(1);
-        check_no_actions(2);
-
-        exec_ok(0, { Edge::OfferTrade, {} });
-
-        // REQUIRE(g->players().at(0)->can_afford({ { Resource::Brick, 1 } }) == true);
-        // REQUIRE(g->players().at(2)->can_afford({ { Resource::Wood, 1 } }) == true);
-
-        /*
         exec_ok(0, { Edge::EndTurn, {} });
 
-        gs.turn += 1;
-        gs.has_rolled = false;
-        ps[0].vertex = Vertex::WaitForTurn;
-        ps[0].is_current_player = false;
-        ps[1].is_current_player = true;
-        check_state();
-        check_no_actions(0);
-        check_to_root(1);
-        check_no_actions(2);
-
         exec_ok(1, { Edge::ToRoot, {} });
-
-        ps[1].vertex = Vertex::Root;
-        check_state();
-        check_no_actions(0);
-        check_roll_dice(1);
-        check_no_actions(2);
-
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 8 } } });
-
-        gs.has_rolled = true;
-        gs.dice_total = 8;
-        ps[2].num_resources += 3;
-        check_state();
-        check_no_actions(0);
-        check_end_turn(1);
-        check_no_actions(2);
-
+        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
         exec_ok(1, { Edge::EndTurn, {} });
 
-        gs.turn += 1;
-        gs.has_rolled = false;
-        ps[1].vertex = Vertex::WaitForTurn;
-        ps[1].is_current_player = false;
-        ps[2].is_current_player = true;
-        check_state();
-        check_no_actions(0);
-        check_no_actions(1);
-        check_to_root(2);
-
         exec_ok(2, { Edge::ToRoot, {} });
+        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
 
-        ps[2].vertex = Vertex::Root;
-        check_state();
-        check_no_actions(0);
-        check_no_actions(1);
-        check_roll_dice(2);
-
-        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 5 } } });
-
+        gs.dice_total = 10;
         gs.has_rolled = true;
-        gs.dice_total = 5;
+        gs.turn += 2;
+        ps[0].is_current_player = false;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[2].is_current_player = true;
+        ps[2].num_resources += 6;
+        ps[2].vertex = Vertex::Root;
+
         check_state();
         check_no_actions(0);
         check_no_actions(1);
         check_end_turn(2);
+
+        /*
+         * p0 has { brick: 1, ore: 1 }
+         * p1 has { brick: 1 }
+         * p2 has { sheep: 1, wood: 4, wheat: 4 }
+         */
+
+        exec_ok(2, trade({ 0, 1 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
+
+        ps[0].can_accept_trade = true;
+        ps[1].can_accept_trade = true;
+        check_state();
+        /*
+
 
         exec_ok(2, { Edge::EndTurn, {} });
 

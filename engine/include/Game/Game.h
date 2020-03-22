@@ -41,6 +41,9 @@ public:
     bool should_wait_for_discard() const;
     bool should_wait_for_trade() const;
 
+    bool has_current_trade() const { return m_current_trade != nullptr; }
+    const Trade* current_trade() const { return m_current_trade; }
+
     const BoardView::Hex* robber_location() const { return m_robber.location(); }
 
     size_t get_dice_total() const;
@@ -101,8 +104,10 @@ private:
 
     bool m_can_steal{ false };
     bool m_has_rolled{ false };
+
     bool m_is_trade_accepted{ false };
-    std::optional<Trade> m_current_trade;
+    Trade* m_current_trade{ nullptr };
+
     size_t m_turn{ 0 };
 
     Player* m_has_largest_army{ nullptr };
@@ -121,6 +126,7 @@ private:
     void set_can_steal(bool can_steal) { m_can_steal = can_steal; }
     void set_has_rolled(bool has_rolled) { m_has_rolled = has_rolled; }
     void set_is_trade_accepted(bool is_trade_accepted) { m_is_trade_accepted = is_trade_accepted; }
+    void set_current_trade(Trade* trade);
 
     Result execute_accept_trade(Player*, const Action&);
     Result execute_build(Player*, const Action&);

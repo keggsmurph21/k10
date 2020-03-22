@@ -37,6 +37,18 @@ bool Game::should_wait_for_trade() const // NOLINT(readability-convert-member-fu
     throw std::invalid_argument("Not implemented: Game::should_wait_for_trade");
 }
 
+void Game::set_current_trade(Trade* trade)
+{
+    delete m_current_trade;
+    m_current_trade = trade;
+    for (const auto& player : trade->offered_to) {
+        if (player->can_afford(trade->to_offerer)) {
+            player->set_can_accept_trade(true);
+        }
+    }
+    // FIXME: Enforce max num on trades offered per turn
+}
+
 size_t Game::get_round() const
 {
     return m_turn / m_players.size();
@@ -80,6 +92,7 @@ Game::~Game()
         delete player;
     }
     m_deck.clear();
+    delete m_current_trade;
 }
 
 Game* initialize(const Board::Graph* graph,
@@ -521,15 +534,29 @@ Result Game::execute_offer_trade(Player* player, const Action& action)
         return { ResultType::InvalidTrade, {} };
     }
     if (trade->offered_to.empty()) {
+        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
     if (trade->from_offerer.empty()) {
+        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
     if (trade->to_offerer.empty()) {
+        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
-    assert(false);
+    if (trade->from_offerer == trade->to_offerer) {
+        delete trade;
+        return { ResultType::InvalidTrade, {} };
+    }
+    if (!player->can_afford(trade->from_offerer)) {
+        delete trade;
+        return { ResultType::CannotAfford, {} };
+    }
+
+    set_current_trade(trade);
+
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_play_development_card(Player*, const Action&)
@@ -689,6 +716,9 @@ void Game::increment_turn()
         }
     }
     m_has_rolled = false;
+    for (const auto& player : m_players) {
+        player->set_can_accept_trade(false);
+    }
 }
 
 int Game::largest_army() const
