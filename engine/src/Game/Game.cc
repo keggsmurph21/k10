@@ -365,9 +365,27 @@ parse_trade(const Game* game, Player* offerer, const std::vector<ActionArgument>
     return new Trade{ offerer, offered_to, give_resources, take_resources };
 }
 
-Result Game::execute_accept_trade(Player*, const Action&)
+Result Game::execute_accept_trade(Player* player, const Action& /* unused */)
 {
-    assert(false);
+    auto offerer = m_players.at(current_trade()->offerer->index());
+
+    // std::cout << "before:" << std::endl;
+    // std::cout << "  " << offerer->m_resources << std::endl;
+    // std::cout << "  " << player->m_resources << std::endl;
+
+    offerer->accrue_resources(current_trade()->to_offerer);
+    offerer->spend_resources(current_trade()->from_offerer);
+
+    player->accrue_resources(current_trade()->from_offerer);
+    player->spend_resources(current_trade()->to_offerer);
+
+    // std::cout << "after:" << std::endl;
+    // std::cout << "  " << offerer->m_resources << std::endl;
+    // std::cout << "  " << player->m_resources << std::endl;
+
+    set_current_trade(nullptr);
+    offerer->set_vertex(State::Vertex::Root);
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_build_city(Player*, const ActionArgument&)
