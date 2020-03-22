@@ -268,7 +268,8 @@ std::vector<Action> Player::get_available_actions() const
                 }
             }
 
-            if (m_game->num_trades_offered_this_turn() < MAX_NUM_TRADE_OFFERS_PER_TURN
+            if (!m_game->has_current_trade()
+                && m_game->num_trades_offered_this_turn() < MAX_NUM_TRADE_OFFERS_PER_TURN
                 && num_resources() > 0) {
                 // FIXME: Make sure we handle trading with the bank
                 available_actions.push_back({ State::Edge::OfferTrade, {} });
