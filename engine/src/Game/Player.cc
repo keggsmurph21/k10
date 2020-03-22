@@ -157,6 +157,9 @@ std::vector<Action> Player::get_available_actions() const
         if (!m_game->has_rolled()) {
             return { { State::Edge::RollDice, {} } };
         }
+        if (m_game->has_current_trade()) {
+            return { { State::Edge::CancelTrade, {} } };
+        }
         {
             available_actions.push_back({ State::Edge::EndTurn, {} });
 
