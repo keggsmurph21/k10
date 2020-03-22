@@ -478,7 +478,6 @@ Result Game::execute_build_settlement(Player* player, const ActionArgument& arg)
         player->set_vertex(State::Vertex::AfterBuildingFreeSettlement);
     } else {
         player->set_vertex(State::Vertex::Root);
-        assert(false);
     }
 
     return { ResultType::Ok, {} };

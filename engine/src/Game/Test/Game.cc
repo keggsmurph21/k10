@@ -138,9 +138,15 @@ struct PlayerState {
         const auto large_node_index = 1000;                                                        \
         const auto invalid_node_index = 0;                                                         \
         const auto actions = g->players().at(player_index)->get_available_actions();               \
-        REQUIRE(actions.size() == num_expected);                                                   \
+        size_t num_buildable_settlements_found = 0;                                                \
         for (const auto& action : actions) {                                                       \
-            REQUIRE(action.edge == Edge::Build);                                                   \
+            if (action.edge != Edge::Build) {                                                      \
+                continue;                                                                          \
+            }                                                                                      \
+            if (static_cast<Building>(action.args.at(0).value) != Building::Settlement) {          \
+                continue;                                                                          \
+            }                                                                                      \
+            ++num_buildable_settlements_found;                                                     \
             REQUIRE(action.args.size() == 2);                                                      \
             REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                               \
             REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Settlement));         \
@@ -149,6 +155,7 @@ struct PlayerState {
             REQUIRE(g->junctions().find(node_index) != g->junctions().end());                      \
             REQUIRE(g->junctions().at(node_index)->is_settleable() == true);                       \
         }                                                                                          \
+        REQUIRE(num_buildable_settlements_found == num_expected);                                  \
         exec_error(invalid_player_index,                                                           \
                    build(Building::Settlement, large_node_index),                                  \
                    ResType::InvalidPlayerId);                                                      \
@@ -2331,6 +2338,71 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         gs.roads_built += 1;
         ps[2].roads += 1;
         ps[2].num_resources -= 2;
+        check_state();
+
+        // dump_actions();
+
+        delete g;
+    }
+
+    SECTION("Three players building settlements")
+    {
+        auto b = Board::from_file("static/boards/Standard.board");
+        auto s = get_standard_scenario();
+        auto p = get_standard_parameters(3);
+        auto g = Game::initialize(&b, s, p);
+
+        bootstrap_tests();
+
+        do_first_two_rounds_standard_3p();
+
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+        exec_ok(0, { Edge::EndTurn, {} });
+
+        exec_ok(1, { Edge::ToRoot, {} });
+        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+        exec_ok(1, { Edge::EndTurn, {} });
+
+        exec_ok(2, { Edge::ToRoot, {} });
+        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+
+        exec_ok(2, trade({ 0 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
+        exec_ok(0, { Edge::AcceptTrade, {} });
+
+        gs.dice_total = 10;
+        gs.has_rolled = true;
+        gs.turn += 2;
+        gs.num_trades_offered_this_turn = 1;
+        ps[0].is_current_player = false;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[2].is_current_player = true;
+        ps[2].num_resources += 6;
+        ps[2].vertex = Vertex::Root;
+
+        check_state();
+        check_no_actions(0);
+        check_no_actions(1);
+        check_end_turn(2);
+
+        /*
+         * p0 has { ore: 1, wheat: 1 }
+         * p1 has { brick: 1 }
+         * p2 has { brick: 1, sheep: 1, wood: 4, wheat: 3 }
+         */
+
+        check_build_settlement(2, 1);
+
+        exec_ok(2, build(Building::Settlement, 56));
+        settlements[56] = 2;
+        settlements[40] = -1;
+        check_settlements();
+
+        gs.settlements_built += 1;
+        ps[2].settlements += 1;
+        ps[2].num_resources -= 4;
+        ps[2].public_victory_points += 1;
         check_state();
 
         std::cout << *g << std::endl;
