@@ -2316,6 +2316,8 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         check_build_road(2, 9);
 
+        exec_error(2, build(Building::Road, 32), ResType::InvalidNodeId);
+
         exec_ok(2, build(Building::Road, 33));
         roads[33] = 2;
         check_roads();

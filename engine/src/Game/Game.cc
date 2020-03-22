@@ -250,6 +250,29 @@ static bool player_can_execute_edge(const Player* player, const Action& requeste
     return false;
 }
 
+static bool is_road_reachable_for(const BoardView::Road* road, const Player* player)
+{
+    for (const auto& junction_neighbor : road->junction_neighbors()) {
+        const auto& junction = junction_neighbor.second;
+        if (junction->owner() == player) {
+            return true;
+        }
+        if (junction->owner() != nullptr) {
+            continue;
+        }
+        for (const auto& road_neighbor : junction->road_neighbors()) {
+            const auto& other_road = road_neighbor.second;
+            if (other_road == road) {
+                continue;
+            }
+            if (other_road->owner() == player) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 static BoardView::Road* parse_road(const Game* game, const ActionArgument& arg)
 {
     if (arg.type != ActionArgumentType::NodeId) {
@@ -405,7 +428,9 @@ Result Game::execute_build_road(Player* player, const ActionArgument& arg)
         return { ResultType::InvalidNodeId, {} };
     }
 
-    // FIXME: Need to make sure it's adjacent to something we own!
+    if (!is_road_reachable_for(road, player)) {
+        return { ResultType::InvalidNodeId, {} };
+    }
 
     if (is_first_round() || is_second_round()) {
         build_road(player, road, Options::NoCost);
