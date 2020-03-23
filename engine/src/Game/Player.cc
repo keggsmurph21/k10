@@ -486,7 +486,8 @@ void Player::play_development_card(DevelopmentCard development_card)
 
 void Player::play_knight(const BoardView::Hex* /* unused */)
 {
-    assert(false);
+    ++m_army_size;
+    play_development_card(DevelopmentCard::Knight);
 }
 
 void Player::play_monopoly(const Resource&)
