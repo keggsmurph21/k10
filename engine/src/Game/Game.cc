@@ -789,9 +789,40 @@ Result Game::execute_roll_dice(Player*, const Action& action)
     return { ResultType::Ok, { { ActionArgumentType::DiceRoll, dice_total } } };
 }
 
-Result Game::execute_steal(Player*, const Action&)
+Result Game::execute_steal(Player* player, const Action& action)
 {
-    assert(false);
+    if (action.args.empty()) {
+        return { ResultType::InvalidNumberOfArgs, {} };
+    }
+    const auto steal_from = parse_player(this, action.args.at(0));
+
+    if (steal_from == player) {
+        return { ResultType::InvalidPlayerId, {} };
+    }
+
+    if (steal_from->num_resources() == 0) {
+        return { ResultType::InvalidPlayerId, {} };
+    }
+
+    bool is_adjacent = false;
+    for (const auto junction_it : robber_location()->junction_neighbors()) {
+        if (junction_it.second->owner() == steal_from) {
+            is_adjacent = true;
+            break;
+        }
+    }
+    if (!is_adjacent) {
+        return { ResultType::InvalidPlayerId, {} };
+    }
+
+    const auto stolen_resource = choose_from(steal_from->m_resources);
+    steal_from->spend_resources({ { stolen_resource, 1 } });
+    player->accrue_resources({ { stolen_resource, 1 } });
+
+    set_can_steal(false);
+
+    return { ResultType::Ok,
+             { { ActionArgumentType::TakeResourceType, static_cast<size_t>(stolen_resource) } } };
 }
 
 Result Game::execute_to_root(Player* player, const Action&)

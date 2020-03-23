@@ -2567,6 +2567,16 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[0].public_victory_points += 2;
         check_state();
 
+        exec_error(0, { Edge::Steal, { { ArgType::PlayerId, 0 } } }, ResType::InvalidPlayerId);
+        exec_error(0, { Edge::Steal, { { ArgType::PlayerId, 2 } } }, ResType::InvalidPlayerId);
+        std::cout << g->execute_action(0, { Edge::Steal, { { ArgType::PlayerId, 1 } } })
+                  << std::endl;
+
+        gs.can_steal = false;
+        ps[0].num_resources += 1;
+        ps[1].num_resources -= 1;
+        check_state();
+
         dump_actions();
 
         delete g;
