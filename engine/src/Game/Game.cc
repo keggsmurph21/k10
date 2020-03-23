@@ -709,9 +709,53 @@ Result Game::execute_play_monopoly(Player* player, const ActionArgument& arg)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_road_building(Player*, const ActionArgument&, const ActionArgument&)
+Result Game::execute_play_road_building(Player* player,
+                                        const ActionArgument& arg_0,
+                                        const ActionArgument& arg_1)
 {
-    assert(false);
+    const auto road_0 = parse_road(this, arg_0);
+    const auto road_1 = parse_road(this, arg_1);
+    if (road_0 == nullptr || road_1 == nullptr) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+
+    if (!is_road_reachable_for(road_0, player)) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+
+    if (!is_road_reachable_for(road_1, player)) {
+        // This road isn't reachable yet, but it might be reachable
+        // once the first road is actually built.
+        bool is_road_1_adjacent_to_road_0 = false;
+        for (const auto& junction_it : road_0->junction_neighbors()) {
+            if (is_road_1_adjacent_to_road_0) {
+                break;
+            }
+            const auto& junction = junction_it.second;
+            const auto& owner = junction->owner();
+            if (owner != nullptr && owner != player) {
+                continue;
+            }
+            for (const auto& road_it : junction->road_neighbors()) {
+                const auto& road = road_it.second;
+                if (road == road_1) {
+                    is_road_1_adjacent_to_road_0 = true;
+                    break;
+                }
+            }
+        }
+        if (!is_road_1_adjacent_to_road_0) {
+            return { ResultType::InvalidNodeId, {} };
+        }
+    }
+
+    build_road(player, road_0, Options::NoCost);
+    build_road(player, road_1, Options::NoCost);
+
+    player->play_road_building(road_0, road_0);
+    player->set_vertex(State::Vertex::Root);
+
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_play_victory_point(Player*)

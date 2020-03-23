@@ -2593,6 +2593,31 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].num_resources -= 1;
         check_state();
 
+        exec_error(
+            0,
+            { Edge::PlayDevelopmentCard,
+              { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::RoadBuilding) },
+                { ArgType::NodeId, 8 },
+                { ArgType::NodeId, 22 } } },
+            ResType::InvalidNodeId);
+
+        exec_ok(
+            0,
+            { Edge::PlayDevelopmentCard,
+              { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::RoadBuilding) },
+                { ArgType::NodeId, 8 },
+                { ArgType::NodeId, 20 } } });
+
+        roads[8] = 0;
+        roads[20] = 0;
+        check_roads();
+
+        gs.roads_built += 2;
+        ps[0].roads += 2;
+        ps[0].num_played_development_cards += 1;
+        ps[0].num_unplayed_development_cards -= 1;
+        check_state();
+
         dump_actions();
 
         delete g;

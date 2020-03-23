@@ -495,9 +495,9 @@ void Player::play_monopoly(const Resource& /* unused */)
     play_development_card(DevelopmentCard::Monopoly);
 }
 
-void Player::play_road_building(BoardView::Road*, BoardView::Road*)
+void Player::play_road_building(BoardView::Road* /* unused */, BoardView::Road* /* unused */)
 {
-    assert(false);
+    play_development_card(DevelopmentCard::RoadBuilding);
 }
 
 void Player::play_victory_point()
