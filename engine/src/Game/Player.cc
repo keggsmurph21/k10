@@ -471,8 +471,16 @@ void Player::build_road(BoardView::Road* road, Options options)
     m_roads.push_back(road);
 }
 
-void Player::play_development_card(const DevelopmentCard& development_card)
+void Player::play_development_card(DevelopmentCard development_card)
 {
+    for (auto it = m_playable_development_cards.begin(); it != m_playable_development_cards.end();
+         ++it) {
+        if (*it == development_card) {
+            m_playable_development_cards.erase(it);
+            m_played_development_cards.push_back(development_card);
+            return;
+        }
+    }
     assert(false);
 }
 

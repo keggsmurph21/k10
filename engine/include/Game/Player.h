@@ -101,7 +101,7 @@ private:
     void build_road(BoardView::Road*, Options);
     void build_settlement(BoardView::Junction*, Options);
 
-    void play_development_card(const DevelopmentCard&);
+    void play_development_card(DevelopmentCard);
 
     void play_knight(const BoardView::Hex*);
     void play_monopoly(const Resource&);
