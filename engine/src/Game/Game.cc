@@ -868,9 +868,15 @@ void Game::increment_turn()
     }
     m_has_rolled = false;
     m_num_trades_offered_this_turn = 0;
+    for (const auto& player : m_players) {
+        for (const auto& development_card : player->m_unplayable_development_cards) {
+            player->m_playable_development_cards.push_back(development_card);
+        }
+        player->m_unplayable_development_cards.clear();
+    }
 }
 
-int Game::largest_army() const
+size_t Game::largest_army() const
 {
     if (m_has_largest_army == nullptr) {
         return k10_LARGEST_ARMY_THRESHOLD;
@@ -878,7 +884,7 @@ int Game::largest_army() const
     return m_has_largest_army->army_size();
 }
 
-int Game::longest_road() const
+size_t Game::longest_road() const
 {
     if (m_has_longest_road == nullptr) {
         return k10_LONGEST_ROAD_THRESHOLD;
