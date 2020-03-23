@@ -252,6 +252,9 @@ static bool player_can_execute_edge(const Player* player, const Action& requeste
 
 static bool is_road_reachable_for(const BoardView::Road* road, const Player* player)
 {
+    if (road->owner() != nullptr) {
+        return false;
+    }
     for (const auto& junction_neighbor : road->junction_neighbors()) {
         const auto& junction = junction_neighbor.second;
         if (junction->owner() == player) {
