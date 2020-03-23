@@ -71,6 +71,7 @@ private:
     const Game* m_game;
 
     ResourceCounts m_resources;
+    size_t count(const Resource&) const;
 
     std::vector<BoardView::Junction*> m_cities;
     std::vector<BoardView::Road*> m_roads;

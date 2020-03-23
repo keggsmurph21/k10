@@ -549,8 +549,19 @@ void Player::spend_resources(const ResourceCounts& counts)
     for (const auto& it : counts) {
         const auto& resource = it.first;
         const auto& count = it.second;
+        if (count == 0) {
+            continue;
+        }
         m_resources.at(resource) -= count;
     }
+}
+
+size_t Player::count(const Resource& resource) const
+{
+    if (m_resources.find(resource) == m_resources.end()) {
+        return 0;
+    }
+    return m_resources.at(resource);
 }
 
 } // namespace k10engine::Game
