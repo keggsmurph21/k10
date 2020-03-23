@@ -766,9 +766,21 @@ Result Game::execute_play_victory_point(Player* player)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_year_of_plenty(Player*, const ActionArgument&, const ActionArgument&)
+Result Game::execute_play_year_of_plenty(Player* player,
+                                         const ActionArgument& arg_0,
+                                         const ActionArgument& arg_1)
 {
-    assert(false);
+    const auto resource_0 = parse_resource(this, arg_0);
+    const auto resource_1 = parse_resource(this, arg_1);
+    if (!resource_0.has_value() || !resource_1.has_value()) {
+        return { ResultType::InvalidResourceType, {} };
+    }
+
+    player->accrue_resources({ { *resource_0, 1 }, { *resource_1, 1 } });
+    player->play_year_of_plenty(*resource_0, *resource_1);
+    player->set_vertex(State::Vertex::Root);
+
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_play_development_card(Player* player, const Action& action)

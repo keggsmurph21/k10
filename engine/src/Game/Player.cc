@@ -507,9 +507,9 @@ void Player::play_victory_point()
     play_development_card(DevelopmentCard::VictoryPoint);
 }
 
-void Player::play_year_of_plenty(const Resource&, const Resource&)
+void Player::play_year_of_plenty(const Resource& /* unused */, const Resource& /* unused */)
 {
-    assert(false);
+    play_development_card(DevelopmentCard::YearOfPlenty);
 }
 
 size_t Player::num_played_development_cards() const

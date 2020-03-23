@@ -2630,6 +2630,18 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[0].num_unplayed_development_cards -= 5;
         check_state();
 
+        exec_ok(
+            0,
+            { Edge::PlayDevelopmentCard,
+              { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::YearOfPlenty) },
+                { ArgType::TakeResourceType, static_cast<size_t>(Resource::Wood) },
+                { ArgType::TakeResourceType, static_cast<size_t>(Resource::Wood) } } });
+
+        ps[0].num_resources += 1;
+        ps[0].num_played_development_cards += 1;
+        ps[0].num_unplayed_development_cards -= 1;
+        check_state();
+
         dump_actions();
 
         delete g;
