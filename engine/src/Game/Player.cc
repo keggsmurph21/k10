@@ -443,6 +443,15 @@ void Player::build_settlement(BoardView::Junction* junction_to_settle, Options o
         }
     }
 
+    if (junction_to_settle->is_port()) {
+        const auto port_exchange_rate = junction_to_settle->port_exchange_rate();
+        for (const auto resource : junction_to_settle->port_resources()) {
+            if (port_exchange_rate < bank_trade_rate(resource)) {
+                m_bank_trade_rates[resource] = port_exchange_rate;
+            }
+        }
+    }
+
     m_settlements.push_back(junction_to_settle);
     m_private_victory_points += 1;
     m_public_victory_points += 1;
@@ -564,6 +573,14 @@ size_t Player::count(const Resource& resource) const
         return 0;
     }
     return m_resources.at(resource);
+}
+
+size_t Player::bank_trade_rate(const Resource& resource) const
+{
+    if (m_bank_trade_rates.find(resource) == m_bank_trade_rates.end()) {
+        return k10_DEFAULT_BANK_TRADE_RATE;
+    }
+    return m_bank_trade_rates.at(resource);
 }
 
 } // namespace k10engine::Game

@@ -18,6 +18,8 @@
 
 namespace k10engine::Game {
 
+#define k10_DEFAULT_BANK_TRADE_RATE 4;
+
 class Game;
 
 class Player {
@@ -72,6 +74,9 @@ private:
 
     ResourceCounts m_resources;
     size_t count(const Resource&) const;
+
+    ResourceCounts m_bank_trade_rates;
+    size_t bank_trade_rate(const Resource&) const;
 
     std::vector<BoardView::Junction*> m_cities;
     std::vector<BoardView::Road*> m_roads;
