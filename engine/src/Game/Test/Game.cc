@@ -471,7 +471,8 @@ Action build(Building b, size_t node_index)
                { ArgType::NodeId, node_index } } };
 }
 
-Action trade(std::vector<size_t> players, ResourceCounts from, ResourceCounts to)
+Action
+trade(const std::vector<size_t>& players, const ResourceCounts& from, const ResourceCounts& to)
 {
     std::vector<ActionArgument> args;
     args.reserve(players.size() + 10);
