@@ -12,6 +12,7 @@ enum class ResultType {
     InvalidEdgeChoice,
     InvalidNumberOfArgs,
     InvalidArgumentType,
+    InvalidResourceType,
     BuildingIdOutOfRange,
     DevelopmentCardIdOutOfRange,
     NodeIdOutOfRange,

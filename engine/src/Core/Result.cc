@@ -20,6 +20,9 @@ std::ostream& operator<<(std::ostream& os, const ResultType& error)
     case ResultType::InvalidArgumentType:
         os << "ResultType::InvalidArgumentType";
         break;
+    case ResultType::InvalidResourceType:
+        os << "ResultType::InvalidResourceType";
+        break;
     case ResultType::BuildingIdOutOfRange:
         os << "ResultType::BuildingIdOutOfRange";
         break;
