@@ -490,9 +490,9 @@ void Player::play_knight(const BoardView::Hex* /* unused */)
     play_development_card(DevelopmentCard::Knight);
 }
 
-void Player::play_monopoly(const Resource&)
+void Player::play_monopoly(const Resource& /* unused */)
 {
-    assert(false);
+    play_development_card(DevelopmentCard::Monopoly);
 }
 
 void Player::play_road_building(BoardView::Road*, BoardView::Road*)

@@ -2569,12 +2569,28 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         exec_error(0, { Edge::Steal, { { ArgType::PlayerId, 0 } } }, ResType::InvalidPlayerId);
         exec_error(0, { Edge::Steal, { { ArgType::PlayerId, 2 } } }, ResType::InvalidPlayerId);
-        std::cout << g->execute_action(0, { Edge::Steal, { { ArgType::PlayerId, 1 } } })
-                  << std::endl;
+        exec_ok(0, { Edge::Steal, { { ArgType::PlayerId, 1 } } });
 
         gs.can_steal = false;
         ps[0].num_resources += 1;
         ps[1].num_resources -= 1;
+        check_state();
+
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0,
+                { Edge::PlayDevelopmentCard,
+                  { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Monopoly) },
+                    { ArgType::TakeResourceType, static_cast<size_t>(Resource::Ore) } } });
+        exec_ok(0,
+                { Edge::PlayDevelopmentCard,
+                  { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Monopoly) },
+                    { ArgType::TakeResourceType, static_cast<size_t>(Resource::Wood) } } });
+
+        ps[0].vertex = State::Vertex::Root;
+        ps[0].num_played_development_cards += 2;
+        ps[0].num_unplayed_development_cards -= 2;
+        ps[0].num_resources += 1;
+        ps[2].num_resources -= 1;
         check_state();
 
         dump_actions();

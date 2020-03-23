@@ -684,9 +684,26 @@ Result Game::execute_play_knight(Player* player, const ActionArgument& arg)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_monopoly(Player*, const ActionArgument&)
+Result Game::execute_play_monopoly(Player* player, const ActionArgument& arg)
 {
-    assert(false);
+    const auto resource = parse_resource(this, arg);
+    if (!resource.has_value()) {
+        return { ResultType::InvalidResourceType, {} };
+    }
+
+    for (auto& other_player : m_players) {
+        if (other_player == player) {
+            continue;
+        }
+        const auto count = other_player->count(*resource);
+        other_player->spend_resources({ { *resource, count } });
+        player->accrue_resources({ { *resource, count } });
+    }
+
+    player->play_monopoly(*resource);
+    player->set_vertex(State::Vertex::Root);
+
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_play_road_building(Player*, const ActionArgument&, const ActionArgument&)
