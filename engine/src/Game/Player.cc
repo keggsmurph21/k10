@@ -85,7 +85,7 @@ std::vector<Action> Player::get_actions_at_after_moving_robber() const
         for (const auto& junction_neighbor : robber_location->junction_neighbors()) {
             const auto junction = junction_neighbor.second;
             const auto owner = junction->owner();
-            if (owner != nullptr && owner != this) {
+            if (owner != nullptr && owner != this && owner->num_resources() > 0) {
                 players_to_steal_from.insert(owner);
             }
         }
