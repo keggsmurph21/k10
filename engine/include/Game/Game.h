@@ -54,7 +54,9 @@ public:
     size_t turn() const { return m_turn; }
     size_t get_round() const; // turn() // #players
 
+    const Player* has_largest_army() const { return m_has_largest_army; }
     size_t largest_army() const;
+    const Player* has_longest_road() const { return m_has_longest_road; }
     size_t longest_road() const;
 
     size_t num_built(Building) const;

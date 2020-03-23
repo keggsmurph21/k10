@@ -38,7 +38,9 @@ struct GameState {
     size_t dice_total = 0;
     size_t turn = 0;
     size_t round = 0;
+    int has_largest_army = -1;
     size_t largest_army = 2;
+    int has_longest_road = -1;
     size_t longest_road = 4;
     size_t cities_built = 0;
     size_t development_cards_built = 0;
@@ -97,7 +99,17 @@ struct PlayerState {
         REQUIRE(g->get_dice_total() == gs.dice_total);                                             \
         REQUIRE(g->turn() == gs.turn);                                                             \
         REQUIRE(g->get_round() == gs.round);                                                       \
+        if (gs.has_largest_army == -1) {                                                           \
+            REQUIRE(g->has_largest_army() == nullptr);                                             \
+        } else {                                                                                   \
+            REQUIRE(g->has_largest_army()->index() == gs.has_largest_army);                        \
+        }                                                                                          \
         REQUIRE(g->largest_army() == gs.largest_army);                                             \
+        if (gs.has_longest_road == -1) {                                                           \
+            REQUIRE(g->has_longest_road() == nullptr);                                             \
+        } else {                                                                                   \
+            REQUIRE(g->has_longest_road()->index() == gs.has_longest_road);                        \
+        }                                                                                          \
         REQUIRE(g->longest_road() == gs.longest_road);                                             \
         REQUIRE(g->num_built(Building::City) == gs.cities_built);                                  \
         REQUIRE(g->num_built(Building::DevelopmentCard) == gs.development_cards_built);            \
