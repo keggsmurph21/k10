@@ -470,6 +470,36 @@ void Player::build_road(BoardView::Road* road, Options options)
     m_roads.push_back(road);
 }
 
+void Player::play_development_card(const DevelopmentCard& development_card)
+{
+    assert(false);
+}
+
+void Player::play_knight(const BoardView::Hex* /* unused */)
+{
+    assert(false);
+}
+
+void Player::play_monopoly(const Resource&)
+{
+    assert(false);
+}
+
+void Player::play_road_building(BoardView::Road*, BoardView::Road*)
+{
+    assert(false);
+}
+
+void Player::play_victory_point()
+{
+    assert(false);
+}
+
+void Player::play_year_of_plenty(const Resource&, const Resource&)
+{
+    assert(false);
+}
+
 size_t Player::num_played_development_cards() const
 {
     return m_played_development_cards.size();

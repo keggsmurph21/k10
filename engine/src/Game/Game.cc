@@ -634,9 +634,69 @@ Result Game::execute_offer_trade(Player* player, const Action& action)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_development_card(Player*, const Action&)
+Result Game::execute_play_knight(Player* player, const ActionArgument& arg)
 {
     assert(false);
+}
+
+Result Game::execute_play_monopoly(Player*, const ActionArgument&)
+{
+    assert(false);
+}
+
+Result Game::execute_play_road_building(Player*, const ActionArgument&, const ActionArgument&)
+{
+    assert(false);
+}
+
+Result Game::execute_play_victory_point(Player*)
+{
+    assert(false);
+}
+
+Result Game::execute_play_year_of_plenty(Player*, const ActionArgument&, const ActionArgument&)
+{
+    assert(false);
+}
+
+Result Game::execute_play_development_card(Player* player, const Action& action)
+{
+    if (action.args.empty()) {
+        return { ResultType::InvalidNumberOfArgs, {} };
+    }
+    if (action.args.at(0).type != ActionArgumentType::DevelopmentCardId) {
+        return { ResultType::InvalidArgumentType, {} };
+    }
+    const auto development_card = static_cast<DevelopmentCard>(action.args.at(0).value);
+    switch (development_card) {
+    case DevelopmentCard::Knight:
+        if (action.args.size() != 2) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
+        return execute_play_knight(player, action.args.at(1));
+    case DevelopmentCard::Monopoly:
+        if (action.args.size() != 2) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
+        return execute_play_monopoly(player, action.args.at(1));
+    case DevelopmentCard::RoadBuilding:
+        if (action.args.size() != 3) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
+        return execute_play_road_building(player, action.args.at(1), action.args.at(2));
+    case DevelopmentCard::VictoryPoint:
+        if (action.args.size() != 1) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
+        return execute_play_victory_point(player);
+    case DevelopmentCard::YearOfPlenty:
+        if (action.args.size() != 3) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
+        return execute_play_year_of_plenty(player, action.args.at(1), action.args.at(2));
+    default:
+        return { ResultType::DevelopmentCardIdOutOfRange, {} };
+    }
 }
 
 Result Game::execute_roll_dice(Player*, const Action& action)

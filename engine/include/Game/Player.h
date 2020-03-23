@@ -95,10 +95,19 @@ private:
     void accrue_resources(const ResourceCounts&);
     void spend_resources(const ResourceCounts&);
     void collect_resource(Resource);
+
     void build_city(BoardView::Junction*, Options);
     void build_development_card(DevelopmentCard, Options);
     void build_road(BoardView::Road*, Options);
     void build_settlement(BoardView::Junction*, Options);
+
+    void play_development_card(const DevelopmentCard&);
+
+    void play_knight(const BoardView::Hex*);
+    void play_monopoly(const Resource&);
+    void play_road_building(BoardView::Road*, BoardView::Road*);
+    void play_victory_point();
+    void play_year_of_plenty(const Resource&, const Resource&);
 
     void set_can_accept_trade(bool can_accept_trade) { m_can_accept_trade = can_accept_trade; }
     void set_has_declined_trade(bool has_declined_trade)

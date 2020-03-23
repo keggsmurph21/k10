@@ -156,6 +156,12 @@ private:
     Result execute_build_development_card(Player*);
     Result execute_build_road(Player*, const ActionArgument&);
     Result execute_build_settlement(Player*, const ActionArgument&);
+
+    Result execute_play_knight(Player*, const ActionArgument&);
+    Result execute_play_monopoly(Player*, const ActionArgument&);
+    Result execute_play_road_building(Player*, const ActionArgument&, const ActionArgument&);
+    Result execute_play_victory_point(Player*);
+    Result execute_play_year_of_plenty(Player*, const ActionArgument&, const ActionArgument&);
 };
 
 Game* initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);
