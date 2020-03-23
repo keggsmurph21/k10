@@ -65,6 +65,8 @@ struct PlayerState {
     // bool is_blocking = false; // FIXME: Implement
     // REQUIRE(p->is_blocking() == ps.is_blocking);
     size_t num_resources = 0;
+    size_t num_played_development_cards = 0;
+    size_t num_unplayed_development_cards = 0;
     size_t army_size = 0;
     size_t longest_road = 0;
     size_t public_victory_points = 0;
@@ -108,6 +110,10 @@ struct PlayerState {
             REQUIRE(g->players().at(i)->vertex() == ps.at(i).vertex);                              \
             REQUIRE(g->players().at(i)->is_current_player() == ps.at(i).is_current_player);        \
             REQUIRE(g->players().at(i)->num_resources() == ps.at(i).num_resources);                \
+            REQUIRE(g->players().at(i)->num_played_development_cards()                             \
+                    == ps.at(i).num_played_development_cards);                                     \
+            REQUIRE(g->players().at(i)->num_unplayed_development_cards()                           \
+                    == ps.at(i).num_unplayed_development_cards);                                   \
             REQUIRE(g->players().at(i)->army_size() == ps.at(i).army_size);                        \
             REQUIRE(g->players().at(i)->longest_road() == ps.at(i).longest_road);                  \
             REQUIRE(g->players().at(i)->public_victory_points()                                    \

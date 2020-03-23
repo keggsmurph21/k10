@@ -459,6 +459,16 @@ void Player::build_road(BoardView::Road* road, Options options)
     m_roads.push_back(road);
 }
 
+size_t Player::num_played_development_cards() const
+{
+    return m_played_development_cards.size();
+}
+
+size_t Player::num_unplayed_development_cards() const
+{
+    return m_playable_development_cards.size() + m_unplayable_development_cards.size();
+}
+
 size_t Player::num_resources() const
 {
     size_t total = 0;

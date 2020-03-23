@@ -42,6 +42,8 @@ public:
     bool is_blocking() const;
 
     size_t num_resources() const;
+    size_t num_played_development_cards() const;
+    size_t num_unplayed_development_cards() const;
     size_t army_size() const { return m_army_size; }
     size_t longest_road() const { return m_longest_road; }
 
