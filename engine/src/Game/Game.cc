@@ -952,7 +952,18 @@ void Game::recalculate_longest_road()
 
 void Game::recalculate_largest_army(Player* player)
 {
-    // FIXME: Implement me plz :^)
+    if (m_has_largest_army == player) {
+        return;
+    }
+    if (player->army_size() > largest_army()) {
+        if (m_has_largest_army != nullptr) {
+            m_has_largest_army->m_private_victory_points -= 2;
+            m_has_largest_army->m_public_victory_points -= 2;
+        }
+        player->m_private_victory_points += 2;
+        player->m_public_victory_points += 2;
+        m_has_largest_army = player;
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const Game& game)
