@@ -652,7 +652,17 @@ Result Game::execute_offer_trade(Player* player, const Action& action)
 
 void Game::move_robber(const Player* player, const BoardView::Hex* hex)
 {
-    assert(false);
+    m_robber.set_location(hex);
+    for (const auto& junction_it : hex->junction_neighbors()) {
+        const auto& junction = junction_it.second;
+        if (junction->owner() == nullptr) {
+            continue;
+        }
+        if (junction->owner() == player) {
+            continue;
+        }
+        set_can_steal(true);
+    }
 }
 
 Result Game::execute_play_knight(Player* player, const ActionArgument& arg)
