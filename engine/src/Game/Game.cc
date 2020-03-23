@@ -650,9 +650,28 @@ Result Game::execute_offer_trade(Player* player, const Action& action)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_knight(Player* player, const ActionArgument& arg)
+void Game::move_robber(const Player* player, const BoardView::Hex* hex)
 {
     assert(false);
+}
+
+Result Game::execute_play_knight(Player* player, const ActionArgument& arg)
+{
+    const auto hex = parse_hex(this, arg);
+    if (hex == nullptr) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+
+    if (hex->index() == robber_location()->index()) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+
+    move_robber(player, hex);
+    player->play_knight(hex);
+    player->set_vertex(State::Vertex::AfterMovingRobber);
+    recalculate_largest_army(player);
+
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_play_monopoly(Player*, const ActionArgument&)
@@ -917,6 +936,11 @@ size_t Game::num_built(Building building) const
 }
 
 void Game::recalculate_longest_road()
+{
+    // FIXME: Implement me plz :^)
+}
+
+void Game::recalculate_largest_army(Player* player)
 {
     // FIXME: Implement me plz :^)
 }

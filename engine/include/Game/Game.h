@@ -116,10 +116,13 @@ private:
 
     size_t m_turn{ 0 };
 
+    void move_robber(const Player*, const BoardView::Hex*);
+
     Player* m_has_largest_army{ nullptr };
     Player* m_has_longest_road{ nullptr };
 
     void recalculate_longest_road();
+    void recalculate_largest_army(Player*);
 
     std::map<Building, size_t> m_buildings_built;
     void increment_num_built(Building);
