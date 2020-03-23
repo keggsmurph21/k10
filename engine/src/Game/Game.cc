@@ -514,7 +514,7 @@ Result Game::execute_build_settlement(Player* player, const ActionArgument& arg)
 
 Result Game::execute_build(Player* player, const Action& action)
 {
-    if (action.args.size() < 1) {
+    if (action.args.empty()) {
         return { ResultType::InvalidNumberOfArgs, {} };
     }
     if (action.args.at(0).type != ActionArgumentType::BuildItemId) {
