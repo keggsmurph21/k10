@@ -235,6 +235,7 @@ std::vector<Action> Player::get_actions_at_root() const
             if (seen_development_cards.find(development_card) != seen_development_cards.end()) {
                 continue;
             }
+            seen_development_cards.insert(development_card);
             switch (development_card) {
             case DevelopmentCard::Knight:
                 for (const auto& it : m_game->hexes()) {
