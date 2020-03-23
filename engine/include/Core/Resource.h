@@ -32,4 +32,6 @@ std::ostream& operator<<(std::ostream&, const AbstractResource&);
 bool operator<(const ResourceCounts& l_resources, const ResourceCounts& r_resources);
 bool operator==(const ResourceCounts& l_resources, const ResourceCounts& r_resources);
 
+Resource choose_from(const ResourceCounts&);
+
 } // namespace k10engine

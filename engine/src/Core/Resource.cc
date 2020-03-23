@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <unordered_set>
 
+#include "Core/Random.h"
 #include "Core/Resource.h"
 
 namespace k10engine {
@@ -122,6 +124,20 @@ bool operator==(const ResourceCounts& l_resources, const ResourceCounts& r_resou
         }
     }
     return true;
+}
+
+Resource choose_from(const ResourceCounts& resources)
+{
+    std::vector<Resource> choices;
+    for (const auto& it : resources) {
+        const auto resource = it.first;
+        const auto& count = it.second;
+        for (size_t i = 0; i < count; ++i) {
+            choices.push_back(resource);
+        }
+    }
+    std::shuffle(choices.begin(), choices.end(), Random::rng());
+    return choices.at(0);
 }
 
 } // namespace k10engine
