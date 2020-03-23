@@ -447,6 +447,17 @@ void Player::build_settlement(BoardView::Junction* junction_to_settle, Options o
     m_public_victory_points += 1;
 }
 
+void Player::build_development_card(DevelopmentCard development_card, Options options)
+{
+    if ((options & Options::NoCost) != Options::NoCost) {
+        const auto& cost = m_game->scenario().cost(Building::DevelopmentCard);
+        assert(cost != nullptr);
+        spend_resources(*cost);
+    }
+
+    m_unplayable_development_cards.push_back(development_card);
+}
+
 void Player::build_road(BoardView::Road* road, Options options)
 {
     if ((options & Options::NoCost) != Options::NoCost) {

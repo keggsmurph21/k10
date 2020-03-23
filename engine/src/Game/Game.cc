@@ -416,9 +416,22 @@ Result Game::execute_build_city(Player*, const ActionArgument&)
     assert(false);
 }
 
-Result Game::execute_build_development_card(Player*, const ActionArgument&)
+Result Game::execute_build_development_card(Player* player)
 {
-    assert(false);
+    if (!player->can_afford(Building::DevelopmentCard)) {
+        return { ResultType::CannotAfford, {} };
+    }
+
+    const auto development_card = build_development_card(player, Options::None);
+
+    if (is_game_over()) {
+        assert(false);
+    } else {
+        player->set_vertex(State::Vertex::Root);
+    }
+
+    return { ResultType::Ok,
+             { { ActionArgumentType::DevelopmentCardId, static_cast<size_t>(development_card) } } };
 }
 
 Result Game::execute_build_road(Player* player, const ActionArgument& arg)
@@ -485,7 +498,7 @@ Result Game::execute_build_settlement(Player* player, const ActionArgument& arg)
 
 Result Game::execute_build(Player* player, const Action& action)
 {
-    if (action.args.size() != 2) {
+    if (action.args.size() < 1) {
         return { ResultType::InvalidNumberOfArgs, {} };
     }
     if (action.args.at(0).type != ActionArgumentType::BuildItemId) {
@@ -494,12 +507,24 @@ Result Game::execute_build(Player* player, const Action& action)
     const auto build_item = static_cast<Building>(action.args.at(0).value);
     switch (build_item) {
     case Building::City:
+        if (action.args.size() != 2) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
         return execute_build_city(player, action.args.at(1));
     case Building::DevelopmentCard:
-        return execute_build_development_card(player, action.args.at(1));
+        if (action.args.size() != 1) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
+        return execute_build_development_card(player);
     case Building::Road:
+        if (action.args.size() != 2) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
         return execute_build_road(player, action.args.at(1));
     case Building::Settlement:
+        if (action.args.size() != 2) {
+            return { ResultType::InvalidNumberOfArgs, {} };
+        }
         return execute_build_settlement(player, action.args.at(1));
     default:
         return { ResultType::BuildingIdOutOfRange, {} };
@@ -723,6 +748,22 @@ void Game::increment_num_built(Building building)
         m_buildings_built[building] = 0;
     }
     m_buildings_built[building] += 1;
+}
+
+DevelopmentCard Game::draw_development_card()
+{
+    const auto development_card = m_deck.at(m_deck_index);
+    ++m_deck_index;
+    return development_card;
+}
+
+DevelopmentCard Game::build_development_card(Player* player, Options options)
+{
+    const auto development_card = draw_development_card();
+    player->build_development_card(development_card, options);
+    increment_num_built(Building::DevelopmentCard);
+    // FIXME: Check if we drew a VictoryPoint
+    return development_card;
 }
 
 void Game::build_settlement(Player* player, BoardView::Junction* junction, Options options)

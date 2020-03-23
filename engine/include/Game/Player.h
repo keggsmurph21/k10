@@ -96,7 +96,7 @@ private:
     void spend_resources(const ResourceCounts&);
     void collect_resource(Resource);
     void build_city(BoardView::Junction*, Options);
-    void build_development_card(Options);
+    void build_development_card(DevelopmentCard, Options);
     void build_road(BoardView::Road*, Options);
     void build_settlement(BoardView::Junction*, Options);
 

@@ -368,6 +368,7 @@ struct PlayerState {
     };                                                                                             \
                                                                                                    \
     const auto dump_actions = [&]() {                                                              \
+        std::cout << *g << std::endl;                                                              \
         for (const auto& player : g->players()) {                                                  \
             std::cout << *player << std::endl;                                                     \
             for (const auto& action : player->get_available_actions()) {                           \
@@ -2411,7 +2412,123 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].public_victory_points += 1;
         check_state();
 
-        std::cout << *g << std::endl;
+        // dump_actions();
+
+        delete g;
+    }
+
+    SECTION("Three players buying development cards")
+    {
+        auto b = Board::from_file("static/boards/Standard.board");
+        auto s = get_standard_scenario();
+        auto p = get_standard_parameters(3);
+        auto g = Game::initialize(&b, s, p);
+
+        bootstrap_tests();
+
+        do_first_two_rounds_standard_3p();
+
+        const size_t rounds = 25;
+
+        for (size_t i = 0; i < rounds; ++i) {
+            exec_ok(0, { Edge::ToRoot, {} });
+            exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 4 } } });
+            exec_ok(0, { Edge::EndTurn, {} });
+
+            exec_ok(1, { Edge::ToRoot, {} });
+            exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 8 } } });
+            exec_ok(1, { Edge::EndTurn, {} });
+
+            exec_ok(2, { Edge::ToRoot, {} });
+            exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 8 } } });
+            exec_ok(2, { Edge::EndTurn, {} });
+        }
+
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 4 } } });
+
+        /*
+         * p0 has { brick: 1, ore: 2 + rounds }
+         * p1 has { brick: 1 }
+         * p2 has { sheep: 1 + 2 * rounds, wheat: 1 + rounds, wood: 1 }
+         */
+
+        exec_ok(
+            0,
+            trade({ 2 },
+                  { { Resource::Brick, 1 } },
+                  { { Resource::Sheep, 1 + 4 * rounds }, { Resource::Wheat, 1 + 2 * rounds } }));
+        exec_ok(2, { Edge::AcceptTrade, {} });
+
+        gs.dice_total = 4;
+        gs.has_rolled = true;
+        gs.turn += rounds * 3;
+        gs.round += rounds;
+        gs.num_trades_offered_this_turn = 1;
+        ps[0].vertex = Vertex::Root;
+        ps[0].num_resources += 2 + rounds * 7;
+        ps[1].vertex = Vertex::WaitForTurn;
+        ps[2].vertex = Vertex::WaitForTurn;
+        ps[2].num_resources = 2;
+
+        check_state();
+        check_end_turn(0);
+        check_no_actions(1);
+        check_no_actions(2);
+
+        for (size_t i = 0; i < rounds; ++i) {
+            std::cout << g->execute_action(
+                             0,
+                             { Edge::Build,
+                               { { ArgType::BuildItemId,
+                                   static_cast<size_t>(Building::DevelopmentCard) } } })
+                      << std::endl;
+        }
+
+        exec_error(0,
+                   { Edge::Build,
+                     { { ArgType::BuildItemId, static_cast<size_t>(Building::DevelopmentCard) } } },
+                   ResType::InvalidEdgeChoice);
+
+        gs.development_cards_built += rounds;
+        ps[0].num_resources -= rounds * 3;
+        ps[0].num_unplayed_development_cards += rounds;
+        check_state();
+
+        exec_ok(0, { Edge::EndTurn, {} });
+
+        exec_ok(1, { Edge::ToRoot, {} });
+        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+        exec_ok(1, { Edge::EndTurn, {} });
+
+        exec_ok(2, { Edge::ToRoot, {} });
+        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+        exec_ok(2, { Edge::EndTurn, {} });
+
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+
+        gs.dice_total = 12;
+        gs.turn += 3;
+        gs.round += 1;
+        gs.num_trades_offered_this_turn = 0;
+        check_state();
+
+        /*
+        check_build_settlement(2, 1);
+
+        exec_ok(2, build(Building::Settlement, 56));
+        settlements[56] = 2;
+        settlements[40] = -1;
+        check_settlements();
+
+        gs.settlements_built += 1;
+        ps[2].settlements += 1;
+        ps[2].num_resources -= 4;
+        ps[2].public_victory_points += 1;
+        check_state();
+        */
+
         dump_actions();
 
         delete g;

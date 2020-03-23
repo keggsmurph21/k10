@@ -122,6 +122,10 @@ private:
     std::map<Building, size_t> m_buildings_built;
     void increment_num_built(Building);
 
+    DevelopmentCard draw_development_card();
+
+    void build_city(Player*, BoardView::Junction*, Options);
+    DevelopmentCard build_development_card(Player*, Options);
     void build_settlement(Player*, BoardView::Junction*, Options);
     void build_road(Player*, BoardView::Road*, Options);
 
@@ -149,7 +153,7 @@ private:
     Result execute_to_root(Player*, const Action&);
 
     Result execute_build_city(Player*, const ActionArgument&);
-    Result execute_build_development_card(Player*, const ActionArgument&);
+    Result execute_build_development_card(Player*);
     Result execute_build_road(Player*, const ActionArgument&);
     Result execute_build_settlement(Player*, const ActionArgument&);
 };
