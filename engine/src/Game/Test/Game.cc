@@ -2489,14 +2489,13 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(2);
 
         for (size_t i = 0; i < rounds; ++i) {
-            std::cout << g->execute_action(
-                             0,
-                             { Edge::Build,
-                               { { ArgType::BuildItemId,
-                                   static_cast<size_t>(Building::DevelopmentCard) } } })
-                      << std::endl;
+            exec_ok(
+                0,
+                { Edge::Build,
+                  { { ArgType::BuildItemId, static_cast<size_t>(Building::DevelopmentCard) } } });
         }
 
+        // no more development cards
         exec_error(0,
                    { Edge::Build,
                      { { ArgType::BuildItemId, static_cast<size_t>(Building::DevelopmentCard) } } },
@@ -2526,20 +2525,47 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         gs.num_trades_offered_this_turn = 0;
         check_state();
 
-        /*
-        check_build_settlement(2, 1);
+        exec_error(0,
+                   { Edge::PlayDevelopmentCard,
+                     { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Knight) },
+                       { ArgType::NodeId, 143 } } },
+                   ResType::InvalidNodeId);
 
-        exec_ok(2, build(Building::Settlement, 56));
-        settlements[56] = 2;
-        settlements[40] = -1;
-        check_settlements();
+        exec_ok(0,
+                { Edge::PlayDevelopmentCard,
+                  { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Knight) },
+                    { ArgType::NodeId, 141 } } });
 
-        gs.settlements_built += 1;
-        ps[2].settlements += 1;
-        ps[2].num_resources -= 4;
-        ps[2].public_victory_points += 1;
+        gs.robber_location = 141;
+        ps[0].num_played_development_cards += 1;
+        ps[0].num_unplayed_development_cards -= 1;
+        ps[0].vertex = Vertex::AfterMovingRobber;
+        ps[0].army_size += 1;
         check_state();
-        */
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        exec_ok(0,
+                { Edge::PlayDevelopmentCard,
+                  { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Knight) },
+                    { ArgType::NodeId, 19 } } });
+
+        exec_ok(0, { Edge::ToRoot, {} });
+
+        exec_ok(0,
+                { Edge::PlayDevelopmentCard,
+                  { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Knight) },
+                    { ArgType::NodeId, 21 } } });
+
+        gs.robber_location = 21;
+        gs.has_largest_army = 0;
+        gs.largest_army = 3;
+        gs.can_steal = true;
+        ps[0].num_played_development_cards += 2;
+        ps[0].num_unplayed_development_cards -= 2;
+        ps[0].army_size += 2;
+        ps[0].public_victory_points += 2;
+        check_state();
 
         dump_actions();
 
