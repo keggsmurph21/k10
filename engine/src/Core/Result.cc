@@ -23,6 +23,9 @@ std::ostream& operator<<(std::ostream& os, const ResultType& error)
     case ResultType::BuildingIdOutOfRange:
         os << "ResultType::BuildingIdOutOfRange";
         break;
+    case ResultType::DevelopmentCardIdOutOfRange:
+        os << "ResultType::DevelopmentCardIdOutOfRange";
+        break;
     case ResultType::NodeIdOutOfRange:
         os << "ResultType::NodeIdOutOfRange";
         break;

@@ -13,6 +13,7 @@ enum class ResultType {
     InvalidNumberOfArgs,
     InvalidArgumentType,
     BuildingIdOutOfRange,
+    DevelopmentCardIdOutOfRange,
     NodeIdOutOfRange,
     InvalidNodeId,
     JunctionNotSettleable,
