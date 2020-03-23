@@ -388,6 +388,22 @@ parse_trade(const Game* game, Player* offerer, const std::vector<ActionArgument>
     return new Trade{ offerer, offered_to, give_resources, take_resources };
 }
 
+static BoardView::Hex* parse_hex(const Game* game, const ActionArgument& arg)
+{
+    if (arg.type != ActionArgumentType::NodeId) {
+        return nullptr;
+    }
+    const auto node = game->graph()->node(arg.value);
+    if (node == nullptr) {
+        return nullptr;
+    }
+    const auto hex_it = game->hexes().find(node->index());
+    if (hex_it == game->hexes().end()) {
+        return nullptr;
+    }
+    return hex_it->second;
+}
+
 Result Game::execute_accept_trade(Player* player, const Action& /* unused */)
 {
     auto offerer = m_players.at(current_trade()->offerer->index());
