@@ -758,9 +758,12 @@ Result Game::execute_play_road_building(Player* player,
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_victory_point(Player*)
+Result Game::execute_play_victory_point(Player* player)
 {
-    assert(false);
+    player->play_victory_point();
+    player->set_vertex(State::Vertex::Root);
+
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_play_year_of_plenty(Player*, const ActionArgument&, const ActionArgument&)

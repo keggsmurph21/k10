@@ -502,7 +502,9 @@ void Player::play_road_building(BoardView::Road* /* unused */, BoardView::Road* 
 
 void Player::play_victory_point()
 {
-    assert(false);
+    ++m_private_victory_points;
+    ++m_public_victory_points;
+    play_development_card(DevelopmentCard::VictoryPoint);
 }
 
 void Player::play_year_of_plenty(const Resource&, const Resource&)

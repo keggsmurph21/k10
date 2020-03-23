@@ -2618,6 +2618,18 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[0].num_unplayed_development_cards -= 1;
         check_state();
 
+        for (size_t i = 0; i < 5; ++i) {
+            exec_ok(0,
+                    { Edge::PlayDevelopmentCard,
+                      { { ArgType::DevelopmentCardId,
+                          static_cast<size_t>(DevelopmentCard::VictoryPoint) } } });
+        }
+
+        ps[0].public_victory_points += 5;
+        ps[0].num_played_development_cards += 5;
+        ps[0].num_unplayed_development_cards -= 5;
+        check_state();
+
         dump_actions();
 
         delete g;
