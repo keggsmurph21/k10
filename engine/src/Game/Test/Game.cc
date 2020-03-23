@@ -542,8 +542,8 @@ Scenario_ get_single_scenario()
         {},
         {
             { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
-              4 },
-            { { Resource::Wheat }, 3 },
+              3 },
+            { { Resource::Wheat }, 2 },
         });
 }
 
@@ -605,11 +605,11 @@ Scenario_ get_triple_scenario()
         },
         { 6, 9 },
         {
-            { { Resource::Brick }, 3 },
-            { { Resource::Wood }, 3 },
-            { { Resource::Wheat }, 3 },
+            { { Resource::Brick }, 2 },
+            { { Resource::Wood }, 2 },
+            { { Resource::Wheat }, 2 },
             { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
-              4 },
+              3 },
         });
 }
 
@@ -672,30 +672,30 @@ Scenario_ get_standard_scenario()
         { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 },
         {
             { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
-              4 },
-            { { Resource::Wheat }, 3 },
+              3 },
+            { { Resource::Wheat }, 2 },
             { {
                   Resource::Ore,
               },
+              2 },
+            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
               3 },
             { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
-              4 },
-            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
-              4 },
+              3 },
             { {
                   Resource::Sheep,
               },
-              3 },
+              2 },
             { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
-              4 },
+              3 },
             { {
                   Resource::Brick,
               },
-              3 },
+              2 },
             { {
                   Resource::Wood,
               },
-              3 },
+              2 },
         });
 }
 
