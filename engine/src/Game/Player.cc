@@ -335,9 +335,9 @@ std::vector<Action> Player::get_available_actions() const
     assert(false);
 }
 
-bool Player::has_heavy_purse() const // NOLINT(readability-convert-member-functions-to-static)
+bool Player::has_heavy_purse() const
 {
-    throw std::invalid_argument("Not implemented: Player::has_heavy_purse");
+    return num_resources() > k10_MAX_RESOURCES_BEFORE_DISCARDING;
 }
 
 size_t Player::num_built(const Building& building) const

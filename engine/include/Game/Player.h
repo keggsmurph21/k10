@@ -19,6 +19,7 @@
 namespace k10engine::Game {
 
 #define k10_DEFAULT_BANK_TRADE_RATE 4;
+#define k10_MAX_RESOURCES_BEFORE_DISCARDING 7;
 
 class Game;
 
