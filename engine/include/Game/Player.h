@@ -37,7 +37,6 @@ public:
     bool has_heavy_purse() const;
     size_t num_built(const Building&) const;
     bool can_build(const Building&) const;
-    bool can_play(const DevelopmentCard&) const;
     bool can_trade() const;
     bool can_trade_with_bank() const;
     bool is_current_player() const;

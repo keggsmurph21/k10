@@ -380,13 +380,6 @@ bool Player::can_build(const Building& building) const
     return (num_built < num_buildable) && can_afford(*cost);
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-bool Player::can_play(const DevelopmentCard& development_card) const
-{
-    (void)development_card;
-    throw std::invalid_argument("Not implemented: Player::can_play");
-}
-
 bool Player::can_trade() const
 {
     return m_game->num_trades_offered_this_turn() < MAX_NUM_TRADE_OFFERS_PER_TURN
