@@ -27,9 +27,9 @@ bool Game::is_roll_seven() const
     return get_dice_total() == k10_ROBBER_DICE_ROLL;
 }
 
-bool Game::should_wait_for_discard() const // NOLINT(readability-convert-member-functions-to-static)
+bool Game::should_wait_for_discard() const
 {
-    throw std::invalid_argument("Not implemented: Game::should_wait_for_discard");
+    return false; // FIXME: Implement!
 }
 
 bool Game::should_wait_for_trade() const
@@ -838,7 +838,7 @@ Result Game::execute_play_development_card(Player* player, const Action& action)
     }
 }
 
-Result Game::execute_roll_dice(Player*, const Action& action)
+Result Game::execute_roll_dice(Player* player, const Action& action)
 {
     if (action.args.empty()) {
         m_dice.roll();
@@ -863,23 +863,33 @@ Result Game::execute_roll_dice(Player*, const Action& action)
     m_has_rolled = true;
 
     const auto dice_total = get_dice_total();
-    for (const auto& hex_it : hexes()) {
-        const auto& hex = hex_it.second;
-        if (hex->roll_number() != dice_total) {
-            continue;
+
+    if (is_roll_seven()) {
+        for (const auto& other_player : m_players) {
+            if (other_player->has_heavy_purse()) {
+                assert(false);
+            }
         }
-        const auto& hex_resource = hex->resource();
-        if (std::holds_alternative<NonYieldingResource>(hex_resource)) {
-            continue;
-        }
-        const auto& resource = std::get<Resource>(hex_resource);
-        for (const auto& junction_neighbor : hex->junction_neighbors()) {
-            const auto& junction = junction_neighbor.second;
-            if (junction->owner() == nullptr) {
+        player->set_vertex(State::Vertex::AfterRollingSeven);
+    } else {
+        for (const auto& hex_it : hexes()) {
+            const auto& hex = hex_it.second;
+            if (hex->roll_number() != dice_total) {
                 continue;
             }
-            const auto count = junction->has_city() ? 2 : 1;
-            m_players.at(junction->owner()->index())->accrue_resources({ { resource, count } });
+            const auto& hex_resource = hex->resource();
+            if (std::holds_alternative<NonYieldingResource>(hex_resource)) {
+                continue;
+            }
+            const auto& resource = std::get<Resource>(hex_resource);
+            for (const auto& junction_neighbor : hex->junction_neighbors()) {
+                const auto& junction = junction_neighbor.second;
+                if (junction->owner() == nullptr) {
+                    continue;
+                }
+                const auto count = junction->has_city() ? 2 : 1;
+                m_players.at(junction->owner()->index())->accrue_resources({ { resource, count } });
+            }
         }
     }
 

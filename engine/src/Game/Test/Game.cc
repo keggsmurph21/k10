@@ -2984,6 +2984,40 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[1].vertex = Vertex::Root;
         check_state();
 
+        // dump_actions();
+
+        delete g;
+    }
+
+    SECTION("Three players rolling sevens")
+    {
+        auto b = Board::from_file("static/boards/Standard.board");
+        auto s = get_standard_scenario();
+        auto p = get_standard_parameters(3);
+        auto g = Game::initialize(&b, s, p);
+
+        bootstrap_tests();
+
+        do_first_two_rounds_standard_3p();
+
+        /*
+         * p0 has { brick: 1, ore: 1 }
+         * p1 has { brick: 1 }
+         * p2 has { sheep: 1, wood: 1, wheat: 1 }
+         */
+
+        // NB: Can only roll sevens on third round by explicitly ArgType::DiceRoll'ing
+
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
+
+        gs.is_roll_seven = true;
+        gs.dice_total = 7;
+        gs.turn += 1;
+        ps[0].vertex = Vertex::AfterRollingSeven;
+        ps[0].is_current_player = true;
+        check_state();
+
         dump_actions();
 
         delete g;
