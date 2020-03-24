@@ -842,6 +842,9 @@ Result Game::execute_roll_dice(Player*, const Action& action)
 {
     if (action.args.empty()) {
         m_dice.roll();
+        while (is_first_round() && is_roll_seven()) {
+            m_dice.roll();
+        }
 #ifdef k10_ENABLE_ROLL_DICE_EXACT
     } else if (action.args.size() == 1) {
         if (action.args.at(0).type != ActionArgumentType::DiceRoll) {
