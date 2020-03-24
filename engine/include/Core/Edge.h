@@ -20,6 +20,7 @@ enum class Edge {
     RollDice,
     Steal,
     ToRoot,
+    TradeWithBank,
 };
 
 std::ostream& operator<<(std::ostream&, Edge);

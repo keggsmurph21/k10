@@ -50,6 +50,9 @@ std::ostream& operator<<(std::ostream& os, Edge edge)
     case Edge::ToRoot:
         os << "Edge::ToRoot";
         break;
+    case Edge::TradeWithBank:
+        os << "Edge::TradeWithBank";
+        break;
     }
     return os;
 }

@@ -47,6 +47,9 @@ std::ostream& operator<<(std::ostream& os, const ResultType& error)
     case ResultType::InvalidTrade:
         os << "ResultType::InvalidTrade";
         break;
+    case ResultType::StopFlexing:
+        os << "ResultType::StopFlexing";
+        break;
     }
     return os;
 }

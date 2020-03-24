@@ -471,8 +471,10 @@ Action build(Building b, size_t node_index)
                { ArgType::NodeId, node_index } } };
 }
 
-Action
-trade(const std::vector<size_t>& players, const ResourceCounts& from, const ResourceCounts& to)
+Action _trade(const Edge& edge,
+              const std::vector<size_t>& players,
+              const ResourceCounts& from,
+              const ResourceCounts& to)
 {
     std::vector<ActionArgument> args;
     args.reserve(players.size() + 10);
@@ -489,7 +491,18 @@ trade(const std::vector<size_t>& players, const ResourceCounts& from, const Reso
             args.push_back({ ArgType::TakeResourceType, static_cast<size_t>(to_it.first) });
         }
     }
-    return { Edge::OfferTrade, args };
+    return { edge, args };
+}
+
+Action
+trade(const std::vector<size_t>& players, const ResourceCounts& from, const ResourceCounts& to)
+{
+    return _trade(Edge::OfferTrade, players, from, to);
+}
+
+Action trade_with_bank(const ResourceCounts& from, const ResourceCounts& to)
+{
+    return _trade(Edge::TradeWithBank, {}, from, to);
 }
 
 Scenario_ get_single_scenario()
@@ -2642,6 +2655,259 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[0].num_played_development_cards += 1;
         ps[0].num_unplayed_development_cards -= 1;
         check_state();
+
+        // dump_actions();
+
+        delete g;
+    }
+
+    SECTION("Three players trading with bank")
+    {
+        auto b = Board::from_file("static/boards/Standard.board");
+        auto s = get_standard_scenario();
+        auto p = get_standard_parameters(3);
+        auto g = Game::initialize(&b, s, p);
+
+        bootstrap_tests();
+
+        do_first_two_rounds_standard_3p();
+
+        const std::vector<size_t> rolls = { 2, 4, 8, 10 };
+        const size_t rounds_per_roll = 12;
+
+        for (const auto& roll : rolls) {
+            for (size_t i = 0; i < rounds_per_roll; ++i) {
+                exec_ok(0, { Edge::ToRoot, {} });
+                exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
+                exec_ok(0, { Edge::EndTurn, {} });
+
+                exec_ok(1, { Edge::ToRoot, {} });
+                exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
+                exec_ok(1, { Edge::EndTurn, {} });
+
+                exec_ok(2, { Edge::ToRoot, {} });
+                exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
+                exec_ok(2, { Edge::EndTurn, {} });
+            }
+        }
+
+        gs.dice_total = 10;
+        gs.turn += 3 * rolls.size() * rounds_per_roll;
+        gs.round += rolls.size() * rounds_per_roll;
+        ps[0].is_current_player = true;
+        ps[0].num_resources += 3 * 3 * rounds_per_roll;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[2].num_resources += 3 * 5 * rounds_per_roll;
+        check_state();
+
+        /*
+         * p0 has { brick: 73, ore: 37 }
+         * p1 has { brick: 1 }
+         * p2 has { sheep: 73, wood: 37, wheat: 73 }
+         */
+
+        // Even things up so that each player has at least ten of each resource type
+
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+        exec_ok(0,
+                trade({ 1 },
+                      { { Resource::Brick, 10 }, { Resource::Ore, 20 } },
+                      { { Resource::Brick, 1 } }));
+        exec_ok(1, { Edge::AcceptTrade, {} });
+        exec_ok(
+            0,
+            trade({ 2 },
+                  { { Resource::Brick, 10 }, { Resource::Ore, 10 } },
+                  { { Resource::Sheep, 10 }, { Resource::Wheat, 10 }, { Resource::Wood, 10 } }));
+        exec_ok(2, { Edge::AcceptTrade, {} });
+        exec_ok(0, { Edge::EndTurn, {} });
+
+        exec_ok(1, { Edge::ToRoot, {} });
+        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+        exec_ok(
+            1,
+            trade({ 2 },
+                  { { Resource::Brick, 1 } },
+                  { { Resource::Sheep, 10 }, { Resource::Wheat, 10 }, { Resource::Wood, 10 } }));
+        exec_ok(2, { Edge::AcceptTrade, {} });
+
+        // p1 can trade { wheat @ 2::1, <everything else> @ 4::1 }
+
+        exec_error(1,
+                   trade_with_bank({ { Resource::Brick, 3 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(1,
+                   trade_with_bank({ { Resource::Brick, 5 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(1,
+                   trade_with_bank({ { Resource::Brick, 8 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(1, trade_with_bank({ { Resource::Brick, 4 } }, { { Resource::Wood, 1 } }));
+        exec_error(1,
+                   trade_with_bank({ { Resource::Ore, 3 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(1,
+                   trade_with_bank({ { Resource::Ore, 5 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(1,
+                   trade_with_bank({ { Resource::Ore, 8 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(1, trade_with_bank({ { Resource::Ore, 4 } }, { { Resource::Wood, 1 } }));
+        exec_error(1,
+                   trade_with_bank({ { Resource::Sheep, 3 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(1,
+                   trade_with_bank({ { Resource::Sheep, 5 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(1,
+                   trade_with_bank({ { Resource::Sheep, 8 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(1, trade_with_bank({ { Resource::Sheep, 4 } }, { { Resource::Wood, 1 } }));
+        exec_error(1,
+                   trade_with_bank({ { Resource::Wheat, 1 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(1,
+                   trade_with_bank({ { Resource::Wheat, 3 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(1,
+                   trade_with_bank({ { Resource::Wheat, 4 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(1, trade_with_bank({ { Resource::Wheat, 2 } }, { { Resource::Wood, 1 } }));
+        exec_error(1,
+                   trade_with_bank({ { Resource::Wood, 3 } }, { { Resource::Brick, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(1,
+                   trade_with_bank({ { Resource::Wood, 5 } }, { { Resource::Brick, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(1,
+                   trade_with_bank({ { Resource::Wood, 8 } }, { { Resource::Brick, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(1, trade_with_bank({ { Resource::Wood, 4 } }, { { Resource::Brick, 1 } }));
+
+        exec_ok(1,
+                trade_with_bank({ { Resource::Brick, 4 }, { Resource::Ore, 4 } },
+                                { { Resource::Wood, 2 } }));
+        exec_ok(
+            1,
+            trade_with_bank({ { Resource::Wheat, 6 }, { Resource::Ore, 4 }, { Resource::Wood, 4 } },
+                            { { Resource::Sheep, 5 } }));
+
+        exec_ok(1, { Edge::EndTurn, {} });
+
+        exec_ok(2, { Edge::ToRoot, {} });
+        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+
+        // p2 can trade { <everything> @ 4::1 }
+
+        exec_error(2,
+                   trade_with_bank({ { Resource::Brick, 3 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(2,
+                   trade_with_bank({ { Resource::Brick, 5 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(2,
+                   trade_with_bank({ { Resource::Brick, 8 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(2, trade_with_bank({ { Resource::Brick, 4 } }, { { Resource::Wood, 1 } }));
+        exec_error(2,
+                   trade_with_bank({ { Resource::Ore, 3 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(2,
+                   trade_with_bank({ { Resource::Ore, 5 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(2,
+                   trade_with_bank({ { Resource::Ore, 8 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(2, trade_with_bank({ { Resource::Ore, 4 } }, { { Resource::Wood, 1 } }));
+        exec_error(2,
+                   trade_with_bank({ { Resource::Sheep, 3 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(2,
+                   trade_with_bank({ { Resource::Sheep, 5 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(2,
+                   trade_with_bank({ { Resource::Sheep, 8 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(2, trade_with_bank({ { Resource::Sheep, 4 } }, { { Resource::Wood, 1 } }));
+        exec_error(2,
+                   trade_with_bank({ { Resource::Wheat, 3 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(2,
+                   trade_with_bank({ { Resource::Wheat, 5 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(2,
+                   trade_with_bank({ { Resource::Wheat, 8 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(2, trade_with_bank({ { Resource::Wheat, 4 } }, { { Resource::Wood, 1 } }));
+        exec_error(2,
+                   trade_with_bank({ { Resource::Wood, 3 } }, { { Resource::Brick, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(2,
+                   trade_with_bank({ { Resource::Wood, 5 } }, { { Resource::Brick, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(2,
+                   trade_with_bank({ { Resource::Wood, 8 } }, { { Resource::Brick, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(2, trade_with_bank({ { Resource::Wood, 4 } }, { { Resource::Brick, 1 } }));
+
+        exec_ok(2, { Edge::EndTurn, {} });
+
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+
+        // p3 can trade { <everything> @ 3::1 }
+
+        exec_error(0,
+                   trade_with_bank({ { Resource::Brick, 2 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(0,
+                   trade_with_bank({ { Resource::Brick, 4 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(0,
+                   trade_with_bank({ { Resource::Brick, 6 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(0, trade_with_bank({ { Resource::Brick, 3 } }, { { Resource::Wood, 1 } }));
+        exec_error(0,
+                   trade_with_bank({ { Resource::Ore, 2 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(0,
+                   trade_with_bank({ { Resource::Ore, 4 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(0,
+                   trade_with_bank({ { Resource::Ore, 6 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(0, trade_with_bank({ { Resource::Ore, 3 } }, { { Resource::Wood, 1 } }));
+        exec_error(0,
+                   trade_with_bank({ { Resource::Sheep, 2 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(0,
+                   trade_with_bank({ { Resource::Sheep, 4 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(0,
+                   trade_with_bank({ { Resource::Sheep, 6 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(0, trade_with_bank({ { Resource::Sheep, 3 } }, { { Resource::Wood, 1 } }));
+        exec_error(0,
+                   trade_with_bank({ { Resource::Wheat, 2 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(0,
+                   trade_with_bank({ { Resource::Wheat, 4 } }, { { Resource::Wood, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(0,
+                   trade_with_bank({ { Resource::Wheat, 6 } }, { { Resource::Wood, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(0, trade_with_bank({ { Resource::Wheat, 3 } }, { { Resource::Wood, 1 } }));
+        exec_error(0,
+                   trade_with_bank({ { Resource::Wood, 2 } }, { { Resource::Brick, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(0,
+                   trade_with_bank({ { Resource::Wood, 4 } }, { { Resource::Brick, 1 } }),
+                   ResType::InvalidTrade);
+        exec_error(0,
+                   trade_with_bank({ { Resource::Wood, 6 } }, { { Resource::Brick, 1 } }),
+                   ResType::StopFlexing);
+        exec_ok(0, trade_with_bank({ { Resource::Wood, 3 } }, { { Resource::Brick, 1 } }));
 
         dump_actions();
 

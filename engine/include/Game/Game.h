@@ -156,6 +156,7 @@ private:
     Result execute_roll_dice(Player*, const Action&);
     Result execute_steal(Player*, const Action&);
     Result execute_to_root(Player*, const Action&);
+    Result execute_trade_with_bank(Player*, const Action&);
 
     Result execute_build_city(Player*, const ActionArgument&);
     Result execute_build_development_card(Player*);

@@ -276,6 +276,10 @@ std::vector<Action> Player::get_actions_at_root() const
             available_actions.push_back({ State::Edge::OfferTrade, {} });
         }
 
+        if (can_trade_with_bank()) {
+            available_actions.push_back({ State::Edge::TradeWithBank, {} });
+        }
+
         return available_actions;
     }
 }

@@ -910,6 +910,61 @@ Result Game::execute_to_root(Player* player, const Action&)
     return { ResultType::Ok, {} };
 }
 
+Result Game::execute_trade_with_bank(Player* player, const Action& action)
+{
+    const auto trade = parse_trade(this, player, action.args);
+    if (trade == nullptr) {
+        return { ResultType::InvalidTrade, {} };
+    }
+    // Ignore trade->offered_to
+    if (trade->from_offerer.empty()) {
+        delete trade;
+        return { ResultType::InvalidTrade, {} };
+    }
+    if (trade->to_offerer.empty()) {
+        delete trade;
+        return { ResultType::InvalidTrade, {} };
+    }
+    if (!player->can_afford(trade->from_offerer)) {
+        delete trade;
+        return { ResultType::CannotAfford, {} };
+    }
+
+    size_t resources_requested = 0;
+    for (const auto& to : trade->to_offerer) {
+        const auto& count_to = to.second;
+        resources_requested += count_to;
+    }
+
+    size_t resources_offered = 0;
+    for (const auto& from : trade->from_offerer) {
+        const auto& resource_from = from.first;
+        const auto& count_from = from.second;
+        const auto& rate = player->bank_trade_rate(resource_from);
+        const auto& count_to = count_from / rate; // floor division
+        if (count_from > count_to * rate) {
+            delete trade;
+            return { ResultType::InvalidTrade, {} };
+        }
+        resources_offered += count_to;
+    }
+
+    if (resources_offered > resources_requested) {
+        delete trade;
+        return { ResultType::StopFlexing, {} };
+    }
+    if (resources_offered < resources_requested) {
+        delete trade;
+        return { ResultType::InvalidTrade, {} };
+    }
+
+    player->accrue_resources(trade->to_offerer);
+    player->spend_resources(trade->from_offerer);
+
+    delete trade;
+    return { ResultType::Ok, {} };
+}
+
 Result Game::execute_action(size_t player_id, const Action& action)
 {
     if (player_id >= m_players.size()) {
@@ -952,6 +1007,8 @@ Result Game::execute_action(size_t player_id, const Action& action)
         return execute_steal(player, action);
     case State::Edge::ToRoot:
         return execute_to_root(player, action);
+    case State::Edge::TradeWithBank:
+        return execute_trade_with_bank(player, action);
     }
 
     return { ResultType::InvalidEdgeChoice, {} };

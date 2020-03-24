@@ -21,6 +21,7 @@ enum class ResultType {
     CannotAfford,
     DiceRollOutOfRange,
     InvalidTrade,
+    StopFlexing,
 };
 
 struct Result {
