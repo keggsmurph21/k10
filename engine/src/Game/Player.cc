@@ -389,9 +389,16 @@ bool Player::can_trade() const // NOLINT(readability-convert-member-functions-to
     throw std::invalid_argument("Not implemented: Player::can_trade");
 }
 
-bool Player::can_trade_with_bank() const // NOLINT(readability-convert-member-functions-to-static)
+bool Player::can_trade_with_bank() const
 {
-    throw std::invalid_argument("Not implemented: Player::can_trade_with_bank");
+    for (const auto& it : m_resources) {
+        const auto& resource = it.first;
+        const auto& count = it.second;
+        if (count >= bank_trade_rate(resource)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Player::is_current_player() const
