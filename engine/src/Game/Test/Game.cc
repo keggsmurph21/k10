@@ -3010,12 +3010,45 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         exec_ok(0, { Edge::ToRoot, {} });
         exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
+        exec_error(0, { Edge::MoveRobber, { { ArgType::NodeId, 143 } } }, ResType::InvalidNodeId);
+        exec_ok(0, { Edge::MoveRobber, { { ArgType::NodeId, 141 } } });
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0, { Edge::EndTurn, {} });
 
         gs.is_roll_seven = true;
+        gs.robber_location = 141;
         gs.dice_total = 7;
         gs.turn += 1;
-        ps[0].vertex = Vertex::AfterRollingSeven;
+        ps[0].is_current_player = false;
+        ps[1].is_current_player = true;
+        check_state();
+
+        exec_ok(1, { Edge::ToRoot, {} });
+        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
+        exec_ok(1, { Edge::MoveRobber, { { ArgType::NodeId, 21 } } });
+        exec_ok(1, { Edge::ToRoot, {} });
+        exec_ok(1, { Edge::EndTurn, {} });
+
+        gs.turn += 1;
+        gs.robber_location = 21;
+        ps[1].is_current_player = false;
+        ps[2].is_current_player = true;
+        check_state();
+
+        exec_ok(2, { Edge::ToRoot, {} });
+        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
+        exec_ok(2, { Edge::MoveRobber, { { ArgType::NodeId, 19 } } });
+        exec_ok(2, { Edge::Steal, { { ArgType::PlayerId, 0 } } });
+        exec_ok(2, { Edge::ToRoot, {} });
+        exec_ok(2, { Edge::EndTurn, {} });
+
+        gs.turn += 1;
+        gs.round += 1;
+        gs.robber_location = 19;
         ps[0].is_current_player = true;
+        ps[0].num_resources -= 1;
+        ps[2].is_current_player = false;
+        ps[2].num_resources += 1;
         check_state();
 
         dump_actions();

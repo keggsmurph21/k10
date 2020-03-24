@@ -630,9 +630,25 @@ Result Game::execute_fail_trade_unable_to_find_partner(Player* player, const Act
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_move_robber(Player*, const Action&)
+Result Game::execute_move_robber(Player* player, const Action& action)
 {
-    assert(false);
+    if (action.args.empty()) {
+        return { ResultType::InvalidNumberOfArgs, {} };
+    }
+
+    const auto hex = parse_hex(this, action.args.at(0));
+    if (hex == nullptr) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+
+    if (hex->index() == robber_location()->index()) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+
+    move_robber(player, hex);
+    player->set_vertex(State::Vertex::AfterMovingRobber);
+
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_offer_trade(Player* player, const Action& action)
