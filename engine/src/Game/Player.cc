@@ -426,6 +426,22 @@ std::ostream& operator<<(std::ostream& os, const Player& player)
     return os;
 }
 
+void Player::build_city(BoardView::Junction* junction, Options options)
+{
+    if ((options & Options::NoCost) != Options::NoCost) {
+        const auto& cost = m_game->scenario().cost(Building::City);
+        assert(cost != nullptr);
+        spend_resources(*cost);
+    }
+
+    assert(junction->owner() == this);
+    junction->set_has_city();
+
+    m_cities.push_back(junction);
+    m_private_victory_points += 1;
+    m_public_victory_points += 1;
+}
+
 void Player::build_settlement(BoardView::Junction* junction_to_settle, Options options)
 {
     if ((options & Options::NoCost) != Options::NoCost) {

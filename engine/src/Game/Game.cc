@@ -430,9 +430,24 @@ Result Game::execute_accept_trade(Player* player, const Action& /* unused */)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_build_city(Player*, const ActionArgument&)
+Result Game::execute_build_city(Player* player, const ActionArgument& arg)
 {
-    assert(false);
+    const auto junction = parse_junction(this, arg);
+    if (junction == nullptr) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+    if (junction->owner() != player) {
+        return { ResultType::InvalidNodeId, {} };
+    }
+
+    build_city(player, junction, Options::None);
+
+    if (is_game_over()) {
+        assert(false);
+    }
+
+    player->set_vertex(State::Vertex::Root);
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_build_development_card(Player* player)
@@ -1027,6 +1042,12 @@ DevelopmentCard Game::draw_development_card()
     const auto development_card = m_deck.at(m_deck_index);
     ++m_deck_index;
     return development_card;
+}
+
+void Game::build_city(Player* player, BoardView::Junction* junction, Options options)
+{
+    player->build_city(junction, options);
+    increment_num_built(Building::City);
 }
 
 DevelopmentCard Game::build_development_card(Player* player, Options options)
