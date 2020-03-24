@@ -270,8 +270,7 @@ std::vector<Action> Player::get_actions_at_root() const
             }
         }
 
-        if (m_game->num_trades_offered_this_turn() < MAX_NUM_TRADE_OFFERS_PER_TURN
-            && num_resources() > 0) {
+        if (can_trade()) {
             // FIXME: Make sure we handle trading with the bank
             available_actions.push_back({ State::Edge::OfferTrade, {} });
         }
@@ -388,9 +387,10 @@ bool Player::can_play(const DevelopmentCard& development_card) const
     throw std::invalid_argument("Not implemented: Player::can_play");
 }
 
-bool Player::can_trade() const // NOLINT(readability-convert-member-functions-to-static)
+bool Player::can_trade() const
 {
-    throw std::invalid_argument("Not implemented: Player::can_trade");
+    return m_game->num_trades_offered_this_turn() < MAX_NUM_TRADE_OFFERS_PER_TURN
+           && num_resources() > 0;
 }
 
 bool Player::can_trade_with_bank() const
