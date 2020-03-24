@@ -14,8 +14,8 @@ std::ostream& operator<<(std::ostream& os, Vertex vertex)
     case Vertex::AfterMovingRobber:
         os << "Vertex::AfterMovingRobber";
         break;
-    case Vertex::AfterRoll:
-        os << "Vertex::AfterRoll";
+    case Vertex::AfterRollingSeven:
+        os << "Vertex::AfterRollingSeven";
         break;
     case Vertex::ChooseInitialResources:
         os << "Vertex::ChooseInitialResources";

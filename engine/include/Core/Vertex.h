@@ -8,7 +8,7 @@ enum class Vertex {
     AfterBuildingFreeSettlement,
     AfterDiscarding,
     AfterMovingRobber,
-    AfterRoll,
+    AfterRollingSeven,
     ChooseInitialResources,
     GameOver,
     Root,

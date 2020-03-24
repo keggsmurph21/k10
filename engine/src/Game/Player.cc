@@ -99,7 +99,7 @@ std::vector<Action> Player::get_actions_at_after_moving_robber() const
     return { { State::Edge::ToRoot, {} } };
 }
 
-std::vector<Action> Player::get_actions_at_after_roll() const
+std::vector<Action> Player::get_actions_at_after_rolling_seven() const
 {
     if (!m_game->is_roll_seven()) {
         return { { State::Edge::CollectResources, {} } };
@@ -319,8 +319,8 @@ std::vector<Action> Player::get_available_actions() const
         return get_actions_at_after_discarding();
     case State::Vertex::AfterMovingRobber:
         return get_actions_at_after_moving_robber();
-    case State::Vertex::AfterRoll:
-        return get_actions_at_after_roll();
+    case State::Vertex::AfterRollingSeven:
+        return get_actions_at_after_rolling_seven();
     case State::Vertex::ChooseInitialResources:
         return get_actions_at_choose_initial_resources();
     case State::Vertex::GameOver:

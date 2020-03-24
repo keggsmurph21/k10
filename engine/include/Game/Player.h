@@ -141,7 +141,7 @@ private:
     std::vector<Action> get_actions_at_after_building_free_settlement() const;
     std::vector<Action> get_actions_at_after_discarding() const;
     std::vector<Action> get_actions_at_after_moving_robber() const;
-    std::vector<Action> get_actions_at_after_roll() const;
+    std::vector<Action> get_actions_at_after_rolling_seven() const;
     std::vector<Action> get_actions_at_choose_initial_resources() const;
     std::vector<Action> get_actions_at_root() const;
     std::vector<Action> get_actions_at_wait_for_turn() const;
