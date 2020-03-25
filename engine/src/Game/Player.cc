@@ -271,7 +271,6 @@ std::vector<Action> Player::get_actions_at_root() const
         }
 
         if (can_trade()) {
-            // FIXME: Make sure we handle trading with the bank
             available_actions.push_back({ State::Edge::OfferTrade, {} });
         }
 
