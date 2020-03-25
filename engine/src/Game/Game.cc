@@ -886,9 +886,10 @@ Result Game::execute_roll_dice(Player* player, const Action& action)
     const auto dice_total = get_dice_total();
 
     if (is_roll_seven()) {
-        for (const auto& other_player : m_players) {
+        for (auto& other_player : m_players) {
             if (other_player->has_heavy_purse()) {
-                assert(false);
+                size_t num_to_discard = other_player->num_resources() / 2;
+                other_player->set_num_to_discard(num_to_discard);
             }
         }
         player->set_vertex(State::Vertex::AfterRollingSeven);
