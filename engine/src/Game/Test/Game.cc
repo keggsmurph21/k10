@@ -53,19 +53,7 @@ struct PlayerState {
     bool has_declined_trade = false;
     size_t num_to_discard = 0;
     Vertex vertex = Vertex::Root;
-    // bool has_heavy_purse = false; // FIXME: Implement
-    // REQUIRE(p->has_heavy_purse() == ps.has_heavy_purse);
-    // bool can_build = false; // FIXME: Implement
-    // REQUIRE(p->can_build() == ps.can_build);
-    // bool can_play = false; // FIXME: Implement
-    // REQUIRE(p->can_play() == ps.can_play);
-    // bool can_trade = false; // FIXME: Implement
-    // REQUIRE(p->can_trade() == ps.can_trade);
-    // bool can_trade_with_bank = false; // FIXME: Implement
-    // REQUIRE(p->can_trade_with_bank() == ps.can_trade_with_bank);
     bool is_current_player = false;
-    // bool is_blocking = false; // FIXME: Implement
-    // REQUIRE(p->is_blocking() == ps.is_blocking);
     size_t num_resources = 0;
     size_t num_played_development_cards = 0;
     size_t num_unplayed_development_cards = 0;

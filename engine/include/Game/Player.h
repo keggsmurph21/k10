@@ -41,7 +41,6 @@ public:
     bool can_trade() const;
     bool can_trade_with_bank() const;
     bool is_current_player() const;
-    bool is_blocking() const;
 
     size_t num_resources() const;
     size_t num_played_development_cards() const;

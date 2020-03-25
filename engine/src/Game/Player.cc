@@ -403,11 +403,6 @@ bool Player::is_current_player() const
     return m_game->current_player() == this;
 }
 
-bool Player::is_blocking() const // NOLINT(readability-convert-member-functions-to-static)
-{
-    throw std::invalid_argument("Not implemented: Player::is_blocking");
-}
-
 bool Player::can_afford(const ResourceCounts& resource_counts) const
 {
     return !(m_resources < resource_counts);
