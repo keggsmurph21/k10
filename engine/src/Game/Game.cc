@@ -29,7 +29,12 @@ bool Game::is_roll_seven() const
 
 bool Game::should_wait_for_discard() const
 {
-    return false; // FIXME: Implement!
+    for (const auto& player : m_players) {
+        if (player->num_to_discard() > 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Game::should_wait_for_trade() const

@@ -29,8 +29,7 @@ struct GameState {
     bool is_first_round = true;
     bool is_second_round = false;
     bool is_roll_seven = false;
-    // bool should_wait_for_discard = false; // FIXME: Implement:
-    // REQUIRE(g->should_wait_for_discard() == gs.should_wait_for_discard);
+    bool should_wait_for_discard = false;
     bool has_current_trade = false;
     bool should_wait_for_trade = false;
     size_t num_trades_offered_this_turn = 0;
@@ -80,6 +79,7 @@ struct PlayerState {
         REQUIRE(g->is_first_round() == gs.is_first_round);                                         \
         REQUIRE(g->is_second_round() == gs.is_second_round);                                       \
         REQUIRE(g->is_roll_seven() == gs.is_roll_seven);                                           \
+        REQUIRE(g->should_wait_for_discard() == gs.should_wait_for_discard);                       \
         REQUIRE(g->has_current_trade() == gs.has_current_trade);                                   \
         REQUIRE(g->should_wait_for_trade() == gs.should_wait_for_trade);                           \
         REQUIRE(g->num_trades_offered_this_turn() == gs.num_trades_offered_this_turn);             \
