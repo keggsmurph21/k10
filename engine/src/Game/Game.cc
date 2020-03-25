@@ -616,9 +616,40 @@ Result Game::execute_decline_trade(Player* player, const Action& /* unused */)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_discard(Player*, const Action&)
+Result Game::execute_discard(Player* player, const Action& action)
 {
-    assert(false);
+    const auto trade = parse_trade(this, player, action.args);
+    if (trade == nullptr) {
+        return { ResultType::InvalidTrade, {} };
+    }
+    // Ignore trade->offered_to
+    if (trade->from_offerer.empty()) {
+        delete trade;
+        return { ResultType::InvalidTrade, {} };
+    }
+    // Ignore trade->to_offerer
+    if (!player->can_afford(trade->from_offerer)) {
+        delete trade;
+        return { ResultType::CannotAfford, {} };
+    }
+
+    size_t num_to_discard = player->num_to_discard();
+    size_t num_offered = 0;
+    for (const auto& it : trade->from_offerer) {
+        const auto& count = it.second;
+        num_offered += count;
+    }
+
+    if (num_offered > num_to_discard) {
+        delete trade;
+        return { ResultType::StopFlexing, {} };
+    }
+
+    player->spend_resources(trade->from_offerer);
+    player->set_num_to_discard(num_to_discard - num_offered);
+
+    delete trade;
+    return { ResultType::Ok, {} };
 }
 
 Result Game::execute_end_turn(Player* player, const Action&)

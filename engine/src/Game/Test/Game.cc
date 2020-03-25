@@ -493,6 +493,11 @@ Action trade_with_bank(const ResourceCounts& from, const ResourceCounts& to)
     return _trade(Edge::TradeWithBank, {}, from, to);
 }
 
+Action discard(const ResourceCounts& cards)
+{
+    return _trade(Edge::Discard, {}, cards, {});
+}
+
 Scenario_ get_single_scenario()
 {
     return Scenario_(
@@ -3038,6 +3043,115 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].is_current_player = false;
         ps[2].num_resources += 1;
         check_state();
+
+        const std::vector<size_t> rolls = { 2, 4, 8, 10 };
+
+        for (const auto& roll : rolls) {
+            exec_ok(0, { Edge::ToRoot, {} });
+            exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
+            exec_ok(0, { Edge::EndTurn, {} });
+
+            exec_ok(1, { Edge::ToRoot, {} });
+            exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
+            exec_ok(1, { Edge::EndTurn, {} });
+
+            exec_ok(2, { Edge::ToRoot, {} });
+            exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
+            exec_ok(2, { Edge::EndTurn, {} });
+        }
+
+        gs.is_roll_seven = false;
+        gs.dice_total = 10;
+        gs.turn += 3 * rolls.size();
+        gs.round += rolls.size();
+        ps[0].is_current_player = true;
+        ps[0].num_resources = 10;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[2].num_resources = 19;
+        check_state();
+
+        /*
+         * p0 has { brick: 7 or 8, ore: 2 or 3 }
+         * p1 has { brick: 1 }
+         * p2 has { brick: 0 or 1, ore: 0 or 1, sheep: 7, wood: 4, wheat: 7 }
+         */
+
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
+
+        gs.has_rolled = true;
+        gs.is_roll_seven = true;
+        gs.should_wait_for_discard = true;
+        gs.dice_total = 7;
+        ps[0].vertex = Vertex::AfterRollingSeven;
+        ps[0].num_to_discard = 5;
+        ps[2].num_to_discard = 9;
+        check_state();
+
+        exec_error(0, discard({ { Resource::Brick, 6 } }), ResType::StopFlexing);
+        exec_error(
+            2, discard({ { Resource::Sheep, 5 }, { Resource::Wheat, 5 } }), ResType::StopFlexing);
+        exec_error(2, discard({ { Resource::Sheep, 9 } }), ResType::CannotAfford);
+
+        exec_ok(2, discard({ { Resource::Sheep, 5 } }));
+
+        ps[2].num_to_discard = 4;
+        ps[2].num_resources -= 5;
+        check_state();
+
+        exec_ok(0, discard({ { Resource::Brick, 4 } }));
+
+        ps[0].num_to_discard = 1;
+        ps[0].num_resources -= 4;
+        check_state();
+
+        exec_ok(2, discard({ { Resource::Wheat, 4 } }));
+
+        ps[2].num_to_discard = 0;
+        ps[2].num_resources = 10;
+        check_state();
+        check_no_actions(2);
+
+        exec_ok(0, discard({ { Resource::Brick, 1 } }));
+
+        gs.should_wait_for_discard = false;
+        ps[0].num_to_discard = 0;
+        ps[0].num_resources = 5;
+        check_state();
+
+        exec_ok(0, { Edge::MoveRobber, { { ArgType::NodeId, 141 } } });
+        exec_ok(0, { Edge::ToRoot, {} });
+        exec_ok(0, { Edge::EndTurn, {} });
+
+        exec_ok(1, { Edge::ToRoot, {} });
+        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
+
+        gs.should_wait_for_discard = true;
+        gs.turn += 1;
+        gs.robber_location = 141;
+        ps[0].is_current_player = false;
+        ps[0].vertex = Vertex::WaitForTurn;
+        ps[1].is_current_player = true;
+        ps[1].vertex = Vertex::AfterRollingSeven;
+        ps[2].num_to_discard = 5;
+        check_state();
+
+        exec_ok(2, discard({ { Resource::Wood, 4 } }));
+
+        ps[2].num_to_discard = 1;
+        ps[2].num_resources = 6;
+        check_state();
+
+        exec_error(2, discard({ { Resource::Wheat, 2 } }), ResType::StopFlexing);
+        exec_ok(2, discard({ { Resource::Wheat, 1 } }));
+
+        gs.should_wait_for_discard = false;
+        ps[2].num_to_discard = 0;
+        ps[2].num_resources = 5;
+        check_state();
+        check_no_actions(2);
+
+        exec_ok(1, { Edge::MoveRobber, { { ArgType::NodeId, 143 } } });
 
         dump_actions();
 
