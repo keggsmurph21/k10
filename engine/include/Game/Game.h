@@ -44,8 +44,8 @@ public:
     bool should_wait_for_trade() const;
 
     size_t num_trades_offered_this_turn() const { return m_num_trades_offered_this_turn; };
-    bool has_current_trade() const { return m_current_trade != nullptr; }
-    const Trade* current_trade() const { return m_current_trade; }
+    bool has_current_trade() const { return m_current_trade.has_value(); }
+    const std::optional<Trade>& current_trade() const { return m_current_trade; }
 
     const BoardView::Hex* robber_location() const { return m_robber.location(); }
 
@@ -112,7 +112,7 @@ private:
 
     bool m_is_trade_accepted{ false };
     size_t m_num_trades_offered_this_turn{ 0 };
-    Trade* m_current_trade{ nullptr };
+    std::optional<Trade> m_current_trade;
 
     size_t m_turn{ 0 };
 
@@ -139,7 +139,7 @@ private:
     void set_can_steal(bool can_steal) { m_can_steal = can_steal; }
     void set_has_rolled(bool has_rolled) { m_has_rolled = has_rolled; }
     void set_is_trade_accepted(bool is_trade_accepted) { m_is_trade_accepted = is_trade_accepted; }
-    void set_current_trade(Trade* trade);
+    void set_current_trade(std::optional<Trade> trade);
 
     Result execute_accept_trade(Player*, const Action&);
     Result execute_build(Player*, const Action&);

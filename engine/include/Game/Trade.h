@@ -10,10 +10,10 @@ namespace k10engine::Game {
 class Player;
 
 struct Trade {
-    const Player* offerer;
-    const std::vector<Player*> offered_to;
-    const ResourceCounts from_offerer;
-    const ResourceCounts to_offerer;
+    Player* offerer;
+    std::vector<Player*> offered_to;
+    ResourceCounts from_offerer;
+    ResourceCounts to_offerer;
 };
 
 std::ostream& operator<<(std::ostream&, const Trade&);

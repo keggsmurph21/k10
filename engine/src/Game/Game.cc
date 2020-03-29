@@ -47,16 +47,10 @@ bool Game::should_wait_for_trade() const
     return false;
 }
 
-void Game::set_current_trade(Trade* trade)
+void Game::set_current_trade(std::optional<Trade> trade)
 {
-    delete m_current_trade;
     m_current_trade = trade;
-    if (trade == nullptr) {
-        for (const auto& player : m_players) {
-            player->set_can_accept_trade(false);
-            player->set_has_declined_trade(false);
-        }
-    } else {
+    if (trade.has_value()) {
         for (const auto& player : trade->offered_to) {
             if (player->can_afford(trade->to_offerer)) {
                 player->set_can_accept_trade(true);
@@ -64,6 +58,11 @@ void Game::set_current_trade(Trade* trade)
             }
         }
         ++m_num_trades_offered_this_turn;
+    } else {
+        for (const auto& player : m_players) {
+            player->set_can_accept_trade(false);
+            player->set_has_declined_trade(false);
+        }
     }
 }
 
@@ -110,7 +109,6 @@ Game::~Game()
         delete player;
     }
     m_deck.clear();
-    delete m_current_trade;
 }
 
 Game* initialize(const Board::Graph* graph,
@@ -346,7 +344,7 @@ static std::optional<Resource> parse_resource(const Game* /* unused */, const Ac
     }
 }
 
-static Trade*
+static std::optional<Trade>
 parse_trade(const Game* game, Player* offerer, const std::vector<ActionArgument>& args)
 {
     std::vector<Player*> offered_to;
@@ -361,17 +359,17 @@ parse_trade(const Game* game, Player* offerer, const std::vector<ActionArgument>
         case ActionArgumentType::PlayerId:
             parsed_player = parse_player(game, arg);
             if (parsed_player == nullptr) {
-                return nullptr;
+                return std::nullopt;
             }
             if (parsed_player == offerer) {
-                return nullptr;
+                return std::nullopt;
             }
             offered_to.push_back(parsed_player);
             break;
         case ActionArgumentType::GiveResourceType:
             resource = parse_resource(game, arg);
             if (!resource) {
-                return nullptr;
+                return std::nullopt;
             }
             if (give_resources.find(*resource) == give_resources.end()) {
                 give_resources[*resource] = 0;
@@ -381,7 +379,7 @@ parse_trade(const Game* game, Player* offerer, const std::vector<ActionArgument>
         case ActionArgumentType::TakeResourceType:
             resource = parse_resource(game, arg);
             if (!resource) {
-                return nullptr;
+                return std::nullopt;
             }
             if (take_resources.find(*resource) == take_resources.end()) {
                 take_resources[*resource] = 0;
@@ -389,11 +387,11 @@ parse_trade(const Game* game, Player* offerer, const std::vector<ActionArgument>
             take_resources[*resource] += 1;
             break;
         default:
-            return nullptr;
+            return std::nullopt;
         }
     }
 
-    return new Trade{ offerer, offered_to, give_resources, take_resources };
+    return Trade{ offerer, offered_to, give_resources, take_resources };
 }
 
 static BoardView::Hex* parse_hex(const Game* game, const ActionArgument& arg)
@@ -430,7 +428,7 @@ Result Game::execute_accept_trade(Player* player, const Action& /* unused */)
     // std::cout << "  " << offerer->m_resources << std::endl;
     // std::cout << "  " << player->m_resources << std::endl;
 
-    set_current_trade(nullptr);
+    set_current_trade({});
     offerer->set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
 }
@@ -572,7 +570,7 @@ Result Game::execute_build(Player* player, const Action& action)
 
 Result Game::execute_cancel_trade(Player* player, const Action& /* unused */)
 {
-    set_current_trade(nullptr);
+    set_current_trade({});
     player->set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
 }
@@ -619,17 +617,15 @@ Result Game::execute_decline_trade(Player* player, const Action& /* unused */)
 Result Game::execute_discard(Player* player, const Action& action)
 {
     const auto trade = parse_trade(this, player, action.args);
-    if (trade == nullptr) {
+    if (!trade.has_value()) {
         return { ResultType::InvalidTrade, {} };
     }
     // Ignore trade->offered_to
     if (trade->from_offerer.empty()) {
-        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
     // Ignore trade->to_offerer
     if (!player->can_afford(trade->from_offerer)) {
-        delete trade;
         return { ResultType::CannotAfford, {} };
     }
 
@@ -641,14 +637,12 @@ Result Game::execute_discard(Player* player, const Action& action)
     }
 
     if (num_offered > num_to_discard) {
-        delete trade;
         return { ResultType::StopFlexing, {} };
     }
 
     player->spend_resources(trade->from_offerer);
     player->set_num_to_discard(num_to_discard - num_offered);
 
-    delete trade;
     return { ResultType::Ok, {} };
 }
 
@@ -661,7 +655,7 @@ Result Game::execute_end_turn(Player* player, const Action&)
 
 Result Game::execute_fail_trade_unable_to_find_partner(Player* player, const Action& /* unused */)
 {
-    set_current_trade(nullptr);
+    set_current_trade({});
     player->set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
 }
@@ -690,27 +684,22 @@ Result Game::execute_move_robber(Player* player, const Action& action)
 Result Game::execute_offer_trade(Player* player, const Action& action)
 {
     const auto trade = parse_trade(this, player, action.args);
-    if (trade == nullptr) {
+    if (!trade.has_value()) {
         return { ResultType::InvalidTrade, {} };
     }
     if (trade->offered_to.empty()) {
-        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
     if (trade->from_offerer.empty()) {
-        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
     if (trade->to_offerer.empty()) {
-        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
     if (trade->from_offerer == trade->to_offerer) {
-        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
     if (!player->can_afford(trade->from_offerer)) {
-        delete trade;
         return { ResultType::CannotAfford, {} };
     }
 
@@ -994,20 +983,17 @@ Result Game::execute_to_root(Player* player, const Action&)
 Result Game::execute_trade_with_bank(Player* player, const Action& action)
 {
     const auto trade = parse_trade(this, player, action.args);
-    if (trade == nullptr) {
+    if (!trade.has_value()) {
         return { ResultType::InvalidTrade, {} };
     }
     // Ignore trade->offered_to
     if (trade->from_offerer.empty()) {
-        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
     if (trade->to_offerer.empty()) {
-        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
     if (!player->can_afford(trade->from_offerer)) {
-        delete trade;
         return { ResultType::CannotAfford, {} };
     }
 
@@ -1024,25 +1010,21 @@ Result Game::execute_trade_with_bank(Player* player, const Action& action)
         const auto& rate = player->bank_trade_rate(resource_from);
         const auto& count_to = count_from / rate; // floor division
         if (count_from > count_to * rate) {
-            delete trade;
             return { ResultType::InvalidTrade, {} };
         }
         resources_offered += count_to;
     }
 
     if (resources_offered > resources_requested) {
-        delete trade;
         return { ResultType::StopFlexing, {} };
     }
     if (resources_offered < resources_requested) {
-        delete trade;
         return { ResultType::InvalidTrade, {} };
     }
 
     player->accrue_resources(trade->to_offerer);
     player->spend_resources(trade->from_offerer);
 
-    delete trade;
     return { ResultType::Ok, {} };
 }
 
