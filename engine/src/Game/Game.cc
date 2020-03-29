@@ -412,6 +412,11 @@ static BoardView::Hex* parse_hex(const Game* game, const ActionArgument& arg)
 
 Result Game::execute_accept_trade(Player* player, const Action& /* unused */)
 {
+    return _x_accept_trade(player);
+}
+
+Result Game::_x_accept_trade(Player* player)
+{
     auto offerer = m_players.at(current_trade()->offerer->index());
 
     // std::cout << "before:" << std::endl;
@@ -439,6 +444,11 @@ Result Game::execute_build_city(Player* player, const ActionArgument& arg)
     if (junction == nullptr) {
         return { ResultType::InvalidNodeId, {} };
     }
+    return _x_build_city(player, junction);
+}
+
+Result Game::_x_build_city(Player* player, BoardView::Junction* junction)
+{
     if (junction->owner() != player) {
         return { ResultType::InvalidNodeId, {} };
     }
@@ -454,6 +464,11 @@ Result Game::execute_build_city(Player* player, const ActionArgument& arg)
 }
 
 Result Game::execute_build_development_card(Player* player)
+{
+    return _x_build_development_card(player);
+}
+
+Result Game::_x_build_development_card(Player* player)
 {
     if (!player->can_afford(Building::DevelopmentCard)) {
         return { ResultType::CannotAfford, {} };
@@ -478,6 +493,11 @@ Result Game::execute_build_road(Player* player, const ActionArgument& arg)
         return { ResultType::InvalidNodeId, {} };
     }
 
+    return _x_build_road(player, road);
+}
+
+Result Game::_x_build_road(Player* player, BoardView::Road* road)
+{
     if (!is_road_reachable_for(road, player)) {
         return { ResultType::InvalidNodeId, {} };
     }
@@ -510,6 +530,11 @@ Result Game::execute_build_settlement(Player* player, const ActionArgument& arg)
     if (junction == nullptr) {
         return { ResultType::InvalidNodeId, {} };
     }
+    return _x_build_settlement(player, junction);
+}
+
+Result Game::_x_build_settlement(Player* player, BoardView::Junction* junction)
+{
     if (!junction->is_settleable()) {
         return { ResultType::JunctionNotSettleable, {} };
     }
@@ -534,6 +559,11 @@ Result Game::execute_build_settlement(Player* player, const ActionArgument& arg)
 }
 
 Result Game::execute_build(Player* player, const Action& action)
+{
+    return _x_build(player, action); // FIXME
+}
+
+Result Game::_x_build(Player* player, const Action& action)
 {
     if (action.args.empty()) {
         return { ResultType::InvalidNumberOfArgs, {} };
@@ -570,6 +600,11 @@ Result Game::execute_build(Player* player, const Action& action)
 
 Result Game::execute_cancel_trade(Player* player, const Action& /* unused */)
 {
+    return _x_cancel_trade(player);
+}
+
+Result Game::_x_cancel_trade(Player* player)
+{
     set_current_trade({});
     player->set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
@@ -587,6 +622,11 @@ Result Game::execute_choose_initial_resources(Player* player, const Action& acti
     if (junction == nullptr) {
         return { ResultType::InvalidNodeId, {} };
     }
+    return _x_choose_initial_resources(player, junction);
+}
+
+Result Game::_x_choose_initial_resources(Player* player, const BoardView::Junction* junction)
+{
     for (const auto& settlement : player->settlements()) {
         if (settlement == junction) {
             for (const auto& hex_it : settlement->hex_neighbors()) {
@@ -605,10 +645,15 @@ Result Game::execute_choose_initial_resources(Player* player, const Action& acti
 
 Result Game::execute_collect_resources(Player*, const Action&)
 {
-    assert(false);
+    assert(false); // FIXME: Delete this!
 }
 
 Result Game::execute_decline_trade(Player* player, const Action& /* unused */)
+{
+    return _x_decline_trade(player);
+}
+
+Result Game::_x_decline_trade(Player* player)
 {
     player->set_has_declined_trade(true);
     return { ResultType::Ok, {} };
@@ -620,18 +665,23 @@ Result Game::execute_discard(Player* player, const Action& action)
     if (!trade.has_value()) {
         return { ResultType::InvalidTrade, {} };
     }
+    return _x_discard(player, *trade);
+}
+
+Result Game::_x_discard(Player* player, const Trade trade)
+{
     // Ignore trade->offered_to
-    if (trade->from_offerer.empty()) {
+    if (trade.from_offerer.empty()) {
         return { ResultType::InvalidTrade, {} };
     }
     // Ignore trade->to_offerer
-    if (!player->can_afford(trade->from_offerer)) {
+    if (!player->can_afford(trade.from_offerer)) {
         return { ResultType::CannotAfford, {} };
     }
 
     size_t num_to_discard = player->num_to_discard();
     size_t num_offered = 0;
-    for (const auto& it : trade->from_offerer) {
+    for (const auto& it : trade.from_offerer) {
         const auto& count = it.second;
         num_offered += count;
     }
@@ -640,13 +690,18 @@ Result Game::execute_discard(Player* player, const Action& action)
         return { ResultType::StopFlexing, {} };
     }
 
-    player->spend_resources(trade->from_offerer);
+    player->spend_resources(trade.from_offerer);
     player->set_num_to_discard(num_to_discard - num_offered);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_end_turn(Player* player, const Action&)
+Result Game::execute_end_turn(Player* player, const Action& /* unused */)
+{
+    return _x_end_turn(player);
+}
+
+Result Game::_x_end_turn(Player* player)
 {
     player->set_vertex(State::Vertex::WaitForTurn);
     increment_turn();
@@ -654,6 +709,11 @@ Result Game::execute_end_turn(Player* player, const Action&)
 }
 
 Result Game::execute_fail_trade_unable_to_find_partner(Player* player, const Action& /* unused */)
+{
+    return _x_fail_trade_unable_to_find_partner(player);
+}
+
+Result Game::_x_fail_trade_unable_to_find_partner(Player* player)
 {
     set_current_trade({});
     player->set_vertex(State::Vertex::Root);
@@ -665,11 +725,15 @@ Result Game::execute_move_robber(Player* player, const Action& action)
     if (action.args.empty()) {
         return { ResultType::InvalidNumberOfArgs, {} };
     }
-
     const auto hex = parse_hex(this, action.args.at(0));
     if (hex == nullptr) {
         return { ResultType::InvalidNodeId, {} };
     }
+    return _x_move_robber(player, hex);
+}
+
+Result Game::_x_move_robber(Player* player, const BoardView::Hex* hex)
+{
 
     if (hex->index() == robber_location()->index()) {
         return { ResultType::InvalidNodeId, {} };
@@ -687,19 +751,24 @@ Result Game::execute_offer_trade(Player* player, const Action& action)
     if (!trade.has_value()) {
         return { ResultType::InvalidTrade, {} };
     }
-    if (trade->offered_to.empty()) {
+    return _x_offer_trade(player, *trade);
+}
+
+Result Game::_x_offer_trade(Player* player, const Trade trade)
+{
+    if (trade.offered_to.empty()) {
         return { ResultType::InvalidTrade, {} };
     }
-    if (trade->from_offerer.empty()) {
+    if (trade.from_offerer.empty()) {
         return { ResultType::InvalidTrade, {} };
     }
-    if (trade->to_offerer.empty()) {
+    if (trade.to_offerer.empty()) {
         return { ResultType::InvalidTrade, {} };
     }
-    if (trade->from_offerer == trade->to_offerer) {
+    if (trade.from_offerer == trade.to_offerer) {
         return { ResultType::InvalidTrade, {} };
     }
-    if (!player->can_afford(trade->from_offerer)) {
+    if (!player->can_afford(trade.from_offerer)) {
         return { ResultType::CannotAfford, {} };
     }
 
@@ -730,7 +799,11 @@ Result Game::execute_play_knight(Player* player, const ActionArgument& arg)
     if (hex == nullptr) {
         return { ResultType::InvalidNodeId, {} };
     }
+    return _x_play_knight(player, hex);
+}
 
+Result Game::_x_play_knight(Player* player, const BoardView::Hex* hex)
+{
     if (hex->index() == robber_location()->index()) {
         return { ResultType::InvalidNodeId, {} };
     }
@@ -749,23 +822,27 @@ Result Game::execute_play_monopoly(Player* player, const ActionArgument& arg)
     if (!resource.has_value()) {
         return { ResultType::InvalidResourceType, {} };
     }
+    return _x_play_monopoly(player, *resource);
+}
 
+Result Game::_x_play_monopoly(Player* player, const Resource& resource)
+{
     for (auto& other_player : m_players) {
         if (other_player == player) {
             continue;
         }
-        const auto count = other_player->count(*resource);
-        other_player->spend_resources({ { *resource, count } });
-        player->accrue_resources({ { *resource, count } });
+        const auto count = other_player->count(resource);
+        other_player->spend_resources({ { resource, count } });
+        player->accrue_resources({ { resource, count } });
     }
 
-    player->play_monopoly(*resource);
+    player->play_monopoly(resource);
     player->set_vertex(State::Vertex::Root);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_road_building(Player* player,
+Result Game::execute_play_road_building(Player* player, // FIXME
                                         const ActionArgument& arg_0,
                                         const ActionArgument& arg_1)
 {
@@ -814,7 +891,7 @@ Result Game::execute_play_road_building(Player* player,
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_victory_point(Player* player)
+Result Game::execute_play_victory_point(Player* player) // FIXME
 {
     player->play_victory_point();
     player->set_vertex(State::Vertex::Root);
@@ -822,7 +899,7 @@ Result Game::execute_play_victory_point(Player* player)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_year_of_plenty(Player* player,
+Result Game::execute_play_year_of_plenty(Player* player, // FIXME
                                          const ActionArgument& arg_0,
                                          const ActionArgument& arg_1)
 {
@@ -839,7 +916,7 @@ Result Game::execute_play_year_of_plenty(Player* player,
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_development_card(Player* player, const Action& action)
+Result Game::execute_play_development_card(Player* player, const Action& action) // FIXME
 {
     if (action.args.empty()) {
         return { ResultType::InvalidNumberOfArgs, {} };
@@ -882,25 +959,44 @@ Result Game::execute_play_development_card(Player* player, const Action& action)
 Result Game::execute_roll_dice(Player* player, const Action& action)
 {
     if (action.args.empty()) {
-        m_dice.roll();
-        while (is_first_round() && is_roll_seven()) {
-            m_dice.roll();
-        }
+        return _x_roll_dice(player);
 #ifdef k10_ENABLE_ROLL_DICE_EXACT
     } else if (action.args.size() == 1) {
         if (action.args.at(0).type != ActionArgumentType::DiceRoll) {
             return { ResultType::InvalidArgumentType, {} };
         }
         const auto roll = action.args.at(0).value;
-        if (roll < 2 || 12 < roll) {
-            return { ResultType::DiceRollOutOfRange, {} };
-        }
-        m_dice.set_total(roll);
+        return _x_roll_dice(player, roll);
 #endif
     } else {
         return { ResultType::InvalidNumberOfArgs, {} };
     }
 
+    return _x_roll_dice(player);
+}
+
+Result Game::_x_roll_dice(Player* player)
+{
+    m_dice.roll();
+    while (is_first_round() && is_roll_seven()) {
+        m_dice.roll();
+    }
+    return _after_roll(player);
+}
+
+#ifdef k10_ENABLE_ROLL_DICE_EXACT
+Result Game::_x_roll_dice(Player* player, size_t roll)
+{
+    if (roll < 2 || 12 < roll) {
+        return { ResultType::DiceRollOutOfRange, {} };
+    }
+    m_dice.set_total(roll);
+    return _after_roll(player);
+}
+#endif
+
+Result Game::_after_roll(Player* player)
+{
     m_has_rolled = true;
 
     const auto dice_total = get_dice_total();
@@ -944,7 +1040,11 @@ Result Game::execute_steal(Player* player, const Action& action)
         return { ResultType::InvalidNumberOfArgs, {} };
     }
     const auto steal_from = parse_player(this, action.args.at(0));
+    return _x_steal(player, steal_from);
+}
 
+Result Game::_x_steal(Player* player, Player* steal_from)
+{
     if (steal_from == player) {
         return { ResultType::InvalidPlayerId, {} };
     }
@@ -974,7 +1074,12 @@ Result Game::execute_steal(Player* player, const Action& action)
              { { ActionArgumentType::TakeResourceType, static_cast<size_t>(stolen_resource) } } };
 }
 
-Result Game::execute_to_root(Player* player, const Action&)
+Result Game::execute_to_root(Player* player, const Action& /* unused */)
+{
+    return _x_to_root(player);
+}
+
+Result Game::_x_to_root(Player* player)
 {
     player->set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
@@ -986,25 +1091,30 @@ Result Game::execute_trade_with_bank(Player* player, const Action& action)
     if (!trade.has_value()) {
         return { ResultType::InvalidTrade, {} };
     }
+    return _x_trade_with_bank(player, *trade);
+}
+
+Result Game::_x_trade_with_bank(Player* player, Trade trade)
+{
     // Ignore trade->offered_to
-    if (trade->from_offerer.empty()) {
+    if (trade.from_offerer.empty()) {
         return { ResultType::InvalidTrade, {} };
     }
-    if (trade->to_offerer.empty()) {
+    if (trade.to_offerer.empty()) {
         return { ResultType::InvalidTrade, {} };
     }
-    if (!player->can_afford(trade->from_offerer)) {
+    if (!player->can_afford(trade.from_offerer)) {
         return { ResultType::CannotAfford, {} };
     }
 
     size_t resources_requested = 0;
-    for (const auto& to : trade->to_offerer) {
+    for (const auto& to : trade.to_offerer) {
         const auto& count_to = to.second;
         resources_requested += count_to;
     }
 
     size_t resources_offered = 0;
-    for (const auto& from : trade->from_offerer) {
+    for (const auto& from : trade.from_offerer) {
         const auto& resource_from = from.first;
         const auto& count_from = from.second;
         const auto& rate = player->bank_trade_rate(resource_from);
@@ -1022,8 +1132,8 @@ Result Game::execute_trade_with_bank(Player* player, const Action& action)
         return { ResultType::InvalidTrade, {} };
     }
 
-    player->accrue_resources(trade->to_offerer);
-    player->spend_resources(trade->from_offerer);
+    player->accrue_resources(trade.to_offerer);
+    player->spend_resources(trade.from_offerer);
 
     return { ResultType::Ok, {} };
 }
@@ -1033,8 +1143,11 @@ Result Game::execute_action(size_t player_id, const Action& action)
     if (player_id >= m_players.size()) {
         return { ResultType::InvalidPlayerId, {} };
     }
-    const auto player = m_players.at(player_id);
+    return _x_action(m_players.at(player_id), action);
+}
 
+Result Game::_x_action(Player* player, const Action& action)
+{
     if (!player_can_execute_edge(player, action)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }

@@ -168,6 +168,35 @@ private:
     Result execute_play_road_building(Player*, const ActionArgument&, const ActionArgument&);
     Result execute_play_victory_point(Player*);
     Result execute_play_year_of_plenty(Player*, const ActionArgument&, const ActionArgument&);
+
+    Result _x_action(Player*, const Action& action);
+
+    Result _x_accept_trade(Player*);
+    Result _x_build_city(Player*, BoardView::Junction*);
+    Result _x_build_development_card(Player*);
+    Result _x_build_road(Player*, BoardView::Road*);
+    Result _x_build_settlement(Player*, BoardView::Junction*);
+    Result _x_build(Player*, const Action&);
+    Result _x_cancel_trade(Player*);
+    Result _x_choose_initial_resources(Player*, const BoardView::Junction*);
+    Result _x_decline_trade(Player*);
+    Result _x_discard(Player*, const Trade);
+    Result _x_end_turn(Player*);
+    Result _x_fail_trade_unable_to_find_partner(Player*);
+    Result _x_move_robber(Player*, const BoardView::Hex*);
+    Result _x_offer_trade(Player*, const Trade);
+    Result _x_play_knight(Player*, const BoardView::Hex*);
+    Result _x_play_monopoly(Player*, const Resource&);
+    Result _x_roll_dice(Player*);
+#ifdef k10_ENABLE_ROLL_DICE_EXACT
+    Result _x_roll_dice(Player*, size_t roll);
+#endif
+    Result _x_steal(Player*, Player* steal_from);
+    Result _x_to_root(Player*);
+    Result _x_trade_with_bank(Player*, Trade);
+
+    // FIXME: Is there a nicer solution than this?
+    Result _after_roll(Player* player);
 };
 
 Game* initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);
