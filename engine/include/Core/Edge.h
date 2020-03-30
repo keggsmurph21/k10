@@ -15,7 +15,6 @@ enum class Edge {
     DeclineTrade,
     Discard,
     EndTurn,
-    FailTradeUnableToFindPartner,
     MoveRobber,
     OfferTrade,
     PlayKnight,

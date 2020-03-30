@@ -310,7 +310,7 @@ std::vector<Action> Player::get_actions_at_wait_for_trade_responses() const
     if (m_game->should_wait_for_trade()) {
         return { { State::Edge::CancelTrade, {} } }; // or do nothing and wait
     }
-    return { { State::Edge::FailTradeUnableToFindPartner, {} } };
+    assert(false); // We should never have no one waiting to decline
 }
 
 std::vector<Action> Player::get_available_actions() const

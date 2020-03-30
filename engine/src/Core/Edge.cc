@@ -35,9 +35,6 @@ std::ostream& operator<<(std::ostream& os, Edge edge)
     case Edge::EndTurn:
         os << "Edge::EndTurn";
         break;
-    case Edge::FailTradeUnableToFindPartner:
-        os << "Edge::FailTradeUnableToFindPartner";
-        break;
     case Edge::MoveRobber:
         os << "Edge::MoveRobber";
         break;

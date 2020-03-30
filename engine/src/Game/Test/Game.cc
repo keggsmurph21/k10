@@ -2117,13 +2117,8 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         REQUIRE(g->execute_decline_trade(player(1)).type == ResType::Ok);
 
-        gs.should_wait_for_trade = false;
-        ps[1].has_declined_trade = true;
-        check_state();
-
-        REQUIRE(g->execute_fail_trade_unable_to_find_partner(player(2)).type == ResType::Ok);
-
         gs.has_current_trade = false;
+        gs.should_wait_for_trade = false;
         ps[0].can_accept_trade = false;
         ps[0].has_declined_trade = false;
         ps[1].can_accept_trade = false;
@@ -2165,7 +2160,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
                     .type
                 == ResType::Ok);
         REQUIRE(g->execute_decline_trade(player(1)).type == ResType::Ok);
-        REQUIRE(g->execute_fail_trade_unable_to_find_partner(player(2)).type == ResType::Ok);
 
         gs.num_trades_offered_this_turn += 1;
         check_state();
@@ -2177,7 +2171,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
                                          { { Resource::Wood, 1 } } })
                     .type
                 == ResType::Ok);
-        REQUIRE(g->execute_fail_trade_unable_to_find_partner(player(2)).type == ResType::Ok);
 
         gs.num_trades_offered_this_turn += 1;
         check_state();
@@ -2189,7 +2182,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
                                          { { Resource::Brick, 1 } } })
                     .type
                 == ResType::Ok);
-        REQUIRE(g->execute_fail_trade_unable_to_find_partner(player(2)).type == ResType::Ok);
 
         gs.num_trades_offered_this_turn += 1;
         check_state();

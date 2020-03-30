@@ -84,7 +84,6 @@ public:
     Result execute_decline_trade(Player*);
     Result execute_discard(Player*, const ResourceCounts&);
     Result execute_end_turn(Player*);
-    Result execute_fail_trade_unable_to_find_partner(Player*);
     Result execute_move_robber(Player*, const BoardView::Hex*);
     Result execute_offer_trade(Player*, const Trade);
     Result execute_play_knight(Player*, const BoardView::Hex*);

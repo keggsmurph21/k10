@@ -449,6 +449,10 @@ Result Game::execute_decline_trade(Player* player)
     }
 
     player->set_has_declined_trade(true);
+    if (!should_wait_for_trade()) {
+        set_current_trade({});
+        current_player()->set_vertex(State::Vertex::Root);
+    }
     return { ResultType::Ok, {} };
 }
 
@@ -493,17 +497,6 @@ Result Game::execute_end_turn(Player* player)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_fail_trade_unable_to_find_partner(Player* player)
-{
-    if (!player_can_execute_edge(player, State::Edge::FailTradeUnableToFindPartner)) {
-        return { ResultType::InvalidEdgeChoice, {} };
-    }
-
-    set_current_trade({});
-    player->set_vertex(State::Vertex::Root);
-    return { ResultType::Ok, {} };
-}
-
 Result Game::execute_move_robber(Player* player, const BoardView::Hex* hex)
 {
     if (!player_can_execute_edge(player, State::Edge::MoveRobber)) {
@@ -544,6 +537,11 @@ Result Game::execute_offer_trade(Player* player, const Trade trade)
 
     set_current_trade(trade);
     player->set_vertex(State::Vertex::WaitForTradeResponses);
+
+    if (!should_wait_for_trade()) {
+        set_current_trade({});
+        current_player()->set_vertex(State::Vertex::Root);
+    }
 
     return { ResultType::Ok, {} };
 }
