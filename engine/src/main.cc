@@ -125,16 +125,6 @@ void dump_actions(const k10engine::Game::Game* g)
     std::cout << std::endl;
 }
 
-k10engine::Game::Result
-build(k10engine::Game::Game* g, size_t player_id, k10engine::Building b, size_t node_id)
-{
-    return g->execute_action(
-        player_id,
-        { k10engine::State::Edge::Build,
-          { { k10engine::Game::ActionArgumentType::BuildItemId, static_cast<size_t>(b) },
-            { k10engine::Game::ActionArgumentType::NodeId, node_id } } });
-}
-
 int main(int /* unused */, char** /* unused */)
 {
     auto b = k10engine::Board::from_file("static/boards/Standard.board");
@@ -181,37 +171,29 @@ int main(int /* unused */, char** /* unused */)
     dump_actions(g);
 
     // Round 0, Player 0
-    std::cout << build(g, 0, k10engine::Building::Settlement, 1000)
-              << std::endl; // Result{ ResultType::NodeIdOutOfRange }
-    std::cout << build(g, 0, k10engine::Building::Settlement, 4) << std::endl;
-    std::cout << build(g, 0, k10engine::Building::Road, 8) << std::endl;
+    std::cout << g->execute_build_settlement(g->players().at(0), g->junctions().at(4)) << std::endl;
+    std::cout << g->execute_build_road(g->players().at(0), g->roads().at(8)) << std::endl;
 
     // Round 0, Player 1
-    std::cout << g->execute_action(1, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
-    std::cout << build(g, 1, k10engine::Building::Settlement, 4)
-              << std::endl; // Result{ ResultType::NodeIdOutOfRange }
-    std::cout << build(g, 1, k10engine::Building::Settlement, 13)
-              << std::endl; // Result{ ResultType::NodeIdOutOfRange }
-    std::cout << build(g, 1, k10engine::Building::Settlement, 5) << std::endl;
-    std::cout << build(g, 1, k10engine::Building::Road, 9) << std::endl;
+    std::cout << g->execute_to_root(g->players().at(1)) << std::endl;
+    std::cout << g->execute_build_settlement(g->players().at(1), g->junctions().at(5)) << std::endl;
+    std::cout << g->execute_build_road(g->players().at(1), g->roads().at(9)) << std::endl;
 
     // Round 0, Player 2
-    std::cout << g->execute_action(2, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
-    std::cout << build(g, 2, k10engine::Building::Settlement, 6) << std::endl;
-    std::cout << build(g, 2, k10engine::Building::Road, 12) << std::endl;
+    std::cout << g->execute_to_root(g->players().at(2)) << std::endl;
+    std::cout << g->execute_build_settlement(g->players().at(2), g->junctions().at(6)) << std::endl;
+    std::cout << g->execute_build_road(g->players().at(2), g->roads().at(12)) << std::endl;
 
     // Round 0, Player 3
-    std::cout << g->execute_action(3, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
-    std::cout << build(g, 3, k10engine::Building::Settlement, 26) << std::endl;
-    std::cout << build(g, 3, k10engine::Building::Road, 32) << std::endl;
+    std::cout << g->execute_to_root(g->players().at(3)) << std::endl;
+    std::cout << g->execute_build_settlement(g->players().at(3), g->junctions().at(26)) << std::endl;
+    std::cout << g->execute_build_road(g->players().at(3), g->roads().at(31)) << std::endl;
 
     // Round 1, Player 3
-    std::cout << g->execute_action(3, { k10engine::State::Edge::ToRoot, {} }) << std::endl;
-    std::cout << build(g, 3, k10engine::Building::Settlement, 27) << std::endl;
-    std::cout << build(g, 3, k10engine::Building::Road, 46) << std::endl;
-    std::cout << g->execute_action(3,
-                                   { k10engine::State::Edge::ChooseInitialResources,
-                                     { { k10engine::Game::ActionArgumentType::NodeId, 27 } } })
+    std::cout << g->execute_to_root(g->players().at(3)) << std::endl;
+    std::cout << g->execute_build_settlement(g->players().at(3), g->junctions().at(27)) << std::endl;
+    std::cout << g->execute_build_road(g->players().at(3), g->roads().at(46)) << std::endl;
+    std::cout << g->execute_choose_initial_resources(g->players().at(3), g->junctions().at(27))
               << std::endl;
 
     dump_actions(g);

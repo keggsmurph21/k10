@@ -71,6 +71,10 @@ struct PlayerState {
     std::map<int, int> settlements;                                                                \
     std::map<int, int> roads;                                                                      \
                                                                                                    \
+    auto player = [&](size_t index) -> k10engine::Game::Player* {                                  \
+        return g->players().at(index);                                                             \
+    };                                                                                             \
+                                                                                                   \
     const auto check_state = [&]() -> void {                                                       \
         REQUIRE(g->can_steal() == gs.can_steal);                                                   \
         REQUIRE(g->has_rolled() == gs.has_rolled);                                                 \
@@ -124,29 +128,16 @@ struct PlayerState {
         }                                                                                          \
     };                                                                                             \
                                                                                                    \
-    const auto exec_error =                                                                        \
-        [&](size_t player_index, const Action& action, const ResType& res_type) {                  \
-            const auto& res = g->execute_action(player_index, action);                             \
-            REQUIRE(res.type == res_type);                                                         \
-        };                                                                                         \
-                                                                                                   \
-    const auto exec_ok = [&](size_t player_index, const Action& action) {                          \
-        exec_error(player_index, action, ResType::Ok);                                             \
-    };                                                                                             \
-                                                                                                   \
     const auto check_no_actions = [&](size_t player_index) {                                       \
         const auto actions = g->players().at(player_index)->get_available_actions();               \
         REQUIRE(actions.empty());                                                                  \
     };                                                                                             \
                                                                                                    \
     const auto check_build_settlement = [&](size_t player_index, size_t num_expected) {            \
-        const auto invalid_player_index = 100;                                                     \
-        const auto large_node_index = 1000;                                                        \
-        const auto invalid_node_index = 0;                                                         \
         const auto actions = g->players().at(player_index)->get_available_actions();               \
         size_t num_buildable_settlements_found = 0;                                                \
         for (const auto& action : actions) {                                                       \
-            if (action.edge != Edge::Build) {                                                      \
+            if (action.edge != Edge::BuildSettlement) {                                            \
                 continue;                                                                          \
             }                                                                                      \
             if (static_cast<Building>(action.args.at(0).value) != Building::Settlement) {          \
@@ -162,41 +153,21 @@ struct PlayerState {
             REQUIRE(g->junctions().at(node_index)->is_settleable() == true);                       \
         }                                                                                          \
         REQUIRE(num_buildable_settlements_found == num_expected);                                  \
-        exec_error(invalid_player_index,                                                           \
-                   build(Building::Settlement, large_node_index),                                  \
-                   ResType::InvalidPlayerId);                                                      \
-        exec_error(player_index, { Edge::AcceptTrade, {} }, ResType::InvalidEdgeChoice);           \
-        exec_error(player_index, { Edge::Build, {} }, ResType::InvalidNumberOfArgs);               \
-        exec_error(player_index,                                                                   \
-                   { Edge::Build, { { ArgType::NodeId, 1 }, { ArgType::NodeId, 1 } } },            \
-                   ResType::InvalidArgumentType);                                                  \
-        exec_error(player_index,                                                                   \
-                   { Edge::Build,                                                                  \
-                     { { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) },        \
-                       { ArgType::BuildItemId, static_cast<size_t>(Building::Settlement) } } },    \
-                   ResType::InvalidNodeId);                                                        \
-        exec_error(                                                                                \
-            player_index, build(Building::Settlement, large_node_index), ResType::InvalidNodeId);  \
-        exec_error(player_index,                                                                   \
-                   build(Building::Settlement, invalid_node_index),                                \
-                   ResType::InvalidNodeId);                                                        \
+        REQUIRE(g->execute_accept_trade(player(player_index)).type == ResType::InvalidEdgeChoice); \
     };                                                                                             \
                                                                                                    \
     const auto check_build_road = [&](size_t player_index, size_t num_expected) {                  \
-        const auto invalid_player_index = 100;                                                     \
-        const auto large_node_index = 1000;                                                        \
-        const auto invalid_node_index = 0;                                                         \
         const auto actions = g->players().at(player_index)->get_available_actions();               \
         size_t num_buildable_roads_found = 0;                                                      \
         for (const auto& action : actions) {                                                       \
-            if (action.edge != Edge::Build) {                                                      \
+            if (action.edge != Edge::BuildRoad) {                                                  \
                 continue;                                                                          \
             }                                                                                      \
             if (static_cast<Building>(action.args.at(0).value) != Building::Road) {                \
                 continue;                                                                          \
             }                                                                                      \
             ++num_buildable_roads_found;                                                           \
-            REQUIRE(action.edge == Edge::Build);                                                   \
+            REQUIRE(action.edge == Edge::BuildRoad);                                               \
             REQUIRE(action.args.size() == 2);                                                      \
             REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                               \
             REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Road));               \
@@ -206,77 +177,7 @@ struct PlayerState {
             REQUIRE(g->roads().at(node_index)->owner() == nullptr);                                \
         }                                                                                          \
         REQUIRE(num_buildable_roads_found == num_expected);                                        \
-        exec_error(invalid_player_index,                                                           \
-                   build(Building::Road, large_node_index),                                        \
-                   ResType::InvalidPlayerId);                                                      \
-        exec_error(player_index, { Edge::AcceptTrade, {} }, ResType::InvalidEdgeChoice);           \
-        exec_error(player_index, { Edge::Build, {} }, ResType::InvalidNumberOfArgs);               \
-        exec_error(player_index,                                                                   \
-                   { Edge::Build, { { ArgType::NodeId, 4 }, { ArgType::NodeId, 4 } } },            \
-                   ResType::InvalidArgumentType);                                                  \
-        exec_error(player_index,                                                                   \
-                   { Edge::Build,                                                                  \
-                     { { ArgType::BuildItemId, static_cast<size_t>(Building::Road) },              \
-                       { ArgType::BuildItemId, static_cast<size_t>(Building::Road) } } },          \
-                   ResType::InvalidNodeId);                                                        \
-        exec_error(player_index, build(Building::Road, large_node_index), ResType::InvalidNodeId); \
-        exec_error(                                                                                \
-            player_index, build(Building::Road, invalid_node_index), ResType::InvalidNodeId);      \
-    };                                                                                             \
-                                                                                                   \
-    const auto check_offer_trade = [&](size_t current_player_index, size_t other_player_index) {   \
-        const auto invalid_player_index = 100;                                                     \
-        exec_error(current_player_index, { Edge::OfferTrade, {} }, ResType::InvalidTrade);         \
-        exec_error(current_player_index,                                                           \
-                   { Edge::OfferTrade, { { ArgType::NodeId, 0 } } },                               \
-                   ResType::InvalidTrade);                                                         \
-        exec_error(current_player_index,                                                           \
-                   { Edge::OfferTrade,                                                             \
-                     { { ArgType::GiveResourceType, static_cast<size_t>(Resource::Wheat) },        \
-                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
-                   ResType::InvalidTrade);                                                         \
-        exec_error(current_player_index,                                                           \
-                   { Edge::OfferTrade,                                                             \
-                     { { ArgType::PlayerId, current_player_index },                                \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Wheat) },        \
-                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
-                   ResType::InvalidTrade);                                                         \
-        exec_error(current_player_index,                                                           \
-                   { Edge::OfferTrade,                                                             \
-                     { { ArgType::PlayerId, invalid_player_index },                                \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Wheat) },        \
-                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
-                   ResType::InvalidTrade);                                                         \
-        exec_error(current_player_index,                                                           \
-                   { Edge::OfferTrade,                                                             \
-                     { { ArgType::PlayerId, other_player_index },                                  \
-                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
-                   ResType::InvalidTrade);                                                         \
-        exec_error(current_player_index,                                                           \
-                   { Edge::OfferTrade,                                                             \
-                     { { ArgType::PlayerId, other_player_index },                                  \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
-                   ResType::InvalidTrade);                                                         \
-        exec_error(current_player_index,                                                           \
-                   { Edge::OfferTrade,                                                             \
-                     { { ArgType::PlayerId, other_player_index },                                  \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
-                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Sheep) } } },    \
-                   ResType::InvalidTrade);                                                         \
-        exec_error(current_player_index,                                                           \
-                   { Edge::OfferTrade,                                                             \
-                     { { ArgType::PlayerId, other_player_index },                                  \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
-                       { ArgType::GiveResourceType, static_cast<size_t>(Resource::Sheep) },        \
-                       { ArgType::TakeResourceType, static_cast<size_t>(Resource::Wheat) } } },    \
-                   ResType::CannotAfford);                                                         \
+        REQUIRE(g->execute_accept_trade(player(player_index)).type == ResType::InvalidEdgeChoice); \
     };                                                                                             \
                                                                                                    \
     const auto check_choose_initial_resources = [&](size_t player_index) {                         \
@@ -323,15 +224,12 @@ struct PlayerState {
                                                                                                    \
     const auto check_roll_dice = [&](size_t player_index) {                                        \
         check_single_action(player_index, Edge::RollDice);                                         \
-        exec_error(player_index,                                                                   \
-                   { Edge::RollDice, { { ArgType::DiceRoll, 0 } } },                               \
-                   ResType::DiceRollOutOfRange);                                                   \
-        exec_error(player_index,                                                                   \
-                   { Edge::RollDice, { { ArgType::DiceRoll, 1 } } },                               \
-                   ResType::DiceRollOutOfRange);                                                   \
-        exec_error(player_index,                                                                   \
-                   { Edge::RollDice, { { ArgType::DiceRoll, 13 } } },                              \
-                   ResType::DiceRollOutOfRange);                                                   \
+        REQUIRE(g->execute_roll_dice(player(player_index), 0).type                                 \
+                == ResType::DiceRollOutOfRange);                                                   \
+        REQUIRE(g->execute_roll_dice(player(player_index), 1).type                                 \
+                == ResType::DiceRollOutOfRange);                                                   \
+        REQUIRE(g->execute_roll_dice(player(player_index), 13).type                                \
+                == ResType::DiceRollOutOfRange);                                                   \
     };                                                                                             \
                                                                                                    \
     const auto check_settlements = [&]() {                                                         \
@@ -380,26 +278,32 @@ struct PlayerState {
                                                                                                    \
     const auto do_first_two_rounds_standard_3p = [&]() {                                           \
         gs.robber_location = 143;                                                                  \
-        exec_ok(0, build(Building::Settlement, 4));                                                \
-        exec_ok(0, build(Building::Road, 7));                                                      \
-        exec_ok(1, { Edge::ToRoot, {} });                                                          \
-        exec_ok(1, build(Building::Settlement, 5));                                                \
-        exec_ok(1, build(Building::Road, 9));                                                      \
-        exec_ok(2, { Edge::ToRoot, {} });                                                          \
-        exec_ok(2, build(Building::Settlement, 90));                                               \
-        exec_ok(2, build(Building::Road, 80));                                                     \
-        exec_ok(2, { Edge::ToRoot, {} });                                                          \
-        exec_ok(2, build(Building::Settlement, 91));                                               \
-        exec_ok(2, build(Building::Road, 63));                                                     \
-        exec_ok(2, { Edge::ChooseInitialResources, { { ArgType::NodeId, 91 } } });                 \
-        exec_ok(1, { Edge::ToRoot, {} });                                                          \
-        exec_ok(1, build(Building::Settlement, 6));                                                \
-        exec_ok(1, build(Building::Road, 10));                                                     \
-        exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 6 } } });                  \
-        exec_ok(0, { Edge::ToRoot, {} });                                                          \
-        exec_ok(0, build(Building::Settlement, 26));                                               \
-        exec_ok(0, build(Building::Road, 18));                                                     \
-        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 26 } } });                 \
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(4)).type == ResType::Ok); \
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(7)).type == ResType::Ok);           \
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);                                \
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(5)).type == ResType::Ok); \
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(9)).type == ResType::Ok);           \
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);                                \
+        REQUIRE(g->execute_build_settlement(player(2), g->junctions().at(90)).type                 \
+                == ResType::Ok);                                                                   \
+        REQUIRE(g->execute_build_road(player(2), g->roads().at(80)).type == ResType::Ok);          \
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);                                \
+        REQUIRE(g->execute_build_settlement(player(2), g->junctions().at(91)).type                 \
+                == ResType::Ok);                                                                   \
+        REQUIRE(g->execute_build_road(player(2), g->roads().at(63)).type == ResType::Ok);          \
+        REQUIRE(g->execute_choose_initial_resources(player(2), g->junctions().at(91)).type         \
+                == ResType::Ok);                                                                   \
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);                                \
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(6)).type == ResType::Ok); \
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(10)).type == ResType::Ok);          \
+        REQUIRE(g->execute_choose_initial_resources(player(1), g->junctions().at(6)).type          \
+                == ResType::Ok);                                                                   \
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);                                \
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(26)).type                 \
+                == ResType::Ok);                                                                   \
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(18)).type == ResType::Ok);          \
+        REQUIRE(g->execute_choose_initial_resources(player(0), g->junctions().at(26)).type         \
+                == ResType::Ok);                                                                   \
                                                                                                    \
         gs.is_first_round = false;                                                                 \
         gs.is_second_round = false;                                                                \
@@ -451,52 +355,6 @@ struct PlayerState {
         check_no_actions(1);                                                                       \
         check_no_actions(2);                                                                       \
     };
-
-Action build(Building b, size_t node_index)
-{
-    return { Edge::Build,
-             { { ArgType::BuildItemId, static_cast<size_t>(b) },
-               { ArgType::NodeId, node_index } } };
-}
-
-Action _trade(const Edge& edge,
-              const std::vector<size_t>& players,
-              const ResourceCounts& from,
-              const ResourceCounts& to)
-{
-    std::vector<ActionArgument> args;
-    args.reserve(players.size() + 10);
-    for (const size_t player_index : players) {
-        args.push_back({ ArgType::PlayerId, player_index });
-    }
-    for (const auto from_it : from) {
-        for (size_t i = 0; i < from_it.second; ++i) {
-            args.push_back({ ArgType::GiveResourceType, static_cast<size_t>(from_it.first) });
-        }
-    }
-    for (const auto to_it : to) {
-        for (size_t i = 0; i < to_it.second; ++i) {
-            args.push_back({ ArgType::TakeResourceType, static_cast<size_t>(to_it.first) });
-        }
-    }
-    return { edge, args };
-}
-
-Action
-trade(const std::vector<size_t>& players, const ResourceCounts& from, const ResourceCounts& to)
-{
-    return _trade(Edge::OfferTrade, players, from, to);
-}
-
-Action trade_with_bank(const ResourceCounts& from, const ResourceCounts& to)
-{
-    return _trade(Edge::TradeWithBank, {}, from, to);
-}
-
-Action discard(const ResourceCounts& cards)
-{
-    return _trade(Edge::Discard, {}, cards, {});
-}
 
 Scenario_ get_single_scenario()
 {
@@ -734,7 +592,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_build_settlement(0, 6);
 
-        exec_ok(0, build(Building::Settlement, 2));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(2)).type == ResType::Ok);
         settlements[2] = 0;
         settlements[5] = -1;
         settlements[6] = -1;
@@ -747,7 +605,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_build_road(0, 2);
 
-        exec_ok(0, build(Building::Road, 4));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(4)).type == ResType::Ok);
         roads[4] = 0;
         check_roads();
 
@@ -761,13 +619,13 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_to_root(0);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
         check_build_settlement(0, 3);
 
-        exec_ok(0, build(Building::Settlement, 12));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(12)).type == ResType::Ok);
         settlements[12] = 0;
         settlements[16] = -1;
         check_settlements();
@@ -779,7 +637,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_build_road(0, 4);
 
-        exec_ok(0, build(Building::Road, 10));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(10)).type == ResType::Ok);
         roads[10] = 0;
         check_roads();
 
@@ -789,7 +647,8 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_choose_initial_resources(0);
 
-        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 12 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(0), g->junctions().at(12)).type
+                == ResType::Ok);
 
         gs.is_second_round = false;
         gs.round += 1;
@@ -798,13 +657,13 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_to_root(0);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
         check_roll_dice(0);
 
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+        REQUIRE(g->execute_roll_dice(player(0), 12).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 12;
@@ -840,7 +699,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_build_settlement(0, 13);
 
-        exec_ok(0, build(Building::Settlement, 20));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(20)).type == ResType::Ok);
         settlements[20] = 0;
         settlements[10] = -1;
         settlements[26] = -1;
@@ -854,7 +713,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_build_road(0, 3);
 
-        exec_ok(0, build(Building::Road, 15));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(15)).type == ResType::Ok);
         roads[15] = 0;
         check_roads();
 
@@ -868,13 +727,13 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_to_root(0);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
         check_build_settlement(0, 9);
 
-        exec_ok(0, build(Building::Settlement, 3));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(3)).type == ResType::Ok);
         settlements[3] = 0;
         settlements[9] = -1;
         check_settlements();
@@ -886,7 +745,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_build_road(0, 5);
 
-        exec_ok(0, build(Building::Road, 7));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(7)).type == ResType::Ok);
         roads[7] = 0;
         check_roads();
 
@@ -896,7 +755,8 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_choose_initial_resources(0);
 
-        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 3 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(0), g->junctions().at(3)).type
+                == ResType::Ok);
 
         gs.is_second_round = false;
         gs.round += 1;
@@ -906,13 +766,13 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_to_root(0);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
         check_roll_dice(0);
 
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 6 } } });
+        REQUIRE(g->execute_roll_dice(player(0), 6).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 6;
@@ -947,8 +807,9 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_settlement(0, 13);
         check_no_actions(1);
 
-        exec_error(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
-        exec_ok(0, build(Building::Settlement, 20));
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(20)).type
+                == ResType::InvalidEdgeChoice);
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(20)).type == ResType::Ok);
         settlements[20] = 0;
         settlements[10] = -1;
         settlements[26] = -1;
@@ -963,8 +824,9 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_road(0, 3);
         check_no_actions(1);
 
-        exec_error(1, build(Building::Settlement, 20), ResType::InvalidEdgeChoice);
-        exec_ok(0, build(Building::Road, 15));
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(15)).type
+                == ResType::InvalidEdgeChoice);
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(15)).type == ResType::Ok);
         roads[15] = 0;
         check_roads();
 
@@ -978,15 +840,15 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_to_root(1);
 
-        exec_error(0, { Edge::ToRoot, {} }, ResType::InvalidEdgeChoice);
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::InvalidEdgeChoice);
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
         check_no_actions(0);
         check_build_settlement(1, 9);
 
-        exec_ok(1, build(Building::Settlement, 3));
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(3)).type == ResType::Ok);
         settlements[3] = 1;
         settlements[9] = -1;
         check_settlements();
@@ -999,8 +861,9 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_build_road(1, 2);
 
-        exec_error(0, build(Building::Settlement, 4), ResType::InvalidEdgeChoice);
-        exec_ok(1, build(Building::Road, 6));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(4)).type
+                == ResType::InvalidEdgeChoice);
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(6)).type == ResType::Ok);
         roads[6] = 1;
         check_roads();
 
@@ -1015,15 +878,15 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_to_root(1);
 
-        exec_error(0, { Edge::ToRoot, {} }, ResType::InvalidEdgeChoice);
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::InvalidEdgeChoice);
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
         check_no_actions(0);
         check_build_settlement(1, 7);
 
-        exec_ok(1, build(Building::Settlement, 33));
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(33)).type == ResType::Ok);
         settlements[33] = 1;
         settlements[37] = -1;
         check_settlements();
@@ -1036,7 +899,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_build_road(1, 4);
 
-        exec_ok(1, build(Building::Road, 29));
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(29)).type == ResType::Ok);
         roads[29] = 1;
         check_roads();
 
@@ -1047,7 +910,8 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_choose_initial_resources(1);
 
-        exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 3 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(1), g->junctions().at(3)).type
+                == ResType::Ok);
 
         gs.turn += 1;
         ps[0].is_current_player = true;
@@ -1058,14 +922,14 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_to_root(0);
         check_no_actions(1);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
         check_build_settlement(0, 5);
         check_no_actions(1);
 
-        exec_ok(0, build(Building::Settlement, 34));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(34)).type == ResType::Ok);
         settlements[34] = 0;
         check_settlements();
 
@@ -1077,7 +941,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_road(0, 5);
         check_no_actions(1);
 
-        exec_ok(0, build(Building::Road, 7));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(7)).type == ResType::Ok);
         roads[7] = 0;
         check_roads();
 
@@ -1088,7 +952,8 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_choose_initial_resources(0);
         check_no_actions(1);
 
-        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 20 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(0), g->junctions().at(20)).type
+                == ResType::Ok);
 
         gs.is_second_round = false;
         gs.turn += 1;
@@ -1099,14 +964,14 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_to_root(0);
         check_no_actions(1);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
         check_roll_dice(0);
         check_no_actions(1);
 
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 6 } } });
+        REQUIRE(g->execute_roll_dice(player(0), 6).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 6;
@@ -1144,7 +1009,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, build(Building::Settlement, 3));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(3)).type == ResType::Ok);
         settlements[3] = 0;
         settlements[9] = -1;
         settlements[10] = -1;
@@ -1159,7 +1024,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, build(Building::Road, 5));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(5)).type == ResType::Ok);
         roads[5] = 0;
         check_roads();
 
@@ -1174,14 +1039,14 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_to_root(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
         check_no_actions(0);
         check_build_settlement(1, 10);
 
-        exec_ok(1, build(Building::Settlement, 4));
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(4)).type == ResType::Ok);
         settlements[4] = 1;
         settlements[11] = -1;
         check_settlements();
@@ -1195,7 +1060,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_road(1, 2);
         check_no_actions(2);
 
-        exec_ok(1, build(Building::Road, 7));
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(7)).type == ResType::Ok);
         roads[7] = 1;
         check_roads();
 
@@ -1210,7 +1075,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_to_root(2);
 
-        exec_ok(2, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
 
         ps[2].vertex = Vertex::Root;
         check_state();
@@ -1218,7 +1083,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_build_settlement(2, 8);
 
-        exec_ok(2, build(Building::Settlement, 19));
+        REQUIRE(g->execute_build_settlement(player(2), g->junctions().at(19)).type == ResType::Ok);
         settlements[19] = 2;
         settlements[26] = -1;
         check_settlements();
@@ -1232,7 +1097,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_build_road(2, 2);
 
-        exec_ok(2, build(Building::Road, 13));
+        REQUIRE(g->execute_build_road(player(2), g->roads().at(13)).type == ResType::Ok);
         roads[13] = 2;
         check_roads();
 
@@ -1248,7 +1113,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_to_root(2);
 
-        exec_ok(2, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
 
         ps[2].vertex = Vertex::Root;
         check_state();
@@ -1256,7 +1121,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_build_settlement(2, 6);
 
-        exec_ok(2, build(Building::Settlement, 20));
+        REQUIRE(g->execute_build_settlement(player(2), g->junctions().at(20)).type == ResType::Ok);
         settlements[20] = 2;
         settlements[27] = -1;
         check_settlements();
@@ -1270,7 +1135,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_build_road(2, 4);
 
-        exec_ok(2, build(Building::Road, 15));
+        REQUIRE(g->execute_build_road(player(2), g->roads().at(15)).type == ResType::Ok);
         roads[15] = 2;
         check_roads();
 
@@ -1282,7 +1147,8 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_choose_initial_resources(2);
 
-        exec_ok(2, { Edge::ChooseInitialResources, { { ArgType::NodeId, 20 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(2), g->junctions().at(20)).type
+                == ResType::Ok);
 
         gs.turn += 1;
         ps[1].is_current_player = true;
@@ -1294,7 +1160,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_to_root(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
@@ -1302,7 +1168,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_settlement(1, 4);
         check_no_actions(2);
 
-        exec_ok(1, build(Building::Settlement, 21));
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(21)).type == ResType::Ok);
         settlements[21] = 1;
         check_settlements();
 
@@ -1315,7 +1181,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_road(1, 4);
         check_no_actions(2);
 
-        exec_ok(1, build(Building::Road, 17));
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(17)).type == ResType::Ok);
         roads[17] = 1;
         check_roads();
 
@@ -1327,7 +1193,8 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_choose_initial_resources(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 4 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(1), g->junctions().at(4)).type
+                == ResType::Ok);
 
         gs.turn += 1;
         ps[0].is_current_player = true;
@@ -1339,7 +1206,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
@@ -1347,7 +1214,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, build(Building::Settlement, 37));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(37)).type == ResType::Ok);
         settlements[37] = 0;
         settlements[33] = -1;
         settlements[34] = -1;
@@ -1362,7 +1229,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, build(Building::Road, 6));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(6)).type == ResType::Ok);
         roads[6] = 0;
         check_roads();
 
@@ -1374,7 +1241,8 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 37 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(0), g->junctions().at(37)).type
+                == ResType::Ok);
 
         gs.is_second_round = false;
         gs.turn += 1;
@@ -1385,7 +1253,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
@@ -1393,7 +1261,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 6 } } });
+        REQUIRE(g->execute_roll_dice(player(0), 6).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 6;
@@ -1433,7 +1301,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_settlement(0, 54);
         check_no_actions(1);
 
-        exec_ok(0, build(Building::Settlement, 4));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(4)).type == ResType::Ok);
         settlements[4] = 0;
         settlements[13] = -1;
         settlements[14] = -1;
@@ -1447,7 +1315,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_road(0, 2);
         check_no_actions(1);
 
-        exec_ok(0, build(Building::Road, 7));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(7)).type == ResType::Ok);
         roads[7] = 0;
         check_roads();
 
@@ -1461,14 +1329,14 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_to_root(1);
 
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
         check_no_actions(0);
         check_build_settlement(1, 51);
 
-        exec_ok(1, build(Building::Settlement, 5));
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(5)).type == ResType::Ok);
         settlements[5] = 1;
         settlements[15] = -1;
         check_settlements();
@@ -1481,7 +1349,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_build_road(1, 2);
 
-        exec_ok(1, build(Building::Road, 9));
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(9)).type == ResType::Ok);
         roads[9] = 1;
         check_roads();
 
@@ -1496,14 +1364,14 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_to_root(1);
 
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
         check_no_actions(0);
         check_build_settlement(1, 49);
 
-        exec_ok(1, build(Building::Settlement, 6));
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(6)).type == ResType::Ok);
         settlements[6] = 1;
         settlements[16] = -1;
         check_settlements();
@@ -1516,7 +1384,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_build_road(1, 5);
 
-        exec_ok(1, build(Building::Road, 10));
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(10)).type == ResType::Ok);
         roads[10] = 1;
         check_roads();
 
@@ -1527,7 +1395,8 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_choose_initial_resources(1);
 
-        exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 5 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(1), g->junctions().at(5)).type
+                == ResType::Ok);
 
         gs.turn += 1;
         ps[0].is_current_player = true;
@@ -1538,14 +1407,14 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_to_root(0);
         check_no_actions(1);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
         check_build_settlement(0, 47);
         check_no_actions(1);
 
-        exec_ok(0, build(Building::Settlement, 26));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(26)).type == ResType::Ok);
         settlements[26] = 0;
         settlements[38] = -1;
         settlements[39] = -1;
@@ -1559,7 +1428,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_road(0, 4);
         check_no_actions(1);
 
-        exec_ok(0, build(Building::Road, 18));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(18)).type == ResType::Ok);
         roads[18] = 0;
         check_roads();
 
@@ -1570,7 +1439,8 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_choose_initial_resources(0);
         check_no_actions(1);
 
-        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 26 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(0), g->junctions().at(26)).type
+                == ResType::Ok);
 
         gs.is_second_round = false;
         gs.turn += 1;
@@ -1581,14 +1451,14 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_to_root(0);
         check_no_actions(1);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
         check_roll_dice(0);
         check_no_actions(1);
 
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 6 } } });
+        REQUIRE(g->execute_roll_dice(player(0), 6).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 6;
@@ -1596,7 +1466,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_end_turn(0);
         check_no_actions(1);
 
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
         gs.turn += 1;
         gs.has_rolled = false;
@@ -1607,7 +1477,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_to_root(1);
 
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
@@ -1643,7 +1513,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, build(Building::Settlement, 4));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(4)).type == ResType::Ok);
         settlements[4] = 0;
         settlements[13] = -1;
         settlements[14] = -1;
@@ -1658,7 +1528,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, build(Building::Road, 7));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(7)).type == ResType::Ok);
         roads[7] = 0;
         check_roads();
 
@@ -1673,7 +1543,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_to_root(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
@@ -1681,7 +1551,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_settlement(1, 51);
         check_no_actions(2);
 
-        exec_ok(1, build(Building::Settlement, 5));
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(5)).type == ResType::Ok);
         settlements[5] = 1;
         settlements[15] = -1;
         check_settlements();
@@ -1695,7 +1565,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_road(1, 2);
         check_no_actions(2);
 
-        exec_ok(1, build(Building::Road, 9));
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(9)).type == ResType::Ok);
         roads[9] = 1;
         check_roads();
 
@@ -1710,7 +1580,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_to_root(2);
 
-        exec_ok(2, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
 
         ps[2].vertex = Vertex::Root;
         check_state();
@@ -1718,7 +1588,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_build_settlement(2, 49);
 
-        exec_ok(2, build(Building::Settlement, 90));
+        REQUIRE(g->execute_build_settlement(player(2), g->junctions().at(90)).type == ResType::Ok);
         settlements[90] = 2;
         settlements[71] = -1;
         settlements[105] = -1;
@@ -1734,7 +1604,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_build_road(2, 3);
 
-        exec_ok(2, build(Building::Road, 80));
+        REQUIRE(g->execute_build_road(player(2), g->roads().at(80)).type == ResType::Ok);
         roads[80] = 2;
         check_roads();
 
@@ -1750,7 +1620,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_to_root(2);
 
-        exec_ok(2, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
 
         ps[2].vertex = Vertex::Root;
         check_state();
@@ -1758,7 +1628,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_build_settlement(2, 45);
 
-        exec_ok(2, build(Building::Settlement, 91));
+        REQUIRE(g->execute_build_settlement(player(2), g->junctions().at(91)).type == ResType::Ok);
         settlements[91] = 2;
         settlements[72] = -1;
         settlements[107] = -1;
@@ -1773,7 +1643,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_build_road(2, 7);
 
-        exec_ok(2, build(Building::Road, 63));
+        REQUIRE(g->execute_build_road(player(2), g->roads().at(63)).type == ResType::Ok);
         roads[63] = 2;
         check_roads();
 
@@ -1785,7 +1655,8 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_choose_initial_resources(2);
 
-        exec_ok(2, { Edge::ChooseInitialResources, { { ArgType::NodeId, 91 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(2), g->junctions().at(91)).type
+                == ResType::Ok);
 
         gs.turn += 1;
         ps[1].is_current_player = true;
@@ -1798,7 +1669,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_to_root(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
@@ -1806,7 +1677,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_settlement(1, 42);
         check_no_actions(2);
 
-        exec_ok(1, build(Building::Settlement, 6));
+        REQUIRE(g->execute_build_settlement(player(1), g->junctions().at(6)).type == ResType::Ok);
         settlements[6] = 1;
         settlements[16] = -1;
         check_settlements();
@@ -1820,7 +1691,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_road(1, 5);
         check_no_actions(2);
 
-        exec_ok(1, build(Building::Road, 10));
+        REQUIRE(g->execute_build_road(player(1), g->roads().at(10)).type == ResType::Ok);
         roads[10] = 1;
         check_roads();
 
@@ -1832,7 +1703,8 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_choose_initial_resources(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::ChooseInitialResources, { { ArgType::NodeId, 6 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(1), g->junctions().at(6)).type
+                == ResType::Ok);
 
         gs.turn += 1;
         ps[0].is_current_player = true;
@@ -1844,7 +1716,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
@@ -1852,7 +1724,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, build(Building::Settlement, 26));
+        REQUIRE(g->execute_build_settlement(player(0), g->junctions().at(26)).type == ResType::Ok);
         settlements[26] = 0;
         settlements[38] = -1;
         settlements[39] = -1;
@@ -1867,7 +1739,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, build(Building::Road, 18));
+        REQUIRE(g->execute_build_road(player(0), g->roads().at(18)).type == ResType::Ok);
         roads[18] = 0;
         check_roads();
 
@@ -1879,7 +1751,8 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::ChooseInitialResources, { { ArgType::NodeId, 26 } } });
+        REQUIRE(g->execute_choose_initial_resources(player(0), g->junctions().at(26)).type
+                == ResType::Ok);
 
         gs.is_second_round = false;
         gs.turn += 1;
@@ -1891,7 +1764,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
@@ -1899,7 +1772,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 6 } } });
+        REQUIRE(g->execute_roll_dice(player(0), 6).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 6;
@@ -1929,7 +1802,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         do_first_two_rounds_standard_3p();
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
@@ -1937,7 +1810,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(1);
 
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+        REQUIRE(g->execute_roll_dice(player(0), 10).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 10;
@@ -1948,7 +1821,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
         gs.turn += 1;
         gs.has_rolled = false;
@@ -1960,7 +1833,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_to_root(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
@@ -1968,7 +1841,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_roll_dice(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 8 } } });
+        REQUIRE(g->execute_roll_dice(player(1), 8).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 8;
@@ -1978,7 +1851,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_end_turn(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
         gs.turn += 1;
         gs.has_rolled = false;
@@ -1990,7 +1863,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_to_root(2);
 
-        exec_ok(2, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
 
         ps[2].vertex = Vertex::Root;
         check_state();
@@ -1998,7 +1871,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_roll_dice(2);
 
-        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 5 } } });
+        REQUIRE(g->execute_roll_dice(player(2), 5).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 5;
@@ -2007,7 +1880,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_end_turn(2);
 
-        exec_ok(2, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_end_turn(player(2)).type == ResType::Ok);
 
         gs.turn += 1;
         gs.round += 1;
@@ -2020,7 +1893,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
 
         ps[0].vertex = Vertex::Root;
         check_state();
@@ -2028,7 +1901,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 9 } } });
+        REQUIRE(g->execute_roll_dice(player(0), 9).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 9;
@@ -2037,7 +1910,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
         gs.turn += 1;
         gs.has_rolled = false;
@@ -2049,7 +1922,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_to_root(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
 
         ps[1].vertex = Vertex::Root;
         check_state();
@@ -2057,7 +1930,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_roll_dice(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 4 } } });
+        REQUIRE(g->execute_roll_dice(player(1), 4).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 4;
@@ -2067,7 +1940,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_end_turn(1);
         check_no_actions(2);
 
-        exec_ok(1, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
         gs.turn += 1;
         gs.has_rolled = false;
@@ -2075,11 +1948,11 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[1].is_current_player = false;
         ps[2].is_current_player = true;
 
-        exec_ok(2, { Edge::ToRoot, {} });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
 
         ps[2].vertex = Vertex::Root;
 
-        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+        REQUIRE(g->execute_roll_dice(player(2), 10).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 10;
@@ -2103,7 +1976,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         do_first_two_rounds_standard_3p();
 
         /*
-        check_offer_trade(0, 1);
         exec_error(0,
                    trade({ 1 }, { { Resource::Brick, 2 } }, { { Resource::Sheep, 1 } }),
                    ResType::CannotAfford);
@@ -2125,7 +1997,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         // ...
 
-        check_offer_trade(1, 0);
         exec_error(1,
                    trade({ 0 }, { { Resource::Brick, 2 } }, { { Resource::Sheep, 1 } }),
                    ResType::CannotAfford);
@@ -2146,7 +2017,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         // ...
 
-        check_offer_trade(2, 0);
         exec_error(2,
                    trade({ 0 }, { { Resource::Brick, 1 } }, { { Resource::Sheep, 1 } }),
                    ResType::CannotAfford);
@@ -2168,16 +2038,16 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         // Resource::Wood, 4 } }, { { Resource::Sheep, 1 } }), ResType::CannotAfford);
         */
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(0), 10).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
-        exec_ok(1, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(1), 10).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
-        exec_ok(2, { Edge::ToRoot, {} });
-        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(2), 10).type == ResType::Ok);
 
         gs.dice_total = 10;
         gs.has_rolled = true;
@@ -2200,7 +2070,13 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
          * p2 has { sheep: 1, wood: 4, wheat: 4 }
          */
 
-        exec_ok(2, trade({ 0, 1 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
+        REQUIRE(g->execute_offer_trade(player(2),
+                                       { player(2),
+                                         { player(0), player(1) },
+                                         { { Resource::Wheat, 1 } },
+                                         { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
 
         gs.has_current_trade = true;
         gs.should_wait_for_trade = true;
@@ -2210,7 +2086,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].vertex = Vertex::WaitForTradeResponses;
         check_state();
 
-        exec_ok(2, { Edge::CancelTrade, {} });
+        REQUIRE(g->execute_cancel_trade(player(2)).type == ResType::Ok);
 
         gs.has_current_trade = false;
         gs.should_wait_for_trade = false;
@@ -2219,7 +2095,13 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].vertex = Vertex::Root;
         check_state();
 
-        exec_ok(2, trade({ 0, 1 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
+        REQUIRE(g->execute_offer_trade(player(2),
+                                       { player(2),
+                                         { player(0), player(1) },
+                                         { { Resource::Wheat, 1 } },
+                                         { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
 
         gs.has_current_trade = true;
         gs.should_wait_for_trade = true;
@@ -2228,18 +2110,18 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[1].can_accept_trade = true;
         ps[2].vertex = Vertex::WaitForTradeResponses;
 
-        exec_ok(0, { Edge::DeclineTrade, {} });
+        REQUIRE(g->execute_decline_trade(player(0)).type == ResType::Ok);
 
         ps[0].has_declined_trade = true;
         check_state();
 
-        exec_ok(1, { Edge::DeclineTrade, {} });
+        REQUIRE(g->execute_decline_trade(player(1)).type == ResType::Ok);
 
         gs.should_wait_for_trade = false;
         ps[1].has_declined_trade = true;
         check_state();
 
-        exec_ok(2, { Edge::FailTradeUnableToFindPartner, {} });
+        REQUIRE(g->execute_fail_trade_unable_to_find_partner(player(2)).type == ResType::Ok);
 
         gs.has_current_trade = false;
         ps[0].can_accept_trade = false;
@@ -2249,7 +2131,13 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].vertex = Vertex::Root;
         check_state();
 
-        exec_ok(2, trade({ 0, 1 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
+        REQUIRE(g->execute_offer_trade(player(2),
+                                       { player(2),
+                                         { player(0), player(1) },
+                                         { { Resource::Wheat, 1 } },
+                                         { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
 
         gs.has_current_trade = true;
         gs.should_wait_for_trade = true;
@@ -2258,7 +2146,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[1].can_accept_trade = true;
         ps[2].vertex = Vertex::WaitForTradeResponses;
 
-        exec_ok(0, { Edge::AcceptTrade, {} });
+        REQUIRE(g->execute_accept_trade(player(0)).type == ResType::Ok);
 
         gs.has_current_trade = false;
         gs.should_wait_for_trade = false;
@@ -2269,21 +2157,39 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].vertex = Vertex::Root;
         check_state();
 
-        exec_ok(2, trade({ 0, 1 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
-        exec_ok(1, { Edge::DeclineTrade, {} });
-        exec_ok(2, { Edge::FailTradeUnableToFindPartner, {} });
+        REQUIRE(g->execute_offer_trade(player(2),
+                                       { player(2),
+                                         { player(0), player(1) },
+                                         { { Resource::Wheat, 1 } },
+                                         { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
+        REQUIRE(g->execute_decline_trade(player(1)).type == ResType::Ok);
+        REQUIRE(g->execute_fail_trade_unable_to_find_partner(player(2)).type == ResType::Ok);
 
         gs.num_trades_offered_this_turn += 1;
         check_state();
 
-        exec_ok(2, trade({ 0, 1 }, { { Resource::Wheat, 1 } }, { { Resource::Wood, 1 } }));
-        exec_ok(2, { Edge::FailTradeUnableToFindPartner, {} });
+        REQUIRE(g->execute_offer_trade(player(2),
+                                       { player(2),
+                                         { player(0), player(1) },
+                                         { { Resource::Wheat, 1 } },
+                                         { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::Ok);
+        REQUIRE(g->execute_fail_trade_unable_to_find_partner(player(2)).type == ResType::Ok);
 
         gs.num_trades_offered_this_turn += 1;
         check_state();
 
-        exec_ok(2, trade({ 0 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
-        exec_ok(2, { Edge::FailTradeUnableToFindPartner, {} });
+        REQUIRE(g->execute_offer_trade(player(2),
+                                       { player(2),
+                                         { player(0) },
+                                         { { Resource::Wheat, 1 } },
+                                         { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
+        REQUIRE(g->execute_fail_trade_unable_to_find_partner(player(2)).type == ResType::Ok);
 
         gs.num_trades_offered_this_turn += 1;
         check_state();
@@ -2304,21 +2210,33 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         do_first_two_rounds_standard_3p();
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(0), 10).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
-        exec_ok(1, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(1), 10).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
-        exec_ok(2, { Edge::ToRoot, {} });
-        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(2), 10).type == ResType::Ok);
 
-        exec_ok(2, trade({ 0 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
-        exec_ok(0, { Edge::AcceptTrade, {} });
-        exec_ok(2, trade({ 1 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
-        exec_ok(1, { Edge::AcceptTrade, {} });
+        REQUIRE(g->execute_offer_trade(player(2),
+                                       { player(2),
+                                         { player(0) },
+                                         { { Resource::Wheat, 1 } },
+                                         { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
+        REQUIRE(g->execute_accept_trade(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_offer_trade(player(2),
+                                       { player(2),
+                                         { player(1) },
+                                         { { Resource::Wheat, 1 } },
+                                         { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
+        REQUIRE(g->execute_accept_trade(player(1)).type == ResType::Ok);
 
         gs.dice_total = 10;
         gs.has_rolled = true;
@@ -2344,7 +2262,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         check_build_road(2, 8);
 
-        exec_ok(2, build(Building::Road, 48));
+        REQUIRE(g->execute_build_road(player(2), g->roads().at(48)).type == ResType::Ok);
         roads[48] = 2;
         check_roads();
 
@@ -2355,9 +2273,8 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         check_build_road(2, 9);
 
-        exec_error(2, build(Building::Road, 32), ResType::InvalidNodeId);
-
-        exec_ok(2, build(Building::Road, 33));
+        REQUIRE(g->execute_build_road(player(2), g->roads().at(32)).type == ResType::InvalidNodeId);
+        REQUIRE(g->execute_build_road(player(2), g->roads().at(33)).type == ResType::Ok);
         roads[33] = 2;
         check_roads();
 
@@ -2382,19 +2299,25 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         do_first_two_rounds_standard_3p();
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(0), 10).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
-        exec_ok(1, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(1), 10).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
-        exec_ok(2, { Edge::ToRoot, {} });
-        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 10 } } });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(2), 10).type == ResType::Ok);
 
-        exec_ok(2, trade({ 0 }, { { Resource::Wheat, 1 } }, { { Resource::Brick, 1 } }));
-        exec_ok(0, { Edge::AcceptTrade, {} });
+        REQUIRE(g->execute_offer_trade(player(2),
+                                       { player(2),
+                                         { player(0) },
+                                         { { Resource::Wheat, 1 } },
+                                         { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
+        REQUIRE(g->execute_accept_trade(player(0)).type == ResType::Ok);
 
         gs.dice_total = 10;
         gs.has_rolled = true;
@@ -2420,7 +2343,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         check_build_settlement(2, 1);
 
-        exec_ok(2, build(Building::Settlement, 56));
+        REQUIRE(g->execute_build_settlement(player(2), g->junctions().at(56)).type == ResType::Ok);
         settlements[56] = 2;
         settlements[40] = -1;
         check_settlements();
@@ -2450,21 +2373,21 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         const size_t rounds = 25;
 
         for (size_t i = 0; i < rounds; ++i) {
-            exec_ok(0, { Edge::ToRoot, {} });
-            exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 4 } } });
-            exec_ok(0, { Edge::EndTurn, {} });
+            REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+            REQUIRE(g->execute_roll_dice(player(0), 4).type == ResType::Ok);
+            REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
-            exec_ok(1, { Edge::ToRoot, {} });
-            exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 8 } } });
-            exec_ok(1, { Edge::EndTurn, {} });
+            REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+            REQUIRE(g->execute_roll_dice(player(1), 8).type == ResType::Ok);
+            REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
-            exec_ok(2, { Edge::ToRoot, {} });
-            exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 8 } } });
-            exec_ok(2, { Edge::EndTurn, {} });
+            REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+            REQUIRE(g->execute_roll_dice(player(2), 8).type == ResType::Ok);
+            REQUIRE(g->execute_end_turn(player(2)).type == ResType::Ok);
         }
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 4 } } });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(0), 4).type == ResType::Ok);
 
         /*
          * p0 has { brick: 1, ore: 2 + rounds }
@@ -2472,12 +2395,15 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
          * p2 has { sheep: 1 + 2 * rounds, wheat: 1 + rounds, wood: 1 }
          */
 
-        exec_ok(
-            0,
-            trade({ 2 },
-                  { { Resource::Brick, 1 } },
-                  { { Resource::Sheep, 1 + 4 * rounds }, { Resource::Wheat, 1 + 2 * rounds } }));
-        exec_ok(2, { Edge::AcceptTrade, {} });
+        REQUIRE(g->execute_offer_trade(player(0),
+                                       { player(0),
+                                         { player(2) },
+                                         { { Resource::Brick, 1 } },
+                                         { { Resource::Sheep, 1 + 4 * rounds },
+                                           { Resource::Wheat, 1 + 2 * rounds } } })
+                    .type
+                == ResType::Ok);
+        REQUIRE(g->execute_accept_trade(player(2)).type == ResType::Ok);
 
         gs.dice_total = 4;
         gs.has_rolled = true;
@@ -2496,35 +2422,29 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_no_actions(2);
 
         for (size_t i = 0; i < rounds; ++i) {
-            exec_ok(
-                0,
-                { Edge::Build,
-                  { { ArgType::BuildItemId, static_cast<size_t>(Building::DevelopmentCard) } } });
+            REQUIRE(g->execute_build_development_card(player(0)).type == ResType::Ok);
         }
 
         // no more development cards
-        exec_error(0,
-                   { Edge::Build,
-                     { { ArgType::BuildItemId, static_cast<size_t>(Building::DevelopmentCard) } } },
-                   ResType::InvalidEdgeChoice);
+        REQUIRE(g->execute_build_development_card(player(0)).type == ResType::InvalidEdgeChoice);
 
         gs.development_cards_built += rounds;
         ps[0].num_resources -= rounds * 3;
         ps[0].num_unplayed_development_cards += rounds;
         check_state();
 
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
-        exec_ok(1, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(1), 12).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
-        exec_ok(2, { Edge::ToRoot, {} });
-        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
-        exec_ok(2, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(2), 12).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(2)).type == ResType::Ok);
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(0), 12).type == ResType::Ok);
 
         gs.dice_total = 12;
         gs.turn += 3;
@@ -2532,16 +2452,9 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         gs.num_trades_offered_this_turn = 0;
         check_state();
 
-        exec_error(0,
-                   { Edge::PlayDevelopmentCard,
-                     { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Knight) },
-                       { ArgType::NodeId, 143 } } },
-                   ResType::InvalidNodeId);
-
-        exec_ok(0,
-                { Edge::PlayDevelopmentCard,
-                  { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Knight) },
-                    { ArgType::NodeId, 141 } } });
+        REQUIRE(g->execute_play_knight(player(0), g->hexes().at(143)).type
+                == ResType::InvalidNodeId);
+        REQUIRE(g->execute_play_knight(player(0), g->hexes().at(141)).type == ResType::Ok);
 
         gs.robber_location = 141;
         ps[0].num_played_development_cards += 1;
@@ -2550,19 +2463,10 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[0].army_size += 1;
         check_state();
 
-        exec_ok(0, { Edge::ToRoot, {} });
-
-        exec_ok(0,
-                { Edge::PlayDevelopmentCard,
-                  { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Knight) },
-                    { ArgType::NodeId, 19 } } });
-
-        exec_ok(0, { Edge::ToRoot, {} });
-
-        exec_ok(0,
-                { Edge::PlayDevelopmentCard,
-                  { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Knight) },
-                    { ArgType::NodeId, 21 } } });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_play_knight(player(0), g->hexes().at(19)).type == ResType::Ok);
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_play_knight(player(0), g->hexes().at(21)).type == ResType::Ok);
 
         gs.robber_location = 21;
         gs.has_largest_army = 0;
@@ -2574,24 +2478,18 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[0].public_victory_points += 2;
         check_state();
 
-        exec_error(0, { Edge::Steal, { { ArgType::PlayerId, 0 } } }, ResType::InvalidPlayerId);
-        exec_error(0, { Edge::Steal, { { ArgType::PlayerId, 2 } } }, ResType::InvalidPlayerId);
-        exec_ok(0, { Edge::Steal, { { ArgType::PlayerId, 1 } } });
+        REQUIRE(g->execute_steal(player(0), player(0)).type == ResType::InvalidPlayerId);
+        REQUIRE(g->execute_steal(player(0), player(2)).type == ResType::InvalidPlayerId);
+        REQUIRE(g->execute_steal(player(0), player(1)).type == ResType::Ok);
 
         gs.can_steal = false;
         ps[0].num_resources += 1;
         ps[1].num_resources -= 1;
         check_state();
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0,
-                { Edge::PlayDevelopmentCard,
-                  { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Monopoly) },
-                    { ArgType::TakeResourceType, static_cast<size_t>(Resource::Ore) } } });
-        exec_ok(0,
-                { Edge::PlayDevelopmentCard,
-                  { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::Monopoly) },
-                    { ArgType::TakeResourceType, static_cast<size_t>(Resource::Wood) } } });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_play_monopoly(player(0), Resource::Ore).type == ResType::Ok);
+        REQUIRE(g->execute_play_monopoly(player(0), Resource::Wood).type == ResType::Ok);
 
         ps[0].vertex = State::Vertex::Root;
         ps[0].num_played_development_cards += 2;
@@ -2600,20 +2498,11 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].num_resources -= 1;
         check_state();
 
-        exec_error(
-            0,
-            { Edge::PlayDevelopmentCard,
-              { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::RoadBuilding) },
-                { ArgType::NodeId, 8 },
-                { ArgType::NodeId, 22 } } },
-            ResType::InvalidNodeId);
+        REQUIRE(g->execute_play_road_building(player(0), g->roads().at(8), g->roads().at(22)).type
+                == ResType::InvalidNodeId);
 
-        exec_ok(
-            0,
-            { Edge::PlayDevelopmentCard,
-              { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::RoadBuilding) },
-                { ArgType::NodeId, 8 },
-                { ArgType::NodeId, 20 } } });
+        REQUIRE(g->execute_play_road_building(player(0), g->roads().at(8), g->roads().at(20)).type
+                == ResType::Ok);
 
         roads[8] = 0;
         roads[20] = 0;
@@ -2626,10 +2515,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
 
         for (size_t i = 0; i < 5; ++i) {
-            exec_ok(0,
-                    { Edge::PlayDevelopmentCard,
-                      { { ArgType::DevelopmentCardId,
-                          static_cast<size_t>(DevelopmentCard::VictoryPoint) } } });
+            REQUIRE(g->execute_play_victory_point(player(0)).type == ResType::Ok);
         }
 
         ps[0].public_victory_points += 5;
@@ -2637,12 +2523,8 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[0].num_unplayed_development_cards -= 5;
         check_state();
 
-        exec_ok(
-            0,
-            { Edge::PlayDevelopmentCard,
-              { { ArgType::DevelopmentCardId, static_cast<size_t>(DevelopmentCard::YearOfPlenty) },
-                { ArgType::TakeResourceType, static_cast<size_t>(Resource::Wood) },
-                { ArgType::TakeResourceType, static_cast<size_t>(Resource::Wood) } } });
+        REQUIRE(g->execute_play_year_of_plenty(player(0), Resource::Wood, Resource::Wood).type
+                == ResType::Ok);
 
         ps[0].num_resources += 1;
         ps[0].num_played_development_cards += 1;
@@ -2670,17 +2552,17 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         for (const auto& roll : rolls) {
             for (size_t i = 0; i < rounds_per_roll; ++i) {
-                exec_ok(0, { Edge::ToRoot, {} });
-                exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
-                exec_ok(0, { Edge::EndTurn, {} });
+                REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+                REQUIRE(g->execute_roll_dice(player(0), roll).type == ResType::Ok);
+                REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
-                exec_ok(1, { Edge::ToRoot, {} });
-                exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
-                exec_ok(1, { Edge::EndTurn, {} });
+                REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+                REQUIRE(g->execute_roll_dice(player(1), roll).type == ResType::Ok);
+                REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
-                exec_ok(2, { Edge::ToRoot, {} });
-                exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
-                exec_ok(2, { Edge::EndTurn, {} });
+                REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+                REQUIRE(g->execute_roll_dice(player(2), roll).type == ResType::Ok);
+                REQUIRE(g->execute_end_turn(player(2)).type == ResType::Ok);
             }
         }
 
@@ -2701,206 +2583,387 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         // Even things up so that each player has at least ten of each resource type
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
-        exec_ok(0,
-                trade({ 1 },
-                      { { Resource::Brick, 10 }, { Resource::Ore, 20 } },
-                      { { Resource::Brick, 1 } }));
-        exec_ok(1, { Edge::AcceptTrade, {} });
-        exec_ok(
-            0,
-            trade({ 2 },
-                  { { Resource::Brick, 10 }, { Resource::Ore, 10 } },
-                  { { Resource::Sheep, 10 }, { Resource::Wheat, 10 }, { Resource::Wood, 10 } }));
-        exec_ok(2, { Edge::AcceptTrade, {} });
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(0), 12).type == ResType::Ok);
+        REQUIRE(g->execute_offer_trade(player(0),
+                                       { player(0),
+                                         { player(1) },
+                                         { { Resource::Brick, 10 }, { Resource::Ore, 20 } },
+                                         { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
+        REQUIRE(g->execute_accept_trade(player(1)).type == ResType::Ok);
+        REQUIRE(
+            g->execute_offer_trade(
+                 player(0),
+                 { player(0),
+                   { player(2) },
+                   { { Resource::Brick, 10 }, { Resource::Ore, 10 } },
+                   { { Resource::Sheep, 10 }, { Resource::Wheat, 10 }, { Resource::Wood, 10 } } })
+                .type
+            == ResType::Ok);
+        REQUIRE(g->execute_accept_trade(player(2)).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
-        exec_ok(
-            1,
-            trade({ 2 },
-                  { { Resource::Brick, 1 } },
-                  { { Resource::Sheep, 10 }, { Resource::Wheat, 10 }, { Resource::Wood, 10 } }));
-        exec_ok(2, { Edge::AcceptTrade, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(1), 12).type == ResType::Ok);
+        REQUIRE(
+            g->execute_offer_trade(
+                 player(1),
+                 { player(1),
+                   { player(2) },
+                   { { Resource::Brick, 1 } },
+                   { { Resource::Sheep, 10 }, { Resource::Wheat, 10 }, { Resource::Wood, 10 } } })
+                .type
+            == ResType::Ok);
+        REQUIRE(g->execute_accept_trade(player(2)).type == ResType::Ok);
 
         // p1 can trade { wheat @ 2::1, <everything else> @ 4::1 }
 
-        exec_error(1,
-                   trade_with_bank({ { Resource::Brick, 3 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(1,
-                   trade_with_bank({ { Resource::Brick, 5 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(1,
-                   trade_with_bank({ { Resource::Brick, 8 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(1, trade_with_bank({ { Resource::Brick, 4 } }, { { Resource::Wood, 1 } }));
-        exec_error(1,
-                   trade_with_bank({ { Resource::Ore, 3 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(1,
-                   trade_with_bank({ { Resource::Ore, 5 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(1,
-                   trade_with_bank({ { Resource::Ore, 8 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(1, trade_with_bank({ { Resource::Ore, 4 } }, { { Resource::Wood, 1 } }));
-        exec_error(1,
-                   trade_with_bank({ { Resource::Sheep, 3 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(1,
-                   trade_with_bank({ { Resource::Sheep, 5 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(1,
-                   trade_with_bank({ { Resource::Sheep, 8 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(1, trade_with_bank({ { Resource::Sheep, 4 } }, { { Resource::Wood, 1 } }));
-        exec_error(1,
-                   trade_with_bank({ { Resource::Wheat, 1 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(1,
-                   trade_with_bank({ { Resource::Wheat, 3 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(1,
-                   trade_with_bank({ { Resource::Wheat, 4 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(1, trade_with_bank({ { Resource::Wheat, 2 } }, { { Resource::Wood, 1 } }));
-        exec_error(1,
-                   trade_with_bank({ { Resource::Wood, 3 } }, { { Resource::Brick, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(1,
-                   trade_with_bank({ { Resource::Wood, 5 } }, { { Resource::Brick, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(1,
-                   trade_with_bank({ { Resource::Wood, 8 } }, { { Resource::Brick, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(1, trade_with_bank({ { Resource::Wood, 4 } }, { { Resource::Brick, 1 } }));
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Brick, 3 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Brick, 5 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Brick, 8 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Brick, 4 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::Ok);
 
-        exec_ok(1,
-                trade_with_bank({ { Resource::Brick, 4 }, { Resource::Ore, 4 } },
-                                { { Resource::Wood, 2 } }));
-        exec_ok(
-            1,
-            trade_with_bank({ { Resource::Wheat, 6 }, { Resource::Ore, 4 }, { Resource::Wood, 4 } },
-                            { { Resource::Sheep, 5 } }));
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(1), { player(1), {}, { { Resource::Ore, 3 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::InvalidTrade);
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(1), { player(1), {}, { { Resource::Ore, 5 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::InvalidTrade);
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(1), { player(1), {}, { { Resource::Ore, 8 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::StopFlexing);
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(1), { player(1), {}, { { Resource::Ore, 4 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::Ok);
 
-        exec_ok(1, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Sheep, 3 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Sheep, 5 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Sheep, 8 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Sheep, 4 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::Ok);
 
-        exec_ok(2, { Edge::ToRoot, {} });
-        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Wheat, 1 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Wheat, 3 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Wheat, 4 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Wheat, 2 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::Ok);
+
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Wood, 3 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Wood, 5 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Wood, 8 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1), {}, { { Resource::Wood, 4 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
+
+        REQUIRE(g->execute_trade_with_bank(player(1),
+                                           { player(1),
+                                             {},
+                                             { { Resource::Brick, 4 }, { Resource::Ore, 4 } },
+                                             { { Resource::Wood, 2 } } })
+                    .type
+                == ResType::Ok);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(1),
+                     { player(1),
+                       {},
+                       { { Resource::Wheat, 6 }, { Resource::Ore, 4 }, { Resource::Wood, 4 } },
+                       { { Resource::Sheep, 5 } } })
+                    .type
+                == ResType::Ok);
+
+        REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
+
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(2), 12).type == ResType::Ok);
 
         // p2 can trade { <everything> @ 4::1 }
 
-        exec_error(2,
-                   trade_with_bank({ { Resource::Brick, 3 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(2,
-                   trade_with_bank({ { Resource::Brick, 5 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(2,
-                   trade_with_bank({ { Resource::Brick, 8 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(2, trade_with_bank({ { Resource::Brick, 4 } }, { { Resource::Wood, 1 } }));
-        exec_error(2,
-                   trade_with_bank({ { Resource::Ore, 3 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(2,
-                   trade_with_bank({ { Resource::Ore, 5 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(2,
-                   trade_with_bank({ { Resource::Ore, 8 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(2, trade_with_bank({ { Resource::Ore, 4 } }, { { Resource::Wood, 1 } }));
-        exec_error(2,
-                   trade_with_bank({ { Resource::Sheep, 3 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(2,
-                   trade_with_bank({ { Resource::Sheep, 5 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(2,
-                   trade_with_bank({ { Resource::Sheep, 8 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(2, trade_with_bank({ { Resource::Sheep, 4 } }, { { Resource::Wood, 1 } }));
-        exec_error(2,
-                   trade_with_bank({ { Resource::Wheat, 3 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(2,
-                   trade_with_bank({ { Resource::Wheat, 5 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(2,
-                   trade_with_bank({ { Resource::Wheat, 8 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(2, trade_with_bank({ { Resource::Wheat, 4 } }, { { Resource::Wood, 1 } }));
-        exec_error(2,
-                   trade_with_bank({ { Resource::Wood, 3 } }, { { Resource::Brick, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(2,
-                   trade_with_bank({ { Resource::Wood, 5 } }, { { Resource::Brick, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(2,
-                   trade_with_bank({ { Resource::Wood, 8 } }, { { Resource::Brick, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(2, trade_with_bank({ { Resource::Wood, 4 } }, { { Resource::Brick, 1 } }));
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Brick, 3 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Brick, 5 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Brick, 8 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Brick, 4 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::Ok);
 
-        exec_ok(2, { Edge::EndTurn, {} });
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(2), { player(2), {}, { { Resource::Ore, 3 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::InvalidTrade);
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(2), { player(2), {}, { { Resource::Ore, 5 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::InvalidTrade);
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(2), { player(2), {}, { { Resource::Ore, 8 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::StopFlexing);
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(2), { player(2), {}, { { Resource::Ore, 4 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::Ok);
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Sheep, 3 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Sheep, 5 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Sheep, 8 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Sheep, 4 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::Ok);
+
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Wheat, 3 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Wheat, 5 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Wheat, 8 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Wheat, 4 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::Ok);
+
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Wood, 3 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Wood, 5 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Wood, 8 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(2),
+                     { player(2), {}, { { Resource::Wood, 4 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
+
+        REQUIRE(g->execute_end_turn(player(2)).type == ResType::Ok);
+
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(0), 12).type == ResType::Ok);
 
         // p3 can trade { <everything> @ 3::1 }
 
-        exec_error(0,
-                   trade_with_bank({ { Resource::Brick, 2 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(0,
-                   trade_with_bank({ { Resource::Brick, 4 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(0,
-                   trade_with_bank({ { Resource::Brick, 6 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(0, trade_with_bank({ { Resource::Brick, 3 } }, { { Resource::Wood, 1 } }));
-        exec_error(0,
-                   trade_with_bank({ { Resource::Ore, 2 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(0,
-                   trade_with_bank({ { Resource::Ore, 4 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(0,
-                   trade_with_bank({ { Resource::Ore, 6 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(0, trade_with_bank({ { Resource::Ore, 3 } }, { { Resource::Wood, 1 } }));
-        exec_error(0,
-                   trade_with_bank({ { Resource::Sheep, 2 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(0,
-                   trade_with_bank({ { Resource::Sheep, 4 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(0,
-                   trade_with_bank({ { Resource::Sheep, 6 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(0, trade_with_bank({ { Resource::Sheep, 3 } }, { { Resource::Wood, 1 } }));
-        exec_error(0,
-                   trade_with_bank({ { Resource::Wheat, 2 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(0,
-                   trade_with_bank({ { Resource::Wheat, 4 } }, { { Resource::Wood, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(0,
-                   trade_with_bank({ { Resource::Wheat, 6 } }, { { Resource::Wood, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(0, trade_with_bank({ { Resource::Wheat, 3 } }, { { Resource::Wood, 1 } }));
-        exec_error(0,
-                   trade_with_bank({ { Resource::Wood, 2 } }, { { Resource::Brick, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(0,
-                   trade_with_bank({ { Resource::Wood, 4 } }, { { Resource::Brick, 1 } }),
-                   ResType::InvalidTrade);
-        exec_error(0,
-                   trade_with_bank({ { Resource::Wood, 6 } }, { { Resource::Brick, 1 } }),
-                   ResType::StopFlexing);
-        exec_ok(0, trade_with_bank({ { Resource::Wood, 3 } }, { { Resource::Brick, 1 } }));
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Brick, 2 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Brick, 4 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Brick, 6 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Brick, 3 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::Ok);
+
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(0), { player(0), {}, { { Resource::Ore, 2 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::InvalidTrade);
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(0), { player(0), {}, { { Resource::Ore, 4 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::InvalidTrade);
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(0), { player(0), {}, { { Resource::Ore, 6 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::StopFlexing);
+        REQUIRE(
+            g->execute_trade_with_bank(
+                 player(0), { player(0), {}, { { Resource::Ore, 3 } }, { { Resource::Wood, 1 } } })
+                .type
+            == ResType::Ok);
+
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Sheep, 2 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Sheep, 4 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Sheep, 6 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Sheep, 3 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::Ok);
+
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Wheat, 2 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Wheat, 4 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Wheat, 6 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Wheat, 3 } }, { { Resource::Wood, 1 } } })
+                    .type
+                == ResType::Ok);
+
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Wood, 2 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Wood, 4 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::InvalidTrade);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Wood, 6 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Wood, 3 } }, { { Resource::Brick, 1 } } })
+                    .type
+                == ResType::Ok);
 
         // dump_actions();
 
@@ -2909,7 +2972,8 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players trading with bank")
     {
-        auto b = Board::from_file("static/boards/Standard.board");
+        auto b = Board::from_file("static/boards/"
+                                  "Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::initialize(&b, s, p);
@@ -2923,17 +2987,17 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         for (const auto& roll : rolls) {
             for (size_t i = 0; i < rounds_per_roll; ++i) {
-                exec_ok(0, { Edge::ToRoot, {} });
-                exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
-                exec_ok(0, { Edge::EndTurn, {} });
+                REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+                REQUIRE(g->execute_roll_dice(player(0), roll).type == ResType::Ok);
+                REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
-                exec_ok(1, { Edge::ToRoot, {} });
-                exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
-                exec_ok(1, { Edge::EndTurn, {} });
+                REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+                REQUIRE(g->execute_roll_dice(player(1), roll).type == ResType::Ok);
+                REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
-                exec_ok(2, { Edge::ToRoot, {} });
-                exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
-                exec_ok(2, { Edge::EndTurn, {} });
+                REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+                REQUIRE(g->execute_roll_dice(player(2), roll).type == ResType::Ok);
+                REQUIRE(g->execute_end_turn(player(2)).type == ResType::Ok);
             }
         }
 
@@ -2949,14 +3013,19 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         /*
          * p0 has { brick: 73, ore: 37 }
          * p1 has { brick: 1 }
-         * p2 has { sheep: 73, wood: 37, wheat: 73 }
+         * p2 has { sheep: 73, wood: 37,
+         * wheat: 73 }
          */
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 12 } } });
-        exec_ok(0, trade_with_bank({ { Resource::Brick, 6 } }, { { Resource::Wheat, 2 } }));
-        exec_ok(0, build(Building::City, 4));
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(0), 12).type == ResType::Ok);
+        REQUIRE(g->execute_trade_with_bank(
+                     player(0),
+                     { player(0), {}, { { Resource::Brick, 6 } }, { { Resource::Wheat, 2 } } })
+                    .type
+                == ResType::Ok);
+        REQUIRE(g->execute_build_city(player(0), g->junctions().at(4)).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
         gs.dice_total = 12;
         gs.turn += 1;
@@ -2968,8 +3037,8 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[1].is_current_player = true;
         check_state();
 
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 2 } } });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(1), 2).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.dice_total = 2;
@@ -2984,7 +3053,8 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players rolling sevens")
     {
-        auto b = Board::from_file("static/boards/Standard.board");
+        auto b = Board::from_file("static/boards/"
+                                  "Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::initialize(&b, s, p);
@@ -2994,19 +3064,25 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         do_first_two_rounds_standard_3p();
 
         /*
-         * p0 has { brick: 1, ore: 1 }
-         * p1 has { brick: 1 }
-         * p2 has { sheep: 1, wood: 1, wheat: 1 }
+         * p0 has { brick: 1, ore: 1
+         * } p1 has { brick: 1 } p2
+         * has { sheep: 1, wood: 1,
+         * wheat: 1 }
          */
 
-        // NB: Can only roll sevens on third round by explicitly ArgType::DiceRoll'ing
+        // NB: Can only roll sevens
+        // on third round by
+        // explicitly
+        // ArgType::DiceRoll'ing
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
-        exec_error(0, { Edge::MoveRobber, { { ArgType::NodeId, 143 } } }, ResType::InvalidNodeId);
-        exec_ok(0, { Edge::MoveRobber, { { ArgType::NodeId, 141 } } });
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(0), 7).type == ResType::Ok);
+
+        REQUIRE(g->execute_move_robber(player(0), g->hexes().at(143)).type
+                == ResType::InvalidNodeId);
+        REQUIRE(g->execute_move_robber(player(0), g->hexes().at(141)).type == ResType::Ok);
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
         gs.is_roll_seven = true;
         gs.robber_location = 141;
@@ -3016,11 +3092,11 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[1].is_current_player = true;
         check_state();
 
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
-        exec_ok(1, { Edge::MoveRobber, { { ArgType::NodeId, 21 } } });
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(1), 7).type == ResType::Ok);
+        REQUIRE(g->execute_move_robber(player(1), g->hexes().at(21)).type == ResType::Ok);
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
         gs.turn += 1;
         gs.robber_location = 21;
@@ -3028,12 +3104,12 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].is_current_player = true;
         check_state();
 
-        exec_ok(2, { Edge::ToRoot, {} });
-        exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
-        exec_ok(2, { Edge::MoveRobber, { { ArgType::NodeId, 19 } } });
-        exec_ok(2, { Edge::Steal, { { ArgType::PlayerId, 0 } } });
-        exec_ok(2, { Edge::ToRoot, {} });
-        exec_ok(2, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(2), 7).type == ResType::Ok);
+        REQUIRE(g->execute_move_robber(player(2), g->hexes().at(19)).type == ResType::Ok);
+        REQUIRE(g->execute_steal(player(2), player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(2)).type == ResType::Ok);
 
         gs.turn += 1;
         gs.round += 1;
@@ -3047,17 +3123,17 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         const std::vector<size_t> rolls = { 2, 4, 8, 10 };
 
         for (const auto& roll : rolls) {
-            exec_ok(0, { Edge::ToRoot, {} });
-            exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
-            exec_ok(0, { Edge::EndTurn, {} });
+            REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+            REQUIRE(g->execute_roll_dice(player(0), roll).type == ResType::Ok);
+            REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
-            exec_ok(1, { Edge::ToRoot, {} });
-            exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
-            exec_ok(1, { Edge::EndTurn, {} });
+            REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+            REQUIRE(g->execute_roll_dice(player(1), roll).type == ResType::Ok);
+            REQUIRE(g->execute_end_turn(player(1)).type == ResType::Ok);
 
-            exec_ok(2, { Edge::ToRoot, {} });
-            exec_ok(2, { Edge::RollDice, { { ArgType::DiceRoll, roll } } });
-            exec_ok(2, { Edge::EndTurn, {} });
+            REQUIRE(g->execute_to_root(player(2)).type == ResType::Ok);
+            REQUIRE(g->execute_roll_dice(player(2), roll).type == ResType::Ok);
+            REQUIRE(g->execute_end_turn(player(2)).type == ResType::Ok);
         }
 
         gs.is_roll_seven = false;
@@ -3071,13 +3147,16 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
 
         /*
-         * p0 has { brick: 7 or 8, ore: 2 or 3 }
-         * p1 has { brick: 1 }
-         * p2 has { brick: 0 or 1, ore: 0 or 1, sheep: 7, wood: 4, wheat: 7 }
+         * p0 has { brick: 7 or 8,
+         * ore: 2 or 3 } p1 has {
+         * brick: 1 } p2 has {
+         * brick: 0 or 1, ore: 0 or
+         * 1, sheep: 7, wood: 4,
+         * wheat: 7 }
          */
 
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(0), 7).type == ResType::Ok);
 
         gs.has_rolled = true;
         gs.is_roll_seven = true;
@@ -3088,43 +3167,45 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].num_to_discard = 9;
         check_state();
 
-        exec_error(0, discard({ { Resource::Brick, 6 } }), ResType::StopFlexing);
-        exec_error(
-            2, discard({ { Resource::Sheep, 5 }, { Resource::Wheat, 5 } }), ResType::StopFlexing);
-        exec_error(2, discard({ { Resource::Sheep, 9 } }), ResType::CannotAfford);
-
-        exec_ok(2, discard({ { Resource::Sheep, 5 } }));
+        REQUIRE(g->execute_discard(player(0), { { Resource::Brick, 6 } }).type
+                == ResType::StopFlexing);
+        REQUIRE(
+            g->execute_discard(player(2), { { Resource::Sheep, 5 }, { Resource::Wheat, 5 } }).type
+            == ResType::StopFlexing);
+        REQUIRE(g->execute_discard(player(2), { { Resource::Sheep, 9 } }).type
+                == ResType::CannotAfford);
+        REQUIRE(g->execute_discard(player(2), { { Resource::Sheep, 5 } }).type == ResType::Ok);
 
         ps[2].num_to_discard = 4;
         ps[2].num_resources -= 5;
         check_state();
 
-        exec_ok(0, discard({ { Resource::Brick, 4 } }));
+        REQUIRE(g->execute_discard(player(0), { { Resource::Brick, 4 } }).type == ResType::Ok);
 
         ps[0].num_to_discard = 1;
         ps[0].num_resources -= 4;
         check_state();
 
-        exec_ok(2, discard({ { Resource::Wheat, 4 } }));
+        REQUIRE(g->execute_discard(player(2), { { Resource::Wheat, 4 } }).type == ResType::Ok);
 
         ps[2].num_to_discard = 0;
         ps[2].num_resources = 10;
         check_state();
         check_no_actions(2);
 
-        exec_ok(0, discard({ { Resource::Brick, 1 } }));
+        REQUIRE(g->execute_discard(player(0), { { Resource::Brick, 1 } }).type == ResType::Ok);
 
         gs.should_wait_for_discard = false;
         ps[0].num_to_discard = 0;
         ps[0].num_resources = 5;
         check_state();
 
-        exec_ok(0, { Edge::MoveRobber, { { ArgType::NodeId, 141 } } });
-        exec_ok(0, { Edge::ToRoot, {} });
-        exec_ok(0, { Edge::EndTurn, {} });
+        REQUIRE(g->execute_move_robber(player(0), g->hexes().at(141)).type == ResType::Ok);
+        REQUIRE(g->execute_to_root(player(0)).type == ResType::Ok);
+        REQUIRE(g->execute_end_turn(player(0)).type == ResType::Ok);
 
-        exec_ok(1, { Edge::ToRoot, {} });
-        exec_ok(1, { Edge::RollDice, { { ArgType::DiceRoll, 7 } } });
+        REQUIRE(g->execute_to_root(player(1)).type == ResType::Ok);
+        REQUIRE(g->execute_roll_dice(player(1), 7).type == ResType::Ok);
 
         gs.should_wait_for_discard = true;
         gs.turn += 1;
@@ -3136,14 +3217,15 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].num_to_discard = 5;
         check_state();
 
-        exec_ok(2, discard({ { Resource::Wood, 4 } }));
+        REQUIRE(g->execute_discard(player(2), { { Resource::Wood, 4 } }).type == ResType::Ok);
 
         ps[2].num_to_discard = 1;
         ps[2].num_resources = 6;
         check_state();
 
-        exec_error(2, discard({ { Resource::Wheat, 2 } }), ResType::StopFlexing);
-        exec_ok(2, discard({ { Resource::Wheat, 1 } }));
+        REQUIRE(g->execute_discard(player(2), { { Resource::Wheat, 2 } }).type
+                == ResType::StopFlexing);
+        REQUIRE(g->execute_discard(player(2), { { Resource::Wheat, 1 } }).type == ResType::Ok);
 
         gs.should_wait_for_discard = false;
         ps[2].num_to_discard = 0;
@@ -3151,7 +3233,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
         check_no_actions(2);
 
-        exec_ok(1, { Edge::MoveRobber, { { ArgType::NodeId, 143 } } });
+        REQUIRE(g->execute_move_robber(player(1), g->hexes().at(143)).type == ResType::Ok);
 
         dump_actions();
 

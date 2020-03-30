@@ -41,7 +41,7 @@ std::vector<Action> Player::get_actions_at_after_building_free_settlement() cons
 
     for (const auto road : reachable_roads) {
         available_actions.push_back(
-            { State::Edge::Build,
+            { State::Edge::BuildRoad,
               { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Road) },
                 { ActionArgumentType::NodeId, road->index() } } });
     }
@@ -101,9 +101,6 @@ std::vector<Action> Player::get_actions_at_after_moving_robber() const
 
 std::vector<Action> Player::get_actions_at_after_rolling_seven() const
 {
-    if (!m_game->is_roll_seven()) {
-        return { { State::Edge::CollectResources, {} } };
-    }
     if (num_to_discard() > 0) {
         return { { State::Edge::Discard,
                    { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
@@ -139,7 +136,7 @@ std::vector<Action> Player::get_actions_at_root() const
             const auto junction = it.second;
             if (junction->is_settleable()) {
                 available_actions.push_back(
-                    { State::Edge::Build,
+                    { State::Edge::BuildSettlement,
                       { { ActionArgumentType::BuildItemId,
                           static_cast<size_t>(Building::Settlement) },
                         { ActionArgumentType::NodeId, junction->index() } } });
@@ -152,7 +149,7 @@ std::vector<Action> Player::get_actions_at_root() const
             const auto junction = it.second;
             if (junction->is_settleable()) {
                 available_actions.push_back(
-                    { State::Edge::Build,
+                    { State::Edge::BuildSettlement,
                       { { ActionArgumentType::BuildItemId,
                           static_cast<size_t>(Building::Settlement) },
                         { ActionArgumentType::NodeId, junction->index() } } });
@@ -172,7 +169,7 @@ std::vector<Action> Player::get_actions_at_root() const
         const bool can_build_settlement = can_build(Building::Settlement);
 
         if (can_build_development_card) {
-            available_actions.push_back({ State::Edge::Build,
+            available_actions.push_back({ State::Edge::BuildDevelopmentCard,
                                           { { ActionArgumentType::BuildItemId,
                                               static_cast<size_t>(Building::DevelopmentCard) } } });
         }
@@ -198,7 +195,7 @@ std::vector<Action> Player::get_actions_at_root() const
             if (can_build_city) {
                 if (junction->owner() == this) {
                     available_actions.push_back(
-                        { State::Edge::Build,
+                        { State::Edge::BuildCity,
                           { { ActionArgumentType::BuildItemId,
                               static_cast<size_t>(Building::City) },
                             { ActionArgumentType::NodeId, junction->index() } } });
@@ -212,7 +209,7 @@ std::vector<Action> Player::get_actions_at_root() const
                 if (can_build_settlement && junction->is_settleable()) {
                     if (road->owner() == this) {
                         available_actions.push_back(
-                            { State::Edge::Build,
+                            { State::Edge::BuildSettlement,
                               { { ActionArgumentType::BuildItemId,
                                   static_cast<size_t>(Building::Settlement) },
                                 { ActionArgumentType::NodeId, junction->index() } } });
@@ -224,7 +221,7 @@ std::vector<Action> Player::get_actions_at_root() const
         if (can_build_road) {
             for (const auto road : reachable_roads) {
                 available_actions.push_back(
-                    { State::Edge::Build,
+                    { State::Edge::BuildRoad,
                       { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Road) },
                         { ActionArgumentType::NodeId, road->index() } } });
             }
@@ -242,7 +239,7 @@ std::vector<Action> Player::get_actions_at_root() const
                     const auto hex = it.second;
                     if (hex->index() != m_game->robber_location()->index()) {
                         available_actions.push_back(
-                            { State::Edge::PlayDevelopmentCard,
+                            { State::Edge::PlayKnight,
                               { { ActionArgumentType::DevelopmentCardId,
                                   static_cast<size_t>(development_card) },
                                 { ActionArgumentType::NodeId, hex->index() } } });
@@ -254,16 +251,24 @@ std::vector<Action> Player::get_actions_at_root() const
                 //     "execute" it with (up to) TWO ROADS in the action.
                 for (const auto road : reachable_roads) {
                     available_actions.push_back(
-                        { State::Edge::PlayDevelopmentCard,
+                        { State::Edge::PlayRoadBuilding,
                           { { ActionArgumentType::DevelopmentCardId,
                               static_cast<size_t>(development_card) },
                             { ActionArgumentType::NodeId, road->index() } } });
                 }
                 break;
             case DevelopmentCard::Monopoly:
+                available_actions.push_back({ State::Edge::PlayMonopoly,
+                                              { { ActionArgumentType::DevelopmentCardId,
+                                                  static_cast<size_t>(development_card) } } });
+                break;
             case DevelopmentCard::VictoryPoint:
+                available_actions.push_back({ State::Edge::PlayVictoryPoint,
+                                              { { ActionArgumentType::DevelopmentCardId,
+                                                  static_cast<size_t>(development_card) } } });
+                break;
             case DevelopmentCard::YearOfPlenty:
-                available_actions.push_back({ State::Edge::PlayDevelopmentCard,
+                available_actions.push_back({ State::Edge::PlayYearOfPlenty,
                                               { { ActionArgumentType::DevelopmentCardId,
                                                   static_cast<size_t>(development_card) } } });
                 break;

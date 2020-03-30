@@ -242,11 +242,11 @@ Game* initialize(const Board::Graph* graph,
     return new Game(graph, hexes, junctions, roads, deck, scenario, parameters, robber_index);
 }
 
-static bool player_can_execute_edge(const Player* player, const Action& requested_action)
+static bool player_can_execute_edge(const Player* player, const State::Edge& requested_edge)
 {
     const auto valid_actions = player->get_available_actions();
     for (const auto& valid_action : valid_actions) {
-        if (valid_action.edge == requested_action.edge) {
+        if (valid_action.edge == requested_edge) {
             return true;
         }
     }
@@ -279,144 +279,12 @@ static bool is_road_reachable_for(const BoardView::Road* road, const Player* pla
     return false;
 }
 
-static BoardView::Road* parse_road(const Game* game, const ActionArgument& arg)
+Result Game::execute_accept_trade(Player* player)
 {
-    if (arg.type != ActionArgumentType::NodeId) {
-        return nullptr;
-    }
-    const auto node = game->graph()->node(arg.value);
-    if (node == nullptr) {
-        return nullptr;
-    }
-    const auto road_it = game->roads().find(node->index());
-    if (road_it == game->roads().end()) {
-        return nullptr;
-    }
-    return road_it->second;
-}
-
-static BoardView::Junction* parse_junction(const Game* game, const ActionArgument& arg)
-{
-    if (arg.type != ActionArgumentType::NodeId) {
-        return nullptr;
-    }
-    const auto node = game->graph()->node(arg.value);
-    if (node == nullptr) {
-        return nullptr;
-    }
-    const auto junction_it = game->junctions().find(node->index());
-    if (junction_it == game->junctions().end()) {
-        return nullptr;
-    }
-    return junction_it->second;
-}
-
-static Player* parse_player(const Game* game, const ActionArgument& arg)
-{
-    if (arg.type != ActionArgumentType::PlayerId) {
-        return nullptr;
-    }
-    if (arg.value >= game->players().size()) {
-        return nullptr;
-    }
-    return game->players().at(arg.value);
-}
-
-static std::optional<Resource> parse_resource(const Game* /* unused */, const ActionArgument& arg)
-{
-    if (arg.type != ActionArgumentType::GiveResourceType
-        && arg.type != ActionArgumentType::TakeResourceType) {
-        return {};
-    }
-    switch (static_cast<Resource>(arg.value)) { // yuck ...
-    case Resource::Brick:
-        return Resource::Brick;
-    case Resource::Ore:
-        return Resource::Ore;
-    case Resource::Sheep:
-        return Resource::Sheep;
-    case Resource::Wheat:
-        return Resource::Wheat;
-    case Resource::Wood:
-        return Resource::Wood;
-    default:
-        return {};
-    }
-}
-
-static std::optional<Trade>
-parse_trade(const Game* game, Player* offerer, const std::vector<ActionArgument>& args)
-{
-    std::vector<Player*> offered_to;
-    ResourceCounts give_resources{};
-    ResourceCounts take_resources{};
-
-    std::optional<Resource> resource;
-    Player* parsed_player;
-
-    for (const auto& arg : args) {
-        switch (arg.type) {
-        case ActionArgumentType::PlayerId:
-            parsed_player = parse_player(game, arg);
-            if (parsed_player == nullptr) {
-                return std::nullopt;
-            }
-            if (parsed_player == offerer) {
-                return std::nullopt;
-            }
-            offered_to.push_back(parsed_player);
-            break;
-        case ActionArgumentType::GiveResourceType:
-            resource = parse_resource(game, arg);
-            if (!resource) {
-                return std::nullopt;
-            }
-            if (give_resources.find(*resource) == give_resources.end()) {
-                give_resources[*resource] = 0;
-            }
-            give_resources[*resource] += 1;
-            break;
-        case ActionArgumentType::TakeResourceType:
-            resource = parse_resource(game, arg);
-            if (!resource) {
-                return std::nullopt;
-            }
-            if (take_resources.find(*resource) == take_resources.end()) {
-                take_resources[*resource] = 0;
-            }
-            take_resources[*resource] += 1;
-            break;
-        default:
-            return std::nullopt;
-        }
+    if (!player_can_execute_edge(player, State::Edge::AcceptTrade)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    return Trade{ offerer, offered_to, give_resources, take_resources };
-}
-
-static BoardView::Hex* parse_hex(const Game* game, const ActionArgument& arg)
-{
-    if (arg.type != ActionArgumentType::NodeId) {
-        return nullptr;
-    }
-    const auto node = game->graph()->node(arg.value);
-    if (node == nullptr) {
-        return nullptr;
-    }
-    const auto hex_it = game->hexes().find(node->index());
-    if (hex_it == game->hexes().end()) {
-        return nullptr;
-    }
-    return hex_it->second;
-}
-
-Result Game::execute_accept_trade(Player* player, const Action& /* unused */)
-{
-    return _x_accept_trade(player);
-}
-
-Result Game::_x_accept_trade(Player* player)
-{
     auto offerer = m_players.at(current_trade()->offerer->index());
 
     // std::cout << "before:" << std::endl;
@@ -438,17 +306,12 @@ Result Game::_x_accept_trade(Player* player)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_build_city(Player* player, const ActionArgument& arg)
+Result Game::execute_build_city(Player* player, BoardView::Junction* junction)
 {
-    const auto junction = parse_junction(this, arg);
-    if (junction == nullptr) {
-        return { ResultType::InvalidNodeId, {} };
+    if (!player_can_execute_edge(player, State::Edge::BuildCity)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    return _x_build_city(player, junction);
-}
 
-Result Game::_x_build_city(Player* player, BoardView::Junction* junction)
-{
     if (junction->owner() != player) {
         return { ResultType::InvalidNodeId, {} };
     }
@@ -465,11 +328,10 @@ Result Game::_x_build_city(Player* player, BoardView::Junction* junction)
 
 Result Game::execute_build_development_card(Player* player)
 {
-    return _x_build_development_card(player);
-}
+    if (!player_can_execute_edge(player, State::Edge::BuildDevelopmentCard)) {
+        return { ResultType::InvalidEdgeChoice, {} };
+    }
 
-Result Game::_x_build_development_card(Player* player)
-{
     if (!player->can_afford(Building::DevelopmentCard)) {
         return { ResultType::CannotAfford, {} };
     }
@@ -486,18 +348,12 @@ Result Game::_x_build_development_card(Player* player)
              { { ActionArgumentType::DevelopmentCardId, static_cast<size_t>(development_card) } } };
 }
 
-Result Game::execute_build_road(Player* player, const ActionArgument& arg)
+Result Game::execute_build_road(Player* player, BoardView::Road* road)
 {
-    const auto road = parse_road(this, arg);
-    if (road == nullptr) {
-        return { ResultType::InvalidNodeId, {} };
+    if (!player_can_execute_edge(player, State::Edge::BuildRoad)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    return _x_build_road(player, road);
-}
-
-Result Game::_x_build_road(Player* player, BoardView::Road* road)
-{
     if (!is_road_reachable_for(road, player)) {
         return { ResultType::InvalidNodeId, {} };
     }
@@ -524,17 +380,12 @@ Result Game::_x_build_road(Player* player, BoardView::Road* road)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_build_settlement(Player* player, const ActionArgument& arg)
+Result Game::execute_build_settlement(Player* player, BoardView::Junction* junction)
 {
-    const auto junction = parse_junction(this, arg);
-    if (junction == nullptr) {
-        return { ResultType::InvalidNodeId, {} };
+    if (!player_can_execute_edge(player, State::Edge::BuildSettlement)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    return _x_build_settlement(player, junction);
-}
 
-Result Game::_x_build_settlement(Player* player, BoardView::Junction* junction)
-{
     if (!junction->is_settleable()) {
         return { ResultType::JunctionNotSettleable, {} };
     }
@@ -558,75 +409,23 @@ Result Game::_x_build_settlement(Player* player, BoardView::Junction* junction)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_build(Player* player, const Action& action)
+Result Game::execute_cancel_trade(Player* player)
 {
-    return _x_build(player, action); // FIXME
-}
-
-Result Game::_x_build(Player* player, const Action& action)
-{
-    if (action.args.empty()) {
-        return { ResultType::InvalidNumberOfArgs, {} };
+    if (!player_can_execute_edge(player, State::Edge::CancelTrade)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    if (action.args.at(0).type != ActionArgumentType::BuildItemId) {
-        return { ResultType::InvalidArgumentType, {} };
-    }
-    const auto build_item = static_cast<Building>(action.args.at(0).value);
-    switch (build_item) {
-    case Building::City:
-        if (action.args.size() != 2) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        return execute_build_city(player, action.args.at(1));
-    case Building::DevelopmentCard:
-        if (action.args.size() != 1) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        return execute_build_development_card(player);
-    case Building::Road:
-        if (action.args.size() != 2) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        return execute_build_road(player, action.args.at(1));
-    case Building::Settlement:
-        if (action.args.size() != 2) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        return execute_build_settlement(player, action.args.at(1));
-    default:
-        return { ResultType::BuildingIdOutOfRange, {} };
-    }
-}
 
-Result Game::execute_cancel_trade(Player* player, const Action& /* unused */)
-{
-    return _x_cancel_trade(player);
-}
-
-Result Game::_x_cancel_trade(Player* player)
-{
     set_current_trade({});
     player->set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_choose_initial_resources(Player* player, const Action& action)
+Result Game::execute_choose_initial_resources(Player* player, const BoardView::Junction* junction)
 {
-    if (action.args.size() != 1) {
-        return { ResultType::InvalidNumberOfArgs, {} };
+    if (!player_can_execute_edge(player, State::Edge::ChooseInitialResources)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    if (action.args.at(0).type != ActionArgumentType::NodeId) {
-        return { ResultType::InvalidArgumentType, {} };
-    }
-    const auto junction = parse_junction(this, action.args.at(0));
-    if (junction == nullptr) {
-        return { ResultType::InvalidNodeId, {} };
-    }
-    return _x_choose_initial_resources(player, junction);
-}
 
-Result Game::_x_choose_initial_resources(Player* player, const BoardView::Junction* junction)
-{
     for (const auto& settlement : player->settlements()) {
         if (settlement == junction) {
             for (const auto& hex_it : settlement->hex_neighbors()) {
@@ -643,45 +442,32 @@ Result Game::_x_choose_initial_resources(Player* player, const BoardView::Juncti
     return { ResultType::InvalidNodeId, {} };
 }
 
-Result Game::execute_collect_resources(Player*, const Action&)
+Result Game::execute_decline_trade(Player* player)
 {
-    assert(false); // FIXME: Delete this!
-}
+    if (!player_can_execute_edge(player, State::Edge::DeclineTrade)) {
+        return { ResultType::InvalidEdgeChoice, {} };
+    }
 
-Result Game::execute_decline_trade(Player* player, const Action& /* unused */)
-{
-    return _x_decline_trade(player);
-}
-
-Result Game::_x_decline_trade(Player* player)
-{
     player->set_has_declined_trade(true);
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_discard(Player* player, const Action& action)
+Result Game::execute_discard(Player* player, const ResourceCounts& resources)
 {
-    const auto trade = parse_trade(this, player, action.args);
-    if (!trade.has_value()) {
-        return { ResultType::InvalidTrade, {} };
+    if (!player_can_execute_edge(player, State::Edge::Discard)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    return _x_discard(player, *trade);
-}
 
-Result Game::_x_discard(Player* player, const Trade trade)
-{
-    // Ignore trade->offered_to
-    if (trade.from_offerer.empty()) {
+    if (resources.empty()) {
         return { ResultType::InvalidTrade, {} };
     }
-    // Ignore trade->to_offerer
-    if (!player->can_afford(trade.from_offerer)) {
+    if (!player->can_afford(resources)) {
         return { ResultType::CannotAfford, {} };
     }
 
     size_t num_to_discard = player->num_to_discard();
     size_t num_offered = 0;
-    for (const auto& it : trade.from_offerer) {
+    for (const auto& it : resources) {
         const auto& count = it.second;
         num_offered += count;
     }
@@ -690,50 +476,39 @@ Result Game::_x_discard(Player* player, const Trade trade)
         return { ResultType::StopFlexing, {} };
     }
 
-    player->spend_resources(trade.from_offerer);
+    player->spend_resources(resources);
     player->set_num_to_discard(num_to_discard - num_offered);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_end_turn(Player* player, const Action& /* unused */)
+Result Game::execute_end_turn(Player* player)
 {
-    return _x_end_turn(player);
-}
+    if (!player_can_execute_edge(player, State::Edge::EndTurn)) {
+        return { ResultType::InvalidEdgeChoice, {} };
+    }
 
-Result Game::_x_end_turn(Player* player)
-{
     player->set_vertex(State::Vertex::WaitForTurn);
     increment_turn();
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_fail_trade_unable_to_find_partner(Player* player, const Action& /* unused */)
+Result Game::execute_fail_trade_unable_to_find_partner(Player* player)
 {
-    return _x_fail_trade_unable_to_find_partner(player);
-}
+    if (!player_can_execute_edge(player, State::Edge::FailTradeUnableToFindPartner)) {
+        return { ResultType::InvalidEdgeChoice, {} };
+    }
 
-Result Game::_x_fail_trade_unable_to_find_partner(Player* player)
-{
     set_current_trade({});
     player->set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_move_robber(Player* player, const Action& action)
+Result Game::execute_move_robber(Player* player, const BoardView::Hex* hex)
 {
-    if (action.args.empty()) {
-        return { ResultType::InvalidNumberOfArgs, {} };
+    if (!player_can_execute_edge(player, State::Edge::MoveRobber)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    const auto hex = parse_hex(this, action.args.at(0));
-    if (hex == nullptr) {
-        return { ResultType::InvalidNodeId, {} };
-    }
-    return _x_move_robber(player, hex);
-}
-
-Result Game::_x_move_robber(Player* player, const BoardView::Hex* hex)
-{
 
     if (hex->index() == robber_location()->index()) {
         return { ResultType::InvalidNodeId, {} };
@@ -745,17 +520,12 @@ Result Game::_x_move_robber(Player* player, const BoardView::Hex* hex)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_offer_trade(Player* player, const Action& action)
+Result Game::execute_offer_trade(Player* player, const Trade trade)
 {
-    const auto trade = parse_trade(this, player, action.args);
-    if (!trade.has_value()) {
-        return { ResultType::InvalidTrade, {} };
+    if (!player_can_execute_edge(player, State::Edge::OfferTrade)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    return _x_offer_trade(player, *trade);
-}
 
-Result Game::_x_offer_trade(Player* player, const Trade trade)
-{
     if (trade.offered_to.empty()) {
         return { ResultType::InvalidTrade, {} };
     }
@@ -793,17 +563,12 @@ void Game::move_robber(const Player* player, const BoardView::Hex* hex)
     }
 }
 
-Result Game::execute_play_knight(Player* player, const ActionArgument& arg)
+Result Game::execute_play_knight(Player* player, const BoardView::Hex* hex)
 {
-    const auto hex = parse_hex(this, arg);
-    if (hex == nullptr) {
-        return { ResultType::InvalidNodeId, {} };
+    if (!player_can_execute_edge(player, State::Edge::PlayKnight)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    return _x_play_knight(player, hex);
-}
 
-Result Game::_x_play_knight(Player* player, const BoardView::Hex* hex)
-{
     if (hex->index() == robber_location()->index()) {
         return { ResultType::InvalidNodeId, {} };
     }
@@ -816,17 +581,12 @@ Result Game::_x_play_knight(Player* player, const BoardView::Hex* hex)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_monopoly(Player* player, const ActionArgument& arg)
+Result Game::execute_play_monopoly(Player* player, const Resource& resource)
 {
-    const auto resource = parse_resource(this, arg);
-    if (!resource.has_value()) {
-        return { ResultType::InvalidResourceType, {} };
+    if (!player_can_execute_edge(player, State::Edge::PlayMonopoly)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    return _x_play_monopoly(player, *resource);
-}
 
-Result Game::_x_play_monopoly(Player* player, const Resource& resource)
-{
     for (auto& other_player : m_players) {
         if (other_player == player) {
             continue;
@@ -842,14 +602,11 @@ Result Game::_x_play_monopoly(Player* player, const Resource& resource)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_road_building(Player* player, // FIXME
-                                        const ActionArgument& arg_0,
-                                        const ActionArgument& arg_1)
+Result
+Game::execute_play_road_building(Player* player, BoardView::Road* road_0, BoardView::Road* road_1)
 {
-    const auto road_0 = parse_road(this, arg_0);
-    const auto road_1 = parse_road(this, arg_1);
-    if (road_0 == nullptr || road_1 == nullptr) {
-        return { ResultType::InvalidNodeId, {} };
+    if (!player_can_execute_edge(player, State::Edge::PlayRoadBuilding)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
 
     if (!is_road_reachable_for(road_0, player)) {
@@ -891,92 +648,39 @@ Result Game::execute_play_road_building(Player* player, // FIXME
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_victory_point(Player* player) // FIXME
+Result Game::execute_play_victory_point(Player* player)
 {
+    if (!player_can_execute_edge(player, State::Edge::PlayVictoryPoint)) {
+        return { ResultType::InvalidEdgeChoice, {} };
+    }
+
     player->play_victory_point();
     player->set_vertex(State::Vertex::Root);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_year_of_plenty(Player* player, // FIXME
-                                         const ActionArgument& arg_0,
-                                         const ActionArgument& arg_1)
+Result Game::execute_play_year_of_plenty(Player* player,
+                                         const Resource& resource_0,
+                                         const Resource& resource_1)
 {
-    const auto resource_0 = parse_resource(this, arg_0);
-    const auto resource_1 = parse_resource(this, arg_1);
-    if (!resource_0.has_value() || !resource_1.has_value()) {
-        return { ResultType::InvalidResourceType, {} };
+    if (!player_can_execute_edge(player, State::Edge::PlayYearOfPlenty)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    player->accrue_resources({ { *resource_0, 1 }, { *resource_1, 1 } });
-    player->play_year_of_plenty(*resource_0, *resource_1);
+    player->accrue_resources({ { resource_0, 1 }, { resource_1, 1 } });
+    player->play_year_of_plenty(resource_0, resource_1);
     player->set_vertex(State::Vertex::Root);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_development_card(Player* player, const Action& action) // FIXME
+Result Game::execute_roll_dice(Player* player)
 {
-    if (action.args.empty()) {
-        return { ResultType::InvalidNumberOfArgs, {} };
-    }
-    if (action.args.at(0).type != ActionArgumentType::DevelopmentCardId) {
-        return { ResultType::InvalidArgumentType, {} };
-    }
-    const auto development_card = static_cast<DevelopmentCard>(action.args.at(0).value);
-    switch (development_card) {
-    case DevelopmentCard::Knight:
-        if (action.args.size() != 2) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        return execute_play_knight(player, action.args.at(1));
-    case DevelopmentCard::Monopoly:
-        if (action.args.size() != 2) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        return execute_play_monopoly(player, action.args.at(1));
-    case DevelopmentCard::RoadBuilding:
-        if (action.args.size() != 3) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        return execute_play_road_building(player, action.args.at(1), action.args.at(2));
-    case DevelopmentCard::VictoryPoint:
-        if (action.args.size() != 1) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        return execute_play_victory_point(player);
-    case DevelopmentCard::YearOfPlenty:
-        if (action.args.size() != 3) {
-            return { ResultType::InvalidNumberOfArgs, {} };
-        }
-        return execute_play_year_of_plenty(player, action.args.at(1), action.args.at(2));
-    default:
-        return { ResultType::DevelopmentCardIdOutOfRange, {} };
-    }
-}
-
-Result Game::execute_roll_dice(Player* player, const Action& action)
-{
-    if (action.args.empty()) {
-        return _x_roll_dice(player);
-#ifdef k10_ENABLE_ROLL_DICE_EXACT
-    } else if (action.args.size() == 1) {
-        if (action.args.at(0).type != ActionArgumentType::DiceRoll) {
-            return { ResultType::InvalidArgumentType, {} };
-        }
-        const auto roll = action.args.at(0).value;
-        return _x_roll_dice(player, roll);
-#endif
-    } else {
-        return { ResultType::InvalidNumberOfArgs, {} };
+    if (!player_can_execute_edge(player, State::Edge::RollDice)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    return _x_roll_dice(player);
-}
-
-Result Game::_x_roll_dice(Player* player)
-{
     m_dice.roll();
     while (is_first_round() && is_roll_seven()) {
         m_dice.roll();
@@ -985,8 +689,12 @@ Result Game::_x_roll_dice(Player* player)
 }
 
 #ifdef k10_ENABLE_ROLL_DICE_EXACT
-Result Game::_x_roll_dice(Player* player, size_t roll)
+Result Game::execute_roll_dice(Player* player, size_t roll)
 {
+    if (!player_can_execute_edge(player, State::Edge::RollDice)) {
+        return { ResultType::InvalidEdgeChoice, {} };
+    }
+
     if (roll < 2 || 12 < roll) {
         return { ResultType::DiceRollOutOfRange, {} };
     }
@@ -1034,17 +742,12 @@ Result Game::_after_roll(Player* player)
     return { ResultType::Ok, { { ActionArgumentType::DiceRoll, dice_total } } };
 }
 
-Result Game::execute_steal(Player* player, const Action& action)
+Result Game::execute_steal(Player* player, Player* steal_from)
 {
-    if (action.args.empty()) {
-        return { ResultType::InvalidNumberOfArgs, {} };
+    if (!player_can_execute_edge(player, State::Edge::Steal)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    const auto steal_from = parse_player(this, action.args.at(0));
-    return _x_steal(player, steal_from);
-}
 
-Result Game::_x_steal(Player* player, Player* steal_from)
-{
     if (steal_from == player) {
         return { ResultType::InvalidPlayerId, {} };
     }
@@ -1074,28 +777,22 @@ Result Game::_x_steal(Player* player, Player* steal_from)
              { { ActionArgumentType::TakeResourceType, static_cast<size_t>(stolen_resource) } } };
 }
 
-Result Game::execute_to_root(Player* player, const Action& /* unused */)
+Result Game::execute_to_root(Player* player)
 {
-    return _x_to_root(player);
-}
+    if (!player_can_execute_edge(player, State::Edge::ToRoot)) {
+        return { ResultType::InvalidEdgeChoice, {} };
+    }
 
-Result Game::_x_to_root(Player* player)
-{
     player->set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_trade_with_bank(Player* player, const Action& action)
+Result Game::execute_trade_with_bank(Player* player, Trade trade)
 {
-    const auto trade = parse_trade(this, player, action.args);
-    if (!trade.has_value()) {
-        return { ResultType::InvalidTrade, {} };
+    if (!player_can_execute_edge(player, State::Edge::TradeWithBank)) {
+        return { ResultType::InvalidEdgeChoice, {} };
     }
-    return _x_trade_with_bank(player, *trade);
-}
 
-Result Game::_x_trade_with_bank(Player* player, Trade trade)
-{
     // Ignore trade->offered_to
     if (trade.from_offerer.empty()) {
         return { ResultType::InvalidTrade, {} };
@@ -1136,58 +833,6 @@ Result Game::_x_trade_with_bank(Player* player, Trade trade)
     player->spend_resources(trade.from_offerer);
 
     return { ResultType::Ok, {} };
-}
-
-Result Game::execute_action(size_t player_id, const Action& action)
-{
-    if (player_id >= m_players.size()) {
-        return { ResultType::InvalidPlayerId, {} };
-    }
-    return _x_action(m_players.at(player_id), action);
-}
-
-Result Game::_x_action(Player* player, const Action& action)
-{
-    if (!player_can_execute_edge(player, action)) {
-        return { ResultType::InvalidEdgeChoice, {} };
-    }
-
-    switch (action.edge) {
-    case State::Edge::AcceptTrade:
-        return execute_accept_trade(player, action);
-    case State::Edge::Build:
-        return execute_build(player, action);
-    case State::Edge::CancelTrade:
-        return execute_cancel_trade(player, action);
-    case State::Edge::ChooseInitialResources:
-        return execute_choose_initial_resources(player, action);
-    case State::Edge::CollectResources:
-        return execute_collect_resources(player, action);
-    case State::Edge::DeclineTrade:
-        return execute_decline_trade(player, action);
-    case State::Edge::Discard:
-        return execute_discard(player, action);
-    case State::Edge::EndTurn:
-        return execute_end_turn(player, action);
-    case State::Edge::FailTradeUnableToFindPartner:
-        return execute_fail_trade_unable_to_find_partner(player, action);
-    case State::Edge::MoveRobber:
-        return execute_move_robber(player, action);
-    case State::Edge::OfferTrade:
-        return execute_offer_trade(player, action);
-    case State::Edge::PlayDevelopmentCard:
-        return execute_play_development_card(player, action);
-    case State::Edge::RollDice:
-        return execute_roll_dice(player, action);
-    case State::Edge::Steal:
-        return execute_steal(player, action);
-    case State::Edge::ToRoot:
-        return execute_to_root(player, action);
-    case State::Edge::TradeWithBank:
-        return execute_trade_with_bank(player, action);
-    }
-
-    return { ResultType::InvalidEdgeChoice, {} };
 }
 
 void Game::increment_num_built(Building building)

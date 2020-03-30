@@ -73,7 +73,32 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Game&);
 
-    Result execute_action(size_t player_id, const Action&);
+    Result execute_accept_trade(Player*);
+    Result execute_build_city(Player*, BoardView::Junction*);
+    Result execute_build_development_card(Player*);
+    Result execute_build_road(Player*, BoardView::Road*);
+    Result execute_build_settlement(Player*, BoardView::Junction*);
+    Result execute_build(Player*, const Action&);
+    Result execute_cancel_trade(Player*);
+    Result execute_choose_initial_resources(Player*, const BoardView::Junction*);
+    Result execute_decline_trade(Player*);
+    Result execute_discard(Player*, const ResourceCounts&);
+    Result execute_end_turn(Player*);
+    Result execute_fail_trade_unable_to_find_partner(Player*);
+    Result execute_move_robber(Player*, const BoardView::Hex*);
+    Result execute_offer_trade(Player*, const Trade);
+    Result execute_play_knight(Player*, const BoardView::Hex*);
+    Result execute_play_monopoly(Player*, const Resource&);
+    Result execute_play_road_building(Player*, BoardView::Road*, BoardView::Road*);
+    Result execute_play_victory_point(Player*);
+    Result execute_play_year_of_plenty(Player*, const Resource&, const Resource&);
+    Result execute_roll_dice(Player*);
+#ifdef k10_ENABLE_ROLL_DICE_EXACT
+    Result execute_roll_dice(Player*, size_t roll);
+#endif
+    Result execute_steal(Player*, Player* steal_from);
+    Result execute_to_root(Player*);
+    Result execute_trade_with_bank(Player*, Trade);
 
     Game(const Board::Graph*,
          std::map<size_t, BoardView::Hex*>,
@@ -140,60 +165,6 @@ private:
     void set_has_rolled(bool has_rolled) { m_has_rolled = has_rolled; }
     void set_is_trade_accepted(bool is_trade_accepted) { m_is_trade_accepted = is_trade_accepted; }
     void set_current_trade(std::optional<Trade> trade);
-
-    Result execute_accept_trade(Player*, const Action&);
-    Result execute_build(Player*, const Action&);
-    Result execute_cancel_trade(Player*, const Action&);
-    Result execute_choose_initial_resources(Player*, const Action&);
-    Result execute_collect_resources(Player*, const Action&);
-    Result execute_decline_trade(Player*, const Action&);
-    Result execute_discard(Player*, const Action&);
-    Result execute_end_turn(Player*, const Action&);
-    Result execute_fail_trade_unable_to_find_partner(Player*, const Action&);
-    Result execute_move_robber(Player*, const Action&);
-    Result execute_offer_trade(Player*, const Action&);
-    Result execute_play_development_card(Player*, const Action&);
-    Result execute_roll_dice(Player*, const Action&);
-    Result execute_steal(Player*, const Action&);
-    Result execute_to_root(Player*, const Action&);
-    Result execute_trade_with_bank(Player*, const Action&);
-
-    Result execute_build_city(Player*, const ActionArgument&);
-    Result execute_build_development_card(Player*);
-    Result execute_build_road(Player*, const ActionArgument&);
-    Result execute_build_settlement(Player*, const ActionArgument&);
-
-    Result execute_play_knight(Player*, const ActionArgument&);
-    Result execute_play_monopoly(Player*, const ActionArgument&);
-    Result execute_play_road_building(Player*, const ActionArgument&, const ActionArgument&);
-    Result execute_play_victory_point(Player*);
-    Result execute_play_year_of_plenty(Player*, const ActionArgument&, const ActionArgument&);
-
-    Result _x_action(Player*, const Action& action);
-
-    Result _x_accept_trade(Player*);
-    Result _x_build_city(Player*, BoardView::Junction*);
-    Result _x_build_development_card(Player*);
-    Result _x_build_road(Player*, BoardView::Road*);
-    Result _x_build_settlement(Player*, BoardView::Junction*);
-    Result _x_build(Player*, const Action&);
-    Result _x_cancel_trade(Player*);
-    Result _x_choose_initial_resources(Player*, const BoardView::Junction*);
-    Result _x_decline_trade(Player*);
-    Result _x_discard(Player*, const Trade);
-    Result _x_end_turn(Player*);
-    Result _x_fail_trade_unable_to_find_partner(Player*);
-    Result _x_move_robber(Player*, const BoardView::Hex*);
-    Result _x_offer_trade(Player*, const Trade);
-    Result _x_play_knight(Player*, const BoardView::Hex*);
-    Result _x_play_monopoly(Player*, const Resource&);
-    Result _x_roll_dice(Player*);
-#ifdef k10_ENABLE_ROLL_DICE_EXACT
-    Result _x_roll_dice(Player*, size_t roll);
-#endif
-    Result _x_steal(Player*, Player* steal_from);
-    Result _x_to_root(Player*);
-    Result _x_trade_with_bank(Player*, Trade);
 
     // FIXME: Is there a nicer solution than this?
     Result _after_roll(Player* player);
