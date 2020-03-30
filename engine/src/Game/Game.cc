@@ -30,7 +30,7 @@ bool Game::is_roll_seven() const
 bool Game::should_wait_for_discard() const
 {
     for (const auto& player : m_players) {
-        if (player->num_to_discard() > 0) {
+        if (player.num_to_discard() > 0) {
             return true;
         }
     }
@@ -40,7 +40,7 @@ bool Game::should_wait_for_discard() const
 bool Game::should_wait_for_trade() const
 {
     for (const auto& player : m_players) {
-        if (player->can_accept_trade() && !player->has_declined_trade()) {
+        if (player.can_accept_trade() && !player.has_declined_trade()) {
             return true;
         }
     }
@@ -51,7 +51,7 @@ void Game::set_current_trade(std::optional<Trade> trade)
 {
     m_current_trade = trade;
     if (trade.has_value()) {
-        for (const auto& player : trade->offered_to) {
+        for (auto& player : trade->offered_to) {
             if (player->can_afford(trade->to_offerer)) {
                 player->set_can_accept_trade(true);
                 player->set_has_declined_trade(false);
@@ -59,9 +59,9 @@ void Game::set_current_trade(std::optional<Trade> trade)
         }
         ++m_num_trades_offered_this_turn;
     } else {
-        for (const auto& player : m_players) {
-            player->set_can_accept_trade(false);
-            player->set_has_declined_trade(false);
+        for (auto& player : m_players) {
+            player.set_can_accept_trade(false);
+            player.set_has_declined_trade(false);
         }
     }
 }
@@ -89,9 +89,9 @@ Game::Game(const Board::Graph* graph,
     , m_victory_points_goal(parameters.victory_points_goal)
 {
     for (size_t i = 0; i < parameters.players_count; ++i) {
-        m_players.push_back(new Player(i, this));
+        m_players.push_back(Player(i, this));
     }
-    current_player()->set_vertex(State::Vertex::Root);
+    current_player().set_vertex(State::Vertex::Root);
 }
 
 Game::~Game()
@@ -104,9 +104,6 @@ Game::~Game()
     }
     for (auto road : m_roads) {
         delete road.second;
-    }
-    for (auto player : m_players) {
-        delete player;
     }
     m_deck.clear();
 }
@@ -242,9 +239,9 @@ Game* initialize(const Board::Graph* graph,
     return new Game(graph, hexes, junctions, roads, deck, scenario, parameters, robber_index);
 }
 
-static bool player_can_execute_edge(const Player* player, const State::Edge& requested_edge)
+static bool player_can_execute_edge(const Player& player, const State::Edge& requested_edge)
 {
-    const auto valid_actions = player->get_available_actions();
+    const auto valid_actions = player.get_available_actions();
     for (const auto& valid_action : valid_actions) {
         if (valid_action.edge == requested_edge) {
             return true;
@@ -253,17 +250,17 @@ static bool player_can_execute_edge(const Player* player, const State::Edge& req
     return false;
 }
 
-static bool is_road_reachable_for(const BoardView::Road* road, const Player* player)
+static bool is_road_reachable_for(const BoardView::Road* road, const Player& player)
 {
     if (road->owner() != nullptr) {
         return false;
     }
     for (const auto& junction_neighbor : road->junction_neighbors()) {
         const auto& junction = junction_neighbor.second;
-        if (junction->owner() == player) {
-            return true;
-        }
         if (junction->owner() != nullptr) {
+            if (*junction->owner() == player) {
+                return true;
+            }
             continue;
         }
         for (const auto& road_neighbor : junction->road_neighbors()) {
@@ -271,7 +268,7 @@ static bool is_road_reachable_for(const BoardView::Road* road, const Player* pla
             if (other_road == road) {
                 continue;
             }
-            if (other_road->owner() == player) {
+            if (other_road->owner() != nullptr && *other_road->owner() == player) {
                 return true;
             }
         }
@@ -279,40 +276,38 @@ static bool is_road_reachable_for(const BoardView::Road* road, const Player* pla
     return false;
 }
 
-Result Game::execute_accept_trade(Player* player)
+Result Game::execute_accept_trade(Player& player)
 {
     if (!player_can_execute_edge(player, State::Edge::AcceptTrade)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    auto offerer = m_players.at(current_trade()->offerer->index());
-
     // std::cout << "before:" << std::endl;
-    // std::cout << "  " << offerer->m_resources << std::endl;
-    // std::cout << "  " << player->m_resources << std::endl;
+    // std::cout << "  " << current_trade()->offerer->m_resources << std::endl;
+    // std::cout << "  " << player.m_resources << std::endl;
 
-    offerer->accrue_resources(current_trade()->to_offerer);
-    offerer->spend_resources(current_trade()->from_offerer);
+    current_trade()->offerer->accrue_resources(current_trade()->to_offerer);
+    current_trade()->offerer->spend_resources(current_trade()->from_offerer);
 
-    player->accrue_resources(current_trade()->from_offerer);
-    player->spend_resources(current_trade()->to_offerer);
+    player.accrue_resources(current_trade()->from_offerer);
+    player.spend_resources(current_trade()->to_offerer);
 
     // std::cout << "after:" << std::endl;
-    // std::cout << "  " << offerer->m_resources << std::endl;
-    // std::cout << "  " << player->m_resources << std::endl;
+    // std::cout << "  " << current_trade()->offerer->m_resources << std::endl;
+    // std::cout << "  " << player.m_resources << std::endl;
 
     set_current_trade({});
-    offerer->set_vertex(State::Vertex::Root);
+    current_trade()->offerer->set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_build_city(Player* player, BoardView::Junction* junction)
+Result Game::execute_build_city(Player& player, BoardView::Junction* junction)
 {
     if (!player_can_execute_edge(player, State::Edge::BuildCity)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    if (junction->owner() != player) {
+    if (*junction->owner() != player) {
         return { ResultType::InvalidNodeId, {} };
     }
 
@@ -322,17 +317,17 @@ Result Game::execute_build_city(Player* player, BoardView::Junction* junction)
         assert(false);
     }
 
-    player->set_vertex(State::Vertex::Root);
+    player.set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_build_development_card(Player* player)
+Result Game::execute_build_development_card(Player& player)
 {
     if (!player_can_execute_edge(player, State::Edge::BuildDevelopmentCard)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    if (!player->can_afford(Building::DevelopmentCard)) {
+    if (!player.can_afford(Building::DevelopmentCard)) {
         return { ResultType::CannotAfford, {} };
     }
 
@@ -341,14 +336,14 @@ Result Game::execute_build_development_card(Player* player)
     if (is_game_over()) {
         assert(false);
     } else {
-        player->set_vertex(State::Vertex::Root);
+        player.set_vertex(State::Vertex::Root);
     }
 
     return { ResultType::Ok,
              { { ActionArgumentType::DevelopmentCardId, static_cast<size_t>(development_card) } } };
 }
 
-Result Game::execute_build_road(Player* player, BoardView::Road* road)
+Result Game::execute_build_road(Player& player, BoardView::Road* road)
 {
     if (!player_can_execute_edge(player, State::Edge::BuildRoad)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -360,7 +355,7 @@ Result Game::execute_build_road(Player* player, BoardView::Road* road)
 
     if (is_first_round() || is_second_round()) {
         build_road(player, road, Options::NoCost);
-    } else if (player->can_afford(Building::Road)) {
+    } else if (player.can_afford(Building::Road)) {
         build_road(player, road, Options::None);
     } else {
         return { ResultType::CannotAfford, {} };
@@ -369,18 +364,18 @@ Result Game::execute_build_road(Player* player, BoardView::Road* road)
     if (is_game_over()) {
         assert(false);
     } else if (is_first_round()) {
-        player->set_vertex(State::Vertex::WaitForTurn);
+        player.set_vertex(State::Vertex::WaitForTurn);
         increment_turn();
     } else if (is_second_round()) {
-        player->set_vertex(State::Vertex::ChooseInitialResources);
+        player.set_vertex(State::Vertex::ChooseInitialResources);
     } else {
-        player->set_vertex(State::Vertex::Root);
+        player.set_vertex(State::Vertex::Root);
     }
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_build_settlement(Player* player, BoardView::Junction* junction)
+Result Game::execute_build_settlement(Player& player, BoardView::Junction* junction)
 {
     if (!player_can_execute_edge(player, State::Edge::BuildSettlement)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -392,7 +387,7 @@ Result Game::execute_build_settlement(Player* player, BoardView::Junction* junct
 
     if (is_first_round() || is_second_round()) {
         build_settlement(player, junction, Options::NoCost);
-    } else if (player->can_afford(Building::Settlement)) {
+    } else if (player.can_afford(Building::Settlement)) {
         build_settlement(player, junction, Options::None);
     } else {
         return { ResultType::CannotAfford, {} };
@@ -401,40 +396,40 @@ Result Game::execute_build_settlement(Player* player, BoardView::Junction* junct
     if (is_game_over()) {
         assert(false);
     } else if (is_first_round() || is_second_round()) {
-        player->set_vertex(State::Vertex::AfterBuildingFreeSettlement);
+        player.set_vertex(State::Vertex::AfterBuildingFreeSettlement);
     } else {
-        player->set_vertex(State::Vertex::Root);
+        player.set_vertex(State::Vertex::Root);
     }
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_cancel_trade(Player* player)
+Result Game::execute_cancel_trade(Player& player)
 {
     if (!player_can_execute_edge(player, State::Edge::CancelTrade)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }
 
     set_current_trade({});
-    player->set_vertex(State::Vertex::Root);
+    player.set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_choose_initial_resources(Player* player, const BoardView::Junction* junction)
+Result Game::execute_choose_initial_resources(Player& player, const BoardView::Junction* junction)
 {
     if (!player_can_execute_edge(player, State::Edge::ChooseInitialResources)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    for (const auto& settlement : player->settlements()) {
+    for (const auto& settlement : player.settlements()) {
         if (settlement == junction) {
             for (const auto& hex_it : settlement->hex_neighbors()) {
                 const auto& hex_resource = hex_it.second->resource();
                 if (std::holds_alternative<Resource>(hex_resource)) {
-                    player->accrue_resources({ { std::get<Resource>(hex_resource), 1 } });
+                    player.accrue_resources({ { std::get<Resource>(hex_resource), 1 } });
                 }
             }
-            player->set_vertex(State::Vertex::WaitForTurn);
+            player.set_vertex(State::Vertex::WaitForTurn);
             increment_turn();
             return { ResultType::Ok, {} };
         }
@@ -442,21 +437,21 @@ Result Game::execute_choose_initial_resources(Player* player, const BoardView::J
     return { ResultType::InvalidNodeId, {} };
 }
 
-Result Game::execute_decline_trade(Player* player)
+Result Game::execute_decline_trade(Player& player)
 {
     if (!player_can_execute_edge(player, State::Edge::DeclineTrade)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    player->set_has_declined_trade(true);
+    player.set_has_declined_trade(true);
     if (!should_wait_for_trade()) {
         set_current_trade({});
-        current_player()->set_vertex(State::Vertex::Root);
+        current_player().set_vertex(State::Vertex::Root);
     }
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_discard(Player* player, const ResourceCounts& resources)
+Result Game::execute_discard(Player& player, const ResourceCounts& resources)
 {
     if (!player_can_execute_edge(player, State::Edge::Discard)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -465,11 +460,11 @@ Result Game::execute_discard(Player* player, const ResourceCounts& resources)
     if (resources.empty()) {
         return { ResultType::InvalidTrade, {} };
     }
-    if (!player->can_afford(resources)) {
+    if (!player.can_afford(resources)) {
         return { ResultType::CannotAfford, {} };
     }
 
-    size_t num_to_discard = player->num_to_discard();
+    size_t num_to_discard = player.num_to_discard();
     size_t num_offered = 0;
     for (const auto& it : resources) {
         const auto& count = it.second;
@@ -480,24 +475,24 @@ Result Game::execute_discard(Player* player, const ResourceCounts& resources)
         return { ResultType::StopFlexing, {} };
     }
 
-    player->spend_resources(resources);
-    player->set_num_to_discard(num_to_discard - num_offered);
+    player.spend_resources(resources);
+    player.set_num_to_discard(num_to_discard - num_offered);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_end_turn(Player* player)
+Result Game::execute_end_turn(Player& player)
 {
     if (!player_can_execute_edge(player, State::Edge::EndTurn)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    player->set_vertex(State::Vertex::WaitForTurn);
+    player.set_vertex(State::Vertex::WaitForTurn);
     increment_turn();
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_move_robber(Player* player, const BoardView::Hex* hex)
+Result Game::execute_move_robber(Player& player, const BoardView::Hex* hex)
 {
     if (!player_can_execute_edge(player, State::Edge::MoveRobber)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -508,12 +503,12 @@ Result Game::execute_move_robber(Player* player, const BoardView::Hex* hex)
     }
 
     move_robber(player, hex);
-    player->set_vertex(State::Vertex::AfterMovingRobber);
+    player.set_vertex(State::Vertex::AfterMovingRobber);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_offer_trade(Player* player, const Trade trade)
+Result Game::execute_offer_trade(Player& player, const Trade trade)
 {
     if (!player_can_execute_edge(player, State::Edge::OfferTrade)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -531,22 +526,22 @@ Result Game::execute_offer_trade(Player* player, const Trade trade)
     if (trade.from_offerer == trade.to_offerer) {
         return { ResultType::InvalidTrade, {} };
     }
-    if (!player->can_afford(trade.from_offerer)) {
+    if (!player.can_afford(trade.from_offerer)) {
         return { ResultType::CannotAfford, {} };
     }
 
     set_current_trade(trade);
-    player->set_vertex(State::Vertex::WaitForTradeResponses);
+    player.set_vertex(State::Vertex::WaitForTradeResponses);
 
     if (!should_wait_for_trade()) {
         set_current_trade({});
-        current_player()->set_vertex(State::Vertex::Root);
+        current_player().set_vertex(State::Vertex::Root);
     }
 
     return { ResultType::Ok, {} };
 }
 
-void Game::move_robber(const Player* player, const BoardView::Hex* hex)
+void Game::move_robber(const Player& player, const BoardView::Hex* hex)
 {
     m_robber.set_location(hex);
     for (const auto& junction_it : hex->junction_neighbors()) {
@@ -554,14 +549,14 @@ void Game::move_robber(const Player* player, const BoardView::Hex* hex)
         if (junction->owner() == nullptr) {
             continue;
         }
-        if (junction->owner() == player) {
+        if (*junction->owner() == player) {
             continue;
         }
         set_can_steal(true);
     }
 }
 
-Result Game::execute_play_knight(Player* player, const BoardView::Hex* hex)
+Result Game::execute_play_knight(Player& player, const BoardView::Hex* hex)
 {
     if (!player_can_execute_edge(player, State::Edge::PlayKnight)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -572,14 +567,14 @@ Result Game::execute_play_knight(Player* player, const BoardView::Hex* hex)
     }
 
     move_robber(player, hex);
-    player->play_knight(hex);
-    player->set_vertex(State::Vertex::AfterMovingRobber);
-    recalculate_largest_army(player);
+    player.play_knight(hex);
+    player.set_vertex(State::Vertex::AfterMovingRobber);
+    recalculate_largest_army(&player);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_monopoly(Player* player, const Resource& resource)
+Result Game::execute_play_monopoly(Player& player, const Resource& resource)
 {
     if (!player_can_execute_edge(player, State::Edge::PlayMonopoly)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -589,19 +584,19 @@ Result Game::execute_play_monopoly(Player* player, const Resource& resource)
         if (other_player == player) {
             continue;
         }
-        const auto count = other_player->count(resource);
-        other_player->spend_resources({ { resource, count } });
-        player->accrue_resources({ { resource, count } });
+        const auto count = other_player.count(resource);
+        other_player.spend_resources({ { resource, count } });
+        player.accrue_resources({ { resource, count } });
     }
 
-    player->play_monopoly(resource);
-    player->set_vertex(State::Vertex::Root);
+    player.play_monopoly(resource);
+    player.set_vertex(State::Vertex::Root);
 
     return { ResultType::Ok, {} };
 }
 
 Result
-Game::execute_play_road_building(Player* player, BoardView::Road* road_0, BoardView::Road* road_1)
+Game::execute_play_road_building(Player& player, BoardView::Road* road_0, BoardView::Road* road_1)
 {
     if (!player_can_execute_edge(player, State::Edge::PlayRoadBuilding)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -621,7 +616,7 @@ Game::execute_play_road_building(Player* player, BoardView::Road* road_0, BoardV
             }
             const auto& junction = junction_it.second;
             const auto& owner = junction->owner();
-            if (owner != nullptr && owner != player) {
+            if (owner != nullptr && *owner != player) {
                 continue;
             }
             for (const auto& road_it : junction->road_neighbors()) {
@@ -640,25 +635,25 @@ Game::execute_play_road_building(Player* player, BoardView::Road* road_0, BoardV
     build_road(player, road_0, Options::NoCost);
     build_road(player, road_1, Options::NoCost);
 
-    player->play_road_building(road_0, road_0);
-    player->set_vertex(State::Vertex::Root);
+    player.play_road_building(road_0, road_0);
+    player.set_vertex(State::Vertex::Root);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_victory_point(Player* player)
+Result Game::execute_play_victory_point(Player& player)
 {
     if (!player_can_execute_edge(player, State::Edge::PlayVictoryPoint)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    player->play_victory_point();
-    player->set_vertex(State::Vertex::Root);
+    player.play_victory_point();
+    player.set_vertex(State::Vertex::Root);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_year_of_plenty(Player* player,
+Result Game::execute_play_year_of_plenty(Player& player,
                                          const Resource& resource_0,
                                          const Resource& resource_1)
 {
@@ -666,14 +661,14 @@ Result Game::execute_play_year_of_plenty(Player* player,
         return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    player->accrue_resources({ { resource_0, 1 }, { resource_1, 1 } });
-    player->play_year_of_plenty(resource_0, resource_1);
-    player->set_vertex(State::Vertex::Root);
+    player.accrue_resources({ { resource_0, 1 }, { resource_1, 1 } });
+    player.play_year_of_plenty(resource_0, resource_1);
+    player.set_vertex(State::Vertex::Root);
 
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_roll_dice(Player* player)
+Result Game::execute_roll_dice(Player& player)
 {
     if (!player_can_execute_edge(player, State::Edge::RollDice)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -687,7 +682,7 @@ Result Game::execute_roll_dice(Player* player)
 }
 
 #ifdef k10_ENABLE_ROLL_DICE_EXACT
-Result Game::execute_roll_dice(Player* player, size_t roll)
+Result Game::execute_roll_dice(Player& player, size_t roll)
 {
     if (!player_can_execute_edge(player, State::Edge::RollDice)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -701,7 +696,7 @@ Result Game::execute_roll_dice(Player* player, size_t roll)
 }
 #endif
 
-Result Game::_after_roll(Player* player)
+Result Game::_after_roll(Player& player)
 {
     m_has_rolled = true;
 
@@ -709,12 +704,12 @@ Result Game::_after_roll(Player* player)
 
     if (is_roll_seven()) {
         for (auto& other_player : m_players) {
-            if (other_player->has_heavy_purse()) {
-                size_t num_to_discard = other_player->num_resources() / 2;
-                other_player->set_num_to_discard(num_to_discard);
+            if (other_player.has_heavy_purse()) {
+                size_t num_to_discard = other_player.num_resources() / 2;
+                other_player.set_num_to_discard(num_to_discard);
             }
         }
-        player->set_vertex(State::Vertex::AfterRollingSeven);
+        player.set_vertex(State::Vertex::AfterRollingSeven);
     } else {
         for (const auto& hex_it : hexes()) {
             const auto& hex = hex_it.second;
@@ -732,7 +727,7 @@ Result Game::_after_roll(Player* player)
                     continue;
                 }
                 const auto count = junction->has_city() ? 2 : 1;
-                m_players.at(junction->owner()->index())->accrue_resources({ { resource, count } });
+                m_players.at(junction->owner()->index()).accrue_resources({ { resource, count } });
             }
         }
     }
@@ -740,7 +735,7 @@ Result Game::_after_roll(Player* player)
     return { ResultType::Ok, { { ActionArgumentType::DiceRoll, dice_total } } };
 }
 
-Result Game::execute_steal(Player* player, Player* steal_from)
+Result Game::execute_steal(Player& player, Player& steal_from)
 {
     if (!player_can_execute_edge(player, State::Edge::Steal)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -750,13 +745,14 @@ Result Game::execute_steal(Player* player, Player* steal_from)
         return { ResultType::InvalidPlayerId, {} };
     }
 
-    if (steal_from->num_resources() == 0) {
+    if (steal_from.num_resources() == 0) {
         return { ResultType::InvalidPlayerId, {} };
     }
 
     bool is_adjacent = false;
     for (const auto junction_it : robber_location()->junction_neighbors()) {
-        if (junction_it.second->owner() == steal_from) {
+        const auto junction_owner = junction_it.second->owner();
+        if (junction_owner != nullptr && *junction_owner == steal_from) {
             is_adjacent = true;
             break;
         }
@@ -765,9 +761,9 @@ Result Game::execute_steal(Player* player, Player* steal_from)
         return { ResultType::InvalidPlayerId, {} };
     }
 
-    const auto stolen_resource = choose_from(steal_from->m_resources);
-    steal_from->spend_resources({ { stolen_resource, 1 } });
-    player->accrue_resources({ { stolen_resource, 1 } });
+    const auto stolen_resource = choose_from(steal_from.m_resources);
+    steal_from.spend_resources({ { stolen_resource, 1 } });
+    player.accrue_resources({ { stolen_resource, 1 } });
 
     set_can_steal(false);
 
@@ -775,17 +771,17 @@ Result Game::execute_steal(Player* player, Player* steal_from)
              { { ActionArgumentType::TakeResourceType, static_cast<size_t>(stolen_resource) } } };
 }
 
-Result Game::execute_to_root(Player* player)
+Result Game::execute_to_root(Player& player)
 {
     if (!player_can_execute_edge(player, State::Edge::ToRoot)) {
         return { ResultType::InvalidEdgeChoice, {} };
     }
 
-    player->set_vertex(State::Vertex::Root);
+    player.set_vertex(State::Vertex::Root);
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_trade_with_bank(Player* player, Trade trade)
+Result Game::execute_trade_with_bank(Player& player, Trade trade)
 {
     if (!player_can_execute_edge(player, State::Edge::TradeWithBank)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -798,7 +794,7 @@ Result Game::execute_trade_with_bank(Player* player, Trade trade)
     if (trade.to_offerer.empty()) {
         return { ResultType::InvalidTrade, {} };
     }
-    if (!player->can_afford(trade.from_offerer)) {
+    if (!player.can_afford(trade.from_offerer)) {
         return { ResultType::CannotAfford, {} };
     }
 
@@ -812,7 +808,7 @@ Result Game::execute_trade_with_bank(Player* player, Trade trade)
     for (const auto& from : trade.from_offerer) {
         const auto& resource_from = from.first;
         const auto& count_from = from.second;
-        const auto& rate = player->bank_trade_rate(resource_from);
+        const auto& rate = player.bank_trade_rate(resource_from);
         const auto& count_to = count_from / rate; // floor division
         if (count_from > count_to * rate) {
             return { ResultType::InvalidTrade, {} };
@@ -827,8 +823,8 @@ Result Game::execute_trade_with_bank(Player* player, Trade trade)
         return { ResultType::InvalidTrade, {} };
     }
 
-    player->accrue_resources(trade.to_offerer);
-    player->spend_resources(trade.from_offerer);
+    player.accrue_resources(trade.to_offerer);
+    player.spend_resources(trade.from_offerer);
 
     return { ResultType::Ok, {} };
 }
@@ -848,30 +844,30 @@ DevelopmentCard Game::draw_development_card()
     return development_card;
 }
 
-void Game::build_city(Player* player, BoardView::Junction* junction, Options options)
+void Game::build_city(Player& player, BoardView::Junction* junction, Options options)
 {
-    player->build_city(junction, options);
+    player.build_city(junction, options);
     increment_num_built(Building::City);
 }
 
-DevelopmentCard Game::build_development_card(Player* player, Options options)
+DevelopmentCard Game::build_development_card(Player& player, Options options)
 {
     const auto development_card = draw_development_card();
-    player->build_development_card(development_card, options);
+    player.build_development_card(development_card, options);
     increment_num_built(Building::DevelopmentCard);
     // FIXME: Check if we drew a VictoryPoint
     return development_card;
 }
 
-void Game::build_settlement(Player* player, BoardView::Junction* junction, Options options)
+void Game::build_settlement(Player& player, BoardView::Junction* junction, Options options)
 {
-    player->build_settlement(junction, options);
+    player.build_settlement(junction, options);
     increment_num_built(Building::Settlement);
 }
 
-void Game::build_road(Player* player, BoardView::Road* road, Options options)
+void Game::build_road(Player& player, BoardView::Road* road, Options options)
 {
-    player->build_road(road, options);
+    player.build_road(road, options);
     recalculate_longest_road();
     increment_num_built(Building::Road);
 }
@@ -879,7 +875,7 @@ void Game::build_road(Player* player, BoardView::Road* road, Options options)
 bool Game::is_game_over() const
 {
     for (const auto& player : m_players) {
-        if (player->private_victory_points() == m_victory_points_goal) {
+        if (player.private_victory_points() == m_victory_points_goal) {
             return true;
         }
     }
@@ -905,11 +901,11 @@ void Game::increment_turn()
     }
     m_has_rolled = false;
     m_num_trades_offered_this_turn = 0;
-    for (const auto& player : m_players) {
-        for (const auto& development_card : player->m_unplayable_development_cards) {
-            player->m_playable_development_cards.push_back(development_card);
+    for (auto& player : m_players) {
+        for (auto& development_card : player.m_unplayable_development_cards) {
+            player.m_playable_development_cards.push_back(development_card);
         }
-        player->m_unplayable_development_cards.clear();
+        player.m_unplayable_development_cards.clear();
     }
 }
 

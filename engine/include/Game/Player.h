@@ -58,6 +58,9 @@ public:
 
     ~Player() {}
 
+    bool operator!=(const Player&) const;
+    bool operator==(const Player&) const;
+
     friend Game;
     friend std::ostream& operator<<(std::ostream&, const Player&);
 

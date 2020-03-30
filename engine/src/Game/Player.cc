@@ -404,7 +404,7 @@ bool Player::can_trade_with_bank() const
 
 bool Player::is_current_player() const
 {
-    return m_game->current_player() == this;
+    return m_game->current_player() == *this;
 }
 
 bool Player::can_afford(const ResourceCounts& resource_counts) const
@@ -600,6 +600,16 @@ size_t Player::bank_trade_rate(const Resource& resource) const
         return k10_DEFAULT_BANK_TRADE_RATE;
     }
     return m_bank_trade_rates.at(resource);
+}
+
+bool Player::operator!=(const Player& other) const
+{
+    return !(*this == other);
+}
+
+bool Player::operator==(const Player& other) const
+{
+    return game() == other.game() && index() == other.index();
 }
 
 } // namespace k10engine::Game

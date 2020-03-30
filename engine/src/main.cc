@@ -116,8 +116,8 @@ void dump_actions(const k10engine::Game::Game* g)
 {
     std::cout << std::endl;
     for (const auto player : g->players()) {
-        const auto actions = player->get_available_actions();
-        std::cout << *player << " actions(" << actions.size() << "):" << std::endl;
+        const auto actions = player.get_available_actions();
+        std::cout << player << " actions(" << actions.size() << "):" << std::endl;
         for (const auto& available_action : actions) {
             std::cout << " - " << available_action << std::endl;
         }
@@ -171,29 +171,29 @@ int main(int /* unused */, char** /* unused */)
     dump_actions(g);
 
     // Round 0, Player 0
-    std::cout << g->execute_build_settlement(g->players().at(0), g->junctions().at(4)) << std::endl;
-    std::cout << g->execute_build_road(g->players().at(0), g->roads().at(8)) << std::endl;
+    std::cout << g->execute_build_settlement(g->player(0), g->junctions().at(4)) << std::endl;
+    std::cout << g->execute_build_road(g->player(0), g->roads().at(8)) << std::endl;
 
     // Round 0, Player 1
-    std::cout << g->execute_to_root(g->players().at(1)) << std::endl;
-    std::cout << g->execute_build_settlement(g->players().at(1), g->junctions().at(5)) << std::endl;
-    std::cout << g->execute_build_road(g->players().at(1), g->roads().at(9)) << std::endl;
+    std::cout << g->execute_to_root(g->player(1)) << std::endl;
+    std::cout << g->execute_build_settlement(g->player(1), g->junctions().at(5)) << std::endl;
+    std::cout << g->execute_build_road(g->player(1), g->roads().at(9)) << std::endl;
 
     // Round 0, Player 2
-    std::cout << g->execute_to_root(g->players().at(2)) << std::endl;
-    std::cout << g->execute_build_settlement(g->players().at(2), g->junctions().at(6)) << std::endl;
-    std::cout << g->execute_build_road(g->players().at(2), g->roads().at(12)) << std::endl;
+    std::cout << g->execute_to_root(g->player(2)) << std::endl;
+    std::cout << g->execute_build_settlement(g->player(2), g->junctions().at(6)) << std::endl;
+    std::cout << g->execute_build_road(g->player(2), g->roads().at(12)) << std::endl;
 
     // Round 0, Player 3
-    std::cout << g->execute_to_root(g->players().at(3)) << std::endl;
-    std::cout << g->execute_build_settlement(g->players().at(3), g->junctions().at(26)) << std::endl;
-    std::cout << g->execute_build_road(g->players().at(3), g->roads().at(31)) << std::endl;
+    std::cout << g->execute_to_root(g->player(3)) << std::endl;
+    std::cout << g->execute_build_settlement(g->player(3), g->junctions().at(26)) << std::endl;
+    std::cout << g->execute_build_road(g->player(3), g->roads().at(31)) << std::endl;
 
     // Round 1, Player 3
-    std::cout << g->execute_to_root(g->players().at(3)) << std::endl;
-    std::cout << g->execute_build_settlement(g->players().at(3), g->junctions().at(27)) << std::endl;
-    std::cout << g->execute_build_road(g->players().at(3), g->roads().at(46)) << std::endl;
-    std::cout << g->execute_choose_initial_resources(g->players().at(3), g->junctions().at(27))
+    std::cout << g->execute_to_root(g->player(3)) << std::endl;
+    std::cout << g->execute_build_settlement(g->player(3), g->junctions().at(27)) << std::endl;
+    std::cout << g->execute_build_road(g->player(3), g->roads().at(46)) << std::endl;
+    std::cout << g->execute_choose_initial_resources(g->player(3), g->junctions().at(27))
               << std::endl;
 
     dump_actions(g);
