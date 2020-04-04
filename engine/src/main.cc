@@ -115,7 +115,7 @@ k10engine::Scenario::Parameters get_standard_parameters()
 void dump_actions(const k10engine::Game::Game* g)
 {
     std::cout << std::endl;
-    for (const auto player : g->players()) {
+    for (const auto& player : g->players()) {
         const auto actions = player.get_available_actions();
         std::cout << player << " actions(" << actions.size() << "):" << std::endl;
         for (const auto& available_action : actions) {
