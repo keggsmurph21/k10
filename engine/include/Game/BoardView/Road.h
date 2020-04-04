@@ -22,10 +22,10 @@ public:
     const Player* owner() const { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
 
-    size_t index() const { return m_node->index(); }
-    const Board::Node* node() const { return m_node; }
+    size_t index() const { return m_node.index(); }
+    const Board::Node& node() const { return m_node; }
 
-    Road(const Board::Node* node)
+    Road(const Board::Node& node)
         : m_node(node)
     {
     }
@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    const Board::Node* m_node;
+    const Board::Node& m_node;
     Player* m_owner{ nullptr };
 
     Neighbors<Junction> m_junction_neighbors;

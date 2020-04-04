@@ -38,10 +38,10 @@ public:
     const Player* owner() const { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
 
-    size_t index() const { return m_node->index(); }
-    const Board::Node* node() const { return m_node; }
+    size_t index() const { return m_node.index(); }
+    const Board::Node& node() const { return m_node; }
 
-    Junction(const Board::Node* node, ResourceCollection port_resources, size_t port_exchange_rate)
+    Junction(const Board::Node& node, ResourceCollection port_resources, size_t port_exchange_rate)
         : m_node(node)
         , m_port_resources(port_resources)
         , m_port_exchange_rate(port_exchange_rate)
@@ -62,7 +62,7 @@ public:
     }
 
 private:
-    const Board::Node* m_node;
+    const Board::Node& m_node;
     bool m_has_settlement{ false };
     bool m_has_city{ false };
     bool m_is_settleable{ true };

@@ -83,7 +83,7 @@ struct PlayerState {
         REQUIRE(g->has_current_trade() == gs.has_current_trade);                              \
         REQUIRE(g->should_wait_for_trade() == gs.should_wait_for_trade);                      \
         REQUIRE(g->num_trades_offered_this_turn() == gs.num_trades_offered_this_turn);        \
-        REQUIRE(g->robber_location()->node()->index() == gs.robber_location);                 \
+        REQUIRE(g->robber_location()->node().index() == gs.robber_location);                  \
         REQUIRE(g->get_dice_total() == gs.dice_total);                                        \
         REQUIRE(g->turn() == gs.turn);                                                        \
         REQUIRE(g->get_round() == gs.round);                                                  \

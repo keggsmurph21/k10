@@ -136,7 +136,7 @@ Game* initialize(const Board::Graph* graph,
     size_t roll_index = 0;
 
     for (const auto& node : graph->nodes()) {
-        switch (node->type()) {
+        switch (node.type()) {
         case Board::NodeType::Hex: { // scope for const
             if (resource_index >= resources.size()) {
                 return nullptr; // Too few resources
@@ -147,7 +147,7 @@ Game* initialize(const Board::Graph* graph,
                 if (robber_index != -1) {
                     return nullptr; // FIXME: Handle multiple robbers?
                 }
-                robber_index = static_cast<int>(node->index());
+                robber_index = static_cast<int>(node.index());
                 hex = new BoardView::Hex(node, resource, 0);
             } else {
                 if (roll_index >= rolls.size()) {
@@ -157,12 +157,12 @@ Game* initialize(const Board::Graph* graph,
                 ++roll_index;
                 hex = new BoardView::Hex(node, resource, roll);
             }
-            hex_lookup[node] = hex;
-            hexes[node->index()] = hex;
+            hex_lookup[&node] = hex;
+            hexes[node.index()] = hex;
             ++resource_index;
         } break;
         case Board::NodeType::Junction: { // scope for const
-            const auto port = graph->port(*node);
+            const auto port = graph->port(node);
             BoardView::Junction* junction;
             if (port == nullptr) {
                 junction = new BoardView::Junction(node, {}, 0);
@@ -175,13 +175,13 @@ Game* initialize(const Board::Graph* graph,
                 junction =
                     new BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
             }
-            junction_lookup[node] = junction;
-            junctions[node->index()] = junction;
+            junction_lookup[&node] = junction;
+            junctions[node.index()] = junction;
         } break;
         case Board::NodeType::Road: { // scope for const
             auto road = new BoardView::Road(node);
-            road_lookup[node] = road;
-            roads[node->index()] = road;
+            road_lookup[&node] = road;
+            roads[node.index()] = road;
         } break;
         case Board::NodeType::Ocean:
         case Board::NodeType::UnflippedHex:
@@ -192,7 +192,7 @@ Game* initialize(const Board::Graph* graph,
     for (auto hex_it : hexes) {
         const auto hex = hex_it.second;
         for (const auto& direction : Board::AllDirections) {
-            const auto neighbor_node = graph->neighbor(hex->node(), direction);
+            const auto neighbor_node = graph->neighbor(&hex->node(), direction);
             if (neighbor_node == nullptr) {
                 continue;
             }
@@ -205,7 +205,7 @@ Game* initialize(const Board::Graph* graph,
     for (auto junction_it : junctions) {
         const auto junction = junction_it.second;
         for (const auto& direction : Board::AllDirections) {
-            const auto neighbor_node = graph->neighbor(junction->node(), direction);
+            const auto neighbor_node = graph->neighbor(&junction->node(), direction);
             if (neighbor_node == nullptr) {
                 continue;
             }
@@ -221,7 +221,7 @@ Game* initialize(const Board::Graph* graph,
     for (auto road_it : roads) {
         const auto road = road_it.second;
         for (const auto& direction : Board::AllDirections) {
-            const auto neighbor_node = graph->neighbor(road->node(), direction);
+            const auto neighbor_node = graph->neighbor(&road->node(), direction);
             if (neighbor_node == nullptr) {
                 continue;
             }

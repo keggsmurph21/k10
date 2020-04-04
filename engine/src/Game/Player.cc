@@ -123,9 +123,9 @@ std::vector<Action> Player::get_actions_at_choose_initial_resources() const
 {
     assert(settlements().size() == 2);
     return { { State::Edge::ChooseInitialResources,
-               { { ActionArgumentType::NodeId, settlements().at(0)->node()->index() } } },
+               { { ActionArgumentType::NodeId, settlements().at(0)->node().index() } } },
              { State::Edge::ChooseInitialResources,
-               { { ActionArgumentType::NodeId, settlements().at(1)->node()->index() } } } };
+               { { ActionArgumentType::NodeId, settlements().at(1)->node().index() } } } };
 }
 
 std::vector<Action> Player::get_actions_at_root() const

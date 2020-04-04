@@ -39,7 +39,7 @@ typedef std::vector<NodeSpec> NodeSpecs;
 typedef std::vector<EdgeSpec> EdgeSpecs;
 typedef std::vector<PortSpec> PortSpecs;
 
-typedef std::vector<const Node*> Nodes;
+typedef std::vector<Node> Nodes;
 typedef std::map<std::pair<const Node*, const Direction>, const Node*, std::less<>> Edges;
 typedef std::vector<Port> Ports;
 
@@ -48,7 +48,7 @@ public:
     Graph(Dimensions, const NodeSpecs&, const EdgeSpecs&, const PortSpecs&);
     ~Graph();
 
-    const std::vector<const Node*>& nodes() const { return m_nodes; }
+    const std::vector<Node>& nodes() const { return m_nodes; }
     const Node* node(const size_t index) const;
     const Node* node(const size_t x, const size_t y) const;
 
@@ -65,7 +65,7 @@ public:
     size_t height() const { return m_dimensions.height; }
 
 private:
-    bool nodes_can_make_port(const Node*, const Node*, const Orientation);
+    bool nodes_can_make_port(const Node&, const Node&, const Orientation);
 
     Nodes m_nodes;
     Edges m_edges;
@@ -74,7 +74,7 @@ private:
     std::map<int, size_t> m_node_index_to_port_index_map;
 
     const Dimensions m_dimensions;
-    std::vector<std::vector<const Node*>> m_node_matrix;
+    std::vector<std::vector<int>> m_node_matrix;
 };
 
 } // namespace k10engine::Board

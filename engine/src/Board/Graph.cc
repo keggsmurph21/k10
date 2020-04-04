@@ -5,19 +5,19 @@
 
 namespace k10engine::Board {
 
-bool Graph::nodes_can_make_port(const Node* n0, const Node* n1, Orientation o)
+bool Graph::nodes_can_make_port(const Node& n0, const Node& n1, Orientation o)
 {
-    if (n0 == nullptr || n0->type() != NodeType::Junction) {
+    if (n1.type() != NodeType::Junction) {
         return false;
     }
-    if (n1 == nullptr || n1->type() != NodeType::Junction) {
+    if (n1.type() != NodeType::Junction) {
         return false;
     }
-    if (*n0 == *n1) {
+    if (n0 == n1) {
         return false;
     }
     for (auto direction : get_directions(o)) {
-        auto first_neighbor = neighbor(n0, direction);
+        auto first_neighbor = neighbor(&n0, direction);
         if (first_neighbor == nullptr) {
             continue;
         }
@@ -25,7 +25,7 @@ bool Graph::nodes_can_make_port(const Node* n0, const Node* n1, Orientation o)
         if (second_neighbor == nullptr) {
             continue;
         }
-        if (*n1 == *second_neighbor) {
+        if (n1 == *second_neighbor) {
             return true;
         }
     }
@@ -40,16 +40,15 @@ Graph::Graph(Dimensions dimensions,
 {
     m_node_matrix.reserve(dimensions.height);
     for (size_t i = 0; i < dimensions.height; ++i) {
-        std::vector<const Node*> row(dimensions.width);
-        std::fill(row.begin(), row.end(), nullptr);
+        std::vector<int> row(dimensions.width);
+        std::fill(row.begin(), row.end(), -1);
         m_node_matrix.push_back(row);
     }
     int index = 0;
     size_t port_index = 0;
     for (const auto& it : node_specs) {
-        const auto node = new Node(index, it.x, it.y, it.type);
-        m_nodes.push_back(node);
-        m_node_matrix[it.y][it.x] = node;
+        m_nodes.push_back(Node(index, it.x, it.y, it.type));
+        m_node_matrix[it.y][it.x] = index;
         ++index;
     }
     for (const auto& it : edge_specs) {
@@ -67,7 +66,8 @@ Graph::Graph(Dimensions dimensions,
     for (const auto& it : port_specs) {
         const auto node_0 = node(it.node_0_index);
         const auto node_1 = node(it.node_1_index);
-        if (!nodes_can_make_port(node_0, node_1, it.orientation)) {
+        if (node_0 == nullptr || node_1 == nullptr
+            || !nodes_can_make_port(*node_0, *node_1, it.orientation)) {
             goto clean_up_failed_construction;
         }
         m_ports.push_back(Port(port_index, { node_0, node_1 }, it.orientation));
@@ -84,9 +84,6 @@ Graph::Graph(Dimensions dimensions,
 clean_up_failed_construction:
     m_ports.clear();
     m_edges.clear();
-    for (auto node : m_nodes) {
-        delete node;
-    }
     m_nodes.clear();
     throw std::invalid_argument("Unable to construct Graph");
 }
@@ -95,16 +92,13 @@ Graph::~Graph()
 {
     m_ports.clear();
     m_edges.clear();
-    for (auto node : m_nodes) {
-        delete node;
-    }
     m_nodes.clear();
 }
 
 const Node* Graph::node(const size_t index) const
 {
     if (index < m_nodes.size()) {
-        return m_nodes.at(index);
+        return &m_nodes.at(index);
     }
     return nullptr;
 }
@@ -117,7 +111,11 @@ const Node* Graph::node(const size_t x, const size_t y) const
     if (y >= height()) {
         return nullptr;
     }
-    return m_node_matrix.at(y).at(x);
+    const auto index = m_node_matrix.at(y).at(x);
+    if (index < 0) {
+        return nullptr;
+    }
+    return node(index);
 }
 
 bool Graph::has_neighbor(const Node* n, const Direction d) const
