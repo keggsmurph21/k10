@@ -192,7 +192,7 @@ Game* initialize(const Board::Graph* graph,
     for (auto hex_it : hexes) {
         const auto hex = hex_it.second;
         for (const auto& direction : Board::AllDirections) {
-            const auto neighbor_node = graph->neighbor(&hex->node(), direction);
+            const auto neighbor_node = graph->neighbor(hex->node(), direction);
             if (neighbor_node == nullptr) {
                 continue;
             }
@@ -205,7 +205,7 @@ Game* initialize(const Board::Graph* graph,
     for (auto junction_it : junctions) {
         const auto junction = junction_it.second;
         for (const auto& direction : Board::AllDirections) {
-            const auto neighbor_node = graph->neighbor(&junction->node(), direction);
+            const auto neighbor_node = graph->neighbor(junction->node(), direction);
             if (neighbor_node == nullptr) {
                 continue;
             }
@@ -221,7 +221,7 @@ Game* initialize(const Board::Graph* graph,
     for (auto road_it : roads) {
         const auto road = road_it.second;
         for (const auto& direction : Board::AllDirections) {
-            const auto neighbor_node = graph->neighbor(&road->node(), direction);
+            const auto neighbor_node = graph->neighbor(road->node(), direction);
             if (neighbor_node == nullptr) {
                 continue;
             }
@@ -992,18 +992,18 @@ std::ostream& operator<<(std::ostream& os, const Game& game)
                     os << owner->index();
                     continue;
                 }
-                if (game.graph()->has_neighbor(node, Board::Direction::Clock6)
-                    || game.graph()->has_neighbor(node, Board::Direction::Clock12)) {
+                if (game.graph()->has_neighbor(*node, Board::Direction::Clock6)
+                    || game.graph()->has_neighbor(*node, Board::Direction::Clock12)) {
                     os << '|';
                     continue;
                 }
-                if (game.graph()->has_neighbor(node, Board::Direction::Clock2)
-                    || game.graph()->has_neighbor(node, Board::Direction::Clock8)) {
+                if (game.graph()->has_neighbor(*node, Board::Direction::Clock2)
+                    || game.graph()->has_neighbor(*node, Board::Direction::Clock8)) {
                     os << '/';
                     continue;
                 }
-                if (game.graph()->has_neighbor(node, Board::Direction::Clock4)
-                    || game.graph()->has_neighbor(node, Board::Direction::Clock10)) {
+                if (game.graph()->has_neighbor(*node, Board::Direction::Clock4)
+                    || game.graph()->has_neighbor(*node, Board::Direction::Clock10)) {
                     os << '\\';
                     continue;
                 }

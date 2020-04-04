@@ -27,18 +27,18 @@ TEST_CASE("Graph initialization", "[Board][Board.Graph]")
         REQUIRE(n->x() == 0);
         REQUIRE(n->y() == 0);
         REQUIRE(n->type() == NodeType::Ocean);
-        REQUIRE(!g.has_neighbor(n, Direction::Clock2));
-        REQUIRE(!g.has_neighbor(n, Direction::Clock4));
-        REQUIRE(!g.has_neighbor(n, Direction::Clock6));
-        REQUIRE(!g.has_neighbor(n, Direction::Clock8));
-        REQUIRE(!g.has_neighbor(n, Direction::Clock10));
-        REQUIRE(!g.has_neighbor(n, Direction::Clock12));
-        REQUIRE(g.neighbor(n, Direction::Clock2) == nullptr);
-        REQUIRE(g.neighbor(n, Direction::Clock4) == nullptr);
-        REQUIRE(g.neighbor(n, Direction::Clock6) == nullptr);
-        REQUIRE(g.neighbor(n, Direction::Clock8) == nullptr);
-        REQUIRE(g.neighbor(n, Direction::Clock10) == nullptr);
-        REQUIRE(g.neighbor(n, Direction::Clock12) == nullptr);
+        REQUIRE(!g.has_neighbor(*n, Direction::Clock2));
+        REQUIRE(!g.has_neighbor(*n, Direction::Clock4));
+        REQUIRE(!g.has_neighbor(*n, Direction::Clock6));
+        REQUIRE(!g.has_neighbor(*n, Direction::Clock8));
+        REQUIRE(!g.has_neighbor(*n, Direction::Clock10));
+        REQUIRE(!g.has_neighbor(*n, Direction::Clock12));
+        REQUIRE(g.neighbor(*n, Direction::Clock2) == nullptr);
+        REQUIRE(g.neighbor(*n, Direction::Clock4) == nullptr);
+        REQUIRE(g.neighbor(*n, Direction::Clock6) == nullptr);
+        REQUIRE(g.neighbor(*n, Direction::Clock8) == nullptr);
+        REQUIRE(g.neighbor(*n, Direction::Clock10) == nullptr);
+        REQUIRE(g.neighbor(*n, Direction::Clock12) == nullptr);
     }
 
     SECTION("Edges without nodes should throw")

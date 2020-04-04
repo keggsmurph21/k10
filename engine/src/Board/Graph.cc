@@ -17,11 +17,11 @@ bool Graph::nodes_can_make_port(const Node& n0, const Node& n1, Orientation o)
         return false;
     }
     for (auto direction : get_directions(o)) {
-        auto first_neighbor = neighbor(&n0, direction);
+        auto first_neighbor = neighbor(n0, direction);
         if (first_neighbor == nullptr) {
             continue;
         }
-        auto second_neighbor = neighbor(first_neighbor, direction);
+        auto second_neighbor = neighbor(*first_neighbor, direction);
         if (second_neighbor == nullptr) {
             continue;
         }
@@ -57,11 +57,11 @@ Graph::Graph(Dimensions dimensions,
         if (node_0 == nullptr || node_1 == nullptr) {
             goto clean_up_failed_construction;
         }
-        if (has_neighbor(node_0, it.direction)) {
+        if (has_neighbor(*node_0, it.direction)) {
             goto clean_up_failed_construction;
         }
-        std::pair<const Node*, const Direction> key = { node_0, it.direction };
-        m_edges[key] = node_1;
+        std::pair<size_t, Direction> key = { node_0->index(), it.direction };
+        m_edges[key] = node_1->index();
     }
     for (const auto& it : port_specs) {
         const auto node_0 = node(it.node_0_index);
@@ -118,17 +118,18 @@ const Node* Graph::node(const size_t x, const size_t y) const
     return node(index);
 }
 
-bool Graph::has_neighbor(const Node* n, const Direction d) const
+bool Graph::has_neighbor(const Node& n, const Direction d) const
 {
-    return m_edges.find({ n, d }) != m_edges.end();
+    return m_edges.find({ n.index(), d }) != m_edges.end();
 }
 
-const Node* Graph::neighbor(const Node* n, const Direction d) const
+const Node* Graph::neighbor(const Node& n, const Direction d) const
 {
     if (!has_neighbor(n, d)) {
         return nullptr;
     }
-    return m_edges.at({ n, d });
+    const auto index = m_edges.at({ n.index(), d });
+    return node(index);
 }
 
 const Port* Graph::port(const Node& node) const
@@ -152,7 +153,7 @@ const Port* Graph::port(size_t port_index) const
     return nullptr;
 }
 
-std::vector<const Node*> Graph::neighbors(const Node* node) const
+std::vector<const Node*> Graph::neighbors(const Node& node) const
 {
     std::vector<const Node*> neighbors;
     for (const auto& direction : AllDirections) {

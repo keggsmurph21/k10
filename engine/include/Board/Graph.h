@@ -40,7 +40,7 @@ typedef std::vector<EdgeSpec> EdgeSpecs;
 typedef std::vector<PortSpec> PortSpecs;
 
 typedef std::vector<Node> Nodes;
-typedef std::map<std::pair<const Node*, const Direction>, const Node*, std::less<>> Edges;
+typedef std::map<std::pair<size_t, Direction>, size_t> Edges;
 typedef std::vector<Port> Ports;
 
 class Graph {
@@ -54,9 +54,9 @@ public:
 
     int size() const { return m_nodes.size(); }
 
-    bool has_neighbor(const Node*, const Direction) const;
-    const Node* neighbor(const Node*, const Direction) const;
-    std::vector<const Node*> neighbors(const Node* node) const;
+    bool has_neighbor(const Node&, const Direction) const;
+    const Node* neighbor(const Node&, const Direction) const;
+    std::vector<const Node*> neighbors(const Node& node) const;
 
     const Port* port(const Node&) const;
     const Port* port(size_t port_index) const;
