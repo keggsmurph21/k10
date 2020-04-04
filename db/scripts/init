@@ -1,0 +1,87 @@
+#!/bin/bash
+
+set -euo pipefail
+
+PG_DATA_DIR=/var/lib/postgres/data
+PG_LOG_FILE=/var/log/postgres/k10.log
+PG_DB=k10
+PG_ROLE=local
+PG_PASS=test # don't commit this once it's fully set up
+
+if [ ! -d "$PG_DATA_DIR" ]; then
+    sudo -u postgres initdb \
+        --locale=en_US.UTF-8 \
+        -E UTF8 \
+        -D "$PG_DATA_DIR"
+    sudo -u postgres pg_ctl \
+        -D "$PG_DATA_DIR" \
+        -l "$PG_LOG_FILE" \
+        start
+fi
+
+sudo -u postgres psql <<EOF
+DO \$\$
+BEGIN
+    CREATE ROLE $PG_ROLE WITH LOGIN PASSWORD '$PG_PASS';
+    EXCEPTION WHEN DUPLICATE_OBJECT THEN \
+        RAISE NOTICE 'role "$PG_ROLE" already exists, skipping';
+END
+\$\$;
+EOF
+
+psql "$PG_DB" "$PG_ROLE" <<EOF
+
+DROP TABLE IF EXISTS Player;
+DROP TABLE IF EXISTS Game;
+DROP TABLE IF EXISTS Graph;
+
+CREATE TABLE IF NOT EXISTS Graph (
+    id INT PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS Game (
+    id INT PRIMARY KEY,
+    graph_id INT NOT NULL REFERENCES Graph(id) ON DELETE CASCADE,
+    -- FIXME: m_hexes
+    -- FIXME: m_junctions
+    -- FIXME: m_roads
+    -- FIXME: m_deck
+    -- FIXME: m_scenario
+    -- FIXME: m_dice
+    robberHexIndex INT NOT NULL,
+    victoryPointsGoal INT NOT NULL,
+    -- FIXME: m_players
+    deckIndex INT NOT NULL,
+    currentPlayerIndex INT NOT NULL,
+    canSteal BOOLEAN NOT NULL,
+    hasRolled BOOLEAN NOT NULL,
+    isTradeAccepted BOOLEAN NOT NULL,
+    numTradesOfferedThisTurn INT NOT NULL,
+    -- FIXME: m_current_trade
+    turn INT NOT NULL,
+    hasLargestArmyIndex INT,
+    hasLongestRoadIndex INT
+    -- FIXME: m_buildings_built
+);
+
+CREATE TABLE IF NOT EXISTS Player (
+    game_id INT NOT NULL REFERENCES Game(id) ON DELETE CASCADE,
+    index INT NOT NULL,
+    -- FIXME: m_resources
+    -- FIXME: m_bank_trade_rates
+    -- FIXME: m_cities
+    -- FIXME: m_roads
+    -- FIXME: m_settlements
+    -- FIXME: m_played_development_cards
+    -- FIXME: m_playable_development_cards
+    -- FIXME: m_unplayable_development_cards
+    vertex INT NOT NULL,
+    canAcceptTrade BOOLEAN NOT NULL,
+    hasDeclinedTrade BOOLEAN NOT NULL,
+    numToDiscard INT NOT NULL,
+    publicVictoryPoints INT NOT NULL,
+    privateVictoryPoints INT NOT NULL,
+    armySize INT NOT NULL,
+    longestRoad INT NOT NULL
+);
+EOF
