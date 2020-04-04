@@ -70,22 +70,18 @@ Graph::Graph(Dimensions dimensions,
         if (!nodes_can_make_port(node_0, node_1, it.orientation)) {
             goto clean_up_failed_construction;
         }
-        const auto port = new Port(port_index, { node_0, node_1 }, it.orientation);
-        ++port_index;
-        m_ports.push_back(port);
+        m_ports.push_back(Port(port_index, { node_0, node_1 }, it.orientation));
         // FIXME: Assert that we don't assign a port to an index if
         //        it's already in our map.  In that case, we should fail.
-        m_node_index_to_port_map[node_0->index()] = port;
-        m_node_index_to_port_map[node_1->index()] = port;
+        m_node_index_to_port_index_map[node_0->index()] = port_index;
+        m_node_index_to_port_index_map[node_1->index()] = port_index;
+        ++port_index;
     }
     // FIXME: Make sure everything is connected (undirected)
     // for (auto g : (*m_graph)) {
     return;
 
 clean_up_failed_construction:
-    for (auto port : m_ports) {
-        delete port;
-    }
     m_ports.clear();
     m_edges.clear();
     for (auto node : m_nodes) {
@@ -97,9 +93,6 @@ clean_up_failed_construction:
 
 Graph::~Graph()
 {
-    for (auto port : m_ports) {
-        delete port;
-    }
     m_ports.clear();
     m_edges.clear();
     for (auto node : m_nodes) {
@@ -146,16 +139,17 @@ const Port* Graph::port(const Node& node) const
         return nullptr;
     }
     const auto node_index = node.index();
-    if (m_node_index_to_port_map.find(node_index) == m_node_index_to_port_map.end()) {
+    if (m_node_index_to_port_index_map.find(node_index) == m_node_index_to_port_index_map.end()) {
         return nullptr;
     }
-    return m_node_index_to_port_map.at(node_index);
+    const auto port_index = m_node_index_to_port_index_map.at(node_index);
+    return port(port_index);
 }
 
 const Port* Graph::port(size_t port_index) const
 {
     if (port_index < m_ports.size()) {
-        return m_ports.at(port_index);
+        return &m_ports.at(port_index);
     }
     return nullptr;
 }

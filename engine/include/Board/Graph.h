@@ -41,7 +41,7 @@ typedef std::vector<PortSpec> PortSpecs;
 
 typedef std::vector<const Node*> Nodes;
 typedef std::map<std::pair<const Node*, const Direction>, const Node*, std::less<>> Edges;
-typedef std::vector<const Port*> Ports;
+typedef std::vector<Port> Ports;
 
 class Graph {
 public:
@@ -71,7 +71,7 @@ private:
     Edges m_edges;
     Ports m_ports;
 
-    std::map<int, const Port*> m_node_index_to_port_map;
+    std::map<int, size_t> m_node_index_to_port_index_map;
 
     const Dimensions m_dimensions;
     std::vector<std::vector<const Node*>> m_node_matrix;
