@@ -135,51 +135,62 @@ Game* initialize(const Board::Graph* graph,
     size_t resource_index = 0;
     size_t roll_index = 0;
 
+    auto make_hex = [&](const Board::Node& node) -> BoardView::Hex* {
+        if (resource_index >= resources.size()) {
+            return nullptr; // Too few resources
+        }
+        const auto& resource = resources.at(resource_index);
+        BoardView::Hex* hex;
+        if (std::holds_alternative<NonYieldingResource>(resource)) {
+            if (robber_index != -1) {
+                return nullptr; // FIXME: Handle multiple robbers?
+            }
+            robber_index = static_cast<int>(node.index());
+            return new BoardView::Hex(node, resource, 0);
+        } else {
+            if (roll_index >= rolls.size()) {
+                return nullptr; // Too few rolls
+            }
+            const auto roll = rolls.at(roll_index);
+            ++roll_index;
+            return new BoardView::Hex(node, resource, roll);
+        }
+    };
+
+    auto make_junction = [&](const Board::Node& node) -> BoardView::Junction* {
+        const auto port = graph->port(node);
+        BoardView::Junction* junction;
+        if (port == nullptr) {
+            return new BoardView::Junction(node, {}, 0);
+        } else {
+            const auto port_index = port->index();
+            if (port_index >= ports.size()) {
+                return nullptr; // Too few ports
+            }
+            const auto& port_spec = ports.at(port_index);
+            return new BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
+        }
+    };
+
+    auto make_road = [&](const Board::Node& node) -> BoardView::Road* {
+        return new BoardView::Road(node);
+    };
+
     for (const auto& node : graph->nodes()) {
         switch (node.type()) {
         case Board::NodeType::Hex: { // scope for const
-            if (resource_index >= resources.size()) {
-                return nullptr; // Too few resources
-            }
-            const auto& resource = resources.at(resource_index);
-            BoardView::Hex* hex;
-            if (std::holds_alternative<NonYieldingResource>(resource)) {
-                if (robber_index != -1) {
-                    return nullptr; // FIXME: Handle multiple robbers?
-                }
-                robber_index = static_cast<int>(node.index());
-                hex = new BoardView::Hex(node, resource, 0);
-            } else {
-                if (roll_index >= rolls.size()) {
-                    return nullptr; // Too few rolls
-                }
-                const auto roll = rolls.at(roll_index);
-                ++roll_index;
-                hex = new BoardView::Hex(node, resource, roll);
-            }
+            auto hex = make_hex(node);
             hex_lookup[&node] = hex;
             hexes[node.index()] = hex;
             ++resource_index;
         } break;
         case Board::NodeType::Junction: { // scope for const
-            const auto port = graph->port(node);
-            BoardView::Junction* junction;
-            if (port == nullptr) {
-                junction = new BoardView::Junction(node, {}, 0);
-            } else {
-                const auto port_index = port->index();
-                if (port_index >= ports.size()) {
-                    return nullptr; // Too few ports
-                }
-                const auto& port_spec = ports.at(port_index);
-                junction =
-                    new BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
-            }
+            auto junction = make_junction(node);
             junction_lookup[&node] = junction;
             junctions[node.index()] = junction;
         } break;
         case Board::NodeType::Road: { // scope for const
-            auto road = new BoardView::Road(node);
+            auto road = make_road(node);
             road_lookup[&node] = road;
             roads[node.index()] = road;
         } break;
