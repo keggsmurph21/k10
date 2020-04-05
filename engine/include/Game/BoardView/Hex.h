@@ -3,25 +3,19 @@
 #include <iostream>
 #include <map>
 
-#include "Board/Node.h"
 #include "Core/Resource.h"
 #include "Forward.h"
+#include "Game/BoardView/Node.h"
 
 namespace k10engine::Game::BoardView {
 
-template<typename T>
-using Neighbors = std::map<Board::Direction, T*, std::less<>>;
-
-class Hex {
+class Hex : public NodeView {
 public:
     const AbstractResource& resource() const { return m_resource; }
     size_t roll_number() const { return m_roll_number; }
 
-    size_t index() const { return m_node.index(); }
-    const Board::Node& node() const { return m_node; }
-
     Hex(const Board::Node& node, AbstractResource resource, size_t roll_number)
-        : m_node(node)
+        : NodeView(node, NodeView::Type::Hex)
         , m_resource(resource)
         , m_roll_number(roll_number)
     {
@@ -42,7 +36,6 @@ public:
     }
 
 private:
-    const Board::Node& m_node;
     const AbstractResource m_resource;
     size_t m_roll_number; // 0 means <none>
 

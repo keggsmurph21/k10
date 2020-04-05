@@ -4,16 +4,13 @@
 #include <map>
 
 #include "Board/Direction.h"
-#include "Board/Node.h"
 #include "Core/Resource.h"
 #include "Forward.h"
+#include "Game/BoardView/Node.h"
 
 namespace k10engine::Game::BoardView {
 
-template<typename T>
-using Neighbors = std::map<Board::Direction, T*, std::less<>>;
-
-class Junction {
+class Junction : public NodeView {
 public:
     bool has_settlement() const { return m_has_settlement; }
     void set_has_settlement() { m_has_settlement = true; }
@@ -32,11 +29,8 @@ public:
     const Player* owner() const { return m_owner; }
     void set_owner(Player* owner) { m_owner = owner; }
 
-    size_t index() const { return m_node.index(); }
-    const Board::Node& node() const { return m_node; }
-
     Junction(const Board::Node& node, ResourceCollection port_resources, size_t port_exchange_rate)
-        : m_node(node)
+        : NodeView(node, NodeView::Type::Junction)
         , m_port_resources(port_resources)
         , m_port_exchange_rate(port_exchange_rate)
     {
@@ -56,7 +50,6 @@ public:
     }
 
 private:
-    const Board::Node& m_node;
     bool m_has_settlement{ false };
     bool m_has_city{ false };
     bool m_is_settleable{ true };
