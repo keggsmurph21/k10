@@ -9,6 +9,7 @@
 #include "Core/Action.h"
 #include "Core/Result.h"
 #include "Core/Vertex.h"
+#include "Forward.h"
 #include "Game/BoardView/Hex.h"
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"
@@ -28,8 +29,6 @@ namespace k10engine::Game {
 #define k10_LONGEST_ROAD_THRESHOLD 4
 
 #define MAX_NUM_TRADE_OFFERS_PER_TURN 42
-
-class Player;
 
 class Game {
 public:

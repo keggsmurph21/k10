@@ -5,10 +5,9 @@
 
 #include "Board/Node.h"
 #include "Core/Resource.h"
+#include "Forward.h"
 
 namespace k10engine::Game::BoardView {
-
-class Junction;
 
 template<typename T>
 using Neighbors = std::map<Board::Direction, T*, std::less<>>;

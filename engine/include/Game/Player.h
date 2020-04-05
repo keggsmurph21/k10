@@ -10,6 +10,7 @@
 #include "Core/Edge.h"
 #include "Core/Resource.h"
 #include "Core/Vertex.h"
+#include "Forward.h"
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"
 #include "Game/ExecutionOptions.h"
@@ -20,8 +21,6 @@ namespace k10engine::Game {
 
 #define k10_DEFAULT_BANK_TRADE_RATE 4;
 #define k10_MAX_RESOURCES_BEFORE_DISCARDING 7;
-
-class Game;
 
 class Player {
 public:

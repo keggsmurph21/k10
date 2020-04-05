@@ -4,10 +4,9 @@
 #include <vector>
 
 #include "Core/Resource.h"
+#include "Forward.h"
 
 namespace k10engine::Game {
-
-class Player;
 
 struct Trade {
     Player* offerer;

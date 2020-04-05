@@ -5,14 +5,9 @@
 
 #include "Board/Node.h"
 #include "Core/Resource.h"
+#include "Forward.h"
 
-namespace k10engine::Game {
-
-class Player;
-
-namespace BoardView {
-
-class Junction;
+namespace k10engine::Game::BoardView {
 
 template<typename T>
 using Neighbors = std::map<Board::Direction, T*, std::less<>>;
@@ -40,12 +35,9 @@ public:
     }
 
 private:
-    const Board::Node& m_node;
     Player* m_owner{ nullptr };
 
     Neighbors<Junction> m_junction_neighbors;
 };
 
-} // namespace BoardView
-
-} // namespace k10engine::Game
+} // namespace k10engine::Game::BoardView

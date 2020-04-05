@@ -6,15 +6,9 @@
 #include "Board/Direction.h"
 #include "Board/Node.h"
 #include "Core/Resource.h"
+#include "Forward.h"
 
-namespace k10engine::Game {
-
-class Player;
-
-namespace BoardView {
-
-class Hex;
-class Road;
+namespace k10engine::Game::BoardView {
 
 template<typename T>
 using Neighbors = std::map<Board::Direction, T*, std::less<>>;
@@ -74,6 +68,4 @@ private:
     Neighbors<Road> m_road_neighbors;
 };
 
-} // namespace BoardView
-
-} // namespace k10engine::Game
+} // namespace k10engine::Game::BoardView
