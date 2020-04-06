@@ -64,297 +64,289 @@ struct PlayerState {
     size_t settlements = 0;
 };
 
-#define bootstrap_tests()                                                                     \
-                                                                                              \
-    GameState gs;                                                                             \
-    auto ps = std::vector<PlayerState>(g->players().size());                                  \
-    std::map<int, int> settlements;                                                           \
-    std::map<int, int> roads;                                                                 \
-                                                                                              \
-    const auto check_state = [&]() -> void {                                                  \
-        REQUIRE(g->can_steal() == gs.can_steal);                                              \
-        REQUIRE(g->has_rolled() == gs.has_rolled);                                            \
-        REQUIRE(g->is_game_over() == gs.is_game_over);                                        \
-        REQUIRE(g->is_trade_accepted() == gs.is_trade_accepted);                              \
-        REQUIRE(g->is_first_round() == gs.is_first_round);                                    \
-        REQUIRE(g->is_second_round() == gs.is_second_round);                                  \
-        REQUIRE(g->is_roll_seven() == gs.is_roll_seven);                                      \
-        REQUIRE(g->should_wait_for_discard() == gs.should_wait_for_discard);                  \
-        REQUIRE(g->has_current_trade() == gs.has_current_trade);                              \
-        REQUIRE(g->should_wait_for_trade() == gs.should_wait_for_trade);                      \
-        REQUIRE(g->num_trades_offered_this_turn() == gs.num_trades_offered_this_turn);        \
-        REQUIRE(g->robber_location()->node().index() == gs.robber_location);                  \
-        REQUIRE(g->get_dice_total() == gs.dice_total);                                        \
-        REQUIRE(g->turn() == gs.turn);                                                        \
-        REQUIRE(g->get_round() == gs.round);                                                  \
-        if (gs.has_largest_army == -1) {                                                      \
-            REQUIRE(g->has_largest_army() == nullptr);                                        \
-        } else {                                                                              \
-            REQUIRE(g->has_largest_army()->index() == gs.has_largest_army);                   \
-        }                                                                                     \
-        REQUIRE(g->largest_army() == gs.largest_army);                                        \
-        if (gs.has_longest_road == -1) {                                                      \
-            REQUIRE(g->has_longest_road() == nullptr);                                        \
-        } else {                                                                              \
-            REQUIRE(g->has_longest_road()->index() == gs.has_longest_road);                   \
-        }                                                                                     \
-        REQUIRE(g->longest_road() == gs.longest_road);                                        \
-        REQUIRE(g->num_built(Building::City) == gs.cities_built);                             \
-        REQUIRE(g->num_built(Building::DevelopmentCard) == gs.development_cards_built);       \
-        REQUIRE(g->num_built(Building::Road) == gs.roads_built);                              \
-        REQUIRE(g->num_built(Building::Settlement) == gs.settlements_built);                  \
-        for (int i = 0; i < g->players().size(); ++i) {                                       \
-            REQUIRE(g->player(i).can_accept_trade() == ps.at(i).can_accept_trade);            \
-            REQUIRE(g->player(i).has_declined_trade() == ps.at(i).has_declined_trade);        \
-            REQUIRE(g->player(i).num_to_discard() == ps.at(i).num_to_discard);                \
-            REQUIRE(g->player(i).vertex() == ps.at(i).vertex);                                \
-            REQUIRE(g->player(i).is_current_player() == ps.at(i).is_current_player);          \
-            REQUIRE(g->player(i).num_resources() == ps.at(i).num_resources);                  \
-            REQUIRE(g->player(i).num_played_development_cards()                               \
-                    == ps.at(i).num_played_development_cards);                                \
-            REQUIRE(g->player(i).num_unplayed_development_cards()                             \
-                    == ps.at(i).num_unplayed_development_cards);                              \
-            REQUIRE(g->player(i).army_size() == ps.at(i).army_size);                          \
-            REQUIRE(g->player(i).longest_road() == ps.at(i).longest_road);                    \
-            REQUIRE(g->player(i).public_victory_points() == ps.at(i).public_victory_points);  \
-            REQUIRE(g->player(i).cities().size() == ps.at(i).cities);                         \
-            REQUIRE(g->player(i).roads().size() == ps.at(i).roads);                           \
-            REQUIRE(g->player(i).settlements().size() == ps.at(i).settlements);               \
-        }                                                                                     \
-    };                                                                                        \
-                                                                                              \
-    const auto check_no_actions = [&](size_t player_index) {                                  \
-        const auto actions = g->player(player_index).get_available_actions();                 \
-        REQUIRE(actions.empty());                                                             \
-    };                                                                                        \
-                                                                                              \
-    const auto check_build_settlement = [&](size_t player_index, size_t num_expected) {       \
-        const auto actions = g->player(player_index).get_available_actions();                 \
-        size_t num_buildable_settlements_found = 0;                                           \
-        for (const auto& action : actions) {                                                  \
-            if (action.edge != Edge::BuildSettlement) {                                       \
-                continue;                                                                     \
-            }                                                                                 \
-            if (static_cast<Building>(action.args.at(0).value) != Building::Settlement) {     \
-                continue;                                                                     \
-            }                                                                                 \
-            ++num_buildable_settlements_found;                                                \
-            REQUIRE(action.args.size() == 2);                                                 \
-            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                          \
-            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Settlement));    \
-            REQUIRE(action.args.at(1).type == ArgType::NodeId);                               \
-            const auto node_index = action.args.at(1).value;                                  \
-            REQUIRE(g->junctions().find(node_index) != g->junctions().end());                 \
-            REQUIRE(g->junctions().at(node_index)->is_settleable() == true);                  \
-        }                                                                                     \
-        REQUIRE(num_buildable_settlements_found == num_expected);                             \
-        REQUIRE(g->execute_accept_trade(g->player(player_index)).type                         \
-                == ResType::InvalidEdgeChoice);                                               \
-    };                                                                                        \
-                                                                                              \
-    const auto check_build_road = [&](size_t player_index, size_t num_expected) {             \
-        const auto actions = g->player(player_index).get_available_actions();                 \
-        size_t num_buildable_roads_found = 0;                                                 \
-        for (const auto& action : actions) {                                                  \
-            if (action.edge != Edge::BuildRoad) {                                             \
-                continue;                                                                     \
-            }                                                                                 \
-            if (static_cast<Building>(action.args.at(0).value) != Building::Road) {           \
-                continue;                                                                     \
-            }                                                                                 \
-            ++num_buildable_roads_found;                                                      \
-            REQUIRE(action.edge == Edge::BuildRoad);                                          \
-            REQUIRE(action.args.size() == 2);                                                 \
-            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                          \
-            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Road));          \
-            REQUIRE(action.args.at(1).type == ArgType::NodeId);                               \
-            const auto node_index = action.args.at(1).value;                                  \
-            REQUIRE(g->roads().find(node_index) != g->roads().end());                         \
-            REQUIRE(g->roads().at(node_index)->owner() == nullptr);                           \
-        }                                                                                     \
-        REQUIRE(num_buildable_roads_found == num_expected);                                   \
-        REQUIRE(g->execute_accept_trade(g->player(player_index)).type                         \
-                == ResType::InvalidEdgeChoice);                                               \
-    };                                                                                        \
-                                                                                              \
-    const auto check_choose_initial_resources = [&](size_t player_index) {                    \
-        const auto actions = g->player(player_index).get_available_actions();                 \
-        REQUIRE(actions.size() == 2);                                                         \
-        for (const auto& action : actions) {                                                  \
-            REQUIRE(action.edge == Edge::ChooseInitialResources);                             \
-            REQUIRE(action.args.size() == 1);                                                 \
-            REQUIRE(action.args.at(0).type == ArgType::NodeId);                               \
-            const auto node_index = action.args.at(0).value;                                  \
-            REQUIRE(g->junctions().find(node_index) != g->junctions().end());                 \
-            const auto junction = g->junctions().at(node_index);                              \
-            REQUIRE(junction->owner() != nullptr);                                            \
-            REQUIRE(*junction->owner() == g->player(player_index));                           \
-            const auto settlements = g->player(player_index).settlements();                   \
-            REQUIRE(std::find(settlements.begin(), settlements.end(), junction)               \
-                    != settlements.end());                                                    \
-        }                                                                                     \
-    };                                                                                        \
-                                                                                              \
-    const auto check_single_action = [&](size_t player_index, const Edge& edge) {             \
-        const auto actions = g->player(player_index).get_available_actions();                 \
-        REQUIRE(actions.size() == 1);                                                         \
-        for (const auto& action : actions) {                                                  \
-            REQUIRE(action.edge == edge);                                                     \
-            REQUIRE(action.args.empty());                                                     \
-        }                                                                                     \
-    };                                                                                        \
-                                                                                              \
-    const auto check_to_root = [&](size_t player_index) {                                     \
-        check_single_action(player_index, Edge::ToRoot);                                      \
-    };                                                                                        \
-                                                                                              \
-    const auto check_end_turn = [&](size_t player_index) {                                    \
-        const auto actions = g->player(player_index).get_available_actions();                 \
-        bool found = false;                                                                   \
-        for (const auto& action : actions) {                                                  \
-            if (action.edge == Edge::EndTurn) {                                               \
-                found = true;                                                                 \
-                break;                                                                        \
-            }                                                                                 \
-        }                                                                                     \
-        REQUIRE(found == true);                                                               \
-    };                                                                                        \
-                                                                                              \
-    const auto check_roll_dice = [&](size_t player_index) {                                   \
-        check_single_action(player_index, Edge::RollDice);                                    \
-        REQUIRE(g->execute_roll_dice(g->player(player_index), 0).type                         \
-                == ResType::DiceRollOutOfRange);                                              \
-        REQUIRE(g->execute_roll_dice(g->player(player_index), 1).type                         \
-                == ResType::DiceRollOutOfRange);                                              \
-        REQUIRE(g->execute_roll_dice(g->player(player_index), 13).type                        \
-                == ResType::DiceRollOutOfRange);                                              \
-    };                                                                                        \
-                                                                                              \
-    const auto check_settlements = [&]() {                                                    \
-        for (const auto& j_it : g->junctions()) {                                             \
-            const auto& j = j_it.second;                                                      \
-            const auto& map_it = settlements.find(j->index());                                \
-            if (map_it == settlements.end()) {                                                \
-                REQUIRE(j->is_settleable() == true);                                          \
-                REQUIRE(j->owner() == nullptr);                                               \
-            } else {                                                                          \
-                REQUIRE(j->is_settleable() == false);                                         \
-                const auto& player_index = settlements.at(j->index());                        \
-                if (player_index == -1) {                                                     \
-                    REQUIRE(j->owner() == nullptr);                                           \
-                } else {                                                                      \
-                    REQUIRE(j->owner() != nullptr);                                           \
-                    REQUIRE(j->owner()->index() == player_index);                             \
-                }                                                                             \
-            }                                                                                 \
-        }                                                                                     \
-    };                                                                                        \
-                                                                                              \
-    const auto check_roads = [&]() {                                                          \
-        for (const auto& r_it : g->roads()) {                                                 \
-            const auto& r = r_it.second;                                                      \
-            const auto& map_it = roads.find(r->index());                                      \
-            if (map_it == roads.end()) {                                                      \
-                REQUIRE(r->owner() == nullptr);                                               \
-            } else {                                                                          \
-                const auto& player_index = roads.at(r->index());                              \
-                REQUIRE(r->owner()->index() == player_index);                                 \
-            }                                                                                 \
-        }                                                                                     \
-    };                                                                                        \
-                                                                                              \
-    const auto dump_actions = [&]() {                                                         \
-        std::cout << *g << std::endl;                                                         \
-        for (const auto& player : g->players()) {                                             \
-            std::cout << player << std::endl;                                                 \
-            for (const auto& action : player.get_available_actions()) {                       \
-                std::cout << " - " << action << std::endl;                                    \
-            }                                                                                 \
-        }                                                                                     \
-        std::cout << std::endl;                                                               \
-    };                                                                                        \
-                                                                                              \
-    const auto do_first_two_rounds_standard_3p = [&]() {                                      \
-        gs.robber_location = 143;                                                             \
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(4)).type          \
-                == ResType::Ok);                                                              \
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(7)).type == ResType::Ok);   \
-        REQUIRE(g->execute_to_root(g->player(1)).type == ResType::Ok);                        \
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(5)).type          \
-                == ResType::Ok);                                                              \
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(9)).type == ResType::Ok);   \
-        REQUIRE(g->execute_to_root(g->player(2)).type == ResType::Ok);                        \
-        REQUIRE(g->execute_build_settlement(g->player(2), g->junctions().at(90)).type         \
-                == ResType::Ok);                                                              \
-        REQUIRE(g->execute_build_road(g->player(2), g->roads().at(80)).type == ResType::Ok);  \
-        REQUIRE(g->execute_to_root(g->player(2)).type == ResType::Ok);                        \
-        REQUIRE(g->execute_build_settlement(g->player(2), g->junctions().at(91)).type         \
-                == ResType::Ok);                                                              \
-        REQUIRE(g->execute_build_road(g->player(2), g->roads().at(63)).type == ResType::Ok);  \
-        REQUIRE(g->execute_choose_initial_resources(g->player(2), g->junctions().at(91)).type \
-                == ResType::Ok);                                                              \
-        REQUIRE(g->execute_to_root(g->player(1)).type == ResType::Ok);                        \
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(6)).type          \
-                == ResType::Ok);                                                              \
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(10)).type == ResType::Ok);  \
-        REQUIRE(g->execute_choose_initial_resources(g->player(1), g->junctions().at(6)).type  \
-                == ResType::Ok);                                                              \
-        REQUIRE(g->execute_to_root(g->player(0)).type == ResType::Ok);                        \
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(26)).type         \
-                == ResType::Ok);                                                              \
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(18)).type == ResType::Ok);  \
-        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junctions().at(26)).type \
-                == ResType::Ok);                                                              \
-                                                                                              \
-        gs.is_first_round = false;                                                            \
-        gs.is_second_round = false;                                                           \
-        gs.roads_built = 6;                                                                   \
-        gs.settlements_built = 6;                                                             \
-        gs.turn = 6;                                                                          \
-        gs.round = 2;                                                                         \
-        ps[0].vertex = Vertex::WaitForTurn;                                                   \
-        ps[0].num_resources = 2;                                                              \
-        ps[0].is_current_player = true;                                                       \
-        ps[0].settlements = 2;                                                                \
-        ps[0].roads = 2;                                                                      \
-        ps[0].public_victory_points = 2;                                                      \
-        ps[1].vertex = Vertex::WaitForTurn;                                                   \
-        ps[1].num_resources = 1;                                                              \
-        ps[1].settlements = 2;                                                                \
-        ps[1].roads = 2;                                                                      \
-        ps[1].public_victory_points = 2;                                                      \
-        ps[2].vertex = Vertex::WaitForTurn;                                                   \
-        ps[2].num_resources = 3;                                                              \
-        ps[2].settlements = 2;                                                                \
-        ps[2].roads = 2;                                                                      \
-        ps[2].public_victory_points = 2;                                                      \
-        roads[7] = 0;                                                                         \
-        roads[9] = 1;                                                                         \
-        roads[10] = 1;                                                                        \
-        roads[18] = 0;                                                                        \
-        roads[63] = 2;                                                                        \
-        roads[80] = 2;                                                                        \
-        settlements[4] = 0;                                                                   \
-        settlements[5] = 1;                                                                   \
-        settlements[6] = 1;                                                                   \
-        settlements[13] = -1;                                                                 \
-        settlements[14] = -1;                                                                 \
-        settlements[15] = -1;                                                                 \
-        settlements[16] = -1;                                                                 \
-        settlements[26] = 0;                                                                  \
-        settlements[38] = -1;                                                                 \
-        settlements[39] = -1;                                                                 \
-        settlements[71] = -1;                                                                 \
-        settlements[72] = -1;                                                                 \
-        settlements[90] = 2;                                                                  \
-        settlements[91] = 2;                                                                  \
-        settlements[105] = -1;                                                                \
-        settlements[106] = -1;                                                                \
-        settlements[107] = -1;                                                                \
-        check_state();                                                                        \
-        check_to_root(0);                                                                     \
-        check_no_actions(1);                                                                  \
-        check_no_actions(2);                                                                  \
+#define bootstrap_tests()                                                                        \
+                                                                                                 \
+    GameState gs;                                                                                \
+    auto ps = std::vector<PlayerState>(g->players().size());                                     \
+    std::map<int, int> settlements;                                                              \
+    std::map<int, int> roads;                                                                    \
+                                                                                                 \
+    const auto check_state = [&]() -> void {                                                     \
+        REQUIRE(g->can_steal() == gs.can_steal);                                                 \
+        REQUIRE(g->has_rolled() == gs.has_rolled);                                               \
+        REQUIRE(g->is_game_over() == gs.is_game_over);                                           \
+        REQUIRE(g->is_trade_accepted() == gs.is_trade_accepted);                                 \
+        REQUIRE(g->is_first_round() == gs.is_first_round);                                       \
+        REQUIRE(g->is_second_round() == gs.is_second_round);                                     \
+        REQUIRE(g->is_roll_seven() == gs.is_roll_seven);                                         \
+        REQUIRE(g->should_wait_for_discard() == gs.should_wait_for_discard);                     \
+        REQUIRE(g->has_current_trade() == gs.has_current_trade);                                 \
+        REQUIRE(g->should_wait_for_trade() == gs.should_wait_for_trade);                         \
+        REQUIRE(g->num_trades_offered_this_turn() == gs.num_trades_offered_this_turn);           \
+        REQUIRE(g->robber_location()->node().index() == gs.robber_location);                     \
+        REQUIRE(g->get_dice_total() == gs.dice_total);                                           \
+        REQUIRE(g->turn() == gs.turn);                                                           \
+        REQUIRE(g->get_round() == gs.round);                                                     \
+        if (gs.has_largest_army == -1) {                                                         \
+            REQUIRE(g->has_largest_army() == nullptr);                                           \
+        } else {                                                                                 \
+            REQUIRE(g->has_largest_army()->index() == gs.has_largest_army);                      \
+        }                                                                                        \
+        REQUIRE(g->largest_army() == gs.largest_army);                                           \
+        if (gs.has_longest_road == -1) {                                                         \
+            REQUIRE(g->has_longest_road() == nullptr);                                           \
+        } else {                                                                                 \
+            REQUIRE(g->has_longest_road()->index() == gs.has_longest_road);                      \
+        }                                                                                        \
+        REQUIRE(g->longest_road() == gs.longest_road);                                           \
+        REQUIRE(g->num_built(Building::City) == gs.cities_built);                                \
+        REQUIRE(g->num_built(Building::DevelopmentCard) == gs.development_cards_built);          \
+        REQUIRE(g->num_built(Building::Road) == gs.roads_built);                                 \
+        REQUIRE(g->num_built(Building::Settlement) == gs.settlements_built);                     \
+        for (int i = 0; i < g->players().size(); ++i) {                                          \
+            REQUIRE(g->player(i).can_accept_trade() == ps.at(i).can_accept_trade);               \
+            REQUIRE(g->player(i).has_declined_trade() == ps.at(i).has_declined_trade);           \
+            REQUIRE(g->player(i).num_to_discard() == ps.at(i).num_to_discard);                   \
+            REQUIRE(g->player(i).vertex() == ps.at(i).vertex);                                   \
+            REQUIRE(g->player(i).is_current_player() == ps.at(i).is_current_player);             \
+            REQUIRE(g->player(i).num_resources() == ps.at(i).num_resources);                     \
+            REQUIRE(g->player(i).num_played_development_cards()                                  \
+                    == ps.at(i).num_played_development_cards);                                   \
+            REQUIRE(g->player(i).num_unplayed_development_cards()                                \
+                    == ps.at(i).num_unplayed_development_cards);                                 \
+            REQUIRE(g->player(i).army_size() == ps.at(i).army_size);                             \
+            REQUIRE(g->player(i).longest_road() == ps.at(i).longest_road);                       \
+            REQUIRE(g->player(i).public_victory_points() == ps.at(i).public_victory_points);     \
+            REQUIRE(g->player(i).cities().size() == ps.at(i).cities);                            \
+            REQUIRE(g->player(i).roads().size() == ps.at(i).roads);                              \
+            REQUIRE(g->player(i).settlements().size() == ps.at(i).settlements);                  \
+        }                                                                                        \
+    };                                                                                           \
+                                                                                                 \
+    const auto check_no_actions = [&](size_t player_index) {                                     \
+        const auto actions = g->player(player_index).get_available_actions();                    \
+        REQUIRE(actions.empty());                                                                \
+    };                                                                                           \
+                                                                                                 \
+    const auto check_build_settlement = [&](size_t player_index, size_t num_expected) {          \
+        const auto actions = g->player(player_index).get_available_actions();                    \
+        size_t num_buildable_settlements_found = 0;                                              \
+        for (const auto& action : actions) {                                                     \
+            if (action.edge != Edge::BuildSettlement) {                                          \
+                continue;                                                                        \
+            }                                                                                    \
+            if (static_cast<Building>(action.args.at(0).value) != Building::Settlement) {        \
+                continue;                                                                        \
+            }                                                                                    \
+            ++num_buildable_settlements_found;                                                   \
+            REQUIRE(action.args.size() == 2);                                                    \
+            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                             \
+            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Settlement));       \
+            REQUIRE(action.args.at(1).type == ArgType::NodeId);                                  \
+            const auto node_index = action.args.at(1).value;                                     \
+            REQUIRE(g->junction(node_index) != nullptr);                                         \
+            REQUIRE(g->junction(node_index)->is_settleable() == true);                           \
+        }                                                                                        \
+        REQUIRE(num_buildable_settlements_found == num_expected);                                \
+        REQUIRE(g->execute_accept_trade(g->player(player_index)).type                            \
+                == ResType::InvalidEdgeChoice);                                                  \
+    };                                                                                           \
+                                                                                                 \
+    const auto check_build_road = [&](size_t player_index, size_t num_expected) {                \
+        const auto actions = g->player(player_index).get_available_actions();                    \
+        size_t num_buildable_roads_found = 0;                                                    \
+        for (const auto& action : actions) {                                                     \
+            if (action.edge != Edge::BuildRoad) {                                                \
+                continue;                                                                        \
+            }                                                                                    \
+            if (static_cast<Building>(action.args.at(0).value) != Building::Road) {              \
+                continue;                                                                        \
+            }                                                                                    \
+            ++num_buildable_roads_found;                                                         \
+            REQUIRE(action.edge == Edge::BuildRoad);                                             \
+            REQUIRE(action.args.size() == 2);                                                    \
+            REQUIRE(action.args.at(0).type == ArgType::BuildItemId);                             \
+            REQUIRE(action.args.at(0).value == static_cast<size_t>(Building::Road));             \
+            REQUIRE(action.args.at(1).type == ArgType::NodeId);                                  \
+            const auto node_index = action.args.at(1).value;                                     \
+            REQUIRE(g->road(node_index) != nullptr);                                             \
+            REQUIRE(g->road(node_index)->owner() == nullptr);                                    \
+        }                                                                                        \
+        REQUIRE(num_buildable_roads_found == num_expected);                                      \
+        REQUIRE(g->execute_accept_trade(g->player(player_index)).type                            \
+                == ResType::InvalidEdgeChoice);                                                  \
+    };                                                                                           \
+                                                                                                 \
+    const auto check_choose_initial_resources = [&](size_t player_index) {                       \
+        const auto actions = g->player(player_index).get_available_actions();                    \
+        REQUIRE(actions.size() == 2);                                                            \
+        for (const auto& action : actions) {                                                     \
+            REQUIRE(action.edge == Edge::ChooseInitialResources);                                \
+            REQUIRE(action.args.size() == 1);                                                    \
+            REQUIRE(action.args.at(0).type == ArgType::NodeId);                                  \
+            const auto node_index = action.args.at(0).value;                                     \
+            REQUIRE(g->junction(node_index) != nullptr);                                         \
+            const auto junction = g->junction(node_index);                                       \
+            REQUIRE(junction->owner() != nullptr);                                               \
+            REQUIRE(*junction->owner() == g->player(player_index));                              \
+            const auto settlements = g->player(player_index).settlements();                      \
+            REQUIRE(std::find(settlements.begin(), settlements.end(), junction)                  \
+                    != settlements.end());                                                       \
+        }                                                                                        \
+    };                                                                                           \
+                                                                                                 \
+    const auto check_single_action = [&](size_t player_index, const Edge& edge) {                \
+        const auto actions = g->player(player_index).get_available_actions();                    \
+        REQUIRE(actions.size() == 1);                                                            \
+        for (const auto& action : actions) {                                                     \
+            REQUIRE(action.edge == edge);                                                        \
+            REQUIRE(action.args.empty());                                                        \
+        }                                                                                        \
+    };                                                                                           \
+                                                                                                 \
+    const auto check_to_root = [&](size_t player_index) {                                        \
+        check_single_action(player_index, Edge::ToRoot);                                         \
+    };                                                                                           \
+                                                                                                 \
+    const auto check_end_turn = [&](size_t player_index) {                                       \
+        const auto actions = g->player(player_index).get_available_actions();                    \
+        bool found = false;                                                                      \
+        for (const auto& action : actions) {                                                     \
+            if (action.edge == Edge::EndTurn) {                                                  \
+                found = true;                                                                    \
+                break;                                                                           \
+            }                                                                                    \
+        }                                                                                        \
+        REQUIRE(found == true);                                                                  \
+    };                                                                                           \
+                                                                                                 \
+    const auto check_roll_dice = [&](size_t player_index) {                                      \
+        check_single_action(player_index, Edge::RollDice);                                       \
+        REQUIRE(g->execute_roll_dice(g->player(player_index), 0).type                            \
+                == ResType::DiceRollOutOfRange);                                                 \
+        REQUIRE(g->execute_roll_dice(g->player(player_index), 1).type                            \
+                == ResType::DiceRollOutOfRange);                                                 \
+        REQUIRE(g->execute_roll_dice(g->player(player_index), 13).type                           \
+                == ResType::DiceRollOutOfRange);                                                 \
+    };                                                                                           \
+                                                                                                 \
+    const auto check_settlements = [&]() {                                                       \
+        g->for_each_junction([&](const auto* j) {                                                \
+            const auto& map_it = settlements.find(j->index());                                   \
+            if (map_it == settlements.end()) {                                                   \
+                REQUIRE(j->is_settleable() == true);                                             \
+                REQUIRE(j->owner() == nullptr);                                                  \
+            } else {                                                                             \
+                REQUIRE(j->is_settleable() == false);                                            \
+                const auto& player_index = settlements.at(j->index());                           \
+                if (player_index == -1) {                                                        \
+                    REQUIRE(j->owner() == nullptr);                                              \
+                } else {                                                                         \
+                    REQUIRE(j->owner() != nullptr);                                              \
+                    REQUIRE(j->owner()->index() == player_index);                                \
+                }                                                                                \
+            }                                                                                    \
+        });                                                                                      \
+    };                                                                                           \
+                                                                                                 \
+    const auto check_roads = [&]() {                                                             \
+        g->for_each_road([&](const auto* r) {                                                    \
+            const auto& map_it = roads.find(r->index());                                         \
+            if (map_it == roads.end()) {                                                         \
+                REQUIRE(r->owner() == nullptr);                                                  \
+            } else {                                                                             \
+                const auto& player_index = roads.at(r->index());                                 \
+                REQUIRE(r->owner()->index() == player_index);                                    \
+            }                                                                                    \
+        });                                                                                      \
+    };                                                                                           \
+                                                                                                 \
+    const auto dump_actions = [&]() {                                                            \
+        std::cout << *g << std::endl;                                                            \
+        for (const auto& player : g->players()) {                                                \
+            std::cout << player << std::endl;                                                    \
+            for (const auto& action : player.get_available_actions()) {                          \
+                std::cout << " - " << action << std::endl;                                       \
+            }                                                                                    \
+        }                                                                                        \
+        std::cout << std::endl;                                                                  \
+    };                                                                                           \
+                                                                                                 \
+    const auto do_first_two_rounds_standard_3p = [&]() {                                         \
+        gs.robber_location = 143;                                                                \
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(4)).type == ResType::Ok);  \
+        REQUIRE(g->execute_build_road(g->player(0), g->road(7)).type == ResType::Ok);            \
+        REQUIRE(g->execute_to_root(g->player(1)).type == ResType::Ok);                           \
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(5)).type == ResType::Ok);  \
+        REQUIRE(g->execute_build_road(g->player(1), g->road(9)).type == ResType::Ok);            \
+        REQUIRE(g->execute_to_root(g->player(2)).type == ResType::Ok);                           \
+        REQUIRE(g->execute_build_settlement(g->player(2), g->junction(90)).type == ResType::Ok); \
+        REQUIRE(g->execute_build_road(g->player(2), g->road(80)).type == ResType::Ok);           \
+        REQUIRE(g->execute_to_root(g->player(2)).type == ResType::Ok);                           \
+        REQUIRE(g->execute_build_settlement(g->player(2), g->junction(91)).type == ResType::Ok); \
+        REQUIRE(g->execute_build_road(g->player(2), g->road(63)).type == ResType::Ok);           \
+        REQUIRE(g->execute_choose_initial_resources(g->player(2), g->junction(91)).type          \
+                == ResType::Ok);                                                                 \
+        REQUIRE(g->execute_to_root(g->player(1)).type == ResType::Ok);                           \
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(6)).type == ResType::Ok);  \
+        REQUIRE(g->execute_build_road(g->player(1), g->road(10)).type == ResType::Ok);           \
+        REQUIRE(g->execute_choose_initial_resources(g->player(1), g->junction(6)).type           \
+                == ResType::Ok);                                                                 \
+        REQUIRE(g->execute_to_root(g->player(0)).type == ResType::Ok);                           \
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(26)).type == ResType::Ok); \
+        REQUIRE(g->execute_build_road(g->player(0), g->road(18)).type == ResType::Ok);           \
+        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junction(26)).type          \
+                == ResType::Ok);                                                                 \
+                                                                                                 \
+        gs.is_first_round = false;                                                               \
+        gs.is_second_round = false;                                                              \
+        gs.roads_built = 6;                                                                      \
+        gs.settlements_built = 6;                                                                \
+        gs.turn = 6;                                                                             \
+        gs.round = 2;                                                                            \
+        ps[0].vertex = Vertex::WaitForTurn;                                                      \
+        ps[0].num_resources = 2;                                                                 \
+        ps[0].is_current_player = true;                                                          \
+        ps[0].settlements = 2;                                                                   \
+        ps[0].roads = 2;                                                                         \
+        ps[0].public_victory_points = 2;                                                         \
+        ps[1].vertex = Vertex::WaitForTurn;                                                      \
+        ps[1].num_resources = 1;                                                                 \
+        ps[1].settlements = 2;                                                                   \
+        ps[1].roads = 2;                                                                         \
+        ps[1].public_victory_points = 2;                                                         \
+        ps[2].vertex = Vertex::WaitForTurn;                                                      \
+        ps[2].num_resources = 3;                                                                 \
+        ps[2].settlements = 2;                                                                   \
+        ps[2].roads = 2;                                                                         \
+        ps[2].public_victory_points = 2;                                                         \
+        roads[7] = 0;                                                                            \
+        roads[9] = 1;                                                                            \
+        roads[10] = 1;                                                                           \
+        roads[18] = 0;                                                                           \
+        roads[63] = 2;                                                                           \
+        roads[80] = 2;                                                                           \
+        settlements[4] = 0;                                                                      \
+        settlements[5] = 1;                                                                      \
+        settlements[6] = 1;                                                                      \
+        settlements[13] = -1;                                                                    \
+        settlements[14] = -1;                                                                    \
+        settlements[15] = -1;                                                                    \
+        settlements[16] = -1;                                                                    \
+        settlements[26] = 0;                                                                     \
+        settlements[38] = -1;                                                                    \
+        settlements[39] = -1;                                                                    \
+        settlements[71] = -1;                                                                    \
+        settlements[72] = -1;                                                                    \
+        settlements[90] = 2;                                                                     \
+        settlements[91] = 2;                                                                     \
+        settlements[105] = -1;                                                                   \
+        settlements[106] = -1;                                                                   \
+        settlements[107] = -1;                                                                   \
+        check_state();                                                                           \
+        check_to_root(0);                                                                        \
+        check_no_actions(1);                                                                     \
+        check_no_actions(2);                                                                     \
     };
 
 Scenario_ get_single_scenario()
@@ -582,9 +574,6 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
 
         bootstrap_tests();
 
-        REQUIRE(g->hexes().size() == 1);
-        REQUIRE(g->junctions().size() == 6);
-        REQUIRE(g->roads().size() == 6);
         REQUIRE(g->players().size() == 1);
 
         gs.robber_location = 9;
@@ -593,8 +582,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_build_settlement(0, 6);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(2)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(2)).type == ResType::Ok);
         settlements[2] = 0;
         settlements[5] = -1;
         settlements[6] = -1;
@@ -607,7 +595,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_build_road(0, 2);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(4)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(4)).type == ResType::Ok);
         roads[4] = 0;
         check_roads();
 
@@ -627,8 +615,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_build_settlement(0, 3);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(12)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(12)).type == ResType::Ok);
         settlements[12] = 0;
         settlements[16] = -1;
         check_settlements();
@@ -640,7 +627,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_build_road(0, 4);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(10)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(10)).type == ResType::Ok);
         roads[10] = 0;
         check_roads();
 
@@ -650,7 +637,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_state();
         check_choose_initial_resources(0);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junctions().at(12)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junction(12)).type
                 == ResType::Ok);
 
         gs.is_second_round = false;
@@ -691,9 +678,6 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
 
         bootstrap_tests();
 
-        REQUIRE(g->hexes().size() == 3);
-        REQUIRE(g->junctions().size() == 13);
-        REQUIRE(g->roads().size() == 15);
         REQUIRE(g->players().size() == 1);
 
         gs.robber_location = 30;
@@ -702,8 +686,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_build_settlement(0, 13);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(20)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(20)).type == ResType::Ok);
         settlements[20] = 0;
         settlements[10] = -1;
         settlements[26] = -1;
@@ -717,7 +700,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_build_road(0, 3);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(15)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(15)).type == ResType::Ok);
         roads[15] = 0;
         check_roads();
 
@@ -737,8 +720,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_build_settlement(0, 9);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(3)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(3)).type == ResType::Ok);
         settlements[3] = 0;
         settlements[9] = -1;
         check_settlements();
@@ -750,7 +732,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_build_road(0, 5);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(7)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(7)).type == ResType::Ok);
         roads[7] = 0;
         check_roads();
 
@@ -760,7 +742,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_state();
         check_choose_initial_resources(0);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junctions().at(3)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junction(3)).type
                 == ResType::Ok);
 
         gs.is_second_round = false;
@@ -799,9 +781,6 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
 
         bootstrap_tests();
 
-        REQUIRE(g->hexes().size() == 3);
-        REQUIRE(g->junctions().size() == 13);
-        REQUIRE(g->roads().size() == 15);
         REQUIRE(g->players().size() == 2);
 
         gs.robber_location = 30;
@@ -812,10 +791,9 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_settlement(0, 13);
         check_no_actions(1);
 
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(20)).type
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(20)).type
                 == ResType::InvalidEdgeChoice);
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(20)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(20)).type == ResType::Ok);
         settlements[20] = 0;
         settlements[10] = -1;
         settlements[26] = -1;
@@ -830,9 +808,9 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_road(0, 3);
         check_no_actions(1);
 
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(15)).type
+        REQUIRE(g->execute_build_road(g->player(1), g->road(15)).type
                 == ResType::InvalidEdgeChoice);
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(15)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(15)).type == ResType::Ok);
         roads[15] = 0;
         check_roads();
 
@@ -854,8 +832,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_build_settlement(1, 9);
 
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(3)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(3)).type == ResType::Ok);
         settlements[3] = 1;
         settlements[9] = -1;
         check_settlements();
@@ -868,9 +845,9 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_build_road(1, 2);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(4)).type
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(4)).type
                 == ResType::InvalidEdgeChoice);
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(6)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(1), g->road(6)).type == ResType::Ok);
         roads[6] = 1;
         check_roads();
 
@@ -893,8 +870,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_build_settlement(1, 7);
 
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(33)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(33)).type == ResType::Ok);
         settlements[33] = 1;
         settlements[37] = -1;
         check_settlements();
@@ -907,7 +883,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_build_road(1, 4);
 
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(29)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(1), g->road(29)).type == ResType::Ok);
         roads[29] = 1;
         check_roads();
 
@@ -918,7 +894,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_choose_initial_resources(1);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(1), g->junctions().at(3)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(1), g->junction(3)).type
                 == ResType::Ok);
 
         gs.turn += 1;
@@ -937,8 +913,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_settlement(0, 5);
         check_no_actions(1);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(34)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(34)).type == ResType::Ok);
         settlements[34] = 0;
         check_settlements();
 
@@ -950,7 +925,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_road(0, 5);
         check_no_actions(1);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(7)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(7)).type == ResType::Ok);
         roads[7] = 0;
         check_roads();
 
@@ -961,7 +936,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_choose_initial_resources(0);
         check_no_actions(1);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junctions().at(20)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junction(20)).type
                 == ResType::Ok);
 
         gs.is_second_round = false;
@@ -1003,9 +978,6 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
 
         bootstrap_tests();
 
-        REQUIRE(g->hexes().size() == 3);
-        REQUIRE(g->junctions().size() == 13);
-        REQUIRE(g->roads().size() == 15);
         REQUIRE(g->players().size() == 3);
 
         gs.robber_location = 30;
@@ -1018,8 +990,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(3)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(3)).type == ResType::Ok);
         settlements[3] = 0;
         settlements[9] = -1;
         settlements[10] = -1;
@@ -1034,7 +1005,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(5)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(5)).type == ResType::Ok);
         roads[5] = 0;
         check_roads();
 
@@ -1056,8 +1027,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(0);
         check_build_settlement(1, 10);
 
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(4)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(4)).type == ResType::Ok);
         settlements[4] = 1;
         settlements[11] = -1;
         check_settlements();
@@ -1071,7 +1041,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_road(1, 2);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(7)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(1), g->road(7)).type == ResType::Ok);
         roads[7] = 1;
         check_roads();
 
@@ -1094,8 +1064,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_build_settlement(2, 8);
 
-        REQUIRE(g->execute_build_settlement(g->player(2), g->junctions().at(19)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(2), g->junction(19)).type == ResType::Ok);
         settlements[19] = 2;
         settlements[26] = -1;
         check_settlements();
@@ -1109,7 +1078,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_build_road(2, 2);
 
-        REQUIRE(g->execute_build_road(g->player(2), g->roads().at(13)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(2), g->road(13)).type == ResType::Ok);
         roads[13] = 2;
         check_roads();
 
@@ -1133,8 +1102,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_build_settlement(2, 6);
 
-        REQUIRE(g->execute_build_settlement(g->player(2), g->junctions().at(20)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(2), g->junction(20)).type == ResType::Ok);
         settlements[20] = 2;
         settlements[27] = -1;
         check_settlements();
@@ -1148,7 +1116,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_build_road(2, 4);
 
-        REQUIRE(g->execute_build_road(g->player(2), g->roads().at(15)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(2), g->road(15)).type == ResType::Ok);
         roads[15] = 2;
         check_roads();
 
@@ -1160,7 +1128,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_choose_initial_resources(2);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(2), g->junctions().at(20)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(2), g->junction(20)).type
                 == ResType::Ok);
 
         gs.turn += 1;
@@ -1181,8 +1149,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_settlement(1, 4);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(21)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(21)).type == ResType::Ok);
         settlements[21] = 1;
         check_settlements();
 
@@ -1195,7 +1162,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_build_road(1, 4);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(17)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(1), g->road(17)).type == ResType::Ok);
         roads[17] = 1;
         check_roads();
 
@@ -1207,7 +1174,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_choose_initial_resources(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(1), g->junctions().at(4)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(1), g->junction(4)).type
                 == ResType::Ok);
 
         gs.turn += 1;
@@ -1228,8 +1195,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(37)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(37)).type == ResType::Ok);
         settlements[37] = 0;
         settlements[33] = -1;
         settlements[34] = -1;
@@ -1244,7 +1210,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(6)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(6)).type == ResType::Ok);
         roads[6] = 0;
         check_roads();
 
@@ -1256,7 +1222,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_no_actions(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junctions().at(37)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junction(37)).type
                 == ResType::Ok);
 
         gs.is_second_round = false;
@@ -1303,9 +1269,6 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
 
         bootstrap_tests();
 
-        REQUIRE(g->hexes().size() == 19);
-        REQUIRE(g->junctions().size() == 54);
-        REQUIRE(g->roads().size() == 72);
         REQUIRE(g->players().size() == 2);
 
         gs.robber_location = 143;
@@ -1316,8 +1279,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_settlement(0, 54);
         check_no_actions(1);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(4)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(4)).type == ResType::Ok);
         settlements[4] = 0;
         settlements[13] = -1;
         settlements[14] = -1;
@@ -1331,7 +1293,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_road(0, 2);
         check_no_actions(1);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(7)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(7)).type == ResType::Ok);
         roads[7] = 0;
         check_roads();
 
@@ -1352,8 +1314,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_build_settlement(1, 51);
 
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(5)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(5)).type == ResType::Ok);
         settlements[5] = 1;
         settlements[15] = -1;
         check_settlements();
@@ -1366,7 +1327,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_build_road(1, 2);
 
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(9)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(1), g->road(9)).type == ResType::Ok);
         roads[9] = 1;
         check_roads();
 
@@ -1388,8 +1349,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_build_settlement(1, 49);
 
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(6)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(6)).type == ResType::Ok);
         settlements[6] = 1;
         settlements[16] = -1;
         check_settlements();
@@ -1402,7 +1362,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_build_road(1, 5);
 
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(10)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(1), g->road(10)).type == ResType::Ok);
         roads[10] = 1;
         check_roads();
 
@@ -1413,7 +1373,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(0);
         check_choose_initial_resources(1);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(1), g->junctions().at(5)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(1), g->junction(5)).type
                 == ResType::Ok);
 
         gs.turn += 1;
@@ -1432,8 +1392,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_settlement(0, 47);
         check_no_actions(1);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(26)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(26)).type == ResType::Ok);
         settlements[26] = 0;
         settlements[38] = -1;
         settlements[39] = -1;
@@ -1447,7 +1406,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_road(0, 4);
         check_no_actions(1);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(18)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(18)).type == ResType::Ok);
         roads[18] = 0;
         check_roads();
 
@@ -1458,7 +1417,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_choose_initial_resources(0);
         check_no_actions(1);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junctions().at(26)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junction(26)).type
                 == ResType::Ok);
 
         gs.is_second_round = false;
@@ -1517,9 +1476,6 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
 
         bootstrap_tests();
 
-        REQUIRE(g->hexes().size() == 19);
-        REQUIRE(g->junctions().size() == 54);
-        REQUIRE(g->roads().size() == 72);
         REQUIRE(g->players().size() == 3);
 
         gs.robber_location = 143;
@@ -1532,8 +1488,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(4)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(4)).type == ResType::Ok);
         settlements[4] = 0;
         settlements[13] = -1;
         settlements[14] = -1;
@@ -1548,7 +1503,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(7)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(7)).type == ResType::Ok);
         roads[7] = 0;
         check_roads();
 
@@ -1571,8 +1526,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_settlement(1, 51);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(5)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(5)).type == ResType::Ok);
         settlements[5] = 1;
         settlements[15] = -1;
         check_settlements();
@@ -1586,7 +1540,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_road(1, 2);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(9)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(1), g->road(9)).type == ResType::Ok);
         roads[9] = 1;
         check_roads();
 
@@ -1609,8 +1563,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_build_settlement(2, 49);
 
-        REQUIRE(g->execute_build_settlement(g->player(2), g->junctions().at(90)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(2), g->junction(90)).type == ResType::Ok);
         settlements[90] = 2;
         settlements[71] = -1;
         settlements[105] = -1;
@@ -1626,7 +1579,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_build_road(2, 3);
 
-        REQUIRE(g->execute_build_road(g->player(2), g->roads().at(80)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(2), g->road(80)).type == ResType::Ok);
         roads[80] = 2;
         check_roads();
 
@@ -1650,8 +1603,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_build_settlement(2, 45);
 
-        REQUIRE(g->execute_build_settlement(g->player(2), g->junctions().at(91)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(2), g->junction(91)).type == ResType::Ok);
         settlements[91] = 2;
         settlements[72] = -1;
         settlements[107] = -1;
@@ -1666,7 +1618,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_build_road(2, 7);
 
-        REQUIRE(g->execute_build_road(g->player(2), g->roads().at(63)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(2), g->road(63)).type == ResType::Ok);
         roads[63] = 2;
         check_roads();
 
@@ -1678,7 +1630,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_choose_initial_resources(2);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(2), g->junctions().at(91)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(2), g->junction(91)).type
                 == ResType::Ok);
 
         gs.turn += 1;
@@ -1700,8 +1652,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_settlement(1, 42);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_settlement(g->player(1), g->junctions().at(6)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(1), g->junction(6)).type == ResType::Ok);
         settlements[6] = 1;
         settlements[16] = -1;
         check_settlements();
@@ -1715,7 +1666,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_build_road(1, 5);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_road(g->player(1), g->roads().at(10)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(1), g->road(10)).type == ResType::Ok);
         roads[10] = 1;
         check_roads();
 
@@ -1727,7 +1678,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_choose_initial_resources(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(1), g->junctions().at(6)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(1), g->junction(6)).type
                 == ResType::Ok);
 
         gs.turn += 1;
@@ -1748,8 +1699,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_settlement(g->player(0), g->junctions().at(26)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(0), g->junction(26)).type == ResType::Ok);
         settlements[26] = 0;
         settlements[38] = -1;
         settlements[39] = -1;
@@ -1764,7 +1714,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_build_road(g->player(0), g->roads().at(18)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(0), g->road(18)).type == ResType::Ok);
         roads[18] = 0;
         check_roads();
 
@@ -1776,7 +1726,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(1);
         check_no_actions(2);
 
-        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junctions().at(26)).type
+        REQUIRE(g->execute_choose_initial_resources(g->player(0), g->junction(26)).type
                 == ResType::Ok);
 
         gs.is_second_round = false;
@@ -2279,7 +2229,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         check_build_road(2, 8);
 
-        REQUIRE(g->execute_build_road(g->player(2), g->roads().at(48)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(2), g->road(48)).type == ResType::Ok);
         roads[48] = 2;
         check_roads();
 
@@ -2290,9 +2240,8 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         check_build_road(2, 9);
 
-        REQUIRE(g->execute_build_road(g->player(2), g->roads().at(32)).type
-                == ResType::InvalidNodeId);
-        REQUIRE(g->execute_build_road(g->player(2), g->roads().at(33)).type == ResType::Ok);
+        REQUIRE(g->execute_build_road(g->player(2), g->road(32)).type == ResType::InvalidNodeId);
+        REQUIRE(g->execute_build_road(g->player(2), g->road(33)).type == ResType::Ok);
         roads[33] = 2;
         check_roads();
 
@@ -2361,8 +2310,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         check_build_settlement(2, 1);
 
-        REQUIRE(g->execute_build_settlement(g->player(2), g->junctions().at(56)).type
-                == ResType::Ok);
+        REQUIRE(g->execute_build_settlement(g->player(2), g->junction(56)).type == ResType::Ok);
         settlements[56] = 2;
         settlements[40] = -1;
         check_settlements();
@@ -2471,9 +2419,8 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         gs.num_trades_offered_this_turn = 0;
         check_state();
 
-        REQUIRE(g->execute_play_knight(g->player(0), g->hexes().at(143)).type
-                == ResType::InvalidNodeId);
-        REQUIRE(g->execute_play_knight(g->player(0), g->hexes().at(141)).type == ResType::Ok);
+        REQUIRE(g->execute_play_knight(g->player(0), g->hex(143)).type == ResType::InvalidNodeId);
+        REQUIRE(g->execute_play_knight(g->player(0), g->hex(141)).type == ResType::Ok);
 
         gs.robber_location = 141;
         ps[0].num_played_development_cards += 1;
@@ -2483,9 +2430,9 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
 
         REQUIRE(g->execute_to_root(g->player(0)).type == ResType::Ok);
-        REQUIRE(g->execute_play_knight(g->player(0), g->hexes().at(19)).type == ResType::Ok);
+        REQUIRE(g->execute_play_knight(g->player(0), g->hex(19)).type == ResType::Ok);
         REQUIRE(g->execute_to_root(g->player(0)).type == ResType::Ok);
-        REQUIRE(g->execute_play_knight(g->player(0), g->hexes().at(21)).type == ResType::Ok);
+        REQUIRE(g->execute_play_knight(g->player(0), g->hex(21)).type == ResType::Ok);
 
         gs.robber_location = 21;
         gs.has_largest_army = 0;
@@ -2517,13 +2464,11 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[2].num_resources -= 1;
         check_state();
 
-        REQUIRE(
-            g->execute_play_road_building(g->player(0), g->roads().at(8), g->roads().at(22)).type
-            == ResType::InvalidNodeId);
+        REQUIRE(g->execute_play_road_building(g->player(0), g->road(8), g->road(22)).type
+                == ResType::InvalidNodeId);
 
-        REQUIRE(
-            g->execute_play_road_building(g->player(0), g->roads().at(8), g->roads().at(20)).type
-            == ResType::Ok);
+        REQUIRE(g->execute_play_road_building(g->player(0), g->road(8), g->road(20)).type
+                == ResType::Ok);
 
         roads[8] = 0;
         roads[20] = 0;
@@ -3045,7 +2990,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
                      { &g->player(0), {}, { { Resource::Brick, 6 } }, { { Resource::Wheat, 2 } } })
                     .type
                 == ResType::Ok);
-        REQUIRE(g->execute_build_city(g->player(0), g->junctions().at(4)).type == ResType::Ok);
+        REQUIRE(g->execute_build_city(g->player(0), g->junction(4)).type == ResType::Ok);
         REQUIRE(g->execute_end_turn(g->player(0)).type == ResType::Ok);
 
         gs.dice_total = 12;
@@ -3099,9 +3044,8 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         REQUIRE(g->execute_to_root(g->player(0)).type == ResType::Ok);
         REQUIRE(g->execute_roll_dice(g->player(0), 7).type == ResType::Ok);
 
-        REQUIRE(g->execute_move_robber(g->player(0), g->hexes().at(143)).type
-                == ResType::InvalidNodeId);
-        REQUIRE(g->execute_move_robber(g->player(0), g->hexes().at(141)).type == ResType::Ok);
+        REQUIRE(g->execute_move_robber(g->player(0), g->hex(143)).type == ResType::InvalidNodeId);
+        REQUIRE(g->execute_move_robber(g->player(0), g->hex(141)).type == ResType::Ok);
         REQUIRE(g->execute_to_root(g->player(0)).type == ResType::Ok);
         REQUIRE(g->execute_end_turn(g->player(0)).type == ResType::Ok);
 
@@ -3115,7 +3059,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         REQUIRE(g->execute_to_root(g->player(1)).type == ResType::Ok);
         REQUIRE(g->execute_roll_dice(g->player(1), 7).type == ResType::Ok);
-        REQUIRE(g->execute_move_robber(g->player(1), g->hexes().at(21)).type == ResType::Ok);
+        REQUIRE(g->execute_move_robber(g->player(1), g->hex(21)).type == ResType::Ok);
         REQUIRE(g->execute_to_root(g->player(1)).type == ResType::Ok);
         REQUIRE(g->execute_end_turn(g->player(1)).type == ResType::Ok);
 
@@ -3127,7 +3071,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         REQUIRE(g->execute_to_root(g->player(2)).type == ResType::Ok);
         REQUIRE(g->execute_roll_dice(g->player(2), 7).type == ResType::Ok);
-        REQUIRE(g->execute_move_robber(g->player(2), g->hexes().at(19)).type == ResType::Ok);
+        REQUIRE(g->execute_move_robber(g->player(2), g->hex(19)).type == ResType::Ok);
         REQUIRE(g->execute_steal(g->player(2), g->player(0)).type == ResType::Ok);
         REQUIRE(g->execute_to_root(g->player(2)).type == ResType::Ok);
         REQUIRE(g->execute_end_turn(g->player(2)).type == ResType::Ok);
@@ -3221,7 +3165,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         ps[0].num_resources = 5;
         check_state();
 
-        REQUIRE(g->execute_move_robber(g->player(0), g->hexes().at(141)).type == ResType::Ok);
+        REQUIRE(g->execute_move_robber(g->player(0), g->hex(141)).type == ResType::Ok);
         REQUIRE(g->execute_to_root(g->player(0)).type == ResType::Ok);
         REQUIRE(g->execute_end_turn(g->player(0)).type == ResType::Ok);
 
@@ -3254,7 +3198,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
         check_no_actions(2);
 
-        REQUIRE(g->execute_move_robber(g->player(1), g->hexes().at(143)).type == ResType::Ok);
+        REQUIRE(g->execute_move_robber(g->player(1), g->hex(143)).type == ResType::Ok);
 
         dump_actions();
 

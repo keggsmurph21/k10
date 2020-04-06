@@ -12,6 +12,7 @@
 #include "Forward.h"
 #include "Game/BoardView/Hex.h"
 #include "Game/BoardView/Junction.h"
+#include "Game/BoardView/Node.h"
 #include "Game/BoardView/Road.h"
 #include "Game/Dice.h"
 #include "Game/ExecutionOptions.h"
@@ -60,10 +61,6 @@ public:
 
     size_t num_built(Building) const;
 
-    const std::map<size_t, BoardView::Hex*>& hexes() const { return m_hexes; }
-    const std::map<size_t, BoardView::Junction*>& junctions() const { return m_junctions; }
-    const std::map<size_t, BoardView::Road*>& roads() const { return m_roads; }
-
     const Board::Graph* graph() const { return m_graph; }
     const Scenario::Scenario& scenario() const { return m_scenario; }
 
@@ -103,21 +100,29 @@ public:
     Result execute_trade_with_bank(Player&, Trade);
 
     Game(const Board::Graph*,
-         std::map<size_t, BoardView::Hex*>,
-         std::map<size_t, BoardView::Junction*>,
-         std::map<size_t, BoardView::Road*>,
+         std::vector<BoardView::NodeView*>&,
          std::vector<DevelopmentCard>,
          const Scenario::Scenario&,
          const Scenario::Parameters&,
-         int robber_index);
+         BoardView::Hex* robber_location);
     ~Game();
+
+    void for_each_hex(const std::function<void(const BoardView::Hex*)>&) const;
+    void for_each_junction(const std::function<void(const BoardView::Junction*)>&) const;
+    void for_each_road(const std::function<void(const BoardView::Road*)>&) const;
+
+    BoardView::Hex* hex(size_t index);
+    BoardView::Junction* junction(size_t index);
+    BoardView::Road* road(size_t index);
+
+    const BoardView::Hex* hex(size_t index) const;
+    const BoardView::Junction* junction(size_t index) const;
+    const BoardView::Road* road(size_t index) const;
 
 private:
     const Board::Graph* m_graph;
 
-    std::map<size_t, BoardView::Hex*> m_hexes;
-    std::map<size_t, BoardView::Junction*> m_junctions;
-    std::map<size_t, BoardView::Road*> m_roads;
+    std::vector<BoardView::NodeView*> m_nodes;
     std::vector<DevelopmentCard> m_deck;
 
     const Scenario::Scenario& m_scenario;

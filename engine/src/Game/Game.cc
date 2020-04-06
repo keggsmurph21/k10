@@ -72,20 +72,16 @@ size_t Game::get_round() const
 }
 
 Game::Game(const Board::Graph* graph,
-           std::map<size_t, BoardView::Hex*> hexes,
-           std::map<size_t, BoardView::Junction*> junctions,
-           std::map<size_t, BoardView::Road*> roads,
+           std::vector<BoardView::NodeView*>& nodes,
            std::vector<DevelopmentCard> deck,
            const Scenario::Scenario& scenario,
            const Scenario::Parameters& parameters,
-           int robber_index)
+           BoardView::Hex* robber_location)
     : m_graph(graph)
-    , m_hexes(std::move(hexes))
-    , m_junctions(std::move(junctions))
-    , m_roads(std::move(roads))
+    , m_nodes(std::move(nodes))
     , m_deck(std::move(deck))
     , m_scenario(scenario)
-    , m_robber(m_hexes.at(robber_index))
+    , m_robber(robber_location)
     , m_victory_points_goal(parameters.victory_points_goal)
 {
     for (size_t i = 0; i < parameters.players_count; ++i) {
@@ -96,14 +92,8 @@ Game::Game(const Board::Graph* graph,
 
 Game::~Game()
 {
-    for (auto hex : m_hexes) {
-        delete hex.second;
-    }
-    for (auto junction : m_junctions) {
-        delete junction.second;
-    }
-    for (auto road : m_roads) {
-        delete road.second;
+    for (auto node : m_nodes) {
+        delete node;
     }
     m_deck.clear();
 }
@@ -122,13 +112,9 @@ Game* initialize(const Board::Graph* graph,
     const auto& resources = scenario.get_resources(parameters.resource_iteration_type);
     const auto& rolls = scenario.get_rolls(parameters.roll_iteration_type);
 
-    std::map<size_t, BoardView::Hex*> hexes;
+    std::vector<BoardView::NodeView*> nodes;
     std::map<size_t, BoardView::Junction*> junctions;
     std::map<size_t, BoardView::Road*> roads;
-
-    std::map<const Board::Node*, BoardView::Hex*> hex_lookup;
-    std::map<const Board::Node*, BoardView::Junction*> junction_lookup;
-    std::map<const Board::Node*, BoardView::Road*> road_lookup;
 
     int robber_index = -1;
 
@@ -140,36 +126,32 @@ Game* initialize(const Board::Graph* graph,
             return nullptr; // Too few resources
         }
         const auto& resource = resources.at(resource_index);
-        BoardView::Hex* hex;
         if (std::holds_alternative<NonYieldingResource>(resource)) {
             if (robber_index != -1) {
                 return nullptr; // FIXME: Handle multiple robbers?
             }
             robber_index = static_cast<int>(node.index());
             return new BoardView::Hex(node, resource, 0);
-        } else {
-            if (roll_index >= rolls.size()) {
-                return nullptr; // Too few rolls
-            }
-            const auto roll = rolls.at(roll_index);
-            ++roll_index;
-            return new BoardView::Hex(node, resource, roll);
         }
+        if (roll_index >= rolls.size()) {
+            return nullptr; // Too few rolls
+        }
+        const auto roll = rolls.at(roll_index);
+        ++roll_index;
+        return new BoardView::Hex(node, resource, roll);
     };
 
     auto make_junction = [&](const Board::Node& node) -> BoardView::Junction* {
         const auto port = graph->port(node);
-        BoardView::Junction* junction;
         if (port == nullptr) {
             return new BoardView::Junction(node, {}, 0);
-        } else {
-            const auto port_index = port->index();
-            if (port_index >= ports.size()) {
-                return nullptr; // Too few ports
-            }
-            const auto& port_spec = ports.at(port_index);
-            return new BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
         }
+        const auto port_index = port->index();
+        if (port_index >= ports.size()) {
+            return nullptr; // Too few ports
+        }
+        const auto& port_spec = ports.at(port_index);
+        return new BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
     };
 
     auto make_road = [&](const Board::Node& node) -> BoardView::Road* {
@@ -180,74 +162,55 @@ Game* initialize(const Board::Graph* graph,
         switch (node.type()) {
         case Board::NodeType::Hex: { // scope for const
             auto hex = make_hex(node);
-            hex_lookup[&node] = hex;
-            hexes[node.index()] = hex;
+            nodes.push_back(hex);
             ++resource_index;
         } break;
         case Board::NodeType::Junction: { // scope for const
             auto junction = make_junction(node);
-            junction_lookup[&node] = junction;
+            nodes.push_back(junction);
             junctions[node.index()] = junction;
         } break;
         case Board::NodeType::Road: { // scope for const
             auto road = make_road(node);
-            road_lookup[&node] = road;
+            nodes.push_back(road);
             roads[node.index()] = road;
         } break;
         case Board::NodeType::Ocean:
         case Board::NodeType::UnflippedHex:
+            nodes.push_back(nullptr);
             break; // do nothing
         }
     }
 
-    for (auto hex_it : hexes) {
-        const auto hex = hex_it.second;
-        for (const auto& direction : Board::AllDirections) {
-            const auto neighbor_node = graph->neighbor(hex->node(), direction);
-            if (neighbor_node == nullptr) {
-                continue;
-            }
-            if (junction_lookup.find(neighbor_node) != junction_lookup.end()) {
-                const auto neighbor_junction = junction_lookup.at(neighbor_node);
-                hex->add_neighbor(direction, neighbor_junction);
-            }
+    for (auto node : nodes) {
+        if (node == nullptr) {
+            continue;
         }
-    }
-    for (auto junction_it : junctions) {
-        const auto junction = junction_it.second;
         for (const auto& direction : Board::AllDirections) {
-            const auto neighbor_node = graph->neighbor(junction->node(), direction);
+            const auto neighbor_node = graph->neighbor(node->node(), direction);
             if (neighbor_node == nullptr) {
                 continue;
             }
-            if (hex_lookup.find(neighbor_node) != hex_lookup.end()) {
-                const auto neighbor_hex = hex_lookup.at(neighbor_node);
-                junction->add_neighbor(direction, neighbor_hex);
-            } else if (road_lookup.find(neighbor_node) != road_lookup.end()) {
-                const auto neighbor_road = road_lookup.at(neighbor_node);
-                junction->add_neighbor(direction, neighbor_road);
-            }
-        }
-    }
-    for (auto road_it : roads) {
-        const auto road = road_it.second;
-        for (const auto& direction : Board::AllDirections) {
-            const auto neighbor_node = graph->neighbor(road->node(), direction);
-            if (neighbor_node == nullptr) {
+            auto* neighbor = nodes.at(neighbor_node->index());
+            if (neighbor == nullptr) {
                 continue;
             }
-            if (junction_lookup.find(neighbor_node) != junction_lookup.end()) {
-                const auto neighbor_junction = junction_lookup.at(neighbor_node);
-                road->add_neighbor(direction, neighbor_junction);
+            if ((node->is_hex() && neighbor->is_junction())
+                || (node->is_junction() && neighbor->is_hex())
+                || (node->is_junction() && neighbor->is_road())
+                || (node->is_road() && neighbor->is_junction())) {
+                node->add_neighbor_(direction, neighbor);
             }
         }
     }
 
-    if (robber_index == -1 || hexes.find(robber_index) == hexes.end()) {
+    if (robber_index < 0 || nodes.size() <= static_cast<size_t>(robber_index)) {
         return nullptr; // something went wrong ... or no Desert given
     }
 
-    return new Game(graph, hexes, junctions, roads, deck, scenario, parameters, robber_index);
+    // FIXME: Don't just blindly cast this unless we're 100% sure this is a Hex ...
+    auto robber_location = static_cast<BoardView::Hex*>(nodes.at(robber_index));
+    return new Game(graph, nodes, deck, scenario, parameters, robber_location);
 }
 
 static bool player_can_execute_edge(const Player& player, const State::Edge& requested_edge)
@@ -266,25 +229,26 @@ static bool is_road_reachable_for(const BoardView::Road* road, const Player& pla
     if (road->owner() != nullptr) {
         return false;
     }
-    for (const auto& junction_neighbor : road->junction_neighbors()) {
-        const auto& junction = junction_neighbor.second;
+    bool is_reachable = false;
+    road->for_each_junction_neighbor([&](auto, const auto* junction) {
         if (junction->owner() != nullptr) {
             if (*junction->owner() == player) {
-                return true;
+                is_reachable = true;
+                return;
             }
-            continue;
+            return;
         }
-        for (const auto& road_neighbor : junction->road_neighbors()) {
-            const auto& other_road = road_neighbor.second;
+        junction->for_each_road_neighbor([&](auto, const auto* other_road) {
             if (other_road == road) {
-                continue;
+                return;
             }
             if (other_road->owner() != nullptr && *other_road->owner() == player) {
-                return true;
+                is_reachable = true;
+                return;
             }
-        }
-    }
-    return false;
+        });
+    });
+    return is_reachable;
 }
 
 Result Game::execute_accept_trade(Player& player)
@@ -434,12 +398,12 @@ Result Game::execute_choose_initial_resources(Player& player, const BoardView::J
 
     for (const auto& settlement : player.settlements()) {
         if (settlement == junction) {
-            for (const auto& hex_it : settlement->hex_neighbors()) {
-                const auto& hex_resource = hex_it.second->resource();
+            settlement->for_each_hex_neighbor([&](auto, const auto* hex) {
+                const auto& hex_resource = hex->resource();
                 if (std::holds_alternative<Resource>(hex_resource)) {
                     player.accrue_resources({ { std::get<Resource>(hex_resource), 1 } });
                 }
-            }
+            });
             player.set_vertex(State::Vertex::WaitForTurn);
             increment_turn();
             return { ResultType::Ok, {} };
@@ -555,16 +519,15 @@ Result Game::execute_offer_trade(Player& player, const Trade trade)
 void Game::move_robber(const Player& player, const BoardView::Hex* hex)
 {
     m_robber.set_location(hex);
-    for (const auto& junction_it : hex->junction_neighbors()) {
-        const auto& junction = junction_it.second;
+    hex->for_each_junction_neighbor([&](auto, const auto* junction) {
         if (junction->owner() == nullptr) {
-            continue;
+            return;
         }
         if (*junction->owner() == player) {
-            continue;
+            return;
         }
         set_can_steal(true);
-    }
+    });
 }
 
 Result Game::execute_play_knight(Player& player, const BoardView::Hex* hex)
@@ -621,23 +584,21 @@ Game::execute_play_road_building(Player& player, BoardView::Road* road_0, BoardV
         // This road isn't reachable yet, but it might be reachable
         // once the first road is actually built.
         bool is_road_1_adjacent_to_road_0 = false;
-        for (const auto& junction_it : road_0->junction_neighbors()) {
+        road_0->for_each_junction_neighbor([&](auto, const auto* junction) {
             if (is_road_1_adjacent_to_road_0) {
-                break;
+                return;
             }
-            const auto& junction = junction_it.second;
             const auto& owner = junction->owner();
             if (owner != nullptr && *owner != player) {
-                continue;
+                return;
             }
-            for (const auto& road_it : junction->road_neighbors()) {
-                const auto& road = road_it.second;
+            junction->for_each_road_neighbor([&](auto, const auto* road) {
                 if (road == road_1) {
                     is_road_1_adjacent_to_road_0 = true;
-                    break;
+                    return;
                 }
-            }
-        }
+            });
+        });
         if (!is_road_1_adjacent_to_road_0) {
             return { ResultType::InvalidNodeId, {} };
         }
@@ -722,25 +683,23 @@ Result Game::_after_roll(Player& player)
         }
         player.set_vertex(State::Vertex::AfterRollingSeven);
     } else {
-        for (const auto& hex_it : hexes()) {
-            const auto& hex = hex_it.second;
+        for_each_hex([&](const auto* hex) {
             if (hex->roll_number() != dice_total) {
-                continue;
+                return;
             }
             const auto& hex_resource = hex->resource();
             if (std::holds_alternative<NonYieldingResource>(hex_resource)) {
-                continue;
+                return;
             }
             const auto& resource = std::get<Resource>(hex_resource);
-            for (const auto& junction_neighbor : hex->junction_neighbors()) {
-                const auto& junction = junction_neighbor.second;
+            hex->for_each_junction_neighbor([&](auto, const auto* junction) {
                 if (junction->owner() == nullptr) {
-                    continue;
+                    return;
                 }
                 const auto count = junction->has_city() ? 2 : 1;
                 m_players.at(junction->owner()->index()).accrue_resources({ { resource, count } });
-            }
-        }
+            });
+        });
     }
 
     return { ResultType::Ok, { { ActionArgumentType::DiceRoll, dice_total } } };
@@ -761,13 +720,13 @@ Result Game::execute_steal(Player& player, Player& steal_from)
     }
 
     bool is_adjacent = false;
-    for (const auto junction_it : robber_location()->junction_neighbors()) {
-        const auto junction_owner = junction_it.second->owner();
+    robber_location()->for_each_junction_neighbor([&](auto, const auto* junction) {
+        const auto junction_owner = junction->owner();
         if (junction_owner != nullptr && *junction_owner == steal_from) {
             is_adjacent = true;
-            break;
+            return;
         }
-    }
+    });
     if (!is_adjacent) {
         return { ResultType::InvalidPlayerId, {} };
     }
@@ -983,7 +942,7 @@ std::ostream& operator<<(std::ostream& os, const Game& game)
                 os << "?";
                 continue;
             case Board::NodeType::Junction: {
-                const auto junction = game.junctions().at(node->index());
+                const auto junction = game.junction(node->index());
                 const auto owner = junction->owner();
                 if (owner != nullptr) {
                     os << owner->index();
@@ -997,7 +956,7 @@ std::ostream& operator<<(std::ostream& os, const Game& game)
                 continue;
             }
             case Board::NodeType::Road: {
-                const auto road = game.roads().at(node->index());
+                const auto road = game.road(node->index());
                 const auto owner = road->owner();
                 if (owner != nullptr) {
                     os << owner->index();
@@ -1021,7 +980,7 @@ std::ostream& operator<<(std::ostream& os, const Game& game)
                 assert(false);
             }
             case Board::NodeType::Hex: {
-                const auto hex = game.hexes().at(node->index());
+                const auto hex = game.hex(node->index());
                 if (hex == robber_hex) {
                     os << "X";
                     continue;
@@ -1067,6 +1026,123 @@ std::ostream& operator<<(std::ostream& os, const Game& game)
         }
     }
     return os;
+}
+
+void Game::for_each_hex(const std::function<void(const BoardView::Hex*)>& callback) const
+{
+    for (const auto& node : m_nodes) {
+        if (node != nullptr && node->type() == BoardView::NodeView::Type::Hex) {
+            callback(static_cast<const BoardView::Hex*>(node));
+        }
+    }
+}
+
+void Game::for_each_junction(const std::function<void(const BoardView::Junction*)>& callback) const
+{
+    for (const auto& node : m_nodes) {
+        if (node != nullptr && node->type() == BoardView::NodeView::Type::Junction) {
+            callback(static_cast<const BoardView::Junction*>(node));
+        }
+    }
+}
+
+void Game::for_each_road(const std::function<void(const BoardView::Road*)>& callback) const
+{
+    for (const auto& node : m_nodes) {
+        if (node != nullptr && node->type() == BoardView::NodeView::Type::Road) {
+            callback(static_cast<const BoardView::Road*>(node));
+        }
+    }
+}
+
+BoardView::Hex* Game::hex(size_t index)
+{
+    if (index >= m_nodes.size()) {
+        return nullptr;
+    }
+    auto* node = m_nodes.at(index);
+    if (node == nullptr) {
+        return nullptr;
+    }
+    if (node->type() != BoardView::NodeView::Type::Hex) {
+        return nullptr;
+    }
+    return static_cast<BoardView::Hex*>(node);
+}
+
+BoardView::Junction* Game::junction(size_t index)
+{
+    if (index >= m_nodes.size()) {
+        return nullptr;
+    }
+    auto* node = m_nodes.at(index);
+    if (node == nullptr) {
+        return nullptr;
+    }
+    if (node->type() != BoardView::NodeView::Type::Junction) {
+        return nullptr;
+    }
+    return static_cast<BoardView::Junction*>(node);
+}
+
+BoardView::Road* Game::road(size_t index)
+{
+    if (index >= m_nodes.size()) {
+        return nullptr;
+    }
+    auto* node = m_nodes.at(index);
+    if (node == nullptr) {
+        return nullptr;
+    }
+    if (node->type() != BoardView::NodeView::Type::Road) {
+        return nullptr;
+    }
+    return static_cast<BoardView::Road*>(node);
+}
+
+const BoardView::Hex* Game::hex(size_t index) const
+{
+    if (index >= m_nodes.size()) {
+        return nullptr;
+    }
+    const auto* node = m_nodes.at(index);
+    if (node == nullptr) {
+        return nullptr;
+    }
+    if (node->type() != BoardView::NodeView::Type::Hex) {
+        return nullptr;
+    }
+    return static_cast<const BoardView::Hex*>(node);
+}
+
+const BoardView::Junction* Game::junction(size_t index) const
+{
+    if (index >= m_nodes.size()) {
+        return nullptr;
+    }
+    const auto* node = m_nodes.at(index);
+    if (node == nullptr) {
+        return nullptr;
+    }
+    if (node->type() != BoardView::NodeView::Type::Junction) {
+        return nullptr;
+    }
+    return static_cast<const BoardView::Junction*>(node);
+}
+
+const BoardView::Road* Game::road(size_t index) const
+{
+    if (index >= m_nodes.size()) {
+        return nullptr;
+    }
+    const auto* node = m_nodes.at(index);
+    if (node == nullptr) {
+        return nullptr;
+    }
+    if (node->type() != BoardView::NodeView::Type::Road) {
+        return nullptr;
+    }
+    return static_cast<const BoardView::Road*>(node);
 }
 
 } // namespace k10engine::Game

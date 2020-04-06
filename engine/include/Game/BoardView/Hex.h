@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <map>
 
 #include "Core/Resource.h"
 #include "Forward.h"
@@ -28,18 +27,9 @@ public:
         return os;
     }
 
-    Neighbors<Junction>& junction_neighbors() { return m_junction_neighbors; }
-    const Neighbors<Junction>& junction_neighbors() const { return m_junction_neighbors; }
-    void add_neighbor(Board::Direction direction, Junction* junction)
-    {
-        m_junction_neighbors[direction] = junction;
-    }
-
 private:
     const AbstractResource m_resource;
     size_t m_roll_number; // 0 means <none>
-
-    Neighbors<Junction> m_junction_neighbors;
 };
 
 } // namespace k10engine::Game::BoardView

@@ -133,68 +133,58 @@ int main(int /* unused */, char** /* unused */)
     auto g = k10engine::Game::initialize(&b, s, p);
 
     std::cout << std::endl << " ~~~ Hex neighbors ~~~" << std::endl << std::endl;
-    for (const auto& hex_it : g->hexes()) {
-        const auto hex = hex_it.second;
+    g->for_each_hex([&](const auto* hex) {
         std::cout << *hex << std::endl;
-        for (const auto& junction_neighbor : hex->junction_neighbors()) {
-            const auto direction = junction_neighbor.first;
-            const auto junction = junction_neighbor.second;
+        hex->for_each_junction_neighbor([&](const auto& direction, const auto* junction) {
             std::cout << " > neighbor in " << direction << " is " << *junction << std::endl;
-        }
-    }
+        });
+    });
+
     std::cout << std::endl << " ~~~ Junction neighbors ~~~" << std::endl << std::endl;
-    for (const auto& junction_it : g->junctions()) {
-        const auto junction = junction_it.second;
+    g->for_each_junction([&](const auto* junction) {
         std::cout << *junction << std::endl;
-        for (const auto& hex_neighbor : junction->hex_neighbors()) {
-            const auto direction = hex_neighbor.first;
-            const auto hex = hex_neighbor.second;
+        junction->for_each_hex_neighbor([&](const auto& direction, const auto* hex) {
             std::cout << " > neighbor in " << direction << " is " << *hex << std::endl;
-        }
-        for (const auto& road_neighbor : junction->road_neighbors()) {
-            const auto direction = road_neighbor.first;
-            const auto road = road_neighbor.second;
-            std::cout << " > neighbor in " << direction << " is " << *road << std::endl;
-        }
-    }
-    std::cout << std::endl << " ~~~ Road neighbors ~~~" << std::endl << std::endl;
-    for (const auto& road_it : g->roads()) {
-        const auto road = road_it.second;
-        std::cout << *road << std::endl;
-        for (const auto& junction_neighbor : road->junction_neighbors()) {
-            const auto direction = junction_neighbor.first;
-            const auto junction = junction_neighbor.second;
+        });
+        junction->for_each_road_neighbor([&](const auto& direction, const auto* junction) {
             std::cout << " > neighbor in " << direction << " is " << *junction << std::endl;
-        }
-    }
+        });
+    });
+
+    std::cout << std::endl << " ~~~ Road neighbors ~~~" << std::endl << std::endl;
+    g->for_each_road([&](const auto* road) {
+        std::cout << *road << std::endl;
+        road->for_each_junction_neighbor([&](const auto& direction, const auto* junction) {
+            std::cout << " > neighbor in " << direction << " is " << *junction << std::endl;
+        });
+    });
 
     dump_actions(g);
 
     // Round 0, Player 0
-    std::cout << g->execute_build_settlement(g->player(0), g->junctions().at(4)) << std::endl;
-    std::cout << g->execute_build_road(g->player(0), g->roads().at(8)) << std::endl;
+    std::cout << g->execute_build_settlement(g->player(0), g->junction(4)) << std::endl;
+    std::cout << g->execute_build_road(g->player(0), g->road(8)) << std::endl;
 
     // Round 0, Player 1
     std::cout << g->execute_to_root(g->player(1)) << std::endl;
-    std::cout << g->execute_build_settlement(g->player(1), g->junctions().at(5)) << std::endl;
-    std::cout << g->execute_build_road(g->player(1), g->roads().at(9)) << std::endl;
+    std::cout << g->execute_build_settlement(g->player(1), g->junction(5)) << std::endl;
+    std::cout << g->execute_build_road(g->player(1), g->road(9)) << std::endl;
 
     // Round 0, Player 2
     std::cout << g->execute_to_root(g->player(2)) << std::endl;
-    std::cout << g->execute_build_settlement(g->player(2), g->junctions().at(6)) << std::endl;
-    std::cout << g->execute_build_road(g->player(2), g->roads().at(12)) << std::endl;
+    std::cout << g->execute_build_settlement(g->player(2), g->junction(6)) << std::endl;
+    std::cout << g->execute_build_road(g->player(2), g->road(12)) << std::endl;
 
     // Round 0, Player 3
     std::cout << g->execute_to_root(g->player(3)) << std::endl;
-    std::cout << g->execute_build_settlement(g->player(3), g->junctions().at(26)) << std::endl;
-    std::cout << g->execute_build_road(g->player(3), g->roads().at(31)) << std::endl;
+    std::cout << g->execute_build_settlement(g->player(3), g->junction(26)) << std::endl;
+    std::cout << g->execute_build_road(g->player(3), g->road(31)) << std::endl;
 
     // Round 1, Player 3
     std::cout << g->execute_to_root(g->player(3)) << std::endl;
-    std::cout << g->execute_build_settlement(g->player(3), g->junctions().at(27)) << std::endl;
-    std::cout << g->execute_build_road(g->player(3), g->roads().at(46)) << std::endl;
-    std::cout << g->execute_choose_initial_resources(g->player(3), g->junctions().at(27))
-              << std::endl;
+    std::cout << g->execute_build_settlement(g->player(3), g->junction(27)) << std::endl;
+    std::cout << g->execute_build_road(g->player(3), g->road(46)) << std::endl;
+    std::cout << g->execute_choose_initial_resources(g->player(3), g->junction(27)) << std::endl;
 
     dump_actions(g);
 

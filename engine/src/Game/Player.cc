@@ -11,30 +11,26 @@ std::vector<Action> Player::get_actions_at_after_building_free_settlement() cons
 
     // roads a distance of 1 away from our current roads
     for (const auto owned_road : roads()) {
-        for (const auto junction_neighbor : owned_road->junction_neighbors()) {
-            const auto junction = junction_neighbor.second;
+        owned_road->for_each_junction_neighbor([&](auto, const auto* junction) {
             if (junction->owner() != nullptr && junction->owner() != this) {
-                continue; // can't build roads thru other settlements
+                return; // can't build roads thru other settlements
             }
-            for (const auto road_neighbor : junction->road_neighbors()) {
-                const auto reachable_road = road_neighbor.second;
-                if (reachable_road->owner() == nullptr) {
-                    reachable_roads.insert(reachable_road);
+            junction->for_each_road_neighbor([&](auto, const auto* road) {
+                if (road->owner() == nullptr) {
+                    reachable_roads.insert(road);
                 }
-            }
-        }
+            });
+        });
     }
 
     // roads adjacent to our current settlements
-    for (const auto& it : m_game->junctions()) {
-        const auto junction = it.second;
-        for (const auto road_neighbor : junction->road_neighbors()) {
-            const auto road = road_neighbor.second;
+    m_game->for_each_junction([&](const auto* junction) {
+        junction->for_each_road_neighbor([&](auto, const auto* road) {
             if (junction->owner() == this && road->owner() == nullptr) {
                 reachable_roads.insert(road);
             }
-        }
-    }
+        });
+    });
 
     std::vector<Action> available_actions;
     available_actions.reserve(reachable_roads.size());
@@ -60,13 +56,12 @@ std::vector<Action> Player::get_actions_at_after_discarding() const
         if (m_game->should_wait_for_discard()) {
             return {}; // i.e., wait
         }
-        for (const auto& it : m_game->hexes()) {
-            const auto hex = it.second;
+        m_game->for_each_hex([&](const auto* hex) {
             if (hex->index() != m_game->robber_location()->index()) {
                 available_actions.push_back(
                     { State::Edge::MoveRobber, { { ActionArgumentType::NodeId, hex->index() } } });
             }
-        }
+        });
         return available_actions;
     }
     if (num_to_discard() > 0) {
@@ -82,13 +77,12 @@ std::vector<Action> Player::get_actions_at_after_moving_robber() const
     if (m_game->can_steal()) {
         const auto robber_location = m_game->robber_location();
         std::set<const Player*> players_to_steal_from;
-        for (const auto& junction_neighbor : robber_location->junction_neighbors()) {
-            const auto junction = junction_neighbor.second;
+        robber_location->for_each_junction_neighbor([&](auto, const auto* junction) {
             const auto owner = junction->owner();
             if (owner != nullptr && owner != this && owner->num_resources() > 0) {
                 players_to_steal_from.insert(owner);
             }
-        }
+        });
         for (const auto player_to_steal_from : players_to_steal_from) {
             available_actions.push_back(
                 { State::Edge::Steal,
@@ -109,13 +103,12 @@ std::vector<Action> Player::get_actions_at_after_rolling_seven() const
         return {}; // i.e., wait
     }
     std::vector<Action> available_actions;
-    for (const auto& it : m_game->hexes()) {
-        const auto hex = it.second;
+    m_game->for_each_hex([&](const auto* hex) {
         if (hex->index() != m_game->robber_location()->index()) {
             available_actions.push_back(
                 { State::Edge::MoveRobber, { { ActionArgumentType::NodeId, hex->index() } } });
         }
-    }
+    });
     return available_actions;
 }
 
@@ -132,8 +125,7 @@ std::vector<Action> Player::get_actions_at_root() const
 {
     std::vector<Action> available_actions;
     if (m_game->is_first_round()) {
-        for (const auto& it : m_game->junctions()) {
-            const auto junction = it.second;
+        m_game->for_each_junction([&](const auto* junction) {
             if (junction->is_settleable()) {
                 available_actions.push_back(
                     { State::Edge::BuildSettlement,
@@ -141,12 +133,11 @@ std::vector<Action> Player::get_actions_at_root() const
                           static_cast<size_t>(Building::Settlement) },
                         { ActionArgumentType::NodeId, junction->index() } } });
             }
-        }
+        });
         return available_actions;
     }
     if (m_game->is_second_round()) {
-        for (const auto& it : m_game->junctions()) {
-            const auto junction = it.second;
+        m_game->for_each_junction([&](const auto* junction) {
             if (junction->is_settleable()) {
                 available_actions.push_back(
                     { State::Edge::BuildSettlement,
@@ -154,7 +145,7 @@ std::vector<Action> Player::get_actions_at_root() const
                           static_cast<size_t>(Building::Settlement) },
                         { ActionArgumentType::NodeId, junction->index() } } });
             }
-        }
+        });
         return available_actions;
     }
     if (!m_game->has_rolled()) {
@@ -176,22 +167,19 @@ std::vector<Action> Player::get_actions_at_root() const
 
         std::set<const BoardView::Road*> reachable_roads;
         for (const auto owned_road : roads()) {
-            for (const auto junction_neighbor : owned_road->junction_neighbors()) {
-                const auto junction = junction_neighbor.second;
+            owned_road->for_each_junction_neighbor([&](auto, const auto* junction) {
                 if (junction->owner() != nullptr && junction->owner() != this) {
-                    continue; // can't build roads thru other settlements
+                    return; // can't build roads thru other settlements
                 }
-                for (const auto road_neighbor : junction->road_neighbors()) {
-                    const auto reachable_road = road_neighbor.second;
-                    if (reachable_road->owner() == nullptr) {
-                        reachable_roads.insert(reachable_road);
+                junction->for_each_road_neighbor([&](auto, const auto* road) {
+                    if (road->owner() == nullptr) {
+                        reachable_roads.insert(road);
                     }
-                }
-            }
+                });
+            });
         }
 
-        for (const auto& it : m_game->junctions()) {
-            const auto junction = it.second;
+        m_game->for_each_junction([&](const auto* junction) {
             if (can_build_city) {
                 if (junction->owner() == this) {
                     available_actions.push_back(
@@ -201,8 +189,7 @@ std::vector<Action> Player::get_actions_at_root() const
                             { ActionArgumentType::NodeId, junction->index() } } });
                 }
             }
-            for (const auto road_neighbor : junction->road_neighbors()) {
-                const auto road = road_neighbor.second;
+            junction->for_each_road_neighbor([&](auto, const auto* road) {
                 if (junction->owner() == this && road->owner() == nullptr) {
                     reachable_roads.insert(road);
                 }
@@ -215,8 +202,8 @@ std::vector<Action> Player::get_actions_at_root() const
                                 { ActionArgumentType::NodeId, junction->index() } } });
                     }
                 }
-            }
-        }
+            });
+        });
 
         if (can_build_road) {
             for (const auto road : reachable_roads) {
@@ -235,8 +222,7 @@ std::vector<Action> Player::get_actions_at_root() const
             seen_development_cards.insert(development_card);
             switch (development_card) {
             case DevelopmentCard::Knight:
-                for (const auto& it : m_game->hexes()) {
-                    const auto hex = it.second;
+                m_game->for_each_hex([&](const auto* hex) {
                     if (hex->index() != m_game->robber_location()->index()) {
                         available_actions.push_back(
                             { State::Edge::PlayKnight,
@@ -244,7 +230,7 @@ std::vector<Action> Player::get_actions_at_root() const
                                   static_cast<size_t>(development_card) },
                                 { ActionArgumentType::NodeId, hex->index() } } });
                     }
-                }
+                });
                 break;
             case DevelopmentCard::RoadBuilding:
                 // NB: This structured as ONE ROAD PER ACTION, even though we expect players to
@@ -452,15 +438,13 @@ void Player::build_settlement(BoardView::Junction* junction_to_settle, Options o
     junction_to_settle->set_owner(this);
     junction_to_settle->set_has_settlement();
     junction_to_settle->set_is_not_settleable();
-    for (const auto& road_neighbor : junction_to_settle->road_neighbors()) {
-        const auto road = road_neighbor.second;
-        for (const auto& junction_neighbor : road->junction_neighbors()) {
-            const auto junction = junction_neighbor.second;
+    junction_to_settle->for_each_road_neighbor([&](auto, BoardView::Road* road) {
+        road->for_each_junction_neighbor([&](auto, BoardView::Junction* junction) {
             if (junction != junction_to_settle) {
                 junction->set_is_not_settleable();
             }
-        }
-    }
+        });
+    });
 
     if (junction_to_settle->is_port()) {
         const auto port_exchange_rate = junction_to_settle->port_exchange_rate();

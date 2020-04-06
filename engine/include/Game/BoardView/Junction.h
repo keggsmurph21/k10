@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <map>
 
 #include "Board/Direction.h"
 #include "Core/Resource.h"
@@ -38,17 +37,6 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Junction&);
 
-    Neighbors<Hex>& hex_neighbors() { return m_hex_neighbors; }
-    const Neighbors<Hex>& hex_neighbors() const { return m_hex_neighbors; }
-    void add_neighbor(Board::Direction direction, Hex* hex) { m_hex_neighbors[direction] = hex; }
-
-    Neighbors<Road>& road_neighbors() { return m_road_neighbors; }
-    const Neighbors<Road>& road_neighbors() const { return m_road_neighbors; }
-    void add_neighbor(Board::Direction direction, Road* road)
-    {
-        m_road_neighbors[direction] = road;
-    }
-
 private:
     bool m_has_settlement{ false };
     bool m_has_city{ false };
@@ -56,9 +44,6 @@ private:
     const ResourceCollection m_port_resources;
     const size_t m_port_exchange_rate;
     Player* m_owner{ nullptr };
-
-    Neighbors<Hex> m_hex_neighbors;
-    Neighbors<Road> m_road_neighbors;
 };
 
 } // namespace k10engine::Game::BoardView
