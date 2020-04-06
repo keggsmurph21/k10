@@ -49,5 +49,6 @@ add_executable(test_
     src/Core/Test/Resource.cc
     src/Game/Test/Game.cc
     src/Scenario/Test/Scenario.cc
+    src/Util/Test/DoublyLinkedList.cc
 )
 target_compile_options(test_ PRIVATE -Werror -g)
