@@ -50,5 +50,6 @@ add_executable(test_
     src/Game/Test/Game.cc
     src/Scenario/Test/Scenario.cc
     src/Util/Test/DoublyLinkedList.cc
+    src/Util/Test/LRUCache.cc
 )
 target_compile_options(test_ PRIVATE -Werror -g)
