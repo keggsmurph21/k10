@@ -3200,7 +3200,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
         REQUIRE(g->execute_move_robber(g->player(1), g->hex(143)).type == ResType::Ok);
 
-        dump_actions();
+        // dump_actions();
 
         delete g;
     }

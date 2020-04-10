@@ -11,6 +11,7 @@
 #include "Core/Resource.h"
 #include "Scenario/IterationType.h"
 #include "Scenario/Parameters.h"
+#include "Util/Serializable.h"
 
 namespace k10engine::Scenario {
 
@@ -21,9 +22,13 @@ namespace k10engine::Scenario {
 
 template<typename T>
 using Costs = std::map<T, ResourceCounts, std::less<T>>;
+std::ostream& operator<<(std::ostream&, const Costs<Building>&);
 
 template<typename T>
 using Counts = std::map<T, size_t, std::less<T>>;
+std::ostream& operator<<(std::ostream&, const Counts<Building>&);
+std::ostream& operator<<(std::ostream&, const Counts<DevelopmentCard>&);
+std::ostream& operator<<(std::ostream&, const Counts<AbstractResource>&);
 
 struct _PortSpec {
     ResourceCollection resources;
@@ -34,7 +39,7 @@ struct _PortSpec {
     }
 };
 
-class Scenario {
+class Scenario : public Serializable {
 public:
     size_t min_players_count() const { return m_min_players_count; }
     size_t max_players_count() const { return m_max_players_count; }
@@ -72,6 +77,8 @@ public:
 
     bool is_valid(const Parameters&) const;
 
+    friend std::ostream& operator<<(std::ostream&, const Scenario&);
+
     Scenario(size_t min_players_count,
              size_t max_players_count,
              size_t min_victory_points_goal,
@@ -99,6 +106,9 @@ public:
             std::min<size_t>(max_victory_points_goal, k10_SCENARIO_MAX_VICTORY_POINTS_GOAL);
     }
     ~Scenario();
+
+    virtual std::vector<u8> serialize() const override;
+    static Scenario deserialize(const std::vector<u8>&);
 
 protected:
     size_t m_min_players_count;

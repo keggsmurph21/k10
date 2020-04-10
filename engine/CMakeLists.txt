@@ -51,5 +51,6 @@ add_executable(test_
     src/Scenario/Test/Scenario.cc
     src/Util/Test/DoublyLinkedList.cc
     src/Util/Test/LRUCache.cc
+    src/Util/Test/Serializer.cc
 )
 target_compile_options(test_ PRIVATE -Werror -g)
