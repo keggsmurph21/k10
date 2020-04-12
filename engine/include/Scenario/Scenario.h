@@ -39,6 +39,7 @@ struct _PortSpec {
     }
     bool operator!=(const _PortSpec& other) const { return !(*this == other); }
 };
+std::ostream& operator<<(std::ostream&, const _PortSpec&);
 
 class Scenario : public Serializable {
 public:

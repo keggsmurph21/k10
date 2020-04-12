@@ -4,6 +4,8 @@
 #include "Core/Random.h"
 #include "Scenario/Scenario.h"
 
+static u8 magic_non_yielding_resource_byte = 0xf0;
+
 namespace k10engine::Scenario {
 
 bool Scenario::is_valid(const Building& building) const
@@ -146,6 +148,129 @@ bool Scenario::is_valid(const Parameters& parameters) const
            && parameters.players_count <= max_players_count()
            && parameters.victory_points_goal >= min_victory_points_goal()
            && parameters.victory_points_goal <= max_victory_points_goal();
+}
+
+std::ostream& operator<<(std::ostream& os, const Costs<Building>& building_costs)
+{
+    os << "BuildingCosts{";
+    if (building_costs.empty()) {
+        os << "}";
+        return os;
+    }
+    bool is_first = true;
+    for (const auto& it : building_costs) {
+        if (!is_first) {
+            os << ",";
+        }
+        is_first = false;
+        os << " " << it.first << " : " << it.second;
+    }
+    os << " }";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Counts<Building>& building_counts)
+{
+    os << "BuildingCounts{";
+    if (building_counts.empty()) {
+        os << "}";
+        return os;
+    }
+    bool is_first = true;
+    for (const auto& it : building_counts) {
+        if (!is_first) {
+            os << ",";
+        }
+        is_first = false;
+        os << " " << it.first << " : " << it.second;
+    }
+    os << " }";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Counts<DevelopmentCard>& development_card_counts)
+{
+    os << "DevelopmentCardCounts{";
+    if (development_card_counts.empty()) {
+        os << "}";
+        return os;
+    }
+    bool is_first = true;
+    for (const auto& it : development_card_counts) {
+        if (!is_first) {
+            os << ",";
+        }
+        is_first = false;
+        os << " " << it.first << " : " << it.second;
+    }
+    os << " }";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Counts<AbstractResource>& resource_counts)
+{
+    os << "ResourceCounts{";
+    if (resource_counts.empty()) {
+        os << "}";
+        return os;
+    }
+    bool is_first = true;
+    for (const auto& it : resource_counts) {
+        if (!is_first) {
+            os << ",";
+        }
+        is_first = false;
+        os << " " << it.first << " : " << it.second;
+    }
+    os << " }";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const _PortSpec& port_spec)
+{
+    return os << "Port{ "
+              << "resources=" << port_spec.resources << ", rate=" << port_spec.exchange_rate
+              << " }";
+}
+
+std::ostream& operator<<(std::ostream& os, const Scenario& scenario)
+{
+    os << "Scenario{" << std::endl;
+    os << "  min_players_count=" << scenario.m_min_players_count << "," << std::endl;
+    os << "  max_players_count=" << scenario.m_max_players_count << "," << std::endl;
+    os << "  min_victory_points_goal=" << scenario.m_min_victory_points_goal << "," << std::endl;
+    os << "  max_victory_points_goal=" << scenario.m_max_victory_points_goal << "," << std::endl;
+    os << "  building_costs=" << scenario.m_building_costs << "," << std::endl;
+    os << "  building_counts=" << scenario.m_building_counts << "," << std::endl;
+    os << "  building_counts_per_player=" << scenario.m_building_counts_per_player << ","
+       << std::endl;
+    os << "  development_card_counts=" << scenario.m_development_card_counts << "," << std::endl;
+    os << "  resource_counts=" << scenario.m_resource_counts << "," << std::endl;
+
+    os << "  rolls={";
+    bool is_first = true;
+    for (const auto& roll : scenario.m_rolls) {
+        if (!is_first) {
+            os << ",";
+        }
+        is_first = false;
+        os << " " << roll;
+    }
+    os << "}," << std::endl;
+
+    os << "  ports={";
+    is_first = true;
+    for (const auto& port_spec : scenario.m_ports) {
+        if (!is_first) {
+            os << ",";
+        }
+        is_first = false;
+        os << " " << port_spec;
+    }
+    os << "}," << std::endl;
+
+    os << " }";
+    return os;
 }
 
 bool Scenario::operator==(const Scenario& other) const
