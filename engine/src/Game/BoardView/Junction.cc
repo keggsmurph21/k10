@@ -24,4 +24,15 @@ std::ostream& operator<<(std::ostream& os, const Junction& junction)
     return os;
 }
 
+bool Junction::operator==(const NodeView& other) const
+{
+    return static_cast<const NodeView&>(*this) == other
+           && has_settlement() == static_cast<const Junction&>(other).has_settlement()
+           && has_city() == static_cast<const Junction&>(other).has_city()
+           && is_settleable() == static_cast<const Junction&>(other).is_settleable()
+           && port_resources() == static_cast<const Junction&>(other).port_resources()
+           && port_exchange_rate() == static_cast<const Junction&>(other).port_exchange_rate()
+           && owner() == static_cast<const Junction&>(other).owner();
+}
+
 } // namespace k10engine::Game::BoardView

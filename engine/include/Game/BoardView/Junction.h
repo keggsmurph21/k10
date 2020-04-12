@@ -36,6 +36,7 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream&, const Junction&);
+    virtual bool operator==(const NodeView&) const override;
 
 private:
     bool m_has_settlement{ false };

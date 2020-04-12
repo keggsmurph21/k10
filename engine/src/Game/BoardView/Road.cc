@@ -14,4 +14,10 @@ std::ostream& operator<<(std::ostream& os, const Road& road)
     return os;
 }
 
+bool Road::operator==(const NodeView& other) const
+{
+    return static_cast<const NodeView&>(*this) == other
+           && owner() == static_cast<const Road&>(other).owner();
+}
+
 } // namespace k10engine::Game::BoardView

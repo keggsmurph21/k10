@@ -22,6 +22,7 @@ add_library(k10 SHARED
     src/Core/Resource.cc
     src/Core/Result.cc
     src/Core/Vertex.cc
+    src/Game/BoardView/Hex.cc
     src/Game/BoardView/Junction.cc
     src/Game/BoardView/Node.cc
     src/Game/BoardView/Road.cc

@@ -36,6 +36,8 @@ public:
 
     virtual ~NodeView() {}
 
+    virtual bool operator==(const NodeView&) const;
+
     void
     for_each_hex_neighbor(const std::function<void(const Board::Direction&, BoardView::Hex*)>&);
     void for_each_junction_neighbor(

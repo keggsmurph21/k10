@@ -20,6 +20,8 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Road&);
 
+    virtual bool operator==(const NodeView&) const override;
+
 private:
     Player* m_owner{ nullptr };
 };

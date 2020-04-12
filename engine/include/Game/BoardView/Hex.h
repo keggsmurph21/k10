@@ -20,12 +20,8 @@ public:
     {
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const Hex& hex)
-    {
-        os << "BoardView::Hex{ " << hex.index() << ", " << hex.resource() << ", "
-           << hex.roll_number() << " }";
-        return os;
-    }
+    friend std::ostream& operator<<(std::ostream&, const Hex&);
+    virtual bool operator==(const NodeView&) const override;
 
 private:
     const AbstractResource m_resource;
