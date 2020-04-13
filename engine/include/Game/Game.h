@@ -33,6 +33,15 @@ namespace k10engine::Game {
 
 class Game {
 public:
+    Game(const Board::Graph*,
+         std::vector<BoardView::NodeView*>&,
+         std::vector<DevelopmentCard>,
+         const Scenario::Scenario&,
+         const Scenario::Parameters&,
+         BoardView::Hex* robber_location);
+    Game(const Game&) = delete;
+    ~Game();
+
     bool can_steal() const { return m_can_steal; }
     bool has_rolled() const { return m_has_rolled; }
     bool is_game_over() const;
@@ -99,14 +108,6 @@ public:
     Result execute_to_root(Player&);
     Result execute_trade_with_bank(Player&, Trade);
 
-    Game(const Board::Graph*,
-         std::vector<BoardView::NodeView*>&,
-         std::vector<DevelopmentCard>,
-         const Scenario::Scenario&,
-         const Scenario::Parameters&,
-         BoardView::Hex* robber_location);
-    ~Game();
-
     void for_each_hex(const std::function<void(const BoardView::Hex*)>&) const;
     void for_each_junction(const std::function<void(const BoardView::Junction*)>&) const;
     void for_each_road(const std::function<void(const BoardView::Road*)>&) const;
@@ -118,6 +119,9 @@ public:
     const BoardView::Hex* hex(size_t index) const;
     const BoardView::Junction* junction(size_t index) const;
     const BoardView::Road* road(size_t index) const;
+
+    static std::optional<Game>
+    initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);
 
 private:
     const Board::Graph* m_graph;
@@ -174,7 +178,5 @@ private:
     // FIXME: Is there a nicer solution than this?
     Result _after_roll(Player& player);
 };
-
-Game* initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);
 
 } // namespace k10engine::Game

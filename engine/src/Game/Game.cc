@@ -98,12 +98,12 @@ Game::~Game()
     m_deck.clear();
 }
 
-Game* initialize(const Board::Graph* graph,
-                 const Scenario::Scenario& scenario,
-                 const Scenario::Parameters& parameters)
+std::optional<Game> Game::initialize(const Board::Graph* graph,
+                                     const Scenario::Scenario& scenario,
+                                     const Scenario::Parameters& parameters)
 {
     if (!scenario.is_valid(parameters)) {
-        return nullptr;
+        return {};
     }
 
     const auto& deck =
@@ -205,12 +205,12 @@ Game* initialize(const Board::Graph* graph,
     }
 
     if (robber_index < 0 || nodes.size() <= static_cast<size_t>(robber_index)) {
-        return nullptr; // something went wrong ... or no Desert given
+        return {}; // something went wrong ... or no Desert given
     }
 
     // FIXME: Don't just blindly cast this unless we're 100% sure this is a Hex ...
     auto robber_location = static_cast<BoardView::Hex*>(nodes.at(robber_index));
-    return new Game(graph, nodes, deck, scenario, parameters, robber_location);
+    return std::make_optional<Game>(graph, nodes, deck, scenario, parameters, robber_location);
 }
 
 static bool player_can_execute_edge(const Player& player, const State::Edge& requested_edge)

@@ -570,7 +570,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         auto b = Board::from_file("static/boards/Single.board");
         auto s = get_single_scenario();
         auto p = get_single_parameters();
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -661,8 +661,6 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
         check_end_turn(0);
 
         // dump_actions();
-
-        delete g;
     }
 }
 
@@ -674,7 +672,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         auto b = Board::from_file("static/boards/Triple.board");
         auto s = get_triple_scenario();
         auto p = get_triple_parameters(1);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -768,8 +766,6 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_end_turn(0);
 
         // dump_actions();
-
-        delete g;
     }
 
     SECTION("Two players")
@@ -777,7 +773,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         auto b = Board::from_file("static/boards/Triple.board");
         auto s = get_triple_scenario();
         auto p = get_triple_parameters(2);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -965,8 +961,6 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_end_turn(0);
 
         // dump_actions();
-
-        delete g;
     }
 
     SECTION("Three players")
@@ -974,7 +968,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         auto b = Board::from_file("static/boards/Triple.board");
         auto s = get_triple_scenario();
         auto p = get_triple_parameters(3);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -1252,8 +1246,6 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
         check_end_turn(0);
 
         // dump_actions();
-
-        delete g;
     }
 }
 
@@ -1265,7 +1257,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         auto b = Board::from_file("static/boards/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(2);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -1463,8 +1455,6 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_roll_dice(1);
 
         // dump_actions();
-
-        delete g;
     }
 
     SECTION("Three players")
@@ -1472,7 +1462,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         auto b = Board::from_file("static/boards/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -1758,8 +1748,6 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
         check_no_actions(2);
 
         // dump_actions();
-
-        delete g;
     }
 }
 
@@ -1771,7 +1759,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         auto b = Board::from_file("static/boards/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -1935,8 +1923,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
 
         // dump_actions();
-
-        delete g;
     }
 
     SECTION("Three players offering trades")
@@ -1944,7 +1930,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         auto b = Board::from_file("static/boards/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -2162,8 +2148,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
 
         // dump_actions();
-
-        delete g;
     }
 
     SECTION("Three players building roads")
@@ -2171,7 +2155,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         auto b = Board::from_file("static/boards/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -2251,8 +2235,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
 
         // dump_actions();
-
-        delete g;
     }
 
     SECTION("Three players building settlements")
@@ -2260,7 +2242,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         auto b = Board::from_file("static/boards/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -2322,8 +2304,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
 
         // dump_actions();
-
-        delete g;
     }
 
     SECTION("Three players buying development cards")
@@ -2331,7 +2311,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         auto b = Board::from_file("static/boards/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -2498,8 +2478,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
 
         // dump_actions();
-
-        delete g;
     }
 
     SECTION("Three players trading with bank")
@@ -2507,7 +2485,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         auto b = Board::from_file("static/boards/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -2932,8 +2910,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
                 == ResType::Ok);
 
         // dump_actions();
-
-        delete g;
     }
 
     SECTION("Three players trading with bank")
@@ -2942,7 +2918,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
                                   "Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -3013,8 +2989,6 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         check_state();
 
         // dump_actions();
-
-        delete g;
     }
 
     SECTION("Three players rolling sevens")
@@ -3023,7 +2997,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
                                   "Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, s, p);
 
         bootstrap_tests();
 
@@ -3201,7 +3175,5 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
         REQUIRE(g->execute_move_robber(g->player(1), g->hex(143)).type == ResType::Ok);
 
         // dump_actions();
-
-        delete g;
     }
 }

@@ -112,10 +112,10 @@ k10engine::Scenario::Parameters get_standard_parameters()
                                             10 };
 }
 
-void dump_actions(const k10engine::Game::Game* g)
+void dump_actions(const k10engine::Game::Game& g)
 {
     std::cout << std::endl;
-    for (const auto& player : g->players()) {
+    for (const auto& player : g.players()) {
         const auto actions = player.get_available_actions();
         std::cout << player << " actions(" << actions.size() << "):" << std::endl;
         for (const auto& available_action : actions) {
@@ -130,7 +130,7 @@ int main(int /* unused */, char** /* unused */)
     auto b = k10engine::Board::from_file("static/boards/Standard.board");
     auto s = get_standard_scenario();
     auto p = get_standard_parameters();
-    auto g = k10engine::Game::initialize(&b, s, p);
+    auto g = k10engine::Game::Game::initialize(&b, s, p);
 
     std::cout << std::endl << " ~~~ Hex neighbors ~~~" << std::endl << std::endl;
     g->for_each_hex([&](const auto* hex) {
@@ -159,7 +159,7 @@ int main(int /* unused */, char** /* unused */)
         });
     });
 
-    dump_actions(g);
+    dump_actions(*g);
 
     // Round 0, Player 0
     std::cout << g->execute_build_settlement(g->player(0), g->junction(4)) << std::endl;
@@ -186,14 +186,12 @@ int main(int /* unused */, char** /* unused */)
     std::cout << g->execute_build_road(g->player(3), g->road(46)) << std::endl;
     std::cout << g->execute_choose_initial_resources(g->player(3), g->junction(27)) << std::endl;
 
-    dump_actions(g);
+    dump_actions(*g);
 
     std::cout << g->graph()->width() << "x" << g->graph()->height() << std::endl;
     std::cout << *g->graph()->node(0, 12) << std::endl;
 
     std::cout << *g << std::endl;
-
-    delete g;
 
     return 0;
 }
