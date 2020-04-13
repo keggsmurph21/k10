@@ -31,8 +31,7 @@ bool NodeView::is_road() const
     return type() == Type::Road;
 }
 
-void NodeView::for_each_hex_neighbor(
-    const std::function<void(const Board::Direction&, BoardView::Hex*)>& callback)
+void NodeView::for_each_hex_neighbor(const Callback<BoardView::Hex>& callback)
 {
     for (int i = 0; i < 6; ++i) {
         const auto& direction = static_cast<Board::Direction>(i);
@@ -43,8 +42,7 @@ void NodeView::for_each_hex_neighbor(
     }
 }
 
-void NodeView::for_each_junction_neighbor(
-    const std::function<void(const Board::Direction&, BoardView::Junction*)>& callback)
+void NodeView::for_each_junction_neighbor(const Callback<BoardView::Junction>& callback)
 {
     for (int i = 0; i < 6; ++i) {
         const auto& direction = static_cast<Board::Direction>(i);
@@ -55,8 +53,7 @@ void NodeView::for_each_junction_neighbor(
     }
 }
 
-void NodeView::for_each_road_neighbor(
-    const std::function<void(const Board::Direction&, BoardView::Road*)>& callback)
+void NodeView::for_each_road_neighbor(const Callback<BoardView::Road>& callback)
 {
     for (int i = 0; i < 6; ++i) {
         const auto& direction = static_cast<Board::Direction>(i);
@@ -67,8 +64,7 @@ void NodeView::for_each_road_neighbor(
     }
 }
 
-void NodeView::for_each_hex_neighbor(
-    const std::function<void(const Board::Direction&, const BoardView::Hex*)>& callback) const
+void NodeView::for_each_hex_neighbor(const Callback<const BoardView::Hex>& callback) const
 {
     for (int i = 0; i < 6; ++i) {
         const auto& direction = static_cast<Board::Direction>(i);
@@ -79,8 +75,7 @@ void NodeView::for_each_hex_neighbor(
     }
 }
 
-void NodeView::for_each_junction_neighbor(
-    const std::function<void(const Board::Direction&, const BoardView::Junction*)>& callback) const
+void NodeView::for_each_junction_neighbor(const Callback<const BoardView::Junction>& callback) const
 {
     for (int i = 0; i < 6; ++i) {
         const auto& direction = static_cast<Board::Direction>(i);
@@ -91,8 +86,7 @@ void NodeView::for_each_junction_neighbor(
     }
 }
 
-void NodeView::for_each_road_neighbor(
-    const std::function<void(const Board::Direction&, const BoardView::Road*)>& callback) const
+void NodeView::for_each_road_neighbor(const Callback<const BoardView::Road>& callback) const
 {
     for (int i = 0; i < 6; ++i) {
         const auto& direction = static_cast<Board::Direction>(i);

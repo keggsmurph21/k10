@@ -12,6 +12,10 @@ template<typename T>
 using Neighbors = std::map<Board::Direction, T*, std::less<>>;
 
 class NodeView {
+
+    template<typename T>
+    using Callback = std::function<void(const Board::Direction&, T*)>;
+
 public:
     enum class Type {
         Hex,
@@ -38,19 +42,13 @@ public:
 
     virtual bool operator==(const NodeView&) const;
 
-    void
-    for_each_hex_neighbor(const std::function<void(const Board::Direction&, BoardView::Hex*)>&);
-    void for_each_junction_neighbor(
-        const std::function<void(const Board::Direction&, BoardView::Junction*)>&);
-    void
-    for_each_road_neighbor(const std::function<void(const Board::Direction&, BoardView::Road*)>&);
+    void for_each_hex_neighbor(const Callback<BoardView::Hex>&);
+    void for_each_junction_neighbor(const Callback<BoardView::Junction>&);
+    void for_each_road_neighbor(const Callback<BoardView::Road>&);
 
-    void for_each_hex_neighbor(
-        const std::function<void(const Board::Direction&, const BoardView::Hex*)>&) const;
-    void for_each_junction_neighbor(
-        const std::function<void(const Board::Direction&, const BoardView::Junction*)>&) const;
-    void for_each_road_neighbor(
-        const std::function<void(const Board::Direction&, const BoardView::Road*)>&) const;
+    void for_each_hex_neighbor(const Callback<const BoardView::Hex>&) const;
+    void for_each_junction_neighbor(const Callback<const BoardView::Junction>&) const;
+    void for_each_road_neighbor(const Callback<const BoardView::Road>&) const;
 
 private:
     const Board::Node& m_node;
