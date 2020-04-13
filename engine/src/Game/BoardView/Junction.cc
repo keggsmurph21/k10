@@ -26,7 +26,7 @@ std::ostream& operator<<(std::ostream& os, const Junction& junction)
 
 bool Junction::operator==(const NodeView& other) const
 {
-    return static_cast<const NodeView&>(*this) == other
+    return node() == other.node() && type() == other.type()
            && has_settlement() == static_cast<const Junction&>(other).has_settlement()
            && has_city() == static_cast<const Junction&>(other).has_city()
            && is_settleable() == static_cast<const Junction&>(other).is_settleable()

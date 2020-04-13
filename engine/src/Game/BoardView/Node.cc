@@ -97,9 +97,4 @@ void NodeView::for_each_road_neighbor(const Callback<const BoardView::Road>& cal
     }
 }
 
-bool NodeView::operator==(const NodeView& other) const
-{
-    return type() == other.type() && node() == other.node();
-}
-
 } // namespace k10engine::Game::BoardView

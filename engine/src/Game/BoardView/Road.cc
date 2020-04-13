@@ -16,7 +16,7 @@ std::ostream& operator<<(std::ostream& os, const Road& road)
 
 bool Road::operator==(const NodeView& other) const
 {
-    return static_cast<const NodeView&>(*this) == other
+    return node() == other.node() && type() == other.type()
            && owner() == static_cast<const Road&>(other).owner();
 }
 

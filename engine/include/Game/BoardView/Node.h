@@ -40,7 +40,7 @@ public:
 
     virtual ~NodeView() {}
 
-    virtual bool operator==(const NodeView&) const;
+    virtual bool operator==(const NodeView&) const = 0;
 
     void for_each_hex_neighbor(const Callback<BoardView::Hex>&);
     void for_each_junction_neighbor(const Callback<BoardView::Junction>&);
