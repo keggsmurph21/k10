@@ -4,8 +4,6 @@
 #include "Core/Random.h"
 #include "Scenario/Scenario.h"
 
-static u8 magic_non_yielding_resource_byte = 0xf0;
-
 namespace k10engine::Scenario {
 
 bool Scenario::is_valid(const Building& building) const
@@ -188,12 +186,7 @@ std::vector<u8> Scenario::serialize() const
 
     serial.push_back(static_cast<u8>(m_resource_counts.size()));
     for (const auto& it : m_resource_counts) {
-        if (std::holds_alternative<Resource>(it.first)) {
-            serial.push_back(static_cast<u8>(std::get<Resource>(it.first)));
-        } else {
-            serial.push_back(static_cast<u8>(std::get<NonYieldingResource>(it.first))
-                             + magic_non_yielding_resource_byte);
-        }
+        serial.push_back(::k10engine::serialize(it.first));
         serial.push_back(static_cast<u8>(it.second));
     }
 
@@ -264,14 +257,7 @@ Scenario Scenario::deserialize(const std::vector<u8>& serial)
     auto num_resource_counts = static_cast<size_t>(serial[index++]);
     Counts<AbstractResource> resource_counts;
     for (size_t i = 0; i < num_resource_counts; ++i) {
-        AbstractResource resource;
-        auto resource_byte = serial[index++];
-        if ((resource_byte & magic_non_yielding_resource_byte) != 0) {
-            resource =
-                static_cast<NonYieldingResource>(resource_byte - magic_non_yielding_resource_byte);
-        } else {
-            resource = static_cast<Resource>(resource_byte);
-        }
+        auto resource = deserialize_abstract_resource(serial[index++]);
         auto count = static_cast<size_t>(serial[index++]);
         resource_counts[resource] = count;
     }
