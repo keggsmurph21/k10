@@ -5,13 +5,14 @@
 #include "Board/Graph.h"
 #include "Board/Node.h"
 #include "Forward.h"
+#include "Util/Serializable.h"
 
 namespace k10engine::Game::BoardView {
 
 template<typename T>
 using Neighbors = std::map<Board::Direction, T*, std::less<>>;
 
-class NodeView {
+class NodeView : public Serializable {
 
     template<typename T>
     using Callback = std::function<void(const Board::Direction&, T*)>;

@@ -58,4 +58,25 @@ inline AbstractResource deserialize_abstract_resource(u8 byte)
     }
 }
 
+inline std::vector<u8> serialize(const ResourceCollection& resources)
+{
+    std::vector<u8> serial;
+    serial.push_back(static_cast<u8>(resources.size()));
+    for (const auto& resource : resources) {
+        serial.push_back(serialize(resource));
+    }
+    return serial;
+}
+
+inline ResourceCollection deserialize_resource_collection(const std::vector<u8>& serial,
+                                                          size_t& index)
+{
+    auto size = static_cast<size_t>(serial[index++]);
+    ResourceCollection resources;
+    for (size_t i = 0; i < size; ++i) {
+        resources.insert(static_cast<Resource>(serial[index++]));
+    }
+    return resources;
+}
+
 } // namespace k10engine

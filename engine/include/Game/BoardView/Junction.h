@@ -38,6 +38,9 @@ public:
     friend std::ostream& operator<<(std::ostream&, const Junction&);
     virtual bool operator==(const NodeView&) const override;
 
+    virtual std::vector<u8> serialize() const override;
+    static Junction deserialize(const Board::Node&, const std::vector<u8>&);
+
 private:
     bool m_has_settlement{ false };
     bool m_has_city{ false };
