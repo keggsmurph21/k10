@@ -95,6 +95,36 @@ Graph::~Graph()
     m_nodes.clear();
 }
 
+bool Graph::operator==(const Graph& other) const
+{
+    if (nodes().size() != other.nodes().size())
+        return false;
+    for (size_t i = 0; i < nodes().size(); ++i) {
+        if (!(nodes().at(i) == other.nodes().at(i)))
+            return false;
+    }
+
+    if (edges().size() != other.edges().size())
+        return false;
+    for (const auto& my_it : edges()) {
+        const auto& my_key = my_it.first;
+        const auto& other_value = other.edges().find(my_key);
+        if (other_value == other.edges().end())
+            return false;
+        if (!(my_it.second == other_value->second))
+            return false;
+    }
+
+    if (ports().size() != other.ports().size())
+        return false;
+    for (size_t i = 0; i < ports().size(); ++i) {
+        if (!(ports().at(i) == other.ports().at(i)))
+            return false;
+    }
+
+    return true;
+}
+
 const Node* Graph::node(const size_t index) const
 {
     if (index < m_nodes.size()) {

@@ -48,9 +48,14 @@ public:
     Graph(Dimensions, const NodeSpecs&, const EdgeSpecs&, const PortSpecs&);
     ~Graph();
 
-    const std::vector<Node>& nodes() const { return m_nodes; }
+    bool operator==(const Graph&) const;
+
+    const Nodes& nodes() const { return m_nodes; }
     const Node* node(const size_t index) const;
     const Node* node(const size_t x, const size_t y) const;
+
+    const Edges& edges() const { return m_edges; }
+    const Ports& ports() const { return m_ports; }
 
     int size() const { return m_nodes.size(); }
 
