@@ -30,4 +30,17 @@ const Node* Port::buddy(const Node* other_node) const
     assert(false);
 }
 
+std::vector<u8> Port::serialize() const
+{
+    return { static_cast<u8>(index()), static_cast<u8>(orientation()) };
+}
+
+Port Port::deserialize(std::set<const Node*> nodes, const std::vector<u8>& serial)
+{
+    size_t index = 0;
+    auto port_index = static_cast<size_t>(serial[index++]);
+    auto orientation = static_cast<Orientation>(serial[index++]);
+    return { port_index, std::move(nodes), orientation };
+}
+
 } // namespace k10engine::Board

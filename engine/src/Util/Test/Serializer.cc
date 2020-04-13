@@ -85,6 +85,20 @@ TEST_CASE("Serialize Node", "[Test][Test.Serializer][Test.Serializer.Node]")
     REQUIRE(n == Board::Node::deserialize(n.serialize()));
 }
 
+TEST_CASE("Serialize Port", "[Test][Test.Serializer][Test.Serializer.Port]")
+{
+    Board::Node n0{ 4, 2, 0, Board::NodeType::Junction };
+    Board::Node n1{ 5, 3, 1, Board::NodeType::Junction };
+    Board::Port p{ 6, { &n0, &n1 }, Board::Orientation::Clock2Clock8 };
+    /*
+    for (const auto& ch : p.serialize()) {
+        std::cout << ch;
+    }
+    std::cout << std::endl;
+    */
+    REQUIRE(p == Board::Port::deserialize({ &n0, &n1 }, p.serialize()));
+}
+
 TEST_CASE("Serialize NodeView", "[Test][Test.Serializer][Test.Serializer.NodeView]")
 {
     SECTION("Serialize Hex")
