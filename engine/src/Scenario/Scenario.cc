@@ -150,6 +150,165 @@ bool Scenario::is_valid(const Parameters& parameters) const
            && parameters.victory_points_goal <= max_victory_points_goal();
 }
 
+std::vector<u8> Scenario::serialize() const
+{
+    std::vector<u8> serial;
+    serial.push_back(static_cast<u8>(m_min_players_count));
+    serial.push_back(static_cast<u8>(m_max_players_count));
+    serial.push_back(static_cast<u8>(m_min_victory_points_goal));
+    serial.push_back(static_cast<u8>(m_max_victory_points_goal));
+
+    serial.push_back(static_cast<u8>(m_building_costs.size()));
+    for (const auto& it : m_building_costs) {
+        serial.push_back(static_cast<u8>(it.first));
+        serial.push_back(static_cast<u8>(it.second.size()));
+        for (const auto& jt : it.second) {
+            serial.push_back(static_cast<u8>(jt.first));
+            serial.push_back(static_cast<u8>(jt.second));
+        }
+    }
+
+    serial.push_back(static_cast<u8>(m_building_counts.size()));
+    for (const auto& it : m_building_counts) {
+        serial.push_back(static_cast<u8>(it.first));
+        serial.push_back(static_cast<u8>(it.second));
+    }
+
+    serial.push_back(static_cast<u8>(m_building_counts_per_player.size()));
+    for (const auto& it : m_building_counts_per_player) {
+        serial.push_back(static_cast<u8>(it.first));
+        serial.push_back(static_cast<u8>(it.second));
+    }
+
+    serial.push_back(static_cast<u8>(m_development_card_counts.size()));
+    for (const auto& it : m_development_card_counts) {
+        serial.push_back(static_cast<u8>(it.first));
+        serial.push_back(static_cast<u8>(it.second));
+    }
+
+    serial.push_back(static_cast<u8>(m_resource_counts.size()));
+    for (const auto& it : m_resource_counts) {
+        if (std::holds_alternative<Resource>(it.first)) {
+            serial.push_back(static_cast<u8>(std::get<Resource>(it.first)));
+        } else {
+            serial.push_back(static_cast<u8>(std::get<NonYieldingResource>(it.first))
+                             + magic_non_yielding_resource_byte);
+        }
+        serial.push_back(static_cast<u8>(it.second));
+    }
+
+    serial.push_back(static_cast<u8>(m_rolls.size()));
+    for (const auto& roll : m_rolls) {
+        serial.push_back(static_cast<u8>(roll));
+    }
+
+    serial.push_back(static_cast<u8>(m_ports.size()));
+    for (const auto& port_spec : m_ports) {
+        serial.push_back(static_cast<u8>(port_spec.exchange_rate));
+        serial.push_back(static_cast<u8>(port_spec.resources.size()));
+        for (const auto& resource : port_spec.resources) {
+            serial.push_back(static_cast<u8>(resource));
+        }
+    }
+
+    return serial;
+}
+
+Scenario Scenario::deserialize(const std::vector<u8>& serial)
+{
+    size_t index = 0;
+
+    auto min_players_count = static_cast<size_t>(serial[index++]);
+    auto max_players_count = static_cast<size_t>(serial[index++]);
+    auto min_victory_points_goal = static_cast<size_t>(serial[index++]);
+    auto max_victory_points_goal = static_cast<size_t>(serial[index++]);
+
+    auto num_building_costs = static_cast<size_t>(serial[index++]);
+    Costs<Building> building_costs;
+    for (size_t i = 0; i < num_building_costs; ++i) {
+        auto building = static_cast<Building>(serial[index++]);
+        auto num_resources = static_cast<size_t>(serial[index++]);
+        ResourceCounts cost;
+        for (size_t j = 0; j < num_resources; ++j) {
+            auto resource = static_cast<Resource>(serial[index++]);
+            auto count = static_cast<size_t>(serial[index++]);
+            cost[resource] = count;
+        }
+        building_costs[building] = cost;
+    }
+
+    auto num_building_counts = static_cast<size_t>(serial[index++]);
+    Counts<Building> building_counts;
+    for (size_t i = 0; i < num_building_counts; ++i) {
+        auto building = static_cast<Building>(serial[index++]);
+        auto count = static_cast<size_t>(serial[index++]);
+        building_counts[building] = count;
+    }
+
+    auto num_building_counts_per_player = static_cast<size_t>(serial[index++]);
+    Counts<Building> building_counts_per_player;
+    for (size_t i = 0; i < num_building_counts_per_player; ++i) {
+        auto building = static_cast<Building>(serial[index++]);
+        auto count = static_cast<size_t>(serial[index++]);
+        building_counts_per_player[building] = count;
+    }
+
+    auto num_development_card_counts = static_cast<size_t>(serial[index++]);
+    Counts<DevelopmentCard> development_card_counts;
+    for (size_t i = 0; i < num_development_card_counts; ++i) {
+        auto development_card = static_cast<DevelopmentCard>(serial[index++]);
+        auto count = static_cast<size_t>(serial[index++]);
+        development_card_counts[development_card] = count;
+    }
+
+    auto num_resource_counts = static_cast<size_t>(serial[index++]);
+    Counts<AbstractResource> resource_counts;
+    for (size_t i = 0; i < num_resource_counts; ++i) {
+        AbstractResource resource;
+        auto resource_byte = serial[index++];
+        if ((resource_byte & magic_non_yielding_resource_byte) != 0) {
+            resource =
+                static_cast<NonYieldingResource>(resource_byte - magic_non_yielding_resource_byte);
+        } else {
+            resource = static_cast<Resource>(resource_byte);
+        }
+        auto count = static_cast<size_t>(serial[index++]);
+        resource_counts[resource] = count;
+    }
+
+    auto num_rolls = static_cast<size_t>(serial[index++]);
+    std::vector<int> rolls;
+    for (size_t i = 0; i < num_rolls; ++i) {
+        rolls.push_back(static_cast<int>(serial[index++]));
+    }
+
+    auto num_port_specs = static_cast<size_t>(serial[index++]);
+    std::vector<_PortSpec> port_specs;
+    for (size_t i = 0; i < num_port_specs; ++i) {
+        auto exchange_rate = static_cast<unsigned>(serial[index++]);
+        auto num_resources = static_cast<size_t>(serial[index++]);
+        ResourceCollection resources;
+        for (size_t j = 0; j < num_resources; ++j) {
+            auto resource = static_cast<Resource>(serial[index++]);
+            resources.insert(resource);
+        }
+        _PortSpec port_spec{ resources, exchange_rate };
+        port_specs.push_back(port_spec);
+    }
+
+    return Scenario(min_players_count,
+                    max_players_count,
+                    min_victory_points_goal,
+                    max_victory_points_goal,
+                    std::move(building_costs),
+                    std::move(building_counts),
+                    std::move(building_counts_per_player),
+                    std::move(development_card_counts),
+                    std::move(resource_counts),
+                    std::move(rolls),
+                    std::move(port_specs));
+}
+
 std::ostream& operator<<(std::ostream& os, const Costs<Building>& building_costs)
 {
     os << "BuildingCosts{";

@@ -114,6 +114,9 @@ public:
 
     bool operator==(const Scenario&) const;
 
+    virtual std::vector<u8> serialize() const override;
+    static Scenario deserialize(const std::vector<u8>&);
+
 protected:
     size_t m_min_players_count;
     size_t m_max_players_count;
