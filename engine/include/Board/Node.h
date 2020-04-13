@@ -37,7 +37,7 @@ public:
     size_t y() const { return m_y; }
     NodeType type() const { return m_type; }
 
-    std::vector<u8> serialize() const override;
+    virtual std::vector<u8> serialize() const override;
     static Node deserialize(const std::vector<u8>&);
 
 private:
