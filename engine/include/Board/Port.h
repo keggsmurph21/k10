@@ -19,6 +19,11 @@ public:
     }
     ~Port() {}
 
+    bool operator==(const Port& other) const
+    {
+        return index() == other.index() && orientation() == other.orientation();
+    }
+
     size_t index() const { return m_index; }
 
     Orientation orientation() const { return m_orientation; }
