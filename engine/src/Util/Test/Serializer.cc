@@ -73,6 +73,18 @@ TEST_CASE("Serialize Scenario", "[Test][Test.Serializer][Test.Serializer.Scenari
     REQUIRE(s == Scenario::Scenario::deserialize(s.serialize()));
 }
 
+TEST_CASE("Serialize Node", "[Test][Test.Serializer][Test.Serializer.Node]")
+{
+    Board::Node n{ 4, 2, 0, Board::NodeType::Ocean };
+    /*
+    for (const auto& ch : n.serialize()) {
+        std::cout << ch;
+    }
+    std::cout << std::endl;
+    */
+    REQUIRE(n == Board::Node::deserialize(n.serialize()));
+}
+
 TEST_CASE("Serialize NodeView", "[Test][Test.Serializer][Test.Serializer.NodeView]")
 {
     SECTION("Serialize Hex")
