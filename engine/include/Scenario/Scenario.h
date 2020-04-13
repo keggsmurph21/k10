@@ -33,10 +33,11 @@ std::ostream& operator<<(std::ostream&, const Counts<AbstractResource>&);
 struct _PortSpec {
     ResourceCollection resources;
     unsigned exchange_rate;
-    bool operator==(const _PortSpec other) const
+    bool operator==(const _PortSpec& other) const
     {
         return resources == other.resources && exchange_rate == other.exchange_rate;
     }
+    bool operator!=(const _PortSpec& other) const { return !(*this == other); }
 };
 
 class Scenario : public Serializable {
@@ -75,6 +76,9 @@ public:
     std::vector<AbstractResource> get_resources(IterationType) const; // gets a fresh copy
     std::vector<int> get_rolls(IterationType) const;                  // gets a fresh copy
 
+    const std::vector<int>& peek_rolls() const { return m_rolls; }
+    const std::vector<_PortSpec>& peek_ports() const { return m_ports; }
+
     bool is_valid(const Parameters&) const;
 
     friend std::ostream& operator<<(std::ostream&, const Scenario&);
@@ -107,8 +111,7 @@ public:
     }
     ~Scenario();
 
-    virtual std::vector<u8> serialize() const override;
-    static Scenario deserialize(const std::vector<u8>&);
+    bool operator==(const Scenario&) const;
 
 protected:
     size_t m_min_players_count;
