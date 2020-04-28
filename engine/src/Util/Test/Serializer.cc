@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "Board/Parser.h"
 #include "Game/BoardView/Hex.h"
 #include "Game/BoardView/Junction.h"
 #include "Game/BoardView/Road.h"
@@ -97,6 +98,50 @@ TEST_CASE("Serialize Port", "[Test][Test.Serializer][Test.Serializer.Port]")
     std::cout << std::endl;
     */
     REQUIRE(p == Board::Port::deserialize({ &n0, &n1 }, p.serialize()));
+}
+
+TEST_CASE("Serialize Graph", "[Test][Test.Serializer][Test.Serializer.Graph]")
+{
+    SECTION("Custom board")
+    {
+        Board::Graph g{ { 7, 7 },
+                        {
+                            { 0, 0, Board::NodeType::Junction },
+                            { 1, 1, Board::NodeType::Road },
+                            { 2, 2, Board::NodeType::Junction },
+                            { 3, 3, Board::NodeType::Hex },
+                            { 4, 4, Board::NodeType::Ocean },
+                            { 5, 5, Board::NodeType::UnflippedHex },
+                            { 6, 6, Board::NodeType::Road },
+                        },
+                        { { 0, 1, Board::Direction::Clock2 }, { 1, 2, Board::Direction::Clock2 } },
+                        { { 0, 2, Board::Orientation::Clock2Clock8 } } };
+        /*
+        for (const auto& ch : g.serialize()) {
+            std::cout << ch;
+        }
+        */
+        std::cout << std::endl;
+        REQUIRE(g == Board::Graph::deserialize(g.serialize()));
+    }
+
+    SECTION("Standard board")
+    {
+        auto g = Board::from_file("static/boards/Standard.board");
+        REQUIRE(g == Board::Graph::deserialize(g.serialize()));
+    }
+
+    SECTION("Portless board")
+    {
+        auto g = Board::from_file("static/boards/Portless.board");
+        REQUIRE(g == Board::Graph::deserialize(g.serialize()));
+    }
+
+    SECTION("Tall board")
+    {
+        auto g = Board::from_file("static/boards/Tall.board");
+        REQUIRE(g == Board::Graph::deserialize(g.serialize()));
+    }
 }
 
 TEST_CASE("Serialize NodeView", "[Test][Test.Serializer][Test.Serializer.NodeView]")
