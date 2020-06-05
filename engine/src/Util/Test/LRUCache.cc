@@ -3,12 +3,12 @@
 #include "Test/catch.h"
 #include "Util/LRUCache.h"
 
-static int g_counter = 0;
+static int s_counter = 0;
 
 template<typename T>
 int get(const T& /* unused */)
 {
-    return ++g_counter;
+    return ++s_counter;
 }
 
 TEST_CASE("LRUCache", "[Util][Util.LRUCache]")
