@@ -12,10 +12,7 @@ std::ostream& operator<<(std::ostream& os, const Node& node)
 
 std::vector<u8> Node::serialize() const
 {
-    return { static_cast<u8>(index()),
-             static_cast<u8>(x()),
-             static_cast<u8>(y()),
-             static_cast<u8>(type()) };
+    return { static_cast<u8>(index()), static_cast<u8>(x()), static_cast<u8>(y()), static_cast<u8>(type()) };
 }
 
 Node Node::deserialize(const std::vector<u8>& serial)

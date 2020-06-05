@@ -142,8 +142,7 @@ Scenario::~Scenario()
 
 bool Scenario::is_valid(const Parameters& parameters) const
 {
-    return parameters.players_count >= min_players_count()
-           && parameters.players_count <= max_players_count()
+    return parameters.players_count >= min_players_count() && parameters.players_count <= max_players_count()
            && parameters.victory_points_goal >= min_victory_points_goal()
            && parameters.victory_points_goal <= max_victory_points_goal();
 }
@@ -374,8 +373,7 @@ std::ostream& operator<<(std::ostream& os, const Counts<AbstractResource>& resou
 std::ostream& operator<<(std::ostream& os, const _PortSpec& port_spec)
 {
     return os << "Port{ "
-              << "resources=" << port_spec.resources << ", rate=" << port_spec.exchange_rate
-              << " }";
+              << "resources=" << port_spec.resources << ", rate=" << port_spec.exchange_rate << " }";
 }
 
 std::ostream& operator<<(std::ostream& os, const Scenario& scenario)
@@ -387,8 +385,7 @@ std::ostream& operator<<(std::ostream& os, const Scenario& scenario)
     os << "  max_victory_points_goal=" << scenario.m_max_victory_points_goal << "," << std::endl;
     os << "  building_costs=" << scenario.m_building_costs << "," << std::endl;
     os << "  building_counts=" << scenario.m_building_counts << "," << std::endl;
-    os << "  building_counts_per_player=" << scenario.m_building_counts_per_player << ","
-       << std::endl;
+    os << "  building_counts_per_player=" << scenario.m_building_counts_per_player << "," << std::endl;
     os << "  development_card_counts=" << scenario.m_development_card_counts << "," << std::endl;
     os << "  resource_counts=" << scenario.m_resource_counts << "," << std::endl;
 

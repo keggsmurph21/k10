@@ -6,15 +6,13 @@ namespace k10engine::Game::BoardView {
 
 std::ostream& operator<<(std::ostream& os, const Hex& hex)
 {
-    os << "BoardView::Hex{ " << hex.index() << ", " << hex.resource() << ", " << hex.roll_number()
-       << " }";
+    os << "BoardView::Hex{ " << hex.index() << ", " << hex.resource() << ", " << hex.roll_number() << " }";
     return os;
 }
 
 bool Hex::operator==(const NodeView& other) const
 {
-    return node() == other.node() && type() == other.type()
-           && resource() == static_cast<const Hex&>(other).resource()
+    return node() == other.node() && type() == other.type() && resource() == static_cast<const Hex&>(other).resource()
            && roll_number() == static_cast<const Hex&>(other).roll_number();
 }
 

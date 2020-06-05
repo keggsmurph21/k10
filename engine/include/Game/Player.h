@@ -117,10 +117,7 @@ private:
     void play_year_of_plenty(const Resource&, const Resource&);
 
     void set_can_accept_trade(bool can_accept_trade) { m_can_accept_trade = can_accept_trade; }
-    void set_has_declined_trade(bool has_declined_trade)
-    {
-        m_has_declined_trade = has_declined_trade;
-    }
+    void set_has_declined_trade(bool has_declined_trade) { m_has_declined_trade = has_declined_trade; }
     void set_num_to_discard(size_t num_to_discard) { m_num_to_discard = num_to_discard; }
 
     void set_longest_road(size_t longest_road) { m_longest_road = longest_road; }

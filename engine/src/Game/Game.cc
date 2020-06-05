@@ -98,16 +98,14 @@ Game::~Game()
     m_deck.clear();
 }
 
-std::optional<Game> Game::initialize(const Board::Graph* graph,
-                                     const Scenario::Scenario& scenario,
-                                     const Scenario::Parameters& parameters)
+std::optional<Game>
+Game::initialize(const Board::Graph* graph, const Scenario::Scenario& scenario, const Scenario::Parameters& parameters)
 {
     if (!scenario.is_valid(parameters)) {
         return {};
     }
 
-    const auto& deck =
-        scenario.get_development_card_deck(parameters.development_card_iteration_type);
+    const auto& deck = scenario.get_development_card_deck(parameters.development_card_iteration_type);
     const auto& ports = scenario.get_ports(parameters.port_iteration_type);
     const auto& resources = scenario.get_resources(parameters.resource_iteration_type);
     const auto& rolls = scenario.get_rolls(parameters.roll_iteration_type);
@@ -154,9 +152,7 @@ std::optional<Game> Game::initialize(const Board::Graph* graph,
         return new BoardView::Junction(node, port_spec.resources, port_spec.exchange_rate);
     };
 
-    auto make_road = [&](const Board::Node& node) -> BoardView::Road* {
-        return new BoardView::Road(node);
-    };
+    auto make_road = [&](const Board::Node& node) -> BoardView::Road* { return new BoardView::Road(node); };
 
     for (const auto& node : graph->nodes()) {
         switch (node.type()) {
@@ -195,10 +191,8 @@ std::optional<Game> Game::initialize(const Board::Graph* graph,
             if (neighbor == nullptr) {
                 continue;
             }
-            if ((node->is_hex() && neighbor->is_junction())
-                || (node->is_junction() && neighbor->is_hex())
-                || (node->is_junction() && neighbor->is_road())
-                || (node->is_road() && neighbor->is_junction())) {
+            if ((node->is_hex() && neighbor->is_junction()) || (node->is_junction() && neighbor->is_hex())
+                || (node->is_junction() && neighbor->is_road()) || (node->is_road() && neighbor->is_junction())) {
                 node->add_neighbor_(direction, neighbor);
             }
         }
@@ -314,8 +308,7 @@ Result Game::execute_build_development_card(Player& player)
         player.set_vertex(State::Vertex::Root);
     }
 
-    return { ResultType::Ok,
-             { { ActionArgumentType::DevelopmentCardId, static_cast<size_t>(development_card) } } };
+    return { ResultType::Ok, { { ActionArgumentType::DevelopmentCardId, static_cast<size_t>(development_card) } } };
 }
 
 Result Game::execute_build_road(Player& player, BoardView::Road* road)
@@ -569,8 +562,7 @@ Result Game::execute_play_monopoly(Player& player, const Resource& resource)
     return { ResultType::Ok, {} };
 }
 
-Result
-Game::execute_play_road_building(Player& player, BoardView::Road* road_0, BoardView::Road* road_1)
+Result Game::execute_play_road_building(Player& player, BoardView::Road* road_0, BoardView::Road* road_1)
 {
     if (!player_can_execute_edge(player, State::Edge::PlayRoadBuilding)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -625,9 +617,7 @@ Result Game::execute_play_victory_point(Player& player)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_play_year_of_plenty(Player& player,
-                                         const Resource& resource_0,
-                                         const Resource& resource_1)
+Result Game::execute_play_year_of_plenty(Player& player, const Resource& resource_0, const Resource& resource_1)
 {
     if (!player_can_execute_edge(player, State::Edge::PlayYearOfPlenty)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -737,8 +727,7 @@ Result Game::execute_steal(Player& player, Player& steal_from)
 
     set_can_steal(false);
 
-    return { ResultType::Ok,
-             { { ActionArgumentType::TakeResourceType, static_cast<size_t>(stolen_resource) } } };
+    return { ResultType::Ok, { { ActionArgumentType::TakeResourceType, static_cast<size_t>(stolen_resource) } } };
 }
 
 Result Game::execute_to_root(Player& player)

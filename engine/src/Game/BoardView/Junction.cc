@@ -20,8 +20,7 @@ std::ostream& operator<<(std::ostream& os, const Junction& junction)
     if (junction.port_exchange_rate() == 0) {
         os << "(not a port) }";
     } else {
-        os << "Port{ " << junction.port_exchange_rate() << ", " << junction.port_resources()
-           << "} }";
+        os << "Port{ " << junction.port_exchange_rate() << ", " << junction.port_resources() << "} }";
     }
     return os;
 }

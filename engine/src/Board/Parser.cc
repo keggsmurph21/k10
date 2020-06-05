@@ -159,9 +159,7 @@ static Graph from_stream(std::istream& char_stream)
                 if (neighbor.num == -1) {
                     continue;
                 }
-                edges.push_back({ static_cast<size_t>(token.num),
-                                  static_cast<size_t>(neighbor.num),
-                                  direction });
+                edges.push_back({ static_cast<size_t>(token.num), static_cast<size_t>(neighbor.num), direction });
 
                 // Build up the ports
                 if (token.ch == 'p') {
@@ -192,8 +190,7 @@ static Graph from_stream(std::istream& char_stream)
         }
     }
 
-    return Graph(
-        { static_cast<size_t>(max_width), static_cast<size_t>(height) }, nodes, edges, ports);
+    return Graph({ static_cast<size_t>(max_width), static_cast<size_t>(height) }, nodes, edges, ports);
 }
 
 Graph from_string(const std::string& board_string)

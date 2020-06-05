@@ -150,13 +150,11 @@ struct SexdecupleColor {
 
 SexdecupleColor::operator u64() const
 {
-    return static_cast<u8>(c0) | (static_cast<u8>(c1) << 2) | (static_cast<u8>(c2) << 4)
-           | (static_cast<u8>(c3) << 6) | (static_cast<u8>(c4) << 8) | (static_cast<u8>(c5) << 10)
-           | (static_cast<u8>(c6) << 12) | (static_cast<u8>(c7) << 14) | (static_cast<u8>(c8) << 16)
-           | (static_cast<u8>(c9) << 18) | (static_cast<u8>(c10) << 20)
-           | (static_cast<u8>(c11) << 22) | (static_cast<u8>(c12) << 24)
-           | (static_cast<u8>(c13) << 26) | (static_cast<u8>(c14) << 28)
-           | (static_cast<u8>(c15) << 30);
+    return static_cast<u8>(c0) | (static_cast<u8>(c1) << 2) | (static_cast<u8>(c2) << 4) | (static_cast<u8>(c3) << 6)
+           | (static_cast<u8>(c4) << 8) | (static_cast<u8>(c5) << 10) | (static_cast<u8>(c6) << 12)
+           | (static_cast<u8>(c7) << 14) | (static_cast<u8>(c8) << 16) | (static_cast<u8>(c9) << 18)
+           | (static_cast<u8>(c10) << 20) | (static_cast<u8>(c11) << 22) | (static_cast<u8>(c12) << 24)
+           | (static_cast<u8>(c13) << 26) | (static_cast<u8>(c14) << 28) | (static_cast<u8>(c15) << 30);
 }
 
 SexdecupleColor SexdecupleColor::operator=(u64 bytes)
@@ -206,10 +204,9 @@ TEST_CASE("Bitpacked structs", "[Util] [Util.SerialStream]")
     SECTION("SexdecupleColor")
     {
         SerialStream ss;
-        SexdecupleColor expected{ Color::Blue,   Color::Red,    Color::Blue,  Color::Blue,
-                                  Color::Blue,   Color::Blue,   Color::Red,   Color::Yellow,
-                                  Color::Yellow, Color::Yellow, Color::Blue,  Color::Red,
-                                  Color::Green,  Color::Green,  Color::Green, Color::Blue };
+        SexdecupleColor expected{ Color::Blue,  Color::Red,    Color::Blue,   Color::Blue,   Color::Blue, Color::Blue,
+                                  Color::Red,   Color::Yellow, Color::Yellow, Color::Yellow, Color::Blue, Color::Red,
+                                  Color::Green, Color::Green,  Color::Green,  Color::Blue };
         SexdecupleColor actual;
         ss << expected;
         ss >> actual;
@@ -315,10 +312,7 @@ public:
         , m_colors_map(std::move(colors_map))
     {
     }
-    bool operator==(const Container& c) const
-    {
-        return m_point == c.m_point && m_colors_map == c.m_colors_map;
-    }
+    bool operator==(const Container& c) const { return m_point == c.m_point && m_colors_map == c.m_colors_map; }
 
 private:
     Point m_point;
@@ -345,9 +339,7 @@ TEST_CASE("Complex bitpacked class", "[Util] [Util.Serializable]")
     SECTION("Single Container")
     {
         SerialStream ss;
-        Container c{ { 6, 9 },
-                     { { 'x', { Color::Yellow, Color::Yellow } },
-                       { 'z', { Color::Green, Color::Red } } } };
+        Container c{ { 6, 9 }, { { 'x', { Color::Yellow, Color::Yellow } }, { 'z', { Color::Green, Color::Red } } } };
         REQUIRE(c == Container::deserialize(ss << c));
     }
 }

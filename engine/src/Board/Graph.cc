@@ -66,8 +66,7 @@ Graph::Graph(Dimensions dimensions,
     for (const auto& it : port_specs) {
         const auto node_0 = node(it.node_0_index);
         const auto node_1 = node(it.node_1_index);
-        if (node_0 == nullptr || node_1 == nullptr
-            || !nodes_can_make_port(*node_0, *node_1, it.orientation)) {
+        if (node_0 == nullptr || node_1 == nullptr || !nodes_can_make_port(*node_0, *node_1, it.orientation)) {
             goto clean_up_failed_construction;
         }
         m_ports.push_back(Port(port_index, { node_0, node_1 }, it.orientation));
@@ -135,8 +134,7 @@ static const size_t port_width = 3;
 std::vector<u8> Graph::serialize() const
 {
     std::vector<u8> serial;
-    serial.reserve(5 + node_width * nodes().size() + edge_width * edges().size()
-                   + port_width * ports().size());
+    serial.reserve(5 + node_width * nodes().size() + edge_width * edges().size() + port_width * ports().size());
 
     serial.push_back(static_cast<u8>(width()));
     serial.push_back(static_cast<u8>(height()));
@@ -172,8 +170,7 @@ Graph Graph::deserialize(const std::vector<u8>& serial)
 {
     size_t index = 0;
 
-    Dimensions dimensions{ static_cast<size_t>(serial[index++]),
-                           static_cast<size_t>(serial[index++]) };
+    Dimensions dimensions{ static_cast<size_t>(serial[index++]), static_cast<size_t>(serial[index++]) };
 
     NodeSpecs node_specs;
     EdgeSpecs edge_specs;

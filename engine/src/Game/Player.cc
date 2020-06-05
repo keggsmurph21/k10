@@ -36,10 +36,9 @@ std::vector<Action> Player::get_actions_at_after_building_free_settlement() cons
     available_actions.reserve(reachable_roads.size());
 
     for (const auto road : reachable_roads) {
-        available_actions.push_back(
-            { State::Edge::BuildRoad,
-              { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Road) },
-                { ActionArgumentType::NodeId, road->index() } } });
+        available_actions.push_back({ State::Edge::BuildRoad,
+                                      { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Road) },
+                                        { ActionArgumentType::NodeId, road->index() } } });
     }
 
     return available_actions;
@@ -50,8 +49,7 @@ std::vector<Action> Player::get_actions_at_after_discarding() const
     std::vector<Action> available_actions;
     if (is_current_player()) {
         if (num_to_discard() > 0) {
-            return { { State::Edge::Discard,
-                       { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
+            return { { State::Edge::Discard, { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
         }
         if (m_game->should_wait_for_discard()) {
             return {}; // i.e., wait
@@ -65,8 +63,7 @@ std::vector<Action> Player::get_actions_at_after_discarding() const
         return available_actions;
     }
     if (num_to_discard() > 0) {
-        return { { State::Edge::Discard,
-                   { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
+        return { { State::Edge::Discard, { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
     }
     return {}; // i.e., wait
 }
@@ -85,8 +82,7 @@ std::vector<Action> Player::get_actions_at_after_moving_robber() const
         });
         for (const auto player_to_steal_from : players_to_steal_from) {
             available_actions.push_back(
-                { State::Edge::Steal,
-                  { { ActionArgumentType::PlayerId, player_to_steal_from->index() } } });
+                { State::Edge::Steal, { { ActionArgumentType::PlayerId, player_to_steal_from->index() } } });
         }
         return available_actions;
     }
@@ -96,8 +92,7 @@ std::vector<Action> Player::get_actions_at_after_moving_robber() const
 std::vector<Action> Player::get_actions_at_after_rolling_seven() const
 {
     if (num_to_discard() > 0) {
-        return { { State::Edge::Discard,
-                   { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
+        return { { State::Edge::Discard, { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
     }
     if (m_game->should_wait_for_discard()) {
         return {}; // i.e., wait
@@ -105,8 +100,7 @@ std::vector<Action> Player::get_actions_at_after_rolling_seven() const
     std::vector<Action> available_actions;
     m_game->for_each_hex([&](const auto* hex) {
         if (hex->index() != m_game->robber_location()->index()) {
-            available_actions.push_back(
-                { State::Edge::MoveRobber, { { ActionArgumentType::NodeId, hex->index() } } });
+            available_actions.push_back({ State::Edge::MoveRobber, { { ActionArgumentType::NodeId, hex->index() } } });
         }
     });
     return available_actions;
@@ -129,8 +123,7 @@ std::vector<Action> Player::get_actions_at_root() const
             if (junction->is_settleable()) {
                 available_actions.push_back(
                     { State::Edge::BuildSettlement,
-                      { { ActionArgumentType::BuildItemId,
-                          static_cast<size_t>(Building::Settlement) },
+                      { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Settlement) },
                         { ActionArgumentType::NodeId, junction->index() } } });
             }
         });
@@ -141,8 +134,7 @@ std::vector<Action> Player::get_actions_at_root() const
             if (junction->is_settleable()) {
                 available_actions.push_back(
                     { State::Edge::BuildSettlement,
-                      { { ActionArgumentType::BuildItemId,
-                          static_cast<size_t>(Building::Settlement) },
+                      { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Settlement) },
                         { ActionArgumentType::NodeId, junction->index() } } });
             }
         });
@@ -160,9 +152,9 @@ std::vector<Action> Player::get_actions_at_root() const
         const bool can_build_settlement = can_build(Building::Settlement);
 
         if (can_build_development_card) {
-            available_actions.push_back({ State::Edge::BuildDevelopmentCard,
-                                          { { ActionArgumentType::BuildItemId,
-                                              static_cast<size_t>(Building::DevelopmentCard) } } });
+            available_actions.push_back(
+                { State::Edge::BuildDevelopmentCard,
+                  { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::DevelopmentCard) } } });
         }
 
         std::set<const BoardView::Road*> reachable_roads;
@@ -184,8 +176,7 @@ std::vector<Action> Player::get_actions_at_root() const
                 if (junction->owner() == this) {
                     available_actions.push_back(
                         { State::Edge::BuildCity,
-                          { { ActionArgumentType::BuildItemId,
-                              static_cast<size_t>(Building::City) },
+                          { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::City) },
                             { ActionArgumentType::NodeId, junction->index() } } });
                 }
             }
@@ -197,8 +188,7 @@ std::vector<Action> Player::get_actions_at_root() const
                     if (road->owner() == this) {
                         available_actions.push_back(
                             { State::Edge::BuildSettlement,
-                              { { ActionArgumentType::BuildItemId,
-                                  static_cast<size_t>(Building::Settlement) },
+                              { { ActionArgumentType::BuildItemId, static_cast<size_t>(Building::Settlement) },
                                 { ActionArgumentType::NodeId, junction->index() } } });
                     }
                 }
@@ -226,8 +216,7 @@ std::vector<Action> Player::get_actions_at_root() const
                     if (hex->index() != m_game->robber_location()->index()) {
                         available_actions.push_back(
                             { State::Edge::PlayKnight,
-                              { { ActionArgumentType::DevelopmentCardId,
-                                  static_cast<size_t>(development_card) },
+                              { { ActionArgumentType::DevelopmentCardId, static_cast<size_t>(development_card) },
                                 { ActionArgumentType::NodeId, hex->index() } } });
                     }
                 });
@@ -238,25 +227,24 @@ std::vector<Action> Player::get_actions_at_root() const
                 for (const auto road : reachable_roads) {
                     available_actions.push_back(
                         { State::Edge::PlayRoadBuilding,
-                          { { ActionArgumentType::DevelopmentCardId,
-                              static_cast<size_t>(development_card) },
+                          { { ActionArgumentType::DevelopmentCardId, static_cast<size_t>(development_card) },
                             { ActionArgumentType::NodeId, road->index() } } });
                 }
                 break;
             case DevelopmentCard::Monopoly:
-                available_actions.push_back({ State::Edge::PlayMonopoly,
-                                              { { ActionArgumentType::DevelopmentCardId,
-                                                  static_cast<size_t>(development_card) } } });
+                available_actions.push_back(
+                    { State::Edge::PlayMonopoly,
+                      { { ActionArgumentType::DevelopmentCardId, static_cast<size_t>(development_card) } } });
                 break;
             case DevelopmentCard::VictoryPoint:
-                available_actions.push_back({ State::Edge::PlayVictoryPoint,
-                                              { { ActionArgumentType::DevelopmentCardId,
-                                                  static_cast<size_t>(development_card) } } });
+                available_actions.push_back(
+                    { State::Edge::PlayVictoryPoint,
+                      { { ActionArgumentType::DevelopmentCardId, static_cast<size_t>(development_card) } } });
                 break;
             case DevelopmentCard::YearOfPlenty:
-                available_actions.push_back({ State::Edge::PlayYearOfPlenty,
-                                              { { ActionArgumentType::DevelopmentCardId,
-                                                  static_cast<size_t>(development_card) } } });
+                available_actions.push_back(
+                    { State::Edge::PlayYearOfPlenty,
+                      { { ActionArgumentType::DevelopmentCardId, static_cast<size_t>(development_card) } } });
                 break;
             }
         }
@@ -279,8 +267,7 @@ std::vector<Action> Player::get_actions_at_wait_for_turn() const
         return { { State::Edge::ToRoot, {} } };
     }
     if (num_to_discard() > 0) {
-        return { { State::Edge::Discard,
-                   { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
+        return { { State::Edge::Discard, { { ActionArgumentType::ResourceCount, num_to_discard() } } } };
     }
     if (can_accept_trade() && !has_declined_trade()) {
         return { { State::Edge::AcceptTrade, {} }, { State::Edge::DeclineTrade, {} } };
@@ -372,8 +359,7 @@ bool Player::can_build(const Building& building) const
 
 bool Player::can_trade() const
 {
-    return m_game->num_trades_offered_this_turn() < MAX_NUM_TRADE_OFFERS_PER_TURN
-           && num_resources() > 0;
+    return m_game->num_trades_offered_this_turn() < MAX_NUM_TRADE_OFFERS_PER_TURN && num_resources() > 0;
 }
 
 bool Player::can_trade_with_bank() const
@@ -485,8 +471,7 @@ void Player::build_road(BoardView::Road* road, Options options)
 
 void Player::play_development_card(DevelopmentCard development_card)
 {
-    for (auto it = m_playable_development_cards.begin(); it != m_playable_development_cards.end();
-         ++it) {
+    for (auto it = m_playable_development_cards.begin(); it != m_playable_development_cards.end(); ++it) {
         if (*it == development_card) {
             m_playable_development_cards.erase(it);
             m_played_development_cards.push_back(development_card);

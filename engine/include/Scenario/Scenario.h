@@ -50,15 +50,9 @@ public:
 
     const Costs<Building>& building_costs() const { return m_building_costs; }
     const Counts<Building>& building_counts() const { return m_building_counts; }
-    const Counts<Building>& building_counts_per_player() const
-    {
-        return m_building_counts_per_player;
-    }
+    const Counts<Building>& building_counts_per_player() const { return m_building_counts_per_player; }
     const Counts<AbstractResource>& resource_counts() const { return m_resource_counts; }
-    const Counts<DevelopmentCard>& development_card_counts() const
-    {
-        return m_development_card_counts;
-    }
+    const Counts<DevelopmentCard>& development_card_counts() const { return m_development_card_counts; }
 
     bool is_valid(const Building&) const;
     const ResourceCounts* cost(const Building&) const;
@@ -71,11 +65,10 @@ public:
     bool is_valid(const AbstractResource&) const;
     size_t count(const AbstractResource&) const;
 
-    std::vector<DevelopmentCard>
-        get_development_card_deck(IterationType) const;               // gets a fresh copy
-    std::vector<_PortSpec> get_ports(IterationType) const;            // gets a fresh copy
-    std::vector<AbstractResource> get_resources(IterationType) const; // gets a fresh copy
-    std::vector<int> get_rolls(IterationType) const;                  // gets a fresh copy
+    std::vector<DevelopmentCard> get_development_card_deck(IterationType) const; // gets a fresh copy
+    std::vector<_PortSpec> get_ports(IterationType) const;                       // gets a fresh copy
+    std::vector<AbstractResource> get_resources(IterationType) const;            // gets a fresh copy
+    std::vector<int> get_rolls(IterationType) const;                             // gets a fresh copy
 
     const std::vector<int>& peek_rolls() const { return m_rolls; }
     const std::vector<_PortSpec>& peek_ports() const { return m_ports; }
@@ -105,10 +98,8 @@ public:
     {
         m_min_players_count = std::max<size_t>(min_players_count, k10_SCENARIO_MIN_PLAYERS_COUNT);
         m_max_players_count = std::min<size_t>(max_players_count, k10_SCENARIO_MAX_PLAYERS_COUNT);
-        m_min_victory_points_goal =
-            std::max<size_t>(min_victory_points_goal, k10_SCENARIO_MIN_VICTORY_POINTS_GOAL);
-        m_max_victory_points_goal =
-            std::min<size_t>(max_victory_points_goal, k10_SCENARIO_MAX_VICTORY_POINTS_GOAL);
+        m_min_victory_points_goal = std::max<size_t>(min_victory_points_goal, k10_SCENARIO_MIN_VICTORY_POINTS_GOAL);
+        m_max_victory_points_goal = std::min<size_t>(max_victory_points_goal, k10_SCENARIO_MAX_VICTORY_POINTS_GOAL);
     }
     ~Scenario();
 

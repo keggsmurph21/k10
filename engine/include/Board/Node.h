@@ -27,10 +27,7 @@ public:
     bool operator<(const Node other) const { return index() < other.index(); }
 
     bool operator==(Node other) { return index() == other.index() && type() == other.type(); }
-    bool operator==(const Node other) const
-    {
-        return index() == other.index() && type() == other.type();
-    }
+    bool operator==(const Node other) const { return index() == other.index() && type() == other.type(); }
 
     size_t index() const { return m_index; }
     size_t x() const { return m_x; }

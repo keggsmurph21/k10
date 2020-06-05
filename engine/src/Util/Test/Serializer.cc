@@ -33,10 +33,7 @@ TEST_CASE("Serialize Scenario", "[Test][Test.Serializer][Test.Serializer.Scenari
           },
           {
               Building::Settlement,
-              { { Resource::Brick, 1 },
-                { Resource::Sheep, 1 },
-                { Resource::Wheat, 1 },
-                { Resource::Wood, 1 } },
+              { { Resource::Brick, 1 }, { Resource::Sheep, 1 }, { Resource::Wheat, 1 }, { Resource::Wood, 1 } },
           } },
         {
             { Building::DevelopmentCard, 25 },
@@ -58,8 +55,7 @@ TEST_CASE("Serialize Scenario", "[Test][Test.Serializer][Test.Serializer.Scenari
         },
         {},
         {
-            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood },
-              3 },
+            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood }, 3 },
             { { Resource::Wheat }, 2 },
         }
     };

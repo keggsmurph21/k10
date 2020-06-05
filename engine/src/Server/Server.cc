@@ -130,8 +130,7 @@ void Server::on_read(int fd, char* buf, int len)
 {
     std::cout << "req(" << len << "):";
     for (int i = 0; i < len; ++i) {
-        std::cout << " " << std::hex << std::setfill('0') << std::setw(2)
-                  << static_cast<unsigned int>(buf[i]);
+        std::cout << " " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(buf[i]);
     }
     std::cout << " [" << buf << "]" << std::endl;
 

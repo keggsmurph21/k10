@@ -12,7 +12,7 @@ BraceWrapping:
     AfterFunction: true
 AllowShortFunctionsOnASingleLine: Inline
 AlwaysBreakTemplateDeclarations: true
-ColumnLimit: 100
+ColumnLimit: 120
 PointerAlignment: Left
 IndentWidth: 4
 TabWidth: 4

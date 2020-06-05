@@ -120,8 +120,7 @@ public:
     const BoardView::Junction* junction(size_t index) const;
     const BoardView::Road* road(size_t index) const;
 
-    static std::optional<Game>
-    initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);
+    static std::optional<Game> initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);
 
 private:
     const Board::Graph* m_graph;

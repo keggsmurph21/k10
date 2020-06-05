@@ -21,4 +21,3 @@ static const Building AllBuildings[] = {
 std::ostream& operator<<(std::ostream&, Building);
 
 } // namespace k10engine
-

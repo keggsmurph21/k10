@@ -103,8 +103,7 @@ TEST_CASE("Scenario initialization", "[Scenario]")
         {
             const k10engine::ResourceCounts expected_cost = { { k10engine::Resource::Ore, 3 },
                                                               { k10engine::Resource::Wheat, 2 } };
-            const Costs<k10engine::Building> costs = { { k10engine::Building::City,
-                                                         expected_cost } };
+            const Costs<k10engine::Building> costs = { { k10engine::Building::City, expected_cost } };
             const auto s = Scenario(0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
             REQUIRE(!s.building_costs().empty());
             REQUIRE(s.building_costs().size() == 1);
@@ -130,8 +129,7 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             const k10engine::ResourceCounts expected_cost = { { k10engine::Resource::Ore, 1 },
                                                               { k10engine::Resource::Sheep, 1 },
                                                               { k10engine::Resource::Wheat, 1 } };
-            const Costs<k10engine::Building> costs = { { k10engine::Building::DevelopmentCard,
-                                                         expected_cost } };
+            const Costs<k10engine::Building> costs = { { k10engine::Building::DevelopmentCard, expected_cost } };
             const auto s = Scenario(0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
             REQUIRE(!s.building_costs().empty());
             REQUIRE(s.building_costs().size() == 1);
@@ -158,8 +156,7 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                 { k10engine::Resource::Brick, 1 },
                 { k10engine::Resource::Wood, 1 },
             };
-            const Costs<k10engine::Building> costs = { { k10engine::Building::Road,
-                                                         expected_cost } };
+            const Costs<k10engine::Building> costs = { { k10engine::Building::Road, expected_cost } };
             const auto s = Scenario(0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
             REQUIRE(!s.building_costs().empty());
             REQUIRE(s.building_costs().size() == 1);
@@ -186,8 +183,7 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                                                               { k10engine::Resource::Sheep, 1 },
                                                               { k10engine::Resource::Wheat, 1 },
                                                               { k10engine::Resource::Wood, 1 } };
-            const Costs<k10engine::Building> costs = { { k10engine::Building::Settlement,
-                                                         expected_cost } };
+            const Costs<k10engine::Building> costs = { { k10engine::Building::Settlement, expected_cost } };
             const auto s = Scenario(0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
             REQUIRE(!s.building_costs().empty());
             REQUIRE(s.building_costs().size() == 1);
@@ -267,8 +263,7 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                                                              k10engine::Building::Road,
                                                              k10engine::Building::Settlement };
         for (const auto& building : buildings) {
-            const auto s =
-                Scenario(0, 0, 0, 0, { { building, {} } }, { { building, 1 } }, {}, {}, {}, {}, {});
+            const auto s = Scenario(0, 0, 0, 0, { { building, {} } }, { { building, 1 } }, {}, {}, {}, {}, {});
             REQUIRE(!s.building_counts().empty());
             REQUIRE(s.building_counts_per_player().empty());
             for (const auto& other_building : buildings) {
@@ -280,8 +275,7 @@ TEST_CASE("Scenario initialization", "[Scenario]")
         }
 
         for (const auto& building : buildings) {
-            const auto s =
-                Scenario(0, 0, 0, 0, { { building, {} } }, {}, { { building, 1 } }, {}, {}, {}, {});
+            const auto s = Scenario(0, 0, 0, 0, { { building, {} } }, {}, { { building, 1 } }, {}, {}, {}, {});
             REQUIRE(s.building_counts().empty());
             REQUIRE(!s.building_counts_per_player().empty());
             for (const auto& other_building : buildings) {
@@ -309,22 +303,12 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                 { k10engine::Building::Road, 15 },
                 { k10engine::Building::Settlement, 5 },
             };
-            const auto s = Scenario(0,
-                                    0,
-                                    0,
-                                    0,
-                                    building_costs,
-                                    building_counts,
-                                    building_counts_per_player,
-                                    {},
-                                    {},
-                                    {},
-                                    {});
+            const auto s =
+                Scenario(0, 0, 0, 0, building_costs, building_counts, building_counts_per_player, {}, {}, {}, {});
             for (const auto& building : buildings) {
                 if (building_counts.find(building) == building_counts.end()) {
                     REQUIRE(s.count(building) == 0);
-                    REQUIRE(s.count_per_player(building)
-                            == building_counts_per_player.at(building));
+                    REQUIRE(s.count_per_player(building) == building_counts_per_player.at(building));
                 } else {
                     REQUIRE(s.count(building) == building_counts.at(building));
                     REQUIRE(s.count_per_player(building) == 0);
@@ -341,8 +325,7 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             k10engine::DevelopmentCard::YearOfPlenty,
         };
         for (const auto& development_card : development_cards) {
-            const auto s =
-                Scenario(0, 0, 0, 0, {}, {}, {}, { { development_card, 1 } }, {}, {}, {});
+            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, { { development_card, 1 } }, {}, {}, {});
             REQUIRE(!s.development_card_counts().empty());
             for (const auto& other_development_card : development_cards) {
                 const auto is_match = development_card == other_development_card;
@@ -388,69 +371,56 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("1 resource")
         {
-            const auto s =
-                Scenario(0, 0, 0, 0, {}, {}, {}, {}, { { k10engine::Resource::Ore, 1 } }, {}, {});
+            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, { { k10engine::Resource::Ore, 1 } }, {}, {});
             const auto& fixed_resources = s.get_resources(IterationType::Fixed);
             REQUIRE(!fixed_resources.empty());
             REQUIRE(fixed_resources.size() == 1);
-            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(0))
-                    == k10engine::Resource::Ore);
+            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(0)) == k10engine::Resource::Ore);
             const auto& random_resources = s.get_resources(IterationType::Random);
             REQUIRE(!random_resources.empty());
             REQUIRE(random_resources.size() == 1);
-            REQUIRE(std::get<k10engine::Resource>(random_resources.at(0))
-                    == k10engine::Resource::Ore);
+            REQUIRE(std::get<k10engine::Resource>(random_resources.at(0)) == k10engine::Resource::Ore);
         }
 
         SECTION("2 resources (same)")
         {
-            const auto s =
-                Scenario(0, 0, 0, 0, {}, {}, {}, {}, { { k10engine::Resource::Ore, 2 } }, {}, {});
+            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, { { k10engine::Resource::Ore, 2 } }, {}, {});
             const auto& fixed_resources = s.get_resources(IterationType::Fixed);
             REQUIRE(!fixed_resources.empty());
             REQUIRE(fixed_resources.size() == 2);
-            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(0))
-                    == k10engine::Resource::Ore);
-            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(1))
-                    == k10engine::Resource::Ore);
+            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(0)) == k10engine::Resource::Ore);
+            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(1)) == k10engine::Resource::Ore);
             const auto& random_resources = s.get_resources(IterationType::Random);
             REQUIRE(!random_resources.empty());
             REQUIRE(random_resources.size() == 2);
-            REQUIRE(std::get<k10engine::Resource>(random_resources.at(0))
-                    == k10engine::Resource::Ore);
-            REQUIRE(std::get<k10engine::Resource>(random_resources.at(1))
-                    == k10engine::Resource::Ore);
+            REQUIRE(std::get<k10engine::Resource>(random_resources.at(0)) == k10engine::Resource::Ore);
+            REQUIRE(std::get<k10engine::Resource>(random_resources.at(1)) == k10engine::Resource::Ore);
         }
 
         SECTION("2 resources (different)")
         {
             k10engine::Random::seed(MAGIC_NUMBER_1);
-            const auto s =
-                Scenario(0,
-                         0,
-                         0,
-                         0,
-                         {},
-                         {},
-                         {},
-                         {},
-                         { { k10engine::Resource::Ore, 1 }, { k10engine::Resource::Wheat, 1 } },
-                         {},
-                         {});
+            const auto s = Scenario(0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { { k10engine::Resource::Ore, 1 }, { k10engine::Resource::Wheat, 1 } },
+                                    {},
+                                    {});
             const auto& fixed_resources = s.get_resources(IterationType::Fixed);
             REQUIRE(!fixed_resources.empty());
             REQUIRE(fixed_resources.size() == 2);
-            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(0))
-                    == k10engine::Resource::Ore);
-            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(1))
-                    == k10engine::Resource::Wheat);
+            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(0)) == k10engine::Resource::Ore);
+            REQUIRE(std::get<k10engine::Resource>(fixed_resources.at(1)) == k10engine::Resource::Wheat);
             const auto& random_resources = s.get_resources(IterationType::Random);
             REQUIRE(!random_resources.empty());
             REQUIRE(random_resources.size() == 2);
-            REQUIRE(std::get<k10engine::Resource>(random_resources.at(0))
-                    == k10engine::Resource::Wheat);
-            REQUIRE(std::get<k10engine::Resource>(random_resources.at(1))
-                    == k10engine::Resource::Ore);
+            REQUIRE(std::get<k10engine::Resource>(random_resources.at(0)) == k10engine::Resource::Wheat);
+            REQUIRE(std::get<k10engine::Resource>(random_resources.at(1)) == k10engine::Resource::Ore);
         }
 
         SECTION("standard resources")
@@ -507,8 +477,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
                     REQUIRE(std::get<k10engine::Resource>(actual_resource)
                             == std::get<k10engine::Resource>(expected_resource));
                 } else {
-                    REQUIRE(
-                        std::holds_alternative<k10engine::NonYieldingResource>(expected_resource));
+                    REQUIRE(std::holds_alternative<k10engine::NonYieldingResource>(expected_resource));
                     REQUIRE(std::get<k10engine::NonYieldingResource>(actual_resource)
                             == std::get<k10engine::NonYieldingResource>(expected_resource));
                 }
@@ -537,8 +506,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
                     REQUIRE(std::get<k10engine::Resource>(actual_resource)
                             == std::get<k10engine::Resource>(expected_resource));
                 } else {
-                    REQUIRE(
-                        std::holds_alternative<k10engine::NonYieldingResource>(expected_resource));
+                    REQUIRE(std::holds_alternative<k10engine::NonYieldingResource>(expected_resource));
                     REQUIRE(std::get<k10engine::NonYieldingResource>(actual_resource)
                             == std::get<k10engine::NonYieldingResource>(expected_resource));
                 }
@@ -557,14 +525,12 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("1 development card")
         {
-            const auto s = Scenario(
-                0, 0, 0, 0, {}, {}, {}, { { k10engine::DevelopmentCard::Knight, 1 } }, {}, {}, {});
+            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, { { k10engine::DevelopmentCard::Knight, 1 } }, {}, {}, {});
             const auto& fixed_development_cards = s.get_development_card_deck(IterationType::Fixed);
             REQUIRE(!fixed_development_cards.empty());
             REQUIRE(fixed_development_cards.size() == 1);
             REQUIRE(fixed_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
-            const auto& random_development_cards =
-                s.get_development_card_deck(IterationType::Random);
+            const auto& random_development_cards = s.get_development_card_deck(IterationType::Random);
             REQUIRE(!random_development_cards.empty());
             REQUIRE(random_development_cards.size() == 1);
             REQUIRE(random_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
@@ -572,15 +538,13 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("2 development cards (same)")
         {
-            const auto s = Scenario(
-                0, 0, 0, 0, {}, {}, {}, { { k10engine::DevelopmentCard::Knight, 2 } }, {}, {}, {});
+            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, { { k10engine::DevelopmentCard::Knight, 2 } }, {}, {}, {});
             const auto& fixed_development_cards = s.get_development_card_deck(IterationType::Fixed);
             REQUIRE(!fixed_development_cards.empty());
             REQUIRE(fixed_development_cards.size() == 2);
             REQUIRE(fixed_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
             REQUIRE(fixed_development_cards.at(1) == k10engine::DevelopmentCard::Knight);
-            const auto& random_development_cards =
-                s.get_development_card_deck(IterationType::Random);
+            const auto& random_development_cards = s.get_development_card_deck(IterationType::Random);
             REQUIRE(!random_development_cards.empty());
             REQUIRE(random_development_cards.size() == 2);
             REQUIRE(random_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
@@ -590,25 +554,24 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
         SECTION("2 development cards (different)")
         {
             k10engine::Random::seed(MAGIC_NUMBER_1);
-            const auto s = Scenario(0,
-                                    0,
-                                    0,
-                                    0,
-                                    {},
-                                    {},
-                                    {},
-                                    { { k10engine::DevelopmentCard::Knight, 1 },
-                                      { k10engine::DevelopmentCard::Monopoly, 1 } },
-                                    {},
-                                    {},
-                                    {});
+            const auto s =
+                Scenario(0,
+                         0,
+                         0,
+                         0,
+                         {},
+                         {},
+                         {},
+                         { { k10engine::DevelopmentCard::Knight, 1 }, { k10engine::DevelopmentCard::Monopoly, 1 } },
+                         {},
+                         {},
+                         {});
             const auto& fixed_development_cards = s.get_development_card_deck(IterationType::Fixed);
             REQUIRE(!fixed_development_cards.empty());
             REQUIRE(fixed_development_cards.size() == 2);
             REQUIRE(fixed_development_cards.at(0) == k10engine::DevelopmentCard::Knight);
             REQUIRE(fixed_development_cards.at(1) == k10engine::DevelopmentCard::Monopoly);
-            const auto& random_development_cards =
-                s.get_development_card_deck(IterationType::Random);
+            const auto& random_development_cards = s.get_development_card_deck(IterationType::Random);
             REQUIRE(!random_development_cards.empty());
             REQUIRE(random_development_cards.size() == 2);
             REQUIRE(random_development_cards.at(0) == k10engine::DevelopmentCard::Monopoly);
@@ -711,8 +674,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("2 rolls (same)")
         {
-            const auto s =
-                Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, { MAGIC_NUMBER_2, MAGIC_NUMBER_2 }, {});
+            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, { MAGIC_NUMBER_2, MAGIC_NUMBER_2 }, {});
             const auto& fixed_rolls = s.get_rolls(IterationType::Fixed);
             REQUIRE(!fixed_rolls.empty());
             REQUIRE(fixed_rolls.size() == 2);
@@ -728,8 +690,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
         SECTION("2 rolls (different)")
         {
             k10engine::Random::seed(MAGIC_NUMBER_1);
-            const auto s =
-                Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, { MAGIC_NUMBER_2, MAGIC_NUMBER_3 }, {});
+            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, { MAGIC_NUMBER_2, MAGIC_NUMBER_3 }, {});
             const auto& fixed_rolls = s.get_rolls(IterationType::Fixed);
             REQUIRE(!fixed_rolls.empty());
             REQUIRE(fixed_rolls.size() == 2);
@@ -744,17 +705,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("standard rolls")
         {
-            const auto s = Scenario(0,
-                                    0,
-                                    0,
-                                    0,
-                                    {},
-                                    {},
-                                    {},
-                                    {},
-                                    {},
-                                    { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 },
-                                    {});
+            const auto s = Scenario(
+                0, 0, 0, 0, {}, {}, {}, {}, {}, { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 }, {});
             std::vector<int> expected_rolls;
             std::vector<int> actual_rolls;
             expected_rolls = { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 };
@@ -791,8 +743,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("1 port (single resource)")
         {
-            const k10engine::Scenario::_PortSpec expected_port = { { k10engine::Resource::Ore },
-                                                                   1 };
+            const k10engine::Scenario::_PortSpec expected_port = { { k10engine::Resource::Ore }, 1 };
             const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, { expected_port });
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
@@ -826,8 +777,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const k10engine::Scenario::_PortSpec expected_port = {
                 { k10engine::Resource::Ore, k10engine::Resource::Wheat }, 1
             };
-            const auto s =
-                Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, { expected_port, expected_port });
+            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, { expected_port, expected_port });
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
             REQUIRE(fixed_ports.size() == 2);
@@ -844,8 +794,7 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
         {
             k10engine::Random::seed(MAGIC_NUMBER_1);
             std::vector<k10engine::Scenario::_PortSpec> expected_ports;
-            expected_ports = { { { k10engine::Resource::Ore }, 1 },
-                               { { k10engine::Resource::Wheat }, 1 } };
+            expected_ports = { { { k10engine::Resource::Ore }, 1 }, { { k10engine::Resource::Wheat }, 1 } };
             const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, expected_ports);
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
@@ -999,8 +948,7 @@ TEST_CASE("Parameter validation", "[Scenario]")
                             {},
                             {},
                             {});
-    for (size_t players_count = standard_min_players_count;
-         players_count <= standard_max_players_count;
+    for (size_t players_count = standard_min_players_count; players_count <= standard_max_players_count;
          ++players_count) {
         for (size_t victory_points_goal = standard_min_victory_points_goal;
              victory_points_goal <= standard_max_victory_points_goal;

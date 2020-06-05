@@ -18,8 +18,7 @@ std::ostream& operator<<(std::ostream& os, const Road& road)
 
 bool Road::operator==(const NodeView& other) const
 {
-    return node() == other.node() && type() == other.type()
-           && owner() == static_cast<const Road&>(other).owner();
+    return node() == other.node() && type() == other.type() && owner() == static_cast<const Road&>(other).owner();
 }
 
 std::vector<u8> Road::serialize() const

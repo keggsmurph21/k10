@@ -30,9 +30,7 @@ public:
     {
         assert(capacity > 0);
     }
-    LRUCache(std::function<Value(const Key&)> on_miss,
-             std::function<void(Key&, Value&)> on_eviction,
-             size_t capacity)
+    LRUCache(std::function<Value(const Key&)> on_miss, std::function<void(Key&, Value&)> on_eviction, size_t capacity)
         : m_on_miss(on_miss)
         , m_on_eviction(on_eviction)
         , m_capacity(capacity)

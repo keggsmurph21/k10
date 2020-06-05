@@ -44,8 +44,7 @@ inline u8 serialize(const AbstractResource& resource)
     if (std::holds_alternative<Resource>(resource)) {
         return static_cast<u8>(std::get<Resource>(resource));
     } else {
-        return static_cast<u8>(std::get<NonYieldingResource>(resource))
-               + magic_non_yielding_resource_byte;
+        return static_cast<u8>(std::get<NonYieldingResource>(resource)) + magic_non_yielding_resource_byte;
     }
 }
 
@@ -68,8 +67,7 @@ inline std::vector<u8> serialize(const ResourceCollection& resources)
     return serial;
 }
 
-inline ResourceCollection deserialize_resource_collection(const std::vector<u8>& serial,
-                                                          size_t& index)
+inline ResourceCollection deserialize_resource_collection(const std::vector<u8>& serial, size_t& index)
 {
     auto size = static_cast<size_t>(serial[index++]);
     ResourceCollection resources;
