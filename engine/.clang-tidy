@@ -1,0 +1,22 @@
+# vim: syntax=yaml
+---
+Checks: '
+        bugprone-*,
+        google-*,
+        readability-*,
+        misc-*,
+        modernize-*,
+        performance-*,
+        portability-*,
+        -modernize-use-trailing-return-type,
+        -google-readability-namespace-comments,
+        -readability-magic-numbers,
+        -readability-braces-around-statements,
+        -google-readability-braces-around-statements,
+        -modernize-avoid-c-arrays,
+        -readability-named-parameter,
+        -misc-non-private-member-variables-in-classes,
+        -readability-container-size-empty,
+        -google-runtime-references
+        '
+...

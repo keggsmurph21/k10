@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.0.2)
 project(k10)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=bugprone-*,google-*,readability-*,misc-*,modernize-*,performance-*,portability-*,-modernize-use-trailing-return-type,-google-readability-namespace-comments,-readability-magic-numbers,-readability-braces-around-statements,-google-readability-braces-around-statements,-modernize-avoid-c-arrays,-readability-named-parameter,-misc-non-private-member-variables-in-classes,-readability-container-size-empty,-google-runtime-references)
+
+find_program(CLANG_TIDY NAMES clang-tidy)
+set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY})
 
 include_directories(include)
 
