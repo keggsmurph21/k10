@@ -3,17 +3,19 @@
 
 namespace k10engine {
 
-bool Registrar::validate_player(const size_t player_id, const size_t internal_secret) const
+bool Registrar::validate_player(const Registrar::PlayerId player_id,
+                                const Registrar::PlayerSecret internal_secret) const
 {
     if (player_id >= m_internal_secrets.size())
         return false;
     return m_internal_secrets.at(player_id) == internal_secret;
 }
 
-static size_t get_internal_secret()
+static Registrar::PlayerSecret get_internal_secret()
 {
     // random number in [0, 0xffffffffffffffff]
-    static auto s_random_64bit_dist = std::uniform_int_distribution<size_t>(0, std::numeric_limits<size_t>::max());
+    static auto s_random_64bit_dist =
+        std::uniform_int_distribution<Registrar::PlayerSecret>(0, std::numeric_limits<Registrar::PlayerSecret>::max());
     static auto rng = Random::rng();
     return s_random_64bit_dist(rng);
 }

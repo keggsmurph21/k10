@@ -10,9 +10,12 @@ namespace k10engine {
 
 class Registrar {
 public:
+    using PlayerId = size_t;
+    using PlayerSecret = size_t;
+
     struct Registration {
-        size_t player_id;
-        size_t internal_secret;
+        PlayerId player_id;
+        PlayerSecret internal_secret;
     };
 
     struct Record {
@@ -24,12 +27,12 @@ public:
     [[nodiscard]] std::optional<Registration>
     register_user(const char* name, const u8 name_len, const char* external_secret, const u8 external_secret_len);
 
-    [[nodiscard]] bool validate_player(const size_t player_id, const size_t internal_secret) const;
+    [[nodiscard]] bool validate_player(const PlayerId player_id, const PlayerSecret internal_secret) const;
 
 private:
     LinkedTrie<const char, Record> m_records;
     std::vector<char> m_external_secrets;
-    std::vector<size_t> m_internal_secrets;
+    std::vector<PlayerSecret> m_internal_secrets;
 };
 
 } // namespace k10engine

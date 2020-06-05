@@ -1,13 +1,18 @@
 #pragma once
 
+#include "Registrar.h"
+
 #define FIXME (void*)
 
 namespace k10engine::Server {
 
-class Client;
+using GameId = size_t;
 
-class Request {
+struct Client;
+
+struct Request {
     enum class Type {
+        RegisterUser,
         NewGame,
         JoinGame,
         LeaveGame,
@@ -19,59 +24,75 @@ class Request {
     };
 
 protected:
-    Request(Client* client, Type type)
-        : m_client(client)
-        , m_type(type)
+    Request(Client& client, Type type)
+        : client(client)
+        , type(type)
     {
     }
 
 private:
-    Client* m_client;
-    Type m_type;
+    Client& client;
+    Type type;
 };
 
-class NewGameRequest final : public Request {
-private:
-    FIXME m_parameters;
+struct RegisterUserRequest final : public Request {
+    const char name[255];
+    const u8 name_len;
+    const char secret[255];
+    const u8 secret_len;
 };
 
-class JoinGameRequest final : public Request {
-private:
-    size_t m_game_id;
+struct NewGameRequest final : public Request {
+    Registrar::PlayerId player_id;
+    Registrar::PlayerSecret player_secret;
+    FIXME parameters;
 };
 
-class LeaveGameRequest final : public Request {
-private:
-    size_t m_game_id;
+struct JoinGameRequest final : public Request {
+    Registrar::PlayerId player_id;
+    Registrar::PlayerSecret player_secret;
+    GameId game_id;
 };
 
-class StartGameRequest final : public Request {
-private:
-    size_t m_game_id;
+struct LeaveGameRequest final : public Request {
+    Registrar::PlayerId player_id;
+    Registrar::PlayerSecret player_secret;
+    GameId game_id;
 };
 
-class MakeMoveRequest final : public Request {
-private:
-    size_t m_game_id;
+struct StartGameRequest final : public Request {
+    Registrar::PlayerId player_id;
+    Registrar::PlayerSecret player_secret;
+    GameId game_id;
 };
 
-class QueryRequest final : public Request {
-private:
-    size_t m_game_id;
+struct MakeMoveRequest final : public Request {
+    Registrar::PlayerId player_id;
+    Registrar::PlayerSecret player_secret;
+    GameId game_id;
 };
 
-class RegisterClientRequest final : public Request {
-private:
-    size_t m_game_id;
+struct QueryRequest final : public Request {
+    Registrar::PlayerId player_id;
+    Registrar::PlayerSecret player_secret;
+    GameId game_id;
 };
 
-class UnregisterClientRequest final : public Request {
-private:
-    size_t m_game_id;
+struct RegisterClientRequest final : public Request {
+    Registrar::PlayerId player_id;
+    Registrar::PlayerSecret player_secret;
+    GameId game_id;
 };
 
-class Response {
+struct UnregisterClientRequest final : public Request {
+    Registrar::PlayerId player_id;
+    Registrar::PlayerSecret player_secret;
+    GameId game_id;
+};
+
+struct Response {
     enum class Type {
+        RegisterUser,
         NewGame,
         JoinGame,
         LeaveGame,
@@ -85,12 +106,18 @@ class Response {
 
 protected:
     Response(Type type)
-        : m_type(type)
+        : type(type)
     {
     }
 
 private:
-    Type m_type;
-}
+    Type type;
+};
+
+struct RegisterUserResponse final : public Response {
+    bool success;
+    Registrar::PlayerId player_id;
+    Registrar::PlayerSecret player_secret;
+};
 
 } // namespace k10engine::Server
