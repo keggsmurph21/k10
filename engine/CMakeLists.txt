@@ -33,6 +33,7 @@ add_library(k10 SHARED
     src/Game/Trade.cc
     src/Scenario/Scenario.cc
     src/Server/Registrar.cc
+    src/Server/Server.cc
 )
 target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
 
