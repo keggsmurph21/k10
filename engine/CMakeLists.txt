@@ -51,6 +51,7 @@ add_executable(test_
     src/Game/Test/Game.cc
     src/Scenario/Test/Scenario.cc
     src/Util/Test/DoublyLinkedList.cc
+    src/Util/Test/LinkedTrie.cc
     src/Util/Test/LRUCache.cc
     src/Util/Test/Serializer.cc
 )
