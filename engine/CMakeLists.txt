@@ -32,6 +32,7 @@ add_library(k10 SHARED
     src/Game/Player.cc
     src/Game/Trade.cc
     src/Scenario/Scenario.cc
+    src/Server/Registrar.cc
 )
 target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
 
@@ -50,6 +51,7 @@ add_executable(test_
     src/Core/Test/Resource.cc
     src/Game/Test/Game.cc
     src/Scenario/Test/Scenario.cc
+    src/Server/Test/Registrar.cc
     src/Util/Test/DoublyLinkedList.cc
     src/Util/Test/LinkedTrie.cc
     src/Util/Test/LRUCache.cc
