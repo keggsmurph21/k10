@@ -35,12 +35,15 @@ add_library(k10 SHARED
     src/Game/Trade.cc
     src/Scenario/Scenario.cc
     src/Server/Registrar.cc
-    src/Server/Server.cc
+    src/Util/ServerBase.cc
 )
 target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
 
 link_directories(build)
 link_libraries(k10)
+
+add_executable(test-server src/Util/Test/ServerBase.cc)
+target_compile_options(test-server PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
 
 add_executable(main src/main.cc)
 target_compile_options(main PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
