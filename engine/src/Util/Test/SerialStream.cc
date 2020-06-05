@@ -1,5 +1,4 @@
 #include <cassert>
-#include <stdio.h>
 
 #include "Test/catch.h"
 #include "Util/SerialStream.h"

@@ -419,6 +419,7 @@ Result Game::execute_decline_trade(Player& player)
     return { ResultType::Ok, {} };
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 Result Game::execute_discard(Player& player, const ResourceCounts& resources)
 {
     if (!player_can_execute_edge(player, State::Edge::Discard)) {
@@ -476,7 +477,7 @@ Result Game::execute_move_robber(Player& player, const BoardView::Hex* hex)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_offer_trade(Player& player, const Trade trade)
+Result Game::execute_offer_trade(Player& player, const Trade& trade)
 {
     if (!player_can_execute_edge(player, State::Edge::OfferTrade)) {
         return { ResultType::InvalidEdgeChoice, {} };
@@ -605,6 +606,7 @@ Result Game::execute_play_road_building(Player& player, BoardView::Road* road_0,
     return { ResultType::Ok, {} };
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 Result Game::execute_play_victory_point(Player& player)
 {
     if (!player_can_execute_edge(player, State::Edge::PlayVictoryPoint)) {
@@ -616,7 +618,7 @@ Result Game::execute_play_victory_point(Player& player)
 
     return { ResultType::Ok, {} };
 }
-
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 Result Game::execute_play_year_of_plenty(Player& player, const Resource& resource_0, const Resource& resource_1)
 {
     if (!player_can_execute_edge(player, State::Edge::PlayYearOfPlenty)) {
@@ -730,6 +732,7 @@ Result Game::execute_steal(Player& player, Player& steal_from)
     return { ResultType::Ok, { { ActionArgumentType::TakeResourceType, static_cast<size_t>(stolen_resource) } } };
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 Result Game::execute_to_root(Player& player)
 {
     if (!player_can_execute_edge(player, State::Edge::ToRoot)) {
@@ -740,7 +743,8 @@ Result Game::execute_to_root(Player& player)
     return { ResultType::Ok, {} };
 }
 
-Result Game::execute_trade_with_bank(Player& player, Trade trade)
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+Result Game::execute_trade_with_bank(Player& player, const Trade& trade)
 {
     if (!player_can_execute_edge(player, State::Edge::TradeWithBank)) {
         return { ResultType::InvalidEdgeChoice, {} };

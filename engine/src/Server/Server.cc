@@ -37,7 +37,7 @@ Server* Server::create(int port)
     server_addr.sin_port = htons(port);
     socklen_t addrlen = sizeof(server_addr);
 
-    if (bind(listen_sock, (sockaddr*)&server_addr, addrlen) < 0) {
+    if (bind(listen_sock, reinterpret_cast<sockaddr*>(&server_addr), addrlen) < 0) {
         perror("bind");
         return nullptr;
     }
@@ -52,7 +52,7 @@ Server* Server::create(int port)
     struct sigaction ignore_sigpipe;
     ignore_sigpipe.sa_handler = SIG_IGN;
     sigemptyset(&ignore_sigpipe.sa_mask);
-    sigaction(SIGPIPE, &ignore_sigpipe, NULL);
+    sigaction(SIGPIPE, &ignore_sigpipe, nullptr);
 
     return server;
 }
@@ -72,7 +72,7 @@ void Server::serve()
 
     event.events = EPOLLIN;
     event.data.fd = m_listen_sock;
-    if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_listen_sock, &event)) {
+    if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_listen_sock, &event) != 0) {
         perror("epoll_ctl");
         exit(1);
     }
@@ -91,7 +91,7 @@ void Server::serve()
             auto event_fd = m_events[i].data.fd;
             std::cout << "handling event(" << i << ") with fd " << event_fd << std::endl;
             if (event_fd == m_listen_sock) {
-                int conn_sock = accept(m_listen_sock, (struct sockaddr*)&client_addr, &addrlen);
+                int conn_sock = accept(m_listen_sock, reinterpret_cast<sockaddr*>(&client_addr), &addrlen);
                 if (conn_sock == -1) {
                     perror("accept");
                     exit(1);
@@ -121,12 +121,12 @@ void Server::serve()
     }
 }
 
-void Server::on_connect(int fd, char* client_ip)
+void Server::on_connect(int fd, char* client_ip) // NOLINT(readability-convert-member-functions-to-static)
 {
     std::cout << "Got a new connection from " << client_ip << " on fd " << fd << std::endl;
 }
 
-void Server::on_read(int fd, char* buf, int len)
+void Server::on_read(int fd, char* buf, int len) // NOLINT(readability-convert-member-functions-to-static)
 {
     std::cout << "req(" << len << "):";
     for (int i = 0; i < len; ++i) {
@@ -141,7 +141,7 @@ void Server::on_read(int fd, char* buf, int len)
     }
 
     std::memset(buf, 0, 5);
-    std::strcpy(buf, "ack\n");
+    std::strncpy(buf, "ack\n", 5);
 
     if (write(fd, buf, strlen(buf)) < 0) {
         if (errno == EPIPE) {

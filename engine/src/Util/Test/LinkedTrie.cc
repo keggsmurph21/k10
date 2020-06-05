@@ -111,9 +111,9 @@ TEST_CASE("LinkedTrie", "[Util][Util.LinkedTrie]")
                 return counter == other.counter;
             }
 
-            u8* secret;     // NOLINT(misc-non-private-member-variables-in-classes)
-            u8 secret_len;  // NOLINT(misc-non-private-member-variables-in-classes)
-            size_t counter; // NOLINT(misc-non-private-member-variables-in-classes)
+            u8* secret;
+            u8 secret_len;
+            size_t counter;
         };
 
         static size_t s_counter = 0;

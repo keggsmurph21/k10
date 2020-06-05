@@ -94,7 +94,7 @@ public:
     Result execute_discard(Player&, const ResourceCounts&);
     Result execute_end_turn(Player&);
     Result execute_move_robber(Player&, const BoardView::Hex*);
-    Result execute_offer_trade(Player&, const Trade);
+    Result execute_offer_trade(Player&, const Trade&);
     Result execute_play_knight(Player&, const BoardView::Hex*);
     Result execute_play_monopoly(Player&, const Resource&);
     Result execute_play_road_building(Player&, BoardView::Road*, BoardView::Road*);
@@ -106,7 +106,7 @@ public:
 #endif
     Result execute_steal(Player&, Player& steal_from);
     Result execute_to_root(Player&);
-    Result execute_trade_with_bank(Player&, Trade);
+    Result execute_trade_with_bank(Player&, const Trade&);
 
     void for_each_hex(const std::function<void(const BoardView::Hex*)>&) const;
     void for_each_junction(const std::function<void(const BoardView::Junction*)>&) const;

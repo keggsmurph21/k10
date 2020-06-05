@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cassert>
+#include <cstdio>
 #include <queue>
-#include <stdio.h>
 #include <unordered_map>
 #include <vector>
 
