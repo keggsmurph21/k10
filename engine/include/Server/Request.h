@@ -55,65 +55,72 @@ struct RegisterUserRequest final : public Request {
 };
 
 struct NewGameRequest final : public Request {
-    Registrar::PlayerId player_id;
-    Registrar::PlayerSecret player_secret;
-    FIXME parameters;
+    const Registrar::PlayerId m_player_id;
+    const Registrar::PlayerSecret player_secret;
+    FIXME m_parameters;
 
     static const NewGameRequest* parse(const char* buf, int len);
 };
 
 struct JoinGameRequest final : public Request {
-    Registrar::PlayerId player_id;
-    Registrar::PlayerSecret player_secret;
-    GameId game_id;
+    const Registrar::PlayerId m_player_id;
+    const Registrar::PlayerSecret m_player_secret;
+    const GameId m_game_id;
+    JoinGameRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
+        : Request(Type::JoinGame)
+        , m_player_id(player_id)
+        , m_player_secret(player_secret)
+        , m_game_id(game_id)
+    {
+    }
 
     static const JoinGameRequest* parse(const char* buf, int len);
 };
 
 struct LeaveGameRequest final : public Request {
-    Registrar::PlayerId player_id;
-    Registrar::PlayerSecret player_secret;
-    GameId game_id;
+    const Registrar::PlayerId m_player_id;
+    const Registrar::PlayerSecret m_player_secret;
+    const GameId m_game_id;
 
     static const LeaveGameRequest* parse(const char* buf, int len);
 };
 
 struct StartGameRequest final : public Request {
-    Registrar::PlayerId player_id;
-    Registrar::PlayerSecret player_secret;
-    GameId game_id;
+    const Registrar::PlayerId m_player_id;
+    const Registrar::PlayerSecret m_player_secret;
+    const GameId m_game_id;
 
     static const StartGameRequest* parse(const char* buf, int len);
 };
 
 struct MakeMoveRequest final : public Request {
-    Registrar::PlayerId player_id;
-    Registrar::PlayerSecret player_secret;
-    GameId game_id;
+    const Registrar::PlayerId m_player_id;
+    const Registrar::PlayerSecret m_player_secret;
+    const GameId m_game_id;
 
     static const MakeMoveRequest* parse(const char* buf, int len);
 };
 
 struct QueryRequest final : public Request {
-    Registrar::PlayerId player_id;
-    Registrar::PlayerSecret player_secret;
-    GameId game_id;
+    const Registrar::PlayerId m_player_id;
+    const Registrar::PlayerSecret m_player_secret;
+    const GameId m_game_id;
 
     static const QueryRequest* parse(const char* buf, int len);
 };
 
 struct RegisterListenerRequest final : public Request {
-    Registrar::PlayerId player_id;
-    Registrar::PlayerSecret player_secret;
-    GameId game_id;
+    const Registrar::PlayerId m_player_id;
+    const Registrar::PlayerSecret m_player_secret;
+    const GameId m_game_id;
 
     static const RegisterListenerRequest* parse(const char* buf, int len);
 };
 
 struct UnregisterListenerRequest final : public Request {
-    Registrar::PlayerId player_id;
-    Registrar::PlayerSecret player_secret;
-    GameId game_id;
+    const Registrar::PlayerId m_player_id;
+    const Registrar::PlayerSecret m_player_secret;
+    const GameId m_game_id;
 
     static const UnregisterListenerRequest* parse(const char* buf, int len);
 };

@@ -85,9 +85,38 @@ const NewGameRequest* NewGameRequest::parse(const char* buf, int len)
 
 const JoinGameRequest* JoinGameRequest::parse(const char* buf, int len)
 {
-    (void)buf;
-    (void)len;
-    assert(false);
+    if (static_cast<unsigned int>(len)
+        != sizeof(Registrar::PlayerId) + sizeof(Registrar::PlayerSecret) + sizeof(GameId))
+        return nullptr;
+
+    Registrar::PlayerId player_id = static_cast<u8>(*buf++);
+    player_id = (player_id << 8) | static_cast<u8>(*buf++);
+    player_id = (player_id << 8) | static_cast<u8>(*buf++);
+    player_id = (player_id << 8) | static_cast<u8>(*buf++);
+    player_id = (player_id << 8) | static_cast<u8>(*buf++);
+    player_id = (player_id << 8) | static_cast<u8>(*buf++);
+    player_id = (player_id << 8) | static_cast<u8>(*buf++);
+    player_id = (player_id << 8) | static_cast<u8>(*buf++);
+
+    Registrar::PlayerSecret player_secret = static_cast<u8>(*buf++);
+    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
+    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
+    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
+    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
+    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
+    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
+    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
+
+    GameId game_id = static_cast<u8>(*buf++);
+    game_id = (game_id << 8) | static_cast<u8>(*buf++);
+    game_id = (game_id << 8) | static_cast<u8>(*buf++);
+    game_id = (game_id << 8) | static_cast<u8>(*buf++);
+    game_id = (game_id << 8) | static_cast<u8>(*buf++);
+    game_id = (game_id << 8) | static_cast<u8>(*buf++);
+    game_id = (game_id << 8) | static_cast<u8>(*buf++);
+    game_id = (game_id << 8) | static_cast<u8>(*buf++);
+
+    return new JoinGameRequest{ player_id, player_secret, game_id };
 }
 
 const LeaveGameRequest* LeaveGameRequest::parse(const char* buf, int len)
