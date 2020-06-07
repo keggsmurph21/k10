@@ -56,8 +56,15 @@ struct RegisterUserRequest final : public Request {
 
 struct NewGameRequest final : public Request {
     const Registrar::PlayerId m_player_id;
-    const Registrar::PlayerSecret player_secret;
+    const Registrar::PlayerSecret m_player_secret;
     FIXME m_parameters;
+    NewGameRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, FIXME parameters)
+        : Request(Type::JoinGame)
+        , m_player_id(player_id)
+        , m_player_secret(player_secret)
+        , m_parameters(parameters)
+    {
+    }
 
     static const NewGameRequest* decode(const char* buf, int len);
 };
@@ -81,6 +88,13 @@ struct LeaveGameRequest final : public Request {
     const Registrar::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
+    LeaveGameRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
+        : Request(Type::JoinGame)
+        , m_player_id(player_id)
+        , m_player_secret(player_secret)
+        , m_game_id(game_id)
+    {
+    }
 
     static const LeaveGameRequest* decode(const char* buf, int len);
 };
@@ -89,6 +103,13 @@ struct StartGameRequest final : public Request {
     const Registrar::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
+    StartGameRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
+        : Request(Type::JoinGame)
+        , m_player_id(player_id)
+        , m_player_secret(player_secret)
+        , m_game_id(game_id)
+    {
+    }
 
     static const StartGameRequest* decode(const char* buf, int len);
 };
@@ -97,6 +118,13 @@ struct MakeMoveRequest final : public Request {
     const Registrar::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
+    MakeMoveRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
+        : Request(Type::JoinGame)
+        , m_player_id(player_id)
+        , m_player_secret(player_secret)
+        , m_game_id(game_id)
+    {
+    }
 
     static const MakeMoveRequest* decode(const char* buf, int len);
 };
@@ -105,6 +133,13 @@ struct QueryRequest final : public Request {
     const Registrar::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
+    QueryRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
+        : Request(Type::JoinGame)
+        , m_player_id(player_id)
+        , m_player_secret(player_secret)
+        , m_game_id(game_id)
+    {
+    }
 
     static const QueryRequest* decode(const char* buf, int len);
 };
@@ -113,6 +148,13 @@ struct RegisterListenerRequest final : public Request {
     const Registrar::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
+    RegisterListenerRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
+        : Request(Type::JoinGame)
+        , m_player_id(player_id)
+        , m_player_secret(player_secret)
+        , m_game_id(game_id)
+    {
+    }
 
     static const RegisterListenerRequest* decode(const char* buf, int len);
 };
@@ -121,6 +163,13 @@ struct UnregisterListenerRequest final : public Request {
     const Registrar::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
+    UnregisterListenerRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
+        : Request(Type::JoinGame)
+        , m_player_id(player_id)
+        , m_player_secret(player_secret)
+        , m_game_id(game_id)
+    {
+    }
 
     static const UnregisterListenerRequest* decode(const char* buf, int len);
 };
