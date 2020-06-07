@@ -54,67 +54,68 @@ const Response* Server::handle(const Request* request)
     return nullptr;
 }
 
-const Response* Server::handle_register_user(const RegisterUserRequest* request)
+const RegisterUserResponse* Server::handle_register_user(const RegisterUserRequest* request)
 {
     const auto registration = m_registrar.register_user(
         request->m_name.c_str(), request->m_name.size(), request->m_secret.c_str(), request->m_secret.size());
-    assert(registration.has_value());
-    std::cout << "Registered player_id: " << registration->player_id
-              << ", player_secret: " << registration->internal_secret << std::endl;
-    assert(false);
+    if (registration.has_value()) {
+        std::cout << "Registered player_id: " << registration->player_id
+                  << ", player_secret: " << registration->internal_secret << std::endl;
+    }
+    return new RegisterUserResponse(registration);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const Response* Server::handle_new_game(const NewGameRequest* request)
+const NewGameResponse* Server::handle_new_game(const NewGameRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const Response* Server::handle_join_game(const JoinGameRequest* request)
+const JoinGameResponse* Server::handle_join_game(const JoinGameRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const Response* Server::handle_leave_game(const LeaveGameRequest* request)
+const LeaveGameResponse* Server::handle_leave_game(const LeaveGameRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const Response* Server::handle_start_game(const StartGameRequest* request)
+const StartGameResponse* Server::handle_start_game(const StartGameRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const Response* Server::handle_make_move(const MakeMoveRequest* request)
+const MakeMoveResponse* Server::handle_make_move(const MakeMoveRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const Response* Server::handle_query(const QueryRequest* request)
+const QueryResponse* Server::handle_query(const QueryRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const Response* Server::handle_register_listener(const RegisterListenerRequest* request)
+const RegisterListenerResponse* Server::handle_register_listener(const RegisterListenerRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const Response* Server::handle_unregister_listener(const UnregisterListenerRequest* request)
+const UnregisterListenerResponse* Server::handle_unregister_listener(const UnregisterListenerRequest* request)
 {
     (void)request;
     assert(false);

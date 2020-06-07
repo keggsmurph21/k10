@@ -1,7 +1,5 @@
 #pragma once
 
-#include <optional>
-
 #include "Registrar.h"
 
 #define MAX_BUF_LEN 1024

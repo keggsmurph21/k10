@@ -36,6 +36,7 @@ add_library(k10 SHARED
     src/Scenario/Scenario.cc
     src/Server/Registrar.cc
     src/Server/Request.cc
+    src/Server/Response.cc
     src/Server/Server.cc
     src/Util/ServerBase.cc
 )
@@ -61,6 +62,7 @@ add_executable(test_
     src/Scenario/Test/Scenario.cc
     src/Server/Test/Registrar.cc
     src/Server/Test/Request.cc
+    src/Server/Test/Response.cc
     src/Util/Test/DoublyLinkedList.cc
     src/Util/Test/LinkedTrie.cc
     src/Util/Test/LRUCache.cc
