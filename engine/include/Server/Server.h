@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Server/Registrar.h"
 #include "Server/Request.h"
 #include "Server/Response.h"
 #include "Util/ServerBase.h"
@@ -27,6 +28,8 @@ private:
     const Response* handle_query(const QueryRequest*);
     const Response* handle_register_listener(const RegisterListenerRequest*);
     const Response* handle_unregister_listener(const UnregisterListenerRequest*);
+
+    Registrar m_registrar;
 };
 
 } // namespace k10engine::Server

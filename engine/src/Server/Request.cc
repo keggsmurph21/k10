@@ -10,7 +10,7 @@ const Request* Request::parse(const char* buf, int len)
     assert(buf != nullptr);
     if (len == 0)
         return nullptr;
-    Type request_type = static_cast<Type>(*buf++);
+    auto request_type = static_cast<Type>(*buf++);
     switch (request_type) {
     case Type::RegisterUser:
         return RegisterUserRequest::parse(buf, len - 1);
