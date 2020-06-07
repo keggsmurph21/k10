@@ -30,6 +30,8 @@ struct Request {
 
     static const Request* decode(const char* buf, int len);
 
+    virtual ~Request() {}
+
 protected:
     Request(/*Client& client,*/ Type type)
         /*: m_client(client)*/

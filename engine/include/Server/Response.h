@@ -18,6 +18,8 @@ struct Response {
         GameChanged,
     };
 
+    virtual ~Response() {}
+
 protected:
     Response(Type type)
         : type(type)
