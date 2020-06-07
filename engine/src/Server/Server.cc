@@ -15,7 +15,7 @@ bool Server::on_read(int fd, char* buf, int len)
 {
     // FIXME: Clean up the Request* and Response* !
     (void)fd;
-    auto* request = Request::parse(buf, len);
+    auto* request = Request::decode(buf, len);
     if (request == nullptr)
         assert(false);
     auto* response = handle(request);

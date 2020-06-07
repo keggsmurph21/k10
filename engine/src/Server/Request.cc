@@ -5,7 +5,7 @@
 
 namespace k10engine::Server {
 
-const Request* Request::parse(const char* buf, int len)
+const Request* Request::decode(const char* buf, int len)
 {
     assert(buf != nullptr);
     if (len == 0)
@@ -13,29 +13,29 @@ const Request* Request::parse(const char* buf, int len)
     auto request_type = static_cast<Type>(*buf++);
     switch (request_type) {
     case Type::RegisterUser:
-        return RegisterUserRequest::parse(buf, len - 1);
+        return RegisterUserRequest::decode(buf, len - 1);
     case Type::NewGame:
-        return NewGameRequest::parse(buf, len - 1);
+        return NewGameRequest::decode(buf, len - 1);
     case Type::JoinGame:
-        return JoinGameRequest::parse(buf, len - 1);
+        return JoinGameRequest::decode(buf, len - 1);
     case Type::LeaveGame:
-        return LeaveGameRequest::parse(buf, len - 1);
+        return LeaveGameRequest::decode(buf, len - 1);
     case Type::StartGame:
-        return StartGameRequest::parse(buf, len - 1);
+        return StartGameRequest::decode(buf, len - 1);
     case Type::MakeMove:
-        return MakeMoveRequest::parse(buf, len - 1);
+        return MakeMoveRequest::decode(buf, len - 1);
     case Type::Query:
-        return QueryRequest::parse(buf, len - 1);
+        return QueryRequest::decode(buf, len - 1);
     case Type::RegisterListener:
-        return RegisterListenerRequest::parse(buf, len - 1);
+        return RegisterListenerRequest::decode(buf, len - 1);
     case Type::UnregisterListener:
-        return UnregisterListenerRequest::parse(buf, len - 1);
+        return UnregisterListenerRequest::decode(buf, len - 1);
     default:
         return nullptr;
     };
 }
 
-const RegisterUserRequest* RegisterUserRequest::parse(const char* buf, int len)
+const RegisterUserRequest* RegisterUserRequest::decode(const char* buf, int len)
 {
     static char name_buf[255];
     static char secret_buf[255];
@@ -76,14 +76,14 @@ const RegisterUserRequest* RegisterUserRequest::parse(const char* buf, int len)
                                     std::string(secret_buf, secret_buf + secret_len) };
 }
 
-const NewGameRequest* NewGameRequest::parse(const char* buf, int len)
+const NewGameRequest* NewGameRequest::decode(const char* buf, int len)
 {
     (void)buf;
     (void)len;
     assert(false);
 }
 
-const JoinGameRequest* JoinGameRequest::parse(const char* buf, int len)
+const JoinGameRequest* JoinGameRequest::decode(const char* buf, int len)
 {
     if (static_cast<unsigned int>(len)
         != sizeof(Registrar::PlayerId) + sizeof(Registrar::PlayerSecret) + sizeof(GameId))
@@ -119,42 +119,42 @@ const JoinGameRequest* JoinGameRequest::parse(const char* buf, int len)
     return new JoinGameRequest{ player_id, player_secret, game_id };
 }
 
-const LeaveGameRequest* LeaveGameRequest::parse(const char* buf, int len)
+const LeaveGameRequest* LeaveGameRequest::decode(const char* buf, int len)
 {
     (void)buf;
     (void)len;
     assert(false);
 }
 
-const StartGameRequest* StartGameRequest::parse(const char* buf, int len)
+const StartGameRequest* StartGameRequest::decode(const char* buf, int len)
 {
     (void)buf;
     (void)len;
     assert(false);
 }
 
-const MakeMoveRequest* MakeMoveRequest::parse(const char* buf, int len)
+const MakeMoveRequest* MakeMoveRequest::decode(const char* buf, int len)
 {
     (void)buf;
     (void)len;
     assert(false);
 }
 
-const QueryRequest* QueryRequest::parse(const char* buf, int len)
+const QueryRequest* QueryRequest::decode(const char* buf, int len)
 {
     (void)buf;
     (void)len;
     assert(false);
 }
 
-const RegisterListenerRequest* RegisterListenerRequest::parse(const char* buf, int len)
+const RegisterListenerRequest* RegisterListenerRequest::decode(const char* buf, int len)
 {
     (void)buf;
     (void)len;
     assert(false);
 }
 
-const UnregisterListenerRequest* UnregisterListenerRequest::parse(const char* buf, int len)
+const UnregisterListenerRequest* UnregisterListenerRequest::decode(const char* buf, int len)
 {
     (void)buf;
     (void)len;
