@@ -1,6 +1,8 @@
 #include <cassert>
+#include <iomanip>
 
 #include "Server/Server.h"
+#include "Util/ByteBuffer.h"
 
 namespace k10engine::Server {
 
@@ -22,6 +24,12 @@ bool Server::on_read(int fd, char* buf, int len)
     delete request;
     if (response == nullptr)
         assert(false);
+    ByteBuffer bytes;
+    response->encode(bytes);
+    std::cout << "ByteBuffer{ ";
+    for (const auto& byte : bytes.bytes)
+        std::cout << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(byte) << " ";
+    std::cout << "}" << std::endl;
     delete response;
     return true;
 }
