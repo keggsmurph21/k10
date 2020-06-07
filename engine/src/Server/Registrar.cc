@@ -1,7 +1,7 @@
 #include "Server/Registrar.h"
 #include "Core/Random.h"
 
-namespace k10engine {
+namespace k10engine::Server {
 
 bool Registrar::validate_player(const Registrar::PlayerId player_id,
                                 const Registrar::PlayerSecret internal_secret) const
@@ -58,4 +58,34 @@ Registrar::register_user(const char* name, const u8 name_len, const char* extern
     return registration;
 }
 
-} // namespace k10engine
+} // namespace k10engine::Server
+
+template<>
+void encode(ByteBuffer& buf, k10engine::Server::Registrar::Registration& registration)
+{
+    Encoder encoder(buf);
+    encoder << registration.player_id;
+    encoder << registration.internal_secret;
+}
+
+template<>
+void encode(ByteBuffer& buf, const k10engine::Server::Registrar::Registration& registration)
+{
+    Encoder encoder(buf);
+    encoder << registration.player_id;
+    encoder << registration.internal_secret;
+}
+
+template<>
+bool decode(ByteBuffer& buf, k10engine::Server::Registrar::Registration& registration)
+{
+    Decoder decoder(buf);
+    k10engine::Server::Registrar::PlayerId player_id;
+    if (!decoder.decode(player_id))
+        return false;
+    k10engine::Server::Registrar::PlayerSecret player_secret;
+    if (!decoder.decode(player_secret))
+        return false;
+    registration = { player_id, player_secret };
+    return true;
+}

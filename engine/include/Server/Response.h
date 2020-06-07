@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Registrar.h"
+#include "Server/Registrar.h"
 #include "Util/ByteBuffer.h"
+#include "Util/Decoder.h"
+#include "Util/Encoder.h"
 #include "Util/Types.h"
 
 namespace k10engine::Server {
@@ -22,7 +24,7 @@ struct Response {
 
     const Type m_type;
 
-    virtual void encode(ByteBuffer&) const;
+    virtual void encode(Encoder&) const;
 
     virtual ~Response() {}
 
@@ -41,7 +43,7 @@ struct RegisterUserResponse final : public Response {
     {
     }
 
-    void encode(ByteBuffer&) const override;
+    void encode(Encoder&) const override;
 };
 
 struct NewGameResponse final : public Response {
@@ -50,7 +52,7 @@ struct NewGameResponse final : public Response {
     {
     }
 
-    void encode(ByteBuffer&) const override;
+    void encode(Encoder&) const override;
 };
 
 struct JoinGameResponse final : public Response {
@@ -59,7 +61,7 @@ struct JoinGameResponse final : public Response {
     {
     }
 
-    void encode(ByteBuffer&) const override;
+    void encode(Encoder&) const override;
 };
 
 struct LeaveGameResponse final : public Response {
@@ -68,7 +70,7 @@ struct LeaveGameResponse final : public Response {
     {
     }
 
-    void encode(ByteBuffer&) const override;
+    void encode(Encoder&) const override;
 };
 
 struct StartGameResponse final : public Response {
@@ -77,7 +79,7 @@ struct StartGameResponse final : public Response {
     {
     }
 
-    void encode(ByteBuffer&) const override;
+    void encode(Encoder&) const override;
 };
 
 struct MakeMoveResponse final : public Response {
@@ -86,7 +88,7 @@ struct MakeMoveResponse final : public Response {
     {
     }
 
-    void encode(ByteBuffer&) const override;
+    void encode(Encoder&) const override;
 };
 
 struct QueryResponse final : public Response {
@@ -95,7 +97,7 @@ struct QueryResponse final : public Response {
     {
     }
 
-    void encode(ByteBuffer&) const override;
+    void encode(Encoder&) const override;
 };
 
 struct RegisterListenerResponse final : public Response {
@@ -104,7 +106,7 @@ struct RegisterListenerResponse final : public Response {
     {
     }
 
-    void encode(ByteBuffer&) const override;
+    void encode(Encoder&) const override;
 };
 
 struct UnregisterListenerResponse final : public Response {
@@ -113,7 +115,7 @@ struct UnregisterListenerResponse final : public Response {
     {
     }
 
-    void encode(ByteBuffer&) const override;
+    void encode(Encoder&) const override;
 };
 
 struct GameChangedResponse final : public Response {
@@ -122,7 +124,16 @@ struct GameChangedResponse final : public Response {
     {
     }
 
-    void encode(ByteBuffer&) const override;
+    void encode(Encoder&) const override;
 };
 
 } // namespace k10engine::Server
+
+template<>
+void encode(ByteBuffer&, k10engine::Server::Response::Type&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::Response::Type&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::Response::Type&);

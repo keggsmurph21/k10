@@ -4,39 +4,39 @@
 
 namespace k10engine::Server {
 
-void Response::encode(ByteBuffer& buf) const
+void Response::encode(Encoder& encoder) const
 {
-    buf.bytes.push_back(static_cast<u8>(m_type));
+    encoder << m_type;
 }
 
-void RegisterUserResponse::encode(ByteBuffer& buf) const
+void RegisterUserResponse::encode(Encoder& encoder) const
 {
-    Response::encode(buf);
-
-    if (!m_registration.has_value()) {
-        buf.bytes.push_back(0);
-        return;
-    }
-
-    buf.bytes.push_back(1);
-
-    buf.bytes.push_back(static_cast<u8>((m_registration->player_id >> 56) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->player_id >> 48) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->player_id >> 40) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->player_id >> 32) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->player_id >> 24) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->player_id >> 16) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->player_id >> 8) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->player_id >> 0) & 0xff));
-
-    buf.bytes.push_back(static_cast<u8>((m_registration->internal_secret >> 56) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->internal_secret >> 48) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->internal_secret >> 40) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->internal_secret >> 32) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->internal_secret >> 24) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->internal_secret >> 16) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->internal_secret >> 8) & 0xff));
-    buf.bytes.push_back(static_cast<u8>((m_registration->internal_secret >> 0) & 0xff));
+    Response::encode(encoder);
+    encoder << m_registration;
 }
 
 } // namespace k10engine::Server
+
+template<>
+void encode(ByteBuffer& buf, k10engine::Server::Response::Type& type)
+{
+    buf.append(static_cast<u8>(type));
+}
+
+template<>
+void encode(ByteBuffer& buf, const k10engine::Server::Response::Type& type)
+{
+    buf.append(static_cast<u8>(type));
+}
+
+template<>
+bool decode(ByteBuffer& buf, k10engine::Server::Response::Type& type)
+{
+    if (buf.unread_size() < 1)
+        return false;
+    u8 enum_value = buf.read();
+    if (enum_value > static_cast<u8>(k10engine::Server::Response::Type::GameChanged))
+        return false;
+    type = static_cast<k10engine::Server::Response::Type>(enum_value);
+    return true;
+}

@@ -38,6 +38,8 @@ add_library(k10 SHARED
     src/Server/Request.cc
     src/Server/Response.cc
     src/Server/Server.cc
+    src/Util/Decoder.cc
+    src/Util/Encoder.cc
     src/Util/ServerBase.cc
 )
 target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)

@@ -3,10 +3,12 @@
 #include <optional>
 #include <vector>
 
+#include "Util/Decoder.h"
+#include "Util/Encoder.h"
 #include "Util/LinkedTrie.h"
 #include "Util/Types.h"
 
-namespace k10engine {
+namespace k10engine::Server {
 
 class Registrar {
 public:
@@ -35,4 +37,13 @@ private:
     std::vector<PlayerSecret> m_internal_secrets;
 };
 
-} // namespace k10engine
+} // namespace k10engine::Server
+
+template<>
+void encode(ByteBuffer&, k10engine::Server::Registrar::Registration&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::Registrar::Registration&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::Registrar::Registration&);

@@ -5,7 +5,7 @@
 
 TEST_CASE("Registrar", "[Server][Server.Registrar]")
 {
-    k10engine::Registrar registrar;
+    k10engine::Server::Registrar registrar;
 
     REQUIRE(!registrar.validate_player(0, 0));
 

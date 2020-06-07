@@ -2,7 +2,8 @@
 #include <iomanip>
 
 #include "Server/Server.h"
-#include "Util/ByteBuffer.h"
+#include "Util/Decoder.h"
+#include "Util/Encoder.h"
 
 namespace k10engine::Server {
 
@@ -13,24 +14,27 @@ bool Server::on_connect(int fd, char* client_ip)
     return true;
 }
 
-bool Server::on_read(int fd, char* buf, int len)
+bool Server::on_read(int fd, ByteBuffer& request_bytes)
 {
-    // FIXME: Clean up the Request* and Response* !
     (void)fd;
-    auto* request = Request::decode(buf, len);
+
+    Decoder decoder(request_bytes);
+
+    auto* request = Request::decode(decoder);
     if (request == nullptr)
         assert(false);
     auto* response = handle(request);
     delete request;
+
     if (response == nullptr)
         assert(false);
-    ByteBuffer bytes;
-    response->encode(bytes);
-    std::cout << "ByteBuffer{ ";
-    for (const auto& byte : bytes.bytes)
-        std::cout << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(byte) << " ";
-    std::cout << "}" << std::endl;
+
+    ByteBuffer response_bytes;
+    Encoder encoder(response_bytes);
+    response->encode(encoder);
+    std::cout << "response bytes: " << response_bytes << std::endl;
     delete response;
+
     return true;
 }
 

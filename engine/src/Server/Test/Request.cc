@@ -3,6 +3,8 @@
 
 #include "Server/Request.h"
 #include "Test/catch.h"
+#include "Util/ByteBuffer.h"
+#include "Util/Decoder.h"
 #include "Util/Types.h"
 
 #define BYTE_FOR(x) (static_cast<u8>(Request::Type::x))
@@ -12,8 +14,11 @@ namespace k10engine::Server {
 template<typename T>
 const T* decode(std::vector<u8> bytes)
 {
-    std::string str(bytes.begin(), bytes.end());
-    return static_cast<const T*>(Request::decode(str.c_str(), str.length()));
+    ByteBuffer buf;
+    for (auto byte : bytes)
+        buf.append(byte);
+    Decoder decoder(buf);
+    return static_cast<const T*>(Request::decode(decoder));
 }
 
 TEST_CASE("Request", "[Server][Server.Request]")
@@ -33,7 +38,6 @@ TEST_CASE("Request", "[Server][Server.Request]")
             REQUIRE(decode<T>({ BYTE_FOR(RegisterUser), 0x01 }) == nullptr);
             REQUIRE(decode<T>({ BYTE_FOR(RegisterUser), 0x01, 'a', 0x00 }) == nullptr);
             REQUIRE(decode<T>({ BYTE_FOR(RegisterUser), 0x01, 'a', 0x01 }) == nullptr);
-            REQUIRE(decode<T>({ BYTE_FOR(RegisterUser), 0x01, 'a', 0x01, '\0' }) == nullptr);
 
             const auto* a_a = decode<T>({ BYTE_FOR(RegisterUser), 0x01, 'a', 0x01, 'a' });
             REQUIRE(a_a != nullptr);
@@ -65,34 +69,6 @@ TEST_CASE("Request", "[Server][Server.Request]")
             REQUIRE(decode<T>({ BYTE_FOR(JoinGame) }) == nullptr);
             REQUIRE(decode<T>({ BYTE_FOR(JoinGame), 0x00 }) == nullptr);
             REQUIRE(decode<T>({ BYTE_FOR(JoinGame), // 15 bytes!
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00 })
-                    == nullptr);
-
-            REQUIRE(decode<T>({ BYTE_FOR(JoinGame), // 17 bytes!
-                                0x00,
-                                0x00,
                                 0x00,
                                 0x00,
                                 0x00,

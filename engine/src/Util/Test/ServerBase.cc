@@ -12,14 +12,15 @@ public:
     }
 
 private:
-    [[nodiscard]] bool on_connect(int, char*) override { return true; }
-    [[nodiscard]] bool on_read(int fd, char* buf, int len) override;
+    [[nodiscard]] bool on_connect(int, char*) override { return true; }[[nodiscard]] bool on_read(int fd,
+                                                                                                  ByteBuffer&) override;
 };
 
-bool TestServer::on_read(int fd, char* buf, int len)
+bool TestServer::on_read(int fd, ByteBuffer& request)
 {
-    (void)len; // not reading from buf
+    (void)request;
 
+    static char buf[1024];
     std::memset(buf, 0, 5);
     std::strncpy(buf, "ack\n", 5);
 
@@ -31,6 +32,8 @@ bool TestServer::on_read(int fd, char* buf, int len)
         perror("write");
         return false;
     }
+
+    ::close(fd);
 
     return true;
 }

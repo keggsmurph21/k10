@@ -5,160 +5,128 @@
 
 namespace k10engine::Server {
 
-const Request* Request::decode(const char* buf, int len)
+const Request* Request::decode(Decoder& decoder)
 {
-    assert(buf != nullptr);
-    if (len == 0)
+    Type request_type;
+    if (!decoder.decode(request_type))
         return nullptr;
-    auto request_type = static_cast<Type>(*buf++);
     switch (request_type) {
     case Type::RegisterUser:
-        return RegisterUserRequest::decode(buf, len - 1);
+        return RegisterUserRequest::decode(decoder);
     case Type::NewGame:
-        return NewGameRequest::decode(buf, len - 1);
+        return NewGameRequest::decode(decoder);
     case Type::JoinGame:
-        return JoinGameRequest::decode(buf, len - 1);
+        return JoinGameRequest::decode(decoder);
     case Type::LeaveGame:
-        return LeaveGameRequest::decode(buf, len - 1);
+        return LeaveGameRequest::decode(decoder);
     case Type::StartGame:
-        return StartGameRequest::decode(buf, len - 1);
+        return StartGameRequest::decode(decoder);
     case Type::MakeMove:
-        return MakeMoveRequest::decode(buf, len - 1);
+        return MakeMoveRequest::decode(decoder);
     case Type::Query:
-        return QueryRequest::decode(buf, len - 1);
+        return QueryRequest::decode(decoder);
     case Type::RegisterListener:
-        return RegisterListenerRequest::decode(buf, len - 1);
+        return RegisterListenerRequest::decode(decoder);
     case Type::UnregisterListener:
-        return UnregisterListenerRequest::decode(buf, len - 1);
+        return UnregisterListenerRequest::decode(decoder);
     default:
         return nullptr;
     };
 }
 
-const RegisterUserRequest* RegisterUserRequest::decode(const char* buf, int len)
+const RegisterUserRequest* RegisterUserRequest::decode(Decoder& decoder)
 {
-    static char name_buf[255];
-    static char secret_buf[255];
-
-    // can do stricter size-checking up front
-    if (len < 1)
+    std::string name;
+    if (!decoder.decode(name))
+        return nullptr;
+    if (name.length() == 0)
         return nullptr;
 
-    // FIXME: Enforce a better minimum len here (probably in Registrar?)
-    u8 name_len = *buf++;
-    if (name_len < 1)
+    std::string secret;
+    if (!decoder.decode(secret))
         return nullptr;
-    if (len < name_len + 1)
-        return nullptr; // Shenanigans!
-
-    std::memset(name_buf, 0, 255);
-    char* name = name_buf;
-    for (auto i = 0; i < name_len; ++i) {
-        if ((*name++ = *buf++) == '\0')
-            return {};
-    }
-
-    // FIXME: See above
-    u8 secret_len = *buf++;
-    if (secret_len < 1)
+    if (secret.length() == 0)
         return nullptr;
-    if (len < name_len + secret_len + 2)
-        return nullptr; // Shenanigans!
 
-    std::memset(secret_buf, 0, 255);
-    char* secret = secret_buf;
-    for (auto i = 0; i < secret_len; ++i) {
-        if ((*secret++ = *buf++) == '\0')
-            return {};
-    }
-
-    return new RegisterUserRequest{ std::string(name_buf, name_buf + name_len),
-                                    std::string(secret_buf, secret_buf + secret_len) };
+    return new RegisterUserRequest{ name, secret };
 }
 
-const NewGameRequest* NewGameRequest::decode(const char* buf, int len)
+const NewGameRequest* NewGameRequest::decode(Decoder& decoder)
 {
-    (void)buf;
-    (void)len;
+    (void)decoder;
     assert(false);
 }
 
-const JoinGameRequest* JoinGameRequest::decode(const char* buf, int len)
+const JoinGameRequest* JoinGameRequest::decode(Decoder& decoder)
 {
-    if (static_cast<unsigned int>(len)
-        != sizeof(Registrar::PlayerId) + sizeof(Registrar::PlayerSecret) + sizeof(GameId))
+    Registrar::PlayerId player_id;
+    if (!decoder.decode(player_id))
         return nullptr;
 
-    Registrar::PlayerId player_id = static_cast<u8>(*buf++);
-    player_id = (player_id << 8) | static_cast<u8>(*buf++);
-    player_id = (player_id << 8) | static_cast<u8>(*buf++);
-    player_id = (player_id << 8) | static_cast<u8>(*buf++);
-    player_id = (player_id << 8) | static_cast<u8>(*buf++);
-    player_id = (player_id << 8) | static_cast<u8>(*buf++);
-    player_id = (player_id << 8) | static_cast<u8>(*buf++);
-    player_id = (player_id << 8) | static_cast<u8>(*buf++);
+    Registrar::PlayerSecret player_secret;
+    if (!decoder.decode(player_secret))
+        return nullptr;
 
-    Registrar::PlayerSecret player_secret = static_cast<u8>(*buf++);
-    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
-    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
-    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
-    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
-    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
-    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
-    player_secret = (player_secret << 8) | static_cast<u8>(*buf++);
-
-    GameId game_id = static_cast<u8>(*buf++);
-    game_id = (game_id << 8) | static_cast<u8>(*buf++);
-    game_id = (game_id << 8) | static_cast<u8>(*buf++);
-    game_id = (game_id << 8) | static_cast<u8>(*buf++);
-    game_id = (game_id << 8) | static_cast<u8>(*buf++);
-    game_id = (game_id << 8) | static_cast<u8>(*buf++);
-    game_id = (game_id << 8) | static_cast<u8>(*buf++);
-    game_id = (game_id << 8) | static_cast<u8>(*buf++);
+    GameId game_id;
+    if (!decoder.decode(game_id))
+        return nullptr;
 
     return new JoinGameRequest{ player_id, player_secret, game_id };
 }
 
-const LeaveGameRequest* LeaveGameRequest::decode(const char* buf, int len)
+const LeaveGameRequest* LeaveGameRequest::decode(Decoder& decoder)
 {
-    (void)buf;
-    (void)len;
+    (void)decoder;
     assert(false);
 }
 
-const StartGameRequest* StartGameRequest::decode(const char* buf, int len)
+const StartGameRequest* StartGameRequest::decode(Decoder& decoder)
 {
-    (void)buf;
-    (void)len;
+    (void)decoder;
     assert(false);
 }
 
-const MakeMoveRequest* MakeMoveRequest::decode(const char* buf, int len)
+const MakeMoveRequest* MakeMoveRequest::decode(Decoder& decoder)
 {
-    (void)buf;
-    (void)len;
+    (void)decoder;
     assert(false);
 }
 
-const QueryRequest* QueryRequest::decode(const char* buf, int len)
+const QueryRequest* QueryRequest::decode(Decoder& decoder)
 {
-    (void)buf;
-    (void)len;
+    (void)decoder;
     assert(false);
 }
 
-const RegisterListenerRequest* RegisterListenerRequest::decode(const char* buf, int len)
+const RegisterListenerRequest* RegisterListenerRequest::decode(Decoder& decoder)
 {
-    (void)buf;
-    (void)len;
+    (void)decoder;
     assert(false);
 }
 
-const UnregisterListenerRequest* UnregisterListenerRequest::decode(const char* buf, int len)
+const UnregisterListenerRequest* UnregisterListenerRequest::decode(Decoder& decoder)
 {
-    (void)buf;
-    (void)len;
+    (void)decoder;
     assert(false);
 }
 
 } // namespace k10engine::Server
+
+template<>
+void encode(ByteBuffer& buf, k10engine::Server::Request::Type& type)
+{
+    buf.append(static_cast<u8>(type));
+}
+
+template<>
+bool decode(ByteBuffer& buf, k10engine::Server::Request::Type& type)
+{
+    if (buf.unread_size() < 1)
+        return false;
+    u8 enum_value = buf.read();
+    if (enum_value > static_cast<u8>(k10engine::Server::Request::Type::UnregisterListener))
+        return false;
+    type = static_cast<k10engine::Server::Request::Type>(enum_value);
+    return true;
+}
+

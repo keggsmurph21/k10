@@ -132,11 +132,8 @@ bool ServerBase::handle_existing_connection(int fd, char* buf)
         return false;
     }
 
-    std::cout << "req(" << std::dec << n_bytes << "):";
-    for (int i = 0; i < n_bytes; ++i) {
-        std::cout << " " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(buf[i]);
-    }
-    std::cout << " [" << buf << "]" << std::endl;
+    ByteBuffer request_bytes{ buf, static_cast<size_t>(n_bytes) };
+    std::cout << "req: " << request_bytes << std::endl;
 
     if (n_bytes == 0) {
         std::cout << "closing fd " << fd << std::endl;
@@ -144,7 +141,7 @@ bool ServerBase::handle_existing_connection(int fd, char* buf)
         return true;
     }
 
-    return on_read(fd, buf, n_bytes);
+    return on_read(fd, request_bytes);
 }
 
 ServerBase::~ServerBase()

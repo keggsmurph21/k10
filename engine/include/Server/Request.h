@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Registrar.h"
+#include "Server/Registrar.h"
+#include "Util/Decoder.h"
 
 #define MAX_BUF_LEN 1024
 #define FIXME void*
@@ -26,7 +27,7 @@ struct Request {
 
     const Type m_type;
 
-    static const Request* decode(const char* buf, int len);
+    static const Request* decode(Decoder&);
 
     virtual ~Request() {}
 
@@ -51,7 +52,7 @@ struct RegisterUserRequest final : public Request {
     {
     }
 
-    static const RegisterUserRequest* decode(const char* buf, int len);
+    static const RegisterUserRequest* decode(Decoder&);
 };
 
 struct NewGameRequest final : public Request {
@@ -66,7 +67,7 @@ struct NewGameRequest final : public Request {
     {
     }
 
-    static const NewGameRequest* decode(const char* buf, int len);
+    static const NewGameRequest* decode(Decoder&);
 };
 
 struct JoinGameRequest final : public Request {
@@ -81,7 +82,7 @@ struct JoinGameRequest final : public Request {
     {
     }
 
-    static const JoinGameRequest* decode(const char* buf, int len);
+    static const JoinGameRequest* decode(Decoder&);
 };
 
 struct LeaveGameRequest final : public Request {
@@ -96,7 +97,7 @@ struct LeaveGameRequest final : public Request {
     {
     }
 
-    static const LeaveGameRequest* decode(const char* buf, int len);
+    static const LeaveGameRequest* decode(Decoder&);
 };
 
 struct StartGameRequest final : public Request {
@@ -111,7 +112,7 @@ struct StartGameRequest final : public Request {
     {
     }
 
-    static const StartGameRequest* decode(const char* buf, int len);
+    static const StartGameRequest* decode(Decoder&);
 };
 
 struct MakeMoveRequest final : public Request {
@@ -126,7 +127,7 @@ struct MakeMoveRequest final : public Request {
     {
     }
 
-    static const MakeMoveRequest* decode(const char* buf, int len);
+    static const MakeMoveRequest* decode(Decoder&);
 };
 
 struct QueryRequest final : public Request {
@@ -141,7 +142,7 @@ struct QueryRequest final : public Request {
     {
     }
 
-    static const QueryRequest* decode(const char* buf, int len);
+    static const QueryRequest* decode(Decoder&);
 };
 
 struct RegisterListenerRequest final : public Request {
@@ -156,7 +157,7 @@ struct RegisterListenerRequest final : public Request {
     {
     }
 
-    static const RegisterListenerRequest* decode(const char* buf, int len);
+    static const RegisterListenerRequest* decode(Decoder&);
 };
 
 struct UnregisterListenerRequest final : public Request {
@@ -171,7 +172,14 @@ struct UnregisterListenerRequest final : public Request {
     {
     }
 
-    static const UnregisterListenerRequest* decode(const char* buf, int len);
+    static const UnregisterListenerRequest* decode(Decoder&);
 };
 
 } // namespace k10engine::Server
+
+template<>
+void encode(ByteBuffer&, k10engine::Server::Request::Type&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::Request::Type&);
+

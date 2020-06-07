@@ -2,6 +2,8 @@
 
 #include <sys/epoll.h>
 
+#include "Util/ByteBuffer.h"
+
 #define BUF_SIZE 1024
 #define MAX_QUEUED_CONNECTIONS 100
 #define MAX_QUEUED_EPOLL_EVENTS 100
@@ -17,7 +19,7 @@ public:
     [[nodiscard]] virtual bool on_connect(int fd, char* client_ip) = 0;
 
     [[nodiscard]] bool handle_existing_connection(int fd, char* buf);
-    [[nodiscard]] virtual bool on_read(int fd, char* buf, int len) = 0;
+    [[nodiscard]] virtual bool on_read(int fd, ByteBuffer&) = 0;
 
     static int bind_and_listen(int port);
 

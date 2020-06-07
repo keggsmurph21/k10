@@ -3,6 +3,7 @@
 #include "Server/Registrar.h"
 #include "Server/Request.h"
 #include "Server/Response.h"
+#include "Util/ByteBuffer.h"
 #include "Util/ServerBase.h"
 
 namespace k10engine::Server {
@@ -16,7 +17,7 @@ public:
 
 private:
     [[nodiscard]] bool on_connect(int fd, char* client_ip) override;
-    [[nodiscard]] bool on_read(int fd, char* buf, int len) override;
+    [[nodiscard]] bool on_read(int fd, ByteBuffer&) override;
 
     const Response* handle(const Request*);
     const RegisterUserResponse* handle_register_user(const RegisterUserRequest*);
