@@ -14,11 +14,11 @@ bool Server::on_connect(int fd, char* client_ip)
     return true;
 }
 
-bool Server::on_read(int fd, ByteBuffer& request_bytes)
+bool Server::on_read(int fd, ByteBuffer& buf)
 {
     (void)fd;
 
-    Decoder decoder(request_bytes);
+    Decoder decoder(buf);
 
     auto* request = Request::decode(decoder);
     if (request == nullptr)
@@ -29,10 +29,11 @@ bool Server::on_read(int fd, ByteBuffer& request_bytes)
     if (response == nullptr)
         assert(false);
 
-    ByteBuffer response_bytes;
-    Encoder encoder(response_bytes);
-    response->encode(encoder);
-    std::cout << "response bytes: " << response_bytes << std::endl;
+    buf.clear();
+    Encoder encoder(buf);
+    encoder << *response;
+
+    std::cout << "response bytes: " << buf << std::endl;
     delete response;
 
     return true;

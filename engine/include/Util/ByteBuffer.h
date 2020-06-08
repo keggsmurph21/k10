@@ -28,6 +28,12 @@ public:
     void append(u8 byte) { m_bytes.push_back(byte); }
     void grow_by(size_t size) { m_bytes.reserve(m_bytes.size() + size); }
 
+    void clear()
+    {
+        m_bytes.clear();
+        m_cursor = 0;
+    }
+
     /*
     void concat_unread(ByteBuffer& buf)
     {

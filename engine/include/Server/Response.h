@@ -24,8 +24,6 @@ struct Response {
 
     const Type m_type;
 
-    virtual void encode(Encoder&) const;
-
     virtual ~Response() {}
 
 protected:
@@ -42,8 +40,6 @@ struct RegisterUserResponse final : public Response {
         , m_registration(registration)
     {
     }
-
-    void encode(Encoder&) const override;
 };
 
 struct NewGameResponse final : public Response {
@@ -51,8 +47,6 @@ struct NewGameResponse final : public Response {
         : Response(Response::Type::NewGame)
     {
     }
-
-    void encode(Encoder&) const override;
 };
 
 struct JoinGameResponse final : public Response {
@@ -60,8 +54,6 @@ struct JoinGameResponse final : public Response {
         : Response(Response::Type::JoinGame)
     {
     }
-
-    void encode(Encoder&) const override;
 };
 
 struct LeaveGameResponse final : public Response {
@@ -69,8 +61,6 @@ struct LeaveGameResponse final : public Response {
         : Response(Response::Type::LeaveGame)
     {
     }
-
-    void encode(Encoder&) const override;
 };
 
 struct StartGameResponse final : public Response {
@@ -78,8 +68,6 @@ struct StartGameResponse final : public Response {
         : Response(Response::Type::StartGame)
     {
     }
-
-    void encode(Encoder&) const override;
 };
 
 struct MakeMoveResponse final : public Response {
@@ -87,8 +75,6 @@ struct MakeMoveResponse final : public Response {
         : Response(Response::Type::MakeMove)
     {
     }
-
-    void encode(Encoder&) const override;
 };
 
 struct QueryResponse final : public Response {
@@ -96,8 +82,6 @@ struct QueryResponse final : public Response {
         : Response(Response::Type::Query)
     {
     }
-
-    void encode(Encoder&) const override;
 };
 
 struct RegisterListenerResponse final : public Response {
@@ -105,8 +89,6 @@ struct RegisterListenerResponse final : public Response {
         : Response(Response::Type::RegisterListener)
     {
     }
-
-    void encode(Encoder&) const override;
 };
 
 struct UnregisterListenerResponse final : public Response {
@@ -114,8 +96,6 @@ struct UnregisterListenerResponse final : public Response {
         : Response(Response::Type::UnregisterListener)
     {
     }
-
-    void encode(Encoder&) const override;
 };
 
 struct GameChangedResponse final : public Response {
@@ -123,17 +103,24 @@ struct GameChangedResponse final : public Response {
         : Response(Response::Type::GameChanged)
     {
     }
-
-    void encode(Encoder&) const override;
 };
 
 } // namespace k10engine::Server
-
-template<>
-void encode(ByteBuffer&, k10engine::Server::Response::Type&);
 
 template<>
 void encode(ByteBuffer&, const k10engine::Server::Response::Type&);
 
 template<>
 bool decode(ByteBuffer&, k10engine::Server::Response::Type&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::Response&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::Response&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::RegisterUserResponse&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::RegisterUserResponse&);
