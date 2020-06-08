@@ -18,7 +18,10 @@ const T* decode(std::vector<u8> bytes)
     for (auto byte : bytes)
         buf.append(byte);
     Decoder decoder(buf);
-    return static_cast<const T*>(Request::decode(decoder));
+    Request* request = nullptr;
+    if (!decoder.decode(request))
+        return nullptr;
+    return static_cast<const T*>(request);
 }
 
 TEST_CASE("Request", "[Server][Server.Request]")

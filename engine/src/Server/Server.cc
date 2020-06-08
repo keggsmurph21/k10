@@ -19,8 +19,8 @@ bool Server::on_read(int fd, ByteBuffer& buf)
 {
     Decoder decoder(buf);
 
-    auto* request = Request::decode(decoder);
-    if (request == nullptr)
+    Request* request = nullptr;
+    if (!decoder.decode(request))
         assert(false);
     auto* response = handle(request);
     delete request;

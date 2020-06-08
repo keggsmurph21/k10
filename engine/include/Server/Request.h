@@ -2,6 +2,7 @@
 
 #include "Server/Registrar.h"
 #include "Util/Decoder.h"
+#include "Util/Encoder.h"
 
 #define MAX_BUF_LEN 1024
 #define FIXME void*
@@ -27,8 +28,6 @@ struct Request {
 
     const Type m_type;
 
-    static const Request* decode(Decoder&);
-
     virtual ~Request() {}
 
 protected:
@@ -51,8 +50,6 @@ struct RegisterUserRequest final : public Request {
         , m_secret(std::move(secret))
     {
     }
-
-    static const RegisterUserRequest* decode(Decoder&);
 };
 
 struct NewGameRequest final : public Request {
@@ -66,8 +63,6 @@ struct NewGameRequest final : public Request {
         , m_parameters(parameters)
     {
     }
-
-    static const NewGameRequest* decode(Decoder&);
 };
 
 struct JoinGameRequest final : public Request {
@@ -81,8 +76,6 @@ struct JoinGameRequest final : public Request {
         , m_game_id(game_id)
     {
     }
-
-    static const JoinGameRequest* decode(Decoder&);
 };
 
 struct LeaveGameRequest final : public Request {
@@ -96,8 +89,6 @@ struct LeaveGameRequest final : public Request {
         , m_game_id(game_id)
     {
     }
-
-    static const LeaveGameRequest* decode(Decoder&);
 };
 
 struct StartGameRequest final : public Request {
@@ -111,8 +102,6 @@ struct StartGameRequest final : public Request {
         , m_game_id(game_id)
     {
     }
-
-    static const StartGameRequest* decode(Decoder&);
 };
 
 struct MakeMoveRequest final : public Request {
@@ -126,8 +115,6 @@ struct MakeMoveRequest final : public Request {
         , m_game_id(game_id)
     {
     }
-
-    static const MakeMoveRequest* decode(Decoder&);
 };
 
 struct QueryRequest final : public Request {
@@ -141,8 +128,6 @@ struct QueryRequest final : public Request {
         , m_game_id(game_id)
     {
     }
-
-    static const QueryRequest* decode(Decoder&);
 };
 
 struct RegisterListenerRequest final : public Request {
@@ -156,8 +141,6 @@ struct RegisterListenerRequest final : public Request {
         , m_game_id(game_id)
     {
     }
-
-    static const RegisterListenerRequest* decode(Decoder&);
 };
 
 struct UnregisterListenerRequest final : public Request {
@@ -171,15 +154,21 @@ struct UnregisterListenerRequest final : public Request {
         , m_game_id(game_id)
     {
     }
-
-    static const UnregisterListenerRequest* decode(Decoder&);
 };
 
 } // namespace k10engine::Server
 
 template<>
-void encode(ByteBuffer&, k10engine::Server::Request::Type&);
+void encode(ByteBuffer&, const k10engine::Server::Request::Type&);
 
 template<>
 bool decode(ByteBuffer&, k10engine::Server::Request::Type&);
 
+template<>
+bool decode(ByteBuffer&, k10engine::Server::Request*&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::RegisterUserRequest*&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::JoinGameRequest*&);
