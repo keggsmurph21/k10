@@ -34,6 +34,8 @@ public:
         m_cursor = 0;
     }
 
+    u8* data() { return m_bytes.data(); }
+
     /*
     void concat_unread(ByteBuffer& buf)
     {

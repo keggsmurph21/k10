@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iomanip>
+#include <unistd.h>
 
 #include "Server/Server.h"
 #include "Util/Decoder.h"
@@ -16,8 +17,6 @@ bool Server::on_connect(int fd, char* client_ip)
 
 bool Server::on_read(int fd, ByteBuffer& buf)
 {
-    (void)fd;
-
     Decoder decoder(buf);
 
     auto* request = Request::decode(decoder);
@@ -32,9 +31,18 @@ bool Server::on_read(int fd, ByteBuffer& buf)
     buf.clear();
     Encoder encoder(buf);
     encoder << *response;
-
-    std::cout << "response bytes: " << buf << std::endl;
     delete response;
+    std::cout << "response bytes: " << buf << std::endl;
+
+    if (::write(fd, buf.data(), buf.unread_size()) < 0) {
+        if (errno == EPIPE) {
+            std::cerr << "ignoring broken pipe..." << std::endl;
+            return true;
+        }
+        perror("write");
+        return false;
+    }
+    ::close(fd);
 
     return true;
 }
