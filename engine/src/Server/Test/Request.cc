@@ -12,7 +12,7 @@
 namespace k10engine::Server {
 
 template<typename T>
-const T* decode(std::vector<u8> bytes)
+const T* decode(const std::vector<u8>& bytes)
 {
     ByteBuffer buf;
     for (auto byte : bytes)
