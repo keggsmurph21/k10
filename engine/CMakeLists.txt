@@ -33,6 +33,7 @@ add_library(k10 SHARED
     src/Game/Game.cc
     src/Game/Player.cc
     src/Game/Trade.cc
+    src/Scenario/Parameters.cc
     src/Scenario/Scenario.cc
     src/Server/Registrar.cc
     src/Server/Request.cc
