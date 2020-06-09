@@ -61,7 +61,7 @@ struct NewGameRequest final : public Request {
     NewGameRequest(Registrar::PlayerId player_id,
                    Registrar::PlayerSecret player_secret,
                    Scenario::Parameters parameters)
-        : Request(Type::JoinGame)
+        : Request(Type::NewGame)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
         , m_parameters(parameters)
@@ -87,7 +87,7 @@ struct LeaveGameRequest final : public Request {
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
     LeaveGameRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
-        : Request(Type::JoinGame)
+        : Request(Type::LeaveGame)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
         , m_game_id(game_id)
@@ -100,7 +100,7 @@ struct StartGameRequest final : public Request {
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
     StartGameRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
-        : Request(Type::JoinGame)
+        : Request(Type::StartGame)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
         , m_game_id(game_id)
@@ -113,7 +113,7 @@ struct MakeMoveRequest final : public Request {
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
     MakeMoveRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
-        : Request(Type::JoinGame)
+        : Request(Type::MakeMove)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
         , m_game_id(game_id)
@@ -126,7 +126,7 @@ struct QueryRequest final : public Request {
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
     QueryRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
-        : Request(Type::JoinGame)
+        : Request(Type::Query)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
         , m_game_id(game_id)
@@ -139,7 +139,7 @@ struct RegisterListenerRequest final : public Request {
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
     RegisterListenerRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
-        : Request(Type::JoinGame)
+        : Request(Type::RegisterListener)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
         , m_game_id(game_id)
@@ -152,7 +152,7 @@ struct UnregisterListenerRequest final : public Request {
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
     UnregisterListenerRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
-        : Request(Type::JoinGame)
+        : Request(Type::UnregisterListener)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
         , m_game_id(game_id)
@@ -179,3 +179,9 @@ bool decode(ByteBuffer&, k10engine::Server::NewGameRequest*&);
 
 template<>
 bool decode(ByteBuffer&, k10engine::Server::JoinGameRequest*&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::LeaveGameRequest*&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::StartGameRequest*&);

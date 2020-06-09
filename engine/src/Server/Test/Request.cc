@@ -157,7 +157,7 @@ TEST_CASE("Request", "[Server][Server.Request]")
                                                  0x00,
                                                  0x00 });
             REQUIRE(all_zeroes != nullptr);
-            REQUIRE(all_zeroes->m_type == Request::Type::JoinGame);
+            REQUIRE(all_zeroes->m_type == Request::Type::NewGame);
             REQUIRE(all_zeroes->m_player_id == 0);
             REQUIRE(all_zeroes->m_player_secret == 0);
             REQUIRE(all_zeroes->m_parameters.development_card_iteration_type == IterationType::Fixed);
@@ -269,15 +269,79 @@ TEST_CASE("Request", "[Server][Server.Request]")
         SECTION("Parsing LeaveGame",
                 "[Server][Server.Request][Server.Request.Decoder][Server.Request.Decoder.LeaveGame]")
         {
+            // NB: This is identical to JoinGame
             using T = LeaveGameRequest;
-            // FIXME: Implement!
+
+            const auto* deadbeef = decode<T>({ BYTE_FOR(LeaveGame),
+                                               0xde,
+                                               0xad,
+                                               0xbe,
+                                               0xef,
+                                               0x00,
+                                               0x00,
+                                               0x00,
+                                               0x00,
+                                               0xde,
+                                               0xad,
+                                               0xbe,
+                                               0xef,
+                                               0x11,
+                                               0x11,
+                                               0x11,
+                                               0x11,
+                                               0xde,
+                                               0xad,
+                                               0xbe,
+                                               0xef,
+                                               0x22,
+                                               0x22,
+                                               0x22,
+                                               0x22 });
+            REQUIRE(deadbeef != nullptr);
+            REQUIRE(deadbeef->m_type == Request::Type::LeaveGame);
+            REQUIRE(deadbeef->m_player_id == 0xdeadbeef00000000);
+            REQUIRE(deadbeef->m_player_secret == 0xdeadbeef11111111);
+            REQUIRE(deadbeef->m_game_id == 0xdeadbeef22222222);
+            delete deadbeef;
         }
 
         SECTION("Parsing StartGame",
                 "[Server][Server.Request][Server.Request.Decoder][Server.Request.Decoder.StartGame]")
         {
+            // NB: This is identical to JoinGame
             using T = StartGameRequest;
-            // FIXME: Implement!
+
+            const auto* deadbeef = decode<T>({ BYTE_FOR(StartGame),
+                                               0xde,
+                                               0xad,
+                                               0xbe,
+                                               0xef,
+                                               0x00,
+                                               0x00,
+                                               0x00,
+                                               0x00,
+                                               0xde,
+                                               0xad,
+                                               0xbe,
+                                               0xef,
+                                               0x11,
+                                               0x11,
+                                               0x11,
+                                               0x11,
+                                               0xde,
+                                               0xad,
+                                               0xbe,
+                                               0xef,
+                                               0x22,
+                                               0x22,
+                                               0x22,
+                                               0x22 });
+            REQUIRE(deadbeef != nullptr);
+            REQUIRE(deadbeef->m_type == Request::Type::StartGame);
+            REQUIRE(deadbeef->m_player_id == 0xdeadbeef00000000);
+            REQUIRE(deadbeef->m_player_secret == 0xdeadbeef11111111);
+            REQUIRE(deadbeef->m_game_id == 0xdeadbeef22222222);
+            delete deadbeef;
         }
 
         SECTION("Parsing MakeMove", "[Server][Server.Request][Server.Request.Decoder][Server.Request.Decoder.MakeMove]")
