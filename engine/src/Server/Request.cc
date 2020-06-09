@@ -8,7 +8,7 @@ namespace k10engine::Server {
 
 using Request = k10engine::Server::Request;
 using RegisterUserRequest = k10engine::Server::RegisterUserRequest;
-// using NewGameRequest = k10engine::Server::NewGameRequest;
+using NewGameRequest = k10engine::Server::NewGameRequest;
 using JoinGameRequest = k10engine::Server::JoinGameRequest;
 // using LeaveGameRequest = k10engine::Server::LeaveGameRequest;
 // using StartGameRequest = k10engine::Server::StartGameRequest;
@@ -54,9 +54,13 @@ bool decode(ByteBuffer& buf, Request*& request)
         request = register_user_request;
         return true;
     }
-    case Request::Type::NewGame:
-        request = nullptr;
-        return false;
+    case Request::Type::NewGame: {
+        auto* new_game_request = static_cast<NewGameRequest*>(request);
+        if (!decoder.decode(new_game_request))
+            return false;
+        request = new_game_request;
+        return true;
+    }
     case Request::Type::JoinGame: {
         auto* join_game_request = static_cast<JoinGameRequest*>(request);
         if (!decoder.decode(join_game_request))
@@ -65,23 +69,11 @@ bool decode(ByteBuffer& buf, Request*& request)
         return true;
     }
     case Request::Type::LeaveGame:
-        request = nullptr;
-        return false;
     case Request::Type::StartGame:
-        request = nullptr;
-        return false;
     case Request::Type::MakeMove:
-        request = nullptr;
-        return false;
     case Request::Type::Query:
-        request = nullptr;
-        return false;
     case Request::Type::RegisterListener:
-        request = nullptr;
-        return false;
     case Request::Type::UnregisterListener:
-        request = nullptr;
-        return false;
     default:
         request = nullptr;
         return false;
@@ -106,6 +98,27 @@ bool decode(ByteBuffer& buf, k10engine::Server::RegisterUserRequest*& request)
         return false;
 
     request = new RegisterUserRequest{ name, secret };
+    return true;
+}
+
+template<>
+bool decode(ByteBuffer& buf, k10engine::Server::NewGameRequest*& request)
+{
+    Decoder decoder(buf);
+
+    k10engine::Server::Registrar::PlayerId player_id;
+    if (!decoder.decode(player_id))
+        return false;
+
+    k10engine::Server::Registrar::PlayerSecret player_secret;
+    if (!decoder.decode(player_secret))
+        return false;
+
+    k10engine::Scenario::Parameters parameters;
+    if (!decoder.decode(parameters))
+        return false;
+
+    request = new NewGameRequest{ player_id, player_secret, parameters };
     return true;
 }
 

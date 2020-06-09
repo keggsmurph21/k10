@@ -61,13 +61,117 @@ TEST_CASE("Request", "[Server][Server.Request]")
         SECTION("Parsing NewGame", "[Server][Server.Request][Server.Request.Decoder][Server.Request.Decoder.NewGame]")
         {
             using T = NewGameRequest;
-            // FIXME: Implement!
+            using IterationType = k10engine::Scenario::IterationType;
+
+            REQUIRE(decode<T>({ BYTE_FOR(NewGame) }) == nullptr);
+            REQUIRE(decode<T>({ BYTE_FOR(NewGame),
+                                // PlayerId
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                // PlayerSecret
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                // Parameters: development_card_iteration_type
+                                0x00,
+                                // Parameters: port_iteration_type
+                                0x00,
+                                // Parameters: resource_iteration_type
+                                0x00,
+                                // Parameters: roll_iteration_type
+                                0x00,
+                                // Parameters: player_count
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                // Parameters: victory_points_goal
+                                0x00,
+                                0x00,
+                                0x00,
+                                // 0x00, // missing one byte :O
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00 })
+                    == nullptr);
+
+            const auto* all_zeroes = decode<T>({ BYTE_FOR(NewGame),
+                                                 // PlayerId
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 // PlayerSecret
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 // Parameters: development_card_iteration_type
+                                                 0x00,
+                                                 // Parameters: port_iteration_type
+                                                 0x00,
+                                                 // Parameters: resource_iteration_type
+                                                 0x00,
+                                                 // Parameters: roll_iteration_type
+                                                 0x00,
+                                                 // Parameters: player_count
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 // Parameters: victory_points_goal
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00,
+                                                 0x00 });
+            REQUIRE(all_zeroes != nullptr);
+            REQUIRE(all_zeroes->m_type == Request::Type::JoinGame);
+            REQUIRE(all_zeroes->m_player_id == 0);
+            REQUIRE(all_zeroes->m_player_secret == 0);
+            REQUIRE(all_zeroes->m_parameters.development_card_iteration_type == IterationType::Fixed);
+            REQUIRE(all_zeroes->m_parameters.port_iteration_type == IterationType::Fixed);
+            REQUIRE(all_zeroes->m_parameters.resource_iteration_type == IterationType::Fixed);
+            REQUIRE(all_zeroes->m_parameters.roll_iteration_type == IterationType::Fixed);
+            REQUIRE(all_zeroes->m_parameters.players_count == 0);
+            REQUIRE(all_zeroes->m_parameters.victory_points_goal == 0);
+            delete all_zeroes;
         }
 
         SECTION("Parsing JoinGame", "[Server][Server.Request][Server.Request.Decoder][Server.Request.Decoder.JoinGame]")
         {
             using T = JoinGameRequest;
-            const auto len = sizeof(Registrar::PlayerId) + sizeof(Registrar::PlayerSecret) + sizeof(GameId);
 
             REQUIRE(decode<T>({ BYTE_FOR(JoinGame) }) == nullptr);
             REQUIRE(decode<T>({ BYTE_FOR(JoinGame), 0x00 }) == nullptr);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Scenario/Scenario.h"
 #include "Server/Registrar.h"
 #include "Util/Decoder.h"
 #include "Util/Encoder.h"
@@ -55,8 +56,11 @@ struct RegisterUserRequest final : public Request {
 struct NewGameRequest final : public Request {
     const Registrar::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
-    FIXME m_parameters;
-    NewGameRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, FIXME parameters)
+    // FIXME: Add ability to choose game board / scenario
+    const Scenario::Parameters m_parameters;
+    NewGameRequest(Registrar::PlayerId player_id,
+                   Registrar::PlayerSecret player_secret,
+                   Scenario::Parameters parameters)
         : Request(Type::JoinGame)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
@@ -169,6 +173,9 @@ bool decode(ByteBuffer&, k10engine::Server::Request*&);
 
 template<>
 bool decode(ByteBuffer&, k10engine::Server::RegisterUserRequest*&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::NewGameRequest*&);
 
 template<>
 bool decode(ByteBuffer&, k10engine::Server::JoinGameRequest*&);
