@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <string.h>
+#include <vector>
 
 #include "Util/ByteBuffer.h"
 #include "Util/Types.h"
@@ -32,6 +33,24 @@ public:
     bool decode(u64&);
     bool decode(size_t&);
     bool decode(std::string&);
+
+    template<typename T>
+    bool decode(std::vector<T>& ts)
+    {
+        ts.clear();
+        u64 size;
+        if (!decode(size))
+            return false;
+        ts.reserve(size);
+
+        for (size_t i = 0; i < size; ++i) {
+            T t;
+            if (!decode(t))
+                return false;
+            ts.push_back(t);
+        }
+        return true;
+    }
 
     template<typename T>
     bool decode(T& t)
