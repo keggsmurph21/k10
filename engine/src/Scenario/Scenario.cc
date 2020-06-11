@@ -442,4 +442,150 @@ bool Scenario::operator==(const Scenario& other) const
     return true;
 }
 
+#define PLAYERS_CAN_RANGE_FROM(min, max) (min), (max)
+#define VICTORY_POINTS_CAN_RANGE_FROM(min, max) (min), (max)
+#define TO_BUILD(...) \
+    {                 \
+        __VA_ARGS__   \
+    }
+#define A(building, ...)                    \
+    {                                       \
+        Building::building, { __VA_ARGS__ } \
+    }
+#define IT
+#define COSTS(num, resource)    \
+    {                           \
+        Resource::resource, num \
+    }
+#define AND ,
+#define THERE_CAN_BE(...) \
+    {                     \
+        __VA_ARGS__       \
+    }
+#define EACH_PLAYER_CAN_HAVE(...) \
+    {                             \
+        __VA_ARGS__               \
+    }
+#define AT_MOST(num, building)  \
+    {                           \
+        Building::building, num \
+    }
+#define THE_DECK_CONTAINS(...) \
+    {                          \
+        __VA_ARGS__            \
+    }
+#define EXACTLY(num, development_card)         \
+    {                                          \
+        DevelopmentCard::development_card, num \
+    }
+#define THE_ROLLS_ARE(...) \
+    {                      \
+        __VA_ARGS__        \
+    }
+#define THE_RESOURCES_ARE(...) \
+    {                          \
+        __VA_ARGS__            \
+    }
+#define THE_PORTS_ARE(...) \
+    {                      \
+        __VA_ARGS__        \
+    }
+#define EXCHANGE_ANYTHING_FOR(num, of_x) \
+    {                                    \
+        of_x, num                        \
+    }
+#define OF(resource)       \
+    {                      \
+        Resource::resource \
+    }
+#define OF_ANYTHING                                                                      \
+    {                                                                                    \
+        Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood \
+    }
+
+const Scenario* get_single_scenario()
+{
+    static auto* single = new Scenario{
+        PLAYERS_CAN_RANGE_FROM(1, 2),
+        VICTORY_POINTS_CAN_RANGE_FROM(3, 6),
+        TO_BUILD(A(City, IT COSTS(3, Ore) AND COSTS(2, Wheat)),
+                 A(DevelopmentCard, IT COSTS(1, Ore) AND COSTS(1, Sheep) AND COSTS(1, Wheat)),
+                 A(Road, IT COSTS(1, Brick) AND COSTS(1, Wood)),
+                 A(Settlement, IT COSTS(1, Brick) AND COSTS(1, Sheep) AND COSTS(1, Wheat) AND COSTS(1, Wood))),
+        THERE_CAN_BE(AT_MOST(25, DevelopmentCard)),
+        EACH_PLAYER_CAN_HAVE(AT_MOST(2, City), AT_MOST(6, Road), AT_MOST(2, Settlement)),
+        THE_DECK_CONTAINS(EXACTLY(14, Knight),
+                          EXACTLY(2, Monopoly),
+                          EXACTLY(2, RoadBuilding),
+                          EXACTLY(5, VictoryPoint),
+                          EXACTLY(2, YearOfPlenty)),
+        THE_RESOURCES_ARE({ NonYieldingResource::Desert, 1 }),
+        THE_ROLLS_ARE(),
+        THE_PORTS_ARE(EXCHANGE_ANYTHING_FOR(3, OF_ANYTHING), EXCHANGE_ANYTHING_FOR(3, OF(Wheat)))
+    };
+    return single;
+}
+
+const Scenario* get_triple_scenario()
+{
+    static auto* triple = new Scenario{
+        PLAYERS_CAN_RANGE_FROM(1, 3),
+        VICTORY_POINTS_CAN_RANGE_FROM(3, 6),
+        TO_BUILD(A(City, IT COSTS(3, Ore) AND COSTS(2, Wheat)),
+                 A(DevelopmentCard, IT COSTS(1, Ore) AND COSTS(1, Sheep) AND COSTS(1, Wheat)),
+                 A(Road, IT COSTS(1, Brick) AND COSTS(1, Wood)),
+                 A(Settlement, IT COSTS(1, Brick) AND COSTS(1, Sheep) AND COSTS(1, Wheat) AND COSTS(1, Wood))),
+        THERE_CAN_BE(AT_MOST(25, DevelopmentCard)),
+        EACH_PLAYER_CAN_HAVE(AT_MOST(3, City), AT_MOST(10, Road), AT_MOST(4, Settlement)),
+        THE_DECK_CONTAINS(EXACTLY(14, Knight),
+                          EXACTLY(2, Monopoly),
+                          EXACTLY(2, RoadBuilding),
+                          EXACTLY(5, VictoryPoint),
+                          EXACTLY(2, YearOfPlenty)),
+        THE_RESOURCES_ARE({ Resource::Brick, 1 }, { Resource::Wood, 1 }, { NonYieldingResource::Desert, 1 }),
+        THE_ROLLS_ARE(6, 9),
+        THE_PORTS_ARE(EXCHANGE_ANYTHING_FOR(2, OF(Brick)),
+                      EXCHANGE_ANYTHING_FOR(2, OF(Wood)),
+                      EXCHANGE_ANYTHING_FOR(2, OF(Wheat)),
+                      EXCHANGE_ANYTHING_FOR(3, OF_ANYTHING))
+    };
+    return triple;
+}
+
+const Scenario* get_standard_scenario()
+{
+    static auto* standard = new Scenario{
+        PLAYERS_CAN_RANGE_FROM(2, 5),
+        VICTORY_POINTS_CAN_RANGE_FROM(8, 12),
+        TO_BUILD(A(City, IT COSTS(3, Ore) AND COSTS(2, Wheat)),
+                 A(DevelopmentCard, IT COSTS(1, Ore) AND COSTS(1, Sheep) AND COSTS(1, Wheat)),
+                 A(Road, IT COSTS(1, Brick) AND COSTS(1, Wood)),
+                 A(Settlement, IT COSTS(1, Brick) AND COSTS(1, Sheep) AND COSTS(1, Wheat) AND COSTS(1, Wood))),
+        THERE_CAN_BE(AT_MOST(25, DevelopmentCard)),
+        EACH_PLAYER_CAN_HAVE(AT_MOST(4, City), AT_MOST(15, Road), AT_MOST(5, Settlement)),
+        THE_DECK_CONTAINS(EXACTLY(14, Knight),
+                          EXACTLY(2, Monopoly),
+                          EXACTLY(2, RoadBuilding),
+                          EXACTLY(5, VictoryPoint),
+                          EXACTLY(2, YearOfPlenty)),
+        THE_RESOURCES_ARE({ Resource::Brick, 3 },
+                          { Resource::Ore, 3 },
+                          { Resource::Sheep, 4 },
+                          { Resource::Wheat, 4 },
+                          { Resource::Wood, 4 },
+                          { NonYieldingResource::Desert, 1 }),
+        THE_ROLLS_ARE(2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12),
+        THE_PORTS_ARE(EXCHANGE_ANYTHING_FOR(3, OF_ANYTHING),
+                      EXCHANGE_ANYTHING_FOR(2, OF(Wheat)),
+                      EXCHANGE_ANYTHING_FOR(2, OF(Ore)),
+                      EXCHANGE_ANYTHING_FOR(3, OF_ANYTHING),
+                      EXCHANGE_ANYTHING_FOR(3, OF_ANYTHING),
+                      EXCHANGE_ANYTHING_FOR(2, OF(Sheep)),
+                      EXCHANGE_ANYTHING_FOR(3, OF_ANYTHING),
+                      EXCHANGE_ANYTHING_FOR(2, OF(Brick)),
+                      EXCHANGE_ANYTHING_FOR(2, OF(Wood)))
+    };
+    return standard;
+}
+
 } // namespace k10engine::Scenario

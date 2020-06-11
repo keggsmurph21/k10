@@ -124,4 +124,14 @@ protected:
     std::vector<_PortSpec> m_ports;
 };
 
+// This is terrible ... we should be loading these things in some ResourceLoader type
+// abstraction that also takes care of loading the boards into memory ... or y'know,
+// actually preparing for the future of user-defined scenarios / boards.  But we'll get
+// there eventually :^)
+//
+// Oh also, these leak a tiny bit of memory :O
+const Scenario* get_single_scenario();
+const Scenario* get_triple_scenario();
+const Scenario* get_standard_scenario();
+
 } // namespace k10engine::Scenario

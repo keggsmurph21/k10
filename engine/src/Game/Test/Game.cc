@@ -336,194 +336,15 @@ struct PlayerState {
         check_no_actions(2);                                                                                   \
     };
 
-Scenario_ get_single_scenario()
-{
-    return Scenario_(
-        1,
-        2,
-        3,
-        6,
-        { {
-              Building::City,
-              { { Resource::Ore, 3 }, { Resource::Wheat, 2 } },
-          },
-          {
-              Building::DevelopmentCard,
-              { { Resource::Ore, 1 }, { Resource::Sheep, 1 }, { Resource::Wheat, 1 } },
-          },
-          {
-              Building::Road,
-              {
-                  { Resource::Brick, 1 },
-                  { Resource::Wood, 1 },
-              },
-          },
-          {
-              Building::Settlement,
-              { { Resource::Brick, 1 }, { Resource::Sheep, 1 }, { Resource::Wheat, 1 }, { Resource::Wood, 1 } },
-          } },
-        {
-            { Building::DevelopmentCard, 25 },
-        },
-        {
-            { Building::City, 2 },
-            { Building::Road, 6 },
-            { Building::Settlement, 2 },
-        },
-        {
-            { DevelopmentCard::Knight, 14 },
-            { DevelopmentCard::Monopoly, 2 },
-            { DevelopmentCard::RoadBuilding, 2 },
-            { DevelopmentCard::VictoryPoint, 5 },
-            { DevelopmentCard::YearOfPlenty, 2 },
-        },
-        {
-            { NonYieldingResource::Desert, 1 },
-        },
-        {},
-        {
-            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood }, 3 },
-            { { Resource::Wheat }, 2 },
-        });
-}
-
 Parameters get_single_parameters()
 {
     return Parameters{ IterationType::Fixed, IterationType::Fixed, IterationType::Fixed, IterationType::Fixed, 1, 3 };
-}
-
-Scenario_ get_triple_scenario()
-{
-    return Scenario_(
-        1,
-        3,
-        3,
-        6,
-        { {
-              Building::City,
-              { { Resource::Ore, 3 }, { Resource::Wheat, 2 } },
-          },
-          {
-              Building::DevelopmentCard,
-              { { Resource::Ore, 1 }, { Resource::Sheep, 1 }, { Resource::Wheat, 1 } },
-          },
-          {
-              Building::Road,
-              {
-                  { Resource::Brick, 1 },
-                  { Resource::Wood, 1 },
-              },
-          },
-          {
-              Building::Settlement,
-              { { Resource::Brick, 1 }, { Resource::Sheep, 1 }, { Resource::Wheat, 1 }, { Resource::Wood, 1 } },
-          } },
-        {
-            { Building::DevelopmentCard, 25 },
-        },
-        {
-            { Building::City, 3 },
-            { Building::Road, 10 },
-            { Building::Settlement, 4 },
-        },
-        {
-            { DevelopmentCard::Knight, 14 },
-            { DevelopmentCard::Monopoly, 2 },
-            { DevelopmentCard::RoadBuilding, 2 },
-            { DevelopmentCard::VictoryPoint, 5 },
-            { DevelopmentCard::YearOfPlenty, 2 },
-        },
-        {
-            { Resource::Brick, 1 },
-            { Resource::Wood, 1 },
-            { NonYieldingResource::Desert, 1 },
-        },
-        { 6, 9 },
-        {
-            { { Resource::Brick }, 2 },
-            { { Resource::Wood }, 2 },
-            { { Resource::Wheat }, 2 },
-            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood }, 3 },
-        });
 }
 
 Parameters get_triple_parameters(size_t num_players)
 {
     return Parameters{ IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,
                        IterationType::Fixed, num_players,          3 };
-}
-
-Scenario_ get_standard_scenario()
-{
-    return Scenario_(
-        2,
-        5,
-        8,
-        12,
-        { {
-              Building::City,
-              { { Resource::Ore, 3 }, { Resource::Wheat, 2 } },
-          },
-          {
-              Building::DevelopmentCard,
-              { { Resource::Ore, 1 }, { Resource::Sheep, 1 }, { Resource::Wheat, 1 } },
-          },
-          {
-              Building::Road,
-              {
-                  { Resource::Brick, 1 },
-                  { Resource::Wood, 1 },
-              },
-          },
-          {
-              Building::Settlement,
-              { { Resource::Brick, 1 }, { Resource::Sheep, 1 }, { Resource::Wheat, 1 }, { Resource::Wood, 1 } },
-          } },
-        {
-            { Building::DevelopmentCard, 25 },
-        },
-        {
-            { Building::City, 4 },
-            { Building::Road, 15 },
-            { Building::Settlement, 5 },
-        },
-        {
-            { DevelopmentCard::Knight, 14 },
-            { DevelopmentCard::Monopoly, 2 },
-            { DevelopmentCard::RoadBuilding, 2 },
-            { DevelopmentCard::VictoryPoint, 5 },
-            { DevelopmentCard::YearOfPlenty, 2 },
-        },
-        { { Resource::Brick, 3 },
-          { Resource::Ore, 3 },
-          { Resource::Sheep, 4 },
-          { Resource::Wheat, 4 },
-          { Resource::Wood, 4 },
-          { NonYieldingResource::Desert, 1 } },
-        { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 },
-        {
-            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood }, 3 },
-            { { Resource::Wheat }, 2 },
-            { {
-                  Resource::Ore,
-              },
-              2 },
-            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood }, 3 },
-            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood }, 3 },
-            { {
-                  Resource::Sheep,
-              },
-              2 },
-            { { Resource::Brick, Resource::Ore, Resource::Sheep, Resource::Wheat, Resource::Wood }, 3 },
-            { {
-                  Resource::Brick,
-              },
-              2 },
-            { {
-                  Resource::Wood,
-              },
-              2 },
-        });
 }
 
 Parameters get_standard_parameters(size_t num_players)
@@ -538,9 +359,9 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
     SECTION("One player")
     {
         auto b = Board::from_file("static/Single.board");
-        auto s = get_single_scenario();
+        auto s = k10engine::Scenario::get_single_scenario();
         auto p = get_single_parameters();
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -639,9 +460,9 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
     SECTION("One player")
     {
         auto b = Board::from_file("static/Triple.board");
-        auto s = get_triple_scenario();
+        auto s = k10engine::Scenario::get_triple_scenario();
         auto p = get_triple_parameters(1);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -739,9 +560,9 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
     SECTION("Two players")
     {
         auto b = Board::from_file("static/Triple.board");
-        auto s = get_triple_scenario();
+        auto s = k10engine::Scenario::get_triple_scenario();
         auto p = get_triple_parameters(2);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -929,9 +750,9 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
     SECTION("Three players")
     {
         auto b = Board::from_file("static/Triple.board");
-        auto s = get_triple_scenario();
+        auto s = k10engine::Scenario::get_triple_scenario();
         auto p = get_triple_parameters(3);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -1215,9 +1036,9 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
     SECTION("Two players")
     {
         auto b = Board::from_file("static/Standard.board");
-        auto s = get_standard_scenario();
+        auto s = k10engine::Scenario::get_standard_scenario();
         auto p = get_standard_parameters(2);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -1418,9 +1239,9 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
     SECTION("Three players")
     {
         auto b = Board::from_file("static/Standard.board");
-        auto s = get_standard_scenario();
+        auto s = k10engine::Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -1712,9 +1533,9 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
     SECTION("Three players immediately ending turns")
     {
         auto b = Board::from_file("static/Standard.board");
-        auto s = get_standard_scenario();
+        auto s = k10engine::Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -1883,9 +1704,9 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
     SECTION("Three players offering trades")
     {
         auto b = Board::from_file("static/Standard.board");
-        auto s = get_standard_scenario();
+        auto s = k10engine::Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -2106,9 +1927,9 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
     SECTION("Three players building roads")
     {
         auto b = Board::from_file("static/Standard.board");
-        auto s = get_standard_scenario();
+        auto s = k10engine::Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -2189,9 +2010,9 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
     SECTION("Three players building settlements")
     {
         auto b = Board::from_file("static/Standard.board");
-        auto s = get_standard_scenario();
+        auto s = k10engine::Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -2256,9 +2077,9 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
     SECTION("Three players buying development cards")
     {
         auto b = Board::from_file("static/Standard.board");
-        auto s = get_standard_scenario();
+        auto s = k10engine::Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -2426,9 +2247,9 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
     SECTION("Three players trading with bank")
     {
         auto b = Board::from_file("static/Standard.board");
-        auto s = get_standard_scenario();
+        auto s = k10engine::Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -2791,9 +2612,9 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
     SECTION("Three players trading with bank")
     {
         auto b = Board::from_file("static/Standard.board");
-        auto s = get_standard_scenario();
+        auto s = k10engine::Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
@@ -2868,9 +2689,9 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
     SECTION("Three players rolling sevens")
     {
         auto b = Board::from_file("static/Standard.board");
-        auto s = get_standard_scenario();
+        auto s = k10engine::Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, s, p);
+        auto g = Game::Game::initialize(&b, *s, p);
 
         bootstrap_tests();
 
