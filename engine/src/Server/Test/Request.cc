@@ -406,8 +406,40 @@ TEST_CASE("Request", "[Server][Server.Request]")
 
         SECTION("Parsing Query", "[Server][Server.Request][Server.Request.Decoder][Server.Request.Decoder.Query]")
         {
+            // NB: This is identical to JoinGame
             using T = QueryRequest;
-            // FIXME: Implement!
+
+            const auto* deadbeef = decode<T>({ BYTE_FOR(Query),
+                                               0xde,
+                                               0xad,
+                                               0xbe,
+                                               0xef,
+                                               0x00,
+                                               0x00,
+                                               0x00,
+                                               0x00,
+                                               0xde,
+                                               0xad,
+                                               0xbe,
+                                               0xef,
+                                               0x11,
+                                               0x11,
+                                               0x11,
+                                               0x11,
+                                               0xde,
+                                               0xad,
+                                               0xbe,
+                                               0xef,
+                                               0x22,
+                                               0x22,
+                                               0x22,
+                                               0x22 });
+            REQUIRE(deadbeef != nullptr);
+            REQUIRE(deadbeef->m_type == Request::Type::Query);
+            REQUIRE(deadbeef->m_player_id == 0xdeadbeef00000000);
+            REQUIRE(deadbeef->m_player_secret == 0xdeadbeef11111111);
+            REQUIRE(deadbeef->m_game_id == 0xdeadbeef22222222);
+            delete deadbeef;
         }
 
         SECTION("Parsing RegisterListener",

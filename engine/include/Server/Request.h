@@ -194,3 +194,6 @@ bool decode(ByteBuffer&, k10engine::Server::StartGameRequest*&);
 
 template<>
 bool decode(ByteBuffer&, k10engine::Server::MakeMoveRequest*&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::QueryRequest*&);

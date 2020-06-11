@@ -10,7 +10,7 @@ using JoinGameRequest = k10engine::Server::JoinGameRequest;
 using LeaveGameRequest = k10engine::Server::LeaveGameRequest;
 using StartGameRequest = k10engine::Server::StartGameRequest;
 using MakeMoveRequest = k10engine::Server::MakeMoveRequest;
-// using QueryRequest = k10engine::Server::QueryRequest;
+using QueryRequest = k10engine::Server::QueryRequest;
 // using RegisterListenerRequest = k10engine::Server::RegisterListenerRequest;
 // using UnregisterListenerRequest = k10engine::Server::UnregisterListenerRequest;
 
@@ -86,7 +86,13 @@ bool decode(ByteBuffer& buf, Request*& request)
         request = make_move_request;
         return true;
     }
-    case Request::Type::Query:
+    case Request::Type::Query: {
+        auto* query_request = static_cast<QueryRequest*>(request);
+        if (!decoder.decode(query_request))
+            return false;
+        request = query_request;
+        return true;
+    }
     case Request::Type::RegisterListener:
     case Request::Type::UnregisterListener:
     default:
@@ -222,5 +228,26 @@ bool decode(ByteBuffer& buf, k10engine::Server::MakeMoveRequest*& request)
         return false;
 
     request = new MakeMoveRequest{ player_id, player_secret, game_id, action };
+    return true;
+}
+
+template<>
+bool decode(ByteBuffer& buf, k10engine::Server::QueryRequest*& request)
+{
+    Decoder decoder(buf);
+
+    k10engine::Server::Registrar::PlayerId player_id;
+    if (!decoder.decode(player_id))
+        return false;
+
+    k10engine::Server::Registrar::PlayerSecret player_secret;
+    if (!decoder.decode(player_secret))
+        return false;
+
+    k10engine::Server::GameId game_id;
+    if (!decoder.decode(game_id))
+        return false;
+
+    request = new QueryRequest{ player_id, player_secret, game_id };
     return true;
 }
