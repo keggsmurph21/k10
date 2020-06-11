@@ -128,21 +128,21 @@ TEST_CASE("Loading generated boards", "[Board][Board.Graph]")
 {
     SECTION("Standard")
     {
-        auto g = from_file("static/boards/Standard.board");
+        auto g = from_file("static/Standard.board");
         REQUIRE(g.size() == 163);
         // REQUIRE(b->ports().size() == 9);
     }
 
     SECTION("Portless")
     {
-        auto g = from_file("static/boards/Portless.board");
+        auto g = from_file("static/Portless.board");
         REQUIRE(g.size() == 163);
         // REQUIRE(b->ports().size() == 0);
     }
 
     SECTION("Tall")
     {
-        auto g = from_file("static/boards/Tall.board");
+        auto g = from_file("static/Tall.board");
         REQUIRE(g.size() == 295);
         // REQUIRE(b->ports().size() == 13);
     }

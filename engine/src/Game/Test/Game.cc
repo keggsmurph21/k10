@@ -537,7 +537,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
 {
     SECTION("One player")
     {
-        auto b = Board::from_file("static/boards/Single.board");
+        auto b = Board::from_file("static/Single.board");
         auto s = get_single_scenario();
         auto p = get_single_parameters();
         auto g = Game::Game::initialize(&b, s, p);
@@ -638,7 +638,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
 {
     SECTION("One player")
     {
-        auto b = Board::from_file("static/boards/Triple.board");
+        auto b = Board::from_file("static/Triple.board");
         auto s = get_triple_scenario();
         auto p = get_triple_parameters(1);
         auto g = Game::Game::initialize(&b, s, p);
@@ -738,7 +738,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
 
     SECTION("Two players")
     {
-        auto b = Board::from_file("static/boards/Triple.board");
+        auto b = Board::from_file("static/Triple.board");
         auto s = get_triple_scenario();
         auto p = get_triple_parameters(2);
         auto g = Game::Game::initialize(&b, s, p);
@@ -928,7 +928,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
 
     SECTION("Three players")
     {
-        auto b = Board::from_file("static/boards/Triple.board");
+        auto b = Board::from_file("static/Triple.board");
         auto s = get_triple_scenario();
         auto p = get_triple_parameters(3);
         auto g = Game::Game::initialize(&b, s, p);
@@ -1214,7 +1214,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
 {
     SECTION("Two players")
     {
-        auto b = Board::from_file("static/boards/Standard.board");
+        auto b = Board::from_file("static/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(2);
         auto g = Game::Game::initialize(&b, s, p);
@@ -1417,7 +1417,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
 
     SECTION("Three players")
     {
-        auto b = Board::from_file("static/boards/Standard.board");
+        auto b = Board::from_file("static/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::Game::initialize(&b, s, p);
@@ -1711,7 +1711,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 {
     SECTION("Three players immediately ending turns")
     {
-        auto b = Board::from_file("static/boards/Standard.board");
+        auto b = Board::from_file("static/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::Game::initialize(&b, s, p);
@@ -1882,7 +1882,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players offering trades")
     {
-        auto b = Board::from_file("static/boards/Standard.board");
+        auto b = Board::from_file("static/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::Game::initialize(&b, s, p);
@@ -2105,7 +2105,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players building roads")
     {
-        auto b = Board::from_file("static/boards/Standard.board");
+        auto b = Board::from_file("static/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::Game::initialize(&b, s, p);
@@ -2188,7 +2188,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players building settlements")
     {
-        auto b = Board::from_file("static/boards/Standard.board");
+        auto b = Board::from_file("static/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::Game::initialize(&b, s, p);
@@ -2255,7 +2255,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players buying development cards")
     {
-        auto b = Board::from_file("static/boards/Standard.board");
+        auto b = Board::from_file("static/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::Game::initialize(&b, s, p);
@@ -2425,7 +2425,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players trading with bank")
     {
-        auto b = Board::from_file("static/boards/Standard.board");
+        auto b = Board::from_file("static/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::Game::initialize(&b, s, p);
@@ -2790,8 +2790,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players trading with bank")
     {
-        auto b = Board::from_file("static/boards/"
-                                  "Standard.board");
+        auto b = Board::from_file("static/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::Game::initialize(&b, s, p);
@@ -2868,8 +2867,7 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players rolling sevens")
     {
-        auto b = Board::from_file("static/boards/"
-                                  "Standard.board");
+        auto b = Board::from_file("static/Standard.board");
         auto s = get_standard_scenario();
         auto p = get_standard_parameters(3);
         auto g = Game::Game::initialize(&b, s, p);
