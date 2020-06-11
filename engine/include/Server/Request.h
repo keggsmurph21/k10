@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Action.h"
 #include "Scenario/Scenario.h"
 #include "Server/Registrar.h"
 #include "Util/Decoder.h"
@@ -112,11 +113,16 @@ struct MakeMoveRequest final : public Request {
     const Registrar::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
     const GameId m_game_id;
-    MakeMoveRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, GameId game_id)
+    const Game::Action m_action;
+    MakeMoveRequest(Registrar::PlayerId player_id,
+                    Registrar::PlayerSecret player_secret,
+                    GameId game_id,
+                    Game::Action action)
         : Request(Type::MakeMove)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
         , m_game_id(game_id)
+        , m_action(action)
     {
     }
 };
@@ -185,3 +191,6 @@ bool decode(ByteBuffer&, k10engine::Server::LeaveGameRequest*&);
 
 template<>
 bool decode(ByteBuffer&, k10engine::Server::StartGameRequest*&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Server::MakeMoveRequest*&);

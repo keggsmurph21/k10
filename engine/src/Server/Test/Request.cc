@@ -347,7 +347,61 @@ TEST_CASE("Request", "[Server][Server.Request]")
         SECTION("Parsing MakeMove", "[Server][Server.Request][Server.Request.Decoder][Server.Request.Decoder.MakeMove]")
         {
             using T = MakeMoveRequest;
-            // FIXME: Implement!
+
+            const auto* build_settlement = decode<T>({ BYTE_FOR(MakeMove),
+                                                       0xde,
+                                                       0xad,
+                                                       0xbe,
+                                                       0xef,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0xde,
+                                                       0xad,
+                                                       0xbe,
+                                                       0xef,
+                                                       0x11,
+                                                       0x11,
+                                                       0x11,
+                                                       0x11,
+                                                       0xde,
+                                                       0xad,
+                                                       0xbe,
+                                                       0xef,
+                                                       0x22,
+                                                       0x22,
+                                                       0x22,
+                                                       0x22,
+                                                       0x04,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x01,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x2a });
+            REQUIRE(build_settlement != nullptr);
+            REQUIRE(build_settlement->m_type == Request::Type::MakeMove);
+            REQUIRE(build_settlement->m_player_id == 0xdeadbeef00000000);
+            REQUIRE(build_settlement->m_player_secret == 0xdeadbeef11111111);
+            REQUIRE(build_settlement->m_game_id == 0xdeadbeef22222222);
+
+            REQUIRE(build_settlement->m_action.edge == State::Edge::BuildSettlement);
+            REQUIRE(build_settlement->m_action.args.size() == 1);
+            REQUIRE(build_settlement->m_action.args.at(0).type == Game::ActionArgumentType::NodeId);
+            REQUIRE(build_settlement->m_action.args.at(0).value == 42);
+            delete build_settlement;
         }
 
         SECTION("Parsing Query", "[Server][Server.Request][Server.Request.Decoder][Server.Request.Decoder.Query]")
