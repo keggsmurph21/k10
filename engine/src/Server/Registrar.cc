@@ -20,39 +20,34 @@ static Registrar::PlayerSecret get_internal_secret()
     return s_random_64bit_dist(rng);
 }
 
-std::optional<Registrar::Registration>
-Registrar::register_user(const char* name, const u8 name_len, const char* external_secret, const u8 external_secret_len)
+std::optional<Registrar::Registration> Registrar::register_user(const std::string& name,
+                                                                const std::string& external_secret)
 {
-    if (name == nullptr)
+    if (name.size() == 0)
         return {};
-    if (name_len == 0)
-        return {};
-    if (external_secret == nullptr)
-        return {};
-    if (external_secret_len == 0)
+    if (external_secret.size() == 0)
         return {};
     size_t internal_secret_index;
-    if (m_records.contains(name, name_len)) {
-        auto* record = m_records.get(name, name_len);
+    if (m_records.contains(name.c_str(), name.size())) {
+        auto* record = m_records.get(name.c_str(), name.size());
         const auto offset = record->external_secret_index;
-        if (external_secret_len != record->external_secret_len)
+        if (external_secret.size() != record->external_secret_len)
             return {};
         for (auto i = 0; i < record->external_secret_len; ++i) {
-            if (m_external_secrets.at(offset + i) != *external_secret++)
+            if (m_external_secrets.at(offset + i) != external_secret.at(i))
                 return {};
         }
         internal_secret_index = record->internal_secret_index;
     } else {
         Record record = {};
         record.external_secret_index = m_external_secrets.size();
-        for (auto i = 0; i < external_secret_len; ++i) {
-            m_external_secrets.push_back(*external_secret++);
-        }
-        record.external_secret_len = external_secret_len;
+        for (auto ch : external_secret)
+            m_external_secrets.push_back(ch);
+        record.external_secret_len = external_secret.size();
         record.internal_secret_index = m_internal_secrets.size();
         m_internal_secrets.push_back(get_internal_secret());
         internal_secret_index = record.internal_secret_index;
-        m_records.set(name, name_len, record);
+        m_records.set(name.c_str(), name.size(), record);
     }
     Registration registration{ internal_secret_index, m_internal_secrets.at(internal_secret_index) };
     return registration;

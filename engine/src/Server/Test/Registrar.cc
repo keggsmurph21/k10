@@ -9,19 +9,19 @@ TEST_CASE("Registrar", "[Server][Server.Registrar]")
 
     REQUIRE(!registrar.validate_player(0, 0));
 
-    const char* username = "test-name";
-    const char* secret = "test-secret";
-    const auto registration = registrar.register_user(username, strlen(username), secret, strlen(secret));
+    std::string username = "test-name";
+    std::string secret = "test-secret";
+    const auto registration = registrar.register_user(username, secret);
 
     REQUIRE(registration.has_value());
     REQUIRE(registrar.validate_player(registration->player_id, registration->internal_secret));
     REQUIRE(!registrar.validate_player(registration->player_id, 1 + registration->internal_secret));
 
-    const auto re_registration = registrar.register_user(username, strlen(username), secret, strlen(secret));
+    const auto re_registration = registrar.register_user(username, secret);
 
     REQUIRE(re_registration.has_value());
     REQUIRE(re_registration->player_id == registration->player_id);
     REQUIRE(re_registration->internal_secret == registration->internal_secret);
 
-    REQUIRE(!registrar.register_user(username, strlen(username), "wrong", strlen("wrong")).has_value());
+    REQUIRE(!registrar.register_user(username, "wrong").has_value());
 }

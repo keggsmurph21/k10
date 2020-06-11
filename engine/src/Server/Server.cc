@@ -77,8 +77,7 @@ const Response* Server::handle(const Request* request)
 
 const RegisterUserResponse* Server::handle_register_user(const RegisterUserRequest* request)
 {
-    const auto registration = m_registrar.register_user(
-        request->m_name.c_str(), request->m_name.size(), request->m_secret.c_str(), request->m_secret.size());
+    const auto registration = m_registrar.register_user(request->m_name, request->m_secret);
     if (registration.has_value()) {
         std::cout << "Registered player_id: " << registration->player_id
                   << ", player_secret: " << registration->internal_secret << std::endl;

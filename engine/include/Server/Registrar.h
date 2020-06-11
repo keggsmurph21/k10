@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <string>
 #include <vector>
 
 #include "Util/Decoder.h"
@@ -20,8 +21,8 @@ public:
         PlayerSecret internal_secret;
     };
 
-    [[nodiscard]] std::optional<Registration>
-    register_user(const char* name, const u8 name_len, const char* external_secret, const u8 external_secret_len);
+    [[nodiscard]] std::optional<Registration> register_user(const std::string& name,
+                                                            const std::string& external_secret);
 
     [[nodiscard]] bool validate_player(const PlayerId player_id, const PlayerSecret internal_secret) const;
 
