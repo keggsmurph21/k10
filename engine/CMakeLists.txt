@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_program(CLANG_TIDY NAMES clang-tidy)
 set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY})
 
-include_directories(include)
+include_directories(src)
 
 add_library(k10 SHARED
     src/Board/Direction.cc
@@ -48,7 +48,7 @@ target_compile_options(k10 PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
 link_directories(build)
 link_libraries(k10)
 
-add_executable(test-server src/Util/Test/ServerBase.cc)
+add_executable(test-server src/Util/ServerBase_test.cc)
 target_compile_options(test-server PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
 
 add_executable(main src/main.cc)
@@ -56,20 +56,20 @@ target_compile_options(main PRIVATE -Werror -Wall -Wextra -pedantic-errors -g)
 
 add_executable(test_
     src/test.cc
-    src/Board/Test/Graph.cc
-    src/Board/Test/Node.cc
-    src/Board/Test/Parser.cc
-    src/Board/Test/Port.cc
-    src/Core/Test/Action.cc
-    src/Core/Test/Resource.cc
-    src/Game/Test/Game.cc
-    src/Scenario/Test/Scenario.cc
-    src/Server/Test/Registrar.cc
-    src/Server/Test/Request.cc
-    src/Server/Test/Response.cc
-    src/Util/Test/Decoder.cc
-    src/Util/Test/DoublyLinkedList.cc
-    src/Util/Test/LinkedTrie.cc
-    src/Util/Test/LRUCache.cc
+    src/Board/Graph_test.cc
+    src/Board/Node_test.cc
+    src/Board/Parser_test.cc
+    src/Board/Port_test.cc
+    src/Core/Action_test.cc
+    src/Core/Resource_test.cc
+    src/Game/Game_test.cc
+    src/Scenario/Scenario_test.cc
+    src/Server/Registrar_test.cc
+    src/Server/Request_test.cc
+    src/Server/Response_test.cc
+    src/Util/Decoder_test.cc
+    src/Util/DoublyLinkedList_test.cc
+    src/Util/LinkedTrie_test.cc
+    src/Util/LRUCache_test.cc
 )
 target_compile_options(test_ PRIVATE -Werror -g)
