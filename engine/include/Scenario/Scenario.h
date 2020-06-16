@@ -11,7 +11,6 @@
 #include "Core/Resource.h"
 #include "Scenario/IterationType.h"
 #include "Scenario/Parameters.h"
-#include "Util/Serializable.h"
 
 namespace k10engine::Scenario {
 
@@ -41,7 +40,7 @@ struct _PortSpec {
 };
 std::ostream& operator<<(std::ostream&, const _PortSpec&);
 
-class Scenario : public Serializable {
+class Scenario {
 public:
     size_t min_players_count() const { return m_min_players_count; }
     size_t max_players_count() const { return m_max_players_count; }
@@ -104,9 +103,6 @@ public:
     ~Scenario();
 
     bool operator==(const Scenario&) const;
-
-    virtual std::vector<u8> serialize() const override;
-    static Scenario deserialize(const std::vector<u8>&);
 
 protected:
     size_t m_min_players_count;

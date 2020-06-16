@@ -23,9 +23,6 @@ public:
     friend std::ostream& operator<<(std::ostream&, const Hex&);
     virtual bool operator==(const NodeView&) const override;
 
-    virtual std::vector<u8> serialize() const override;
-    static Hex deserialize(const Board::Node&, const std::vector<u8>&);
-
 private:
     const AbstractResource m_resource;
     size_t m_roll_number; // 0 means <none>

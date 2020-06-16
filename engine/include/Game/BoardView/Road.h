@@ -22,9 +22,6 @@ public:
 
     virtual bool operator==(const NodeView&) const override;
 
-    virtual std::vector<u8> serialize() const override;
-    static Road deserialize(const Board::Node&, const std::vector<u8>&);
-
 private:
     Player* m_owner{ nullptr };
 };

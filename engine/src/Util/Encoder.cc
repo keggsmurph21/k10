@@ -1,4 +1,5 @@
 #include <cassert>
+#include <limits>
 
 #include "Util/Encoder.h"
 

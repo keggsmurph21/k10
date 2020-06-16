@@ -6,11 +6,10 @@
 
 #include "Board/Direction.h"
 #include "Board/NodeType.h"
-#include "Util/Serializable.h"
 
 namespace k10engine::Board {
 
-class Node : public Serializable {
+class Node {
 public:
     Node(size_t index, size_t x, size_t y, NodeType type)
         : m_index(index)
@@ -33,9 +32,6 @@ public:
     size_t x() const { return m_x; }
     size_t y() const { return m_y; }
     NodeType type() const { return m_type; }
-
-    virtual std::vector<u8> serialize() const override;
-    static Node deserialize(const std::vector<u8>&);
 
 private:
     const size_t m_index;

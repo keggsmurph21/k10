@@ -9,7 +9,6 @@
 #include "Board/NodeType.h"
 #include "Board/Orientation.h"
 #include "Board/Port.h"
-#include "Util/Serializable.h"
 
 namespace k10engine::Board {
 
@@ -44,7 +43,7 @@ typedef std::vector<Node> Nodes;
 typedef std::map<std::pair<size_t, Direction>, size_t> Edges;
 typedef std::vector<Port> Ports;
 
-class Graph : public Serializable {
+class Graph {
 public:
     Graph(Dimensions, const NodeSpecs&, const EdgeSpecs&, const PortSpecs&);
     ~Graph();
@@ -69,9 +68,6 @@ public:
 
     size_t width() const { return m_dimensions.width; }
     size_t height() const { return m_dimensions.height; }
-
-    virtual std::vector<u8> serialize() const override;
-    static Graph deserialize(const std::vector<u8>&);
 
 private:
     bool nodes_can_make_port(const Node&, const Node&, const Orientation);
