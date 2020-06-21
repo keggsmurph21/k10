@@ -33,6 +33,7 @@ add_library(k10 SHARED
     src/Game/ExecutionOptions.cc
     src/Game/Game.cc
     src/Game/Player.cc
+    src/Game/Store.cc
     src/Game/Trade.cc
     src/Scenario/Parameters.cc
     src/Scenario/Scenario.cc
@@ -64,6 +65,7 @@ add_executable(test_
     src/Core/Action_test.cc
     src/Core/Resource_test.cc
     src/Game/Game_test.cc
+    src/Game/Store_test.cc
     src/Scenario/Scenario_test.cc
     src/Server/Registrar_test.cc
     src/Server/Request_test.cc

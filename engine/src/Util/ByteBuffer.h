@@ -36,14 +36,12 @@ public:
 
     u8* data() { return m_bytes.data(); }
 
-    /*
-    void concat_unread(ByteBuffer& buf)
+    void concat(const char* bytes, size_t size)
     {
-        grow_by(buf.unread_size());
-        while (buf.unread_size() > 0)
-            append(buf.read());
+        grow_by(size);
+        for (size_t i = 0; i < size; ++i)
+            append(*bytes++);
     }
-    */
 
     friend std::ostream& operator<<(std::ostream& os, const ByteBuffer& buf)
     {

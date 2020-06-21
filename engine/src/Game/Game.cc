@@ -1138,4 +1138,46 @@ const BoardView::Road* Game::road(size_t index) const
     return static_cast<const BoardView::Road*>(node);
 }
 
+Game* Game::decode(const Board::Graph* graph, ByteBuffer& buf)
+{
+    (void)graph;
+    (void)buf;
+    assert(false);
+}
+
+void Game::encode(ByteBuffer& buf) const
+{
+    Encoder encoder(buf);
+    // std::vector<BoardView::NodeView*> m_nodes;
+    encoder << m_nodes;
+    // std::vector<DevelopmentCard> m_deck;
+    encoder << m_deck;
+    // const Scenario::Scenario& m_scenario;
+    encoder << m_scenario;
+    // Dice m_dice;
+    encoder << m_dice;
+    // Robber m_robber;
+    encoder << m_robber;
+    encoder << m_victory_points_goal;
+    encoder << m_players;
+    encoder << m_deck_index;
+    encoder << m_current_player_index;
+    encoder << m_can_steal;
+    encoder << m_has_rolled;
+    encoder << m_is_trade_accepted;
+    encoder << m_num_trades_offered_this_turn;
+    encoder << m_current_trade;
+    encoder << m_turn;
+    encoder << (m_has_largest_army == nullptr ? -1 : m_has_largest_army->index());
+    encoder << (m_has_longest_road == nullptr ? -1 : m_has_longest_road->index());
+    // std::map<Building, size_t> m_buildings_built;
+    encoder << m_buildings_built;
+}
+
 } // namespace k10engine::Game
+
+template<>
+void encode(ByteBuffer& buf, k10engine::Game::Game& game)
+{
+    game.encode(buf);
+}

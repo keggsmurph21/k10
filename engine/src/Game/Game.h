@@ -21,6 +21,8 @@
 #include "Game/Trade.h"
 #include "Scenario/Parameters.h"
 #include "Scenario/Scenario.h"
+#include "Util/Decoder.h"
+#include "Util/Encoder.h"
 
 namespace k10engine::Game {
 
@@ -41,6 +43,9 @@ public:
          BoardView::Hex* robber_location);
     Game(const Game&) = delete;
     ~Game();
+
+    static Game* decode(const Board::Graph*, ByteBuffer&);
+    void encode(ByteBuffer&) const;
 
     bool can_steal() const { return m_can_steal; }
     bool has_rolled() const { return m_has_rolled; }
@@ -179,3 +184,6 @@ private:
 };
 
 } // namespace k10engine::Game
+
+template<>
+void encode(ByteBuffer&, k10engine::Game::Game&);
