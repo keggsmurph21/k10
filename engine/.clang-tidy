@@ -17,6 +17,7 @@ Checks: '
         -readability-named-parameter,
         -misc-non-private-member-variables-in-classes,
         -readability-container-size-empty,
-        -google-runtime-references
+        -google-runtime-references,
+        -readability-qualified-auto,
         '
 ...
