@@ -9,6 +9,8 @@
 #include "Board/NodeType.h"
 #include "Board/Orientation.h"
 #include "Board/Port.h"
+#include "Util/Decoder.h"
+#include "Util/Encoder.h"
 
 namespace k10engine::Board {
 
@@ -83,3 +85,9 @@ private:
 };
 
 } // namespace k10engine::Board
+
+template<>
+bool decode(ByteBuffer&, const k10engine::Board::Graph*&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Board::Graph*&);

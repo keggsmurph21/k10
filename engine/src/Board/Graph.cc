@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 #include "Board/Graph.h"
+#include "Board/Store.h"
 
 namespace k10engine::Board {
 
@@ -195,3 +196,28 @@ std::vector<const Node*> Graph::neighbors(const Node& node) const
 }
 
 } // namespace k10engine::Board
+
+using Graph = k10engine::Board::Graph;
+using Name = k10engine::Board::Name;
+using Store = k10engine::Board::Store;
+
+template<>
+bool decode(ByteBuffer& buf, const Graph*& graph)
+{
+    Decoder decoder(buf);
+
+    u8 byte;
+    if (!decoder.decode(byte))
+        return false;
+
+    graph = Store::the().by_name(static_cast<Name>(byte));
+    return true;
+}
+
+template<>
+void encode(ByteBuffer& buf, const Graph*& graph)
+{
+    Encoder encoder(buf);
+    const auto& name = Store::the().name_of(graph);
+    encoder << static_cast<u8>(name);
+}
