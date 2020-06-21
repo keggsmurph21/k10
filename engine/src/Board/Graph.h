@@ -70,7 +70,7 @@ public:
     size_t height() const { return m_dimensions.height; }
 
 private:
-    bool nodes_can_make_port(const Node&, const Node&, const Orientation);
+    bool nodes_can_make_port(const Node&, const Node&, const Orientation) const;
 
     Nodes m_nodes;
     Edges m_edges;

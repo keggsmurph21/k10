@@ -5,7 +5,7 @@
 
 namespace k10engine::Board {
 
-bool Graph::nodes_can_make_port(const Node& n0, const Node& n1, Orientation o)
+bool Graph::nodes_can_make_port(const Node& n0, const Node& n1, Orientation o) const
 {
     if (n1.type() != NodeType::Junction) {
         return false;
