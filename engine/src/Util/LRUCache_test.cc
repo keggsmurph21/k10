@@ -6,9 +6,9 @@
 static int s_counter = 0;
 
 template<typename T>
-int get(const T& /* unused */)
+int* get(const T& /* unused */)
 {
-    return ++s_counter;
+    return new int(++s_counter);
 }
 
 TEST_CASE("LRUCache", "[Util][Util.LRUCache]")
@@ -24,15 +24,15 @@ TEST_CASE("LRUCache", "[Util][Util.LRUCache]")
     {
         LRUCache<int, int> cache(get<int>, 10);
         REQUIRE(cache.size() == 0);
-        REQUIRE(cache.get(10) == 1);
+        REQUIRE(*cache.get(10) == 1);
         REQUIRE(cache.size() == 1);
-        REQUIRE(cache.get(11) == 2);
+        REQUIRE(*cache.get(11) == 2);
         REQUIRE(cache.size() == 2);
-        REQUIRE(cache.get(12) == 3);
+        REQUIRE(*cache.get(12) == 3);
         REQUIRE(cache.size() == 3);
-        REQUIRE(cache.get(10) == 1);
-        REQUIRE(cache.get(11) == 2);
-        REQUIRE(cache.get(12) == 3);
+        REQUIRE(*cache.get(10) == 1);
+        REQUIRE(*cache.get(11) == 2);
+        REQUIRE(*cache.get(12) == 3);
         REQUIRE(cache.size() == 3);
     }
 
@@ -41,23 +41,23 @@ TEST_CASE("LRUCache", "[Util][Util.LRUCache]")
         std::vector<int> evictions;
 
         LRUCache<int, int> cache(
-            get<int>, [&](int&, int& value) { evictions.push_back(value); }, 3);
+            get<int>, [&](const int&, int* value) { evictions.push_back(*value); }, 3);
 
-        REQUIRE(cache.get(10) == 4);
-        REQUIRE(cache.get(11) == 5);
-        REQUIRE(cache.get(12) == 6);
+        REQUIRE(*cache.get(10) == 4);
+        REQUIRE(*cache.get(11) == 5);
+        REQUIRE(*cache.get(12) == 6);
         REQUIRE(cache.size() == 3);
 
         // force a miss & eviction
-        REQUIRE(cache.get(13) == 7);
+        REQUIRE(*cache.get(13) == 7);
         REQUIRE(cache.size() == 3);
 
         // non-evicted keys shouldn't change
-        REQUIRE(cache.get(11) == 5);
-        REQUIRE(cache.get(12) == 6);
+        REQUIRE(*cache.get(11) == 5);
+        REQUIRE(*cache.get(12) == 6);
 
         // evicted key should be refetched (causing another eviction)
-        REQUIRE(cache.get(10) == 8);
+        REQUIRE(*cache.get(10) == 8);
 
         REQUIRE(cache.size() == 3);
         REQUIRE(evictions == std::vector<int>{ 4, 7 });
@@ -67,18 +67,18 @@ TEST_CASE("LRUCache", "[Util][Util.LRUCache]")
     {
         LRUCache<int, int> cache(get<int>, 3);
 
-        REQUIRE(cache.get(10) == 9);
-        REQUIRE(cache.get(11) == 10);
-        REQUIRE(cache.get(12) == 11);
+        REQUIRE(*cache.get(10) == 9);
+        REQUIRE(*cache.get(11) == 10);
+        REQUIRE(*cache.get(12) == 11);
         REQUIRE(cache.size() == 3);
 
-        REQUIRE(cache.get(13) == 12);
+        REQUIRE(*cache.get(13) == 12);
         REQUIRE(cache.size() == 3);
 
-        REQUIRE(cache.get(11) == 10);
-        REQUIRE(cache.get(12) == 11);
+        REQUIRE(*cache.get(11) == 10);
+        REQUIRE(*cache.get(12) == 11);
 
-        REQUIRE(cache.get(10) == 13);
+        REQUIRE(*cache.get(10) == 13);
 
         REQUIRE(cache.size() == 3);
     }

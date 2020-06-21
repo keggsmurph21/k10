@@ -8,21 +8,22 @@ template<typename Key, typename Value>
 class LRUCache {
 private:
     struct Node {
-        Node(const Key& k, const Value& v)
+        Node(const Key& k, Value* v)
             : key(k)
             , value(v)
         {
         }
+        ~Node() { delete value; }
         Key key;
-        Value value;
+        Value* value;
     };
 
-    static void noop(Key&, Value&) {}
+    static void noop(Key&, Value*) {}
 
     using Storage = DoublyLinkedList<Node*>;
 
 public:
-    LRUCache(std::function<Value(const Key&)> on_miss, size_t capacity)
+    LRUCache(std::function<Value*(const Key&)> on_miss, size_t capacity)
         : m_on_miss(on_miss)
         , m_on_eviction(noop)
         , m_capacity(capacity)
@@ -30,7 +31,7 @@ public:
     {
         assert(capacity > 0);
     }
-    LRUCache(std::function<Value(const Key&)> on_miss, std::function<void(Key&, Value&)> on_eviction, size_t capacity)
+    LRUCache(std::function<Value*(const Key&)> on_miss, std::function<void(Key&, Value*)> on_eviction, size_t capacity)
         : m_on_miss(on_miss)
         , m_on_eviction(on_eviction)
         , m_capacity(capacity)
@@ -41,7 +42,7 @@ public:
 
     ~LRUCache() { clear(); }
 
-    Value& get(const Key& key)
+    Value* get(const Key& key)
     {
         for (auto it = m_storage.begin(); !it.is_end(); ++it) {
             auto* node = *it;
@@ -56,7 +57,7 @@ public:
             delete evicted_node;
             --m_size;
         }
-        auto value = m_on_miss(key);
+        auto* value = m_on_miss(key);
         auto* node = new Node(key, value);
         m_storage.prepend(node);
         ++m_size;
@@ -74,11 +75,12 @@ public:
     }
 
 private:
+    std::function<Value*(const Key&)> m_on_miss;
+    std::function<void(Key&, Value*)> m_on_eviction;
+    size_t m_capacity;
+
     Storage m_storage;
     size_t m_size;
-    size_t m_capacity;
-    std::function<Value(const Key&)> m_on_miss;
-    std::function<void(Key&, Value&)> m_on_eviction;
 
     void touch(typename Storage::Iterator it)
     {
