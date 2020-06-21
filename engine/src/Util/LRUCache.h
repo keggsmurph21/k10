@@ -86,6 +86,8 @@ private:
 
     void touch(typename Storage::Iterator it)
     {
+        if (it == m_storage.begin())
+            return;
         auto* node = *it;
         m_storage.remove(it);
         m_storage.prepend(node);
