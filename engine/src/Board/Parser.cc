@@ -72,7 +72,7 @@ static std::unordered_map<char, const std::vector<NeighborSpec>*> neighbor_specs
     { '/', &forwardslash_road_neighbor_specs }, { '\\', &backslash_road_neighbor_specs },
 };
 
-static Graph from_stream(std::istream& char_stream)
+static const Graph* from_stream(std::istream& char_stream)
 {
     NodeSpecs nodes;
     EdgeSpecs edges;
@@ -190,16 +190,16 @@ static Graph from_stream(std::istream& char_stream)
         }
     }
 
-    return Graph({ static_cast<size_t>(max_width), static_cast<size_t>(height) }, nodes, edges, ports);
+    return new Graph({ static_cast<size_t>(max_width), static_cast<size_t>(height) }, nodes, edges, ports);
 }
 
-Graph from_string(const std::string& board_string)
+const Graph* from_string(const std::string& board_string)
 {
     std::stringstream board_sstream(board_string);
     return from_stream(board_sstream);
 }
 
-Graph from_file(const std::string& filename)
+const Graph* from_file(const std::string& filename)
 {
     std::ifstream board_fstream(filename);
     return from_stream(board_fstream);

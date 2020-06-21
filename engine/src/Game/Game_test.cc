@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "Board/Parser.h"
+#include "Board/Store.h"
 #include "Game/Game.h"
 #include "Scenario/Parameters.h"
 #include "Scenario/Scenario.h"
@@ -358,10 +358,10 @@ TEST_CASE("Single board first two rounds", "[Game] [Game.Single]")
 {
     SECTION("One player")
     {
-        auto b = Board::from_file("static/Single.board");
-        auto s = k10engine::Scenario::get_single_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Single);
+        auto s = Scenario::get_single_scenario();
         auto p = get_single_parameters();
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -459,10 +459,10 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
 {
     SECTION("One player")
     {
-        auto b = Board::from_file("static/Triple.board");
-        auto s = k10engine::Scenario::get_triple_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Triple);
+        auto s = Scenario::get_triple_scenario();
         auto p = get_triple_parameters(1);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -559,10 +559,10 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
 
     SECTION("Two players")
     {
-        auto b = Board::from_file("static/Triple.board");
-        auto s = k10engine::Scenario::get_triple_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Triple);
+        auto s = Scenario::get_triple_scenario();
         auto p = get_triple_parameters(2);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -749,10 +749,10 @@ TEST_CASE("Triple board first two rounds", "[Game] [Game.Triple]")
 
     SECTION("Three players")
     {
-        auto b = Board::from_file("static/Triple.board");
-        auto s = k10engine::Scenario::get_triple_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Triple);
+        auto s = Scenario::get_triple_scenario();
         auto p = get_triple_parameters(3);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -1035,10 +1035,10 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
 {
     SECTION("Two players")
     {
-        auto b = Board::from_file("static/Standard.board");
-        auto s = k10engine::Scenario::get_standard_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
         auto p = get_standard_parameters(2);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -1238,10 +1238,10 @@ TEST_CASE("Standard board first two rounds", "[Game] [Game.Standard]")
 
     SECTION("Three players")
     {
-        auto b = Board::from_file("static/Standard.board");
-        auto s = k10engine::Scenario::get_standard_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -1532,10 +1532,10 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 {
     SECTION("Three players immediately ending turns")
     {
-        auto b = Board::from_file("static/Standard.board");
-        auto s = k10engine::Scenario::get_standard_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -1703,10 +1703,10 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players offering trades")
     {
-        auto b = Board::from_file("static/Standard.board");
-        auto s = k10engine::Scenario::get_standard_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -1926,10 +1926,10 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players building roads")
     {
-        auto b = Board::from_file("static/Standard.board");
-        auto s = k10engine::Scenario::get_standard_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -2009,10 +2009,10 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players building settlements")
     {
-        auto b = Board::from_file("static/Standard.board");
-        auto s = k10engine::Scenario::get_standard_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -2076,10 +2076,10 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players buying development cards")
     {
-        auto b = Board::from_file("static/Standard.board");
-        auto s = k10engine::Scenario::get_standard_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -2246,10 +2246,10 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players trading with bank")
     {
-        auto b = Board::from_file("static/Standard.board");
-        auto s = k10engine::Scenario::get_standard_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -2611,10 +2611,10 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players trading with bank")
     {
-        auto b = Board::from_file("static/Standard.board");
-        auto s = k10engine::Scenario::get_standard_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 
@@ -2688,10 +2688,10 @@ TEST_CASE("Standard board scenarios", "[Game] [Game.Standard]")
 
     SECTION("Three players rolling sevens")
     {
-        auto b = Board::from_file("static/Standard.board");
-        auto s = k10engine::Scenario::get_standard_scenario();
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(&b, *s, p);
+        auto g = Game::Game::initialize(b, *s, p);
 
         bootstrap_tests();
 

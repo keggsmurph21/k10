@@ -129,22 +129,22 @@ TEST_CASE("Loading generated boards", "[Board][Board.Graph]")
     SECTION("Standard")
     {
         auto g = from_file("static/Standard.board");
-        REQUIRE(g.size() == 163);
-        // REQUIRE(b->ports().size() == 9);
+        REQUIRE(g->size() == 163);
+        delete g;
     }
 
     SECTION("Portless")
     {
         auto g = from_file("static/Portless.board");
-        REQUIRE(g.size() == 163);
-        // REQUIRE(b->ports().size() == 0);
+        REQUIRE(g->size() == 163);
+        delete g;
     }
 
     SECTION("Tall")
     {
         auto g = from_file("static/Tall.board");
-        REQUIRE(g.size() == 295);
-        // REQUIRE(b->ports().size() == 13);
+        REQUIRE(g->size() == 295);
+        delete g;
     }
 }
 
