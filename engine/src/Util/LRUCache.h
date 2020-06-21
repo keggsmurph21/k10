@@ -58,6 +58,8 @@ public:
             --m_size;
         }
         auto* value = m_on_miss(key);
+        if (value == nullptr)
+            return nullptr;
         auto* node = new Node(key, value);
         m_storage.prepend(node);
         ++m_size;

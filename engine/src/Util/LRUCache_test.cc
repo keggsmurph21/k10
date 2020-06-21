@@ -36,6 +36,14 @@ TEST_CASE("LRUCache", "[Util][Util.LRUCache]")
         REQUIRE(cache.size() == 3);
     }
 
+    SECTION("get() with no supplier")
+    {
+        LRUCache<int, int> cache([](int) { return nullptr; }, 10);
+        REQUIRE(cache.size() == 0);
+        REQUIRE(cache.get(10) == nullptr);
+        REQUIRE(cache.size() == 0);
+    }
+
     SECTION("eviction w/ callback")
     {
         std::vector<int> evictions;
