@@ -1148,6 +1148,7 @@ Game* Game::decode(const Board::Graph* graph, ByteBuffer& buf)
 void Game::encode(ByteBuffer& buf) const
 {
     Encoder encoder(buf);
+    encoder << m_graph;
     // std::vector<BoardView::NodeView*> m_nodes;
     encoder << m_nodes;
     // std::vector<DevelopmentCard> m_deck;

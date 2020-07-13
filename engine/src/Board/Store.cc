@@ -16,12 +16,12 @@ const Store& Store::the()
 
 Store::Store()
 {
-    m_named_boards.reserve(5);
-    m_named_boards[static_cast<size_t>(Name::Portless)] = from_file("static/Portless.board");
-    m_named_boards[static_cast<size_t>(Name::Single)] = from_file("static/Single.board");
-    m_named_boards[static_cast<size_t>(Name::Standard)] = from_file("static/Standard.board");
-    m_named_boards[static_cast<size_t>(Name::Tall)] = from_file("static/Tall.board");
-    m_named_boards[static_cast<size_t>(Name::Triple)] = from_file("static/Triple.board");
+    m_named_boards.resize(5);
+    m_named_boards.at(static_cast<size_t>(Name::Portless)) = from_file("static/Portless.board");
+    m_named_boards.at(static_cast<size_t>(Name::Single)) = from_file("static/Single.board");
+    m_named_boards.at(static_cast<size_t>(Name::Standard)) = from_file("static/Standard.board");
+    m_named_boards.at(static_cast<size_t>(Name::Tall)) = from_file("static/Tall.board");
+    m_named_boards.at(static_cast<size_t>(Name::Triple)) = from_file("static/Triple.board");
 }
 
 Store::~Store()
@@ -40,7 +40,7 @@ const Graph* Store::by_name(const Name& name) const
     case Name::Triple:
         return m_named_boards[static_cast<size_t>(name)];
     default:
-        assert(false);
+        return nullptr;
     }
 }
 

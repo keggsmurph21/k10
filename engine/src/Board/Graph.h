@@ -87,7 +87,7 @@ private:
 } // namespace k10engine::Board
 
 template<>
-bool decode(ByteBuffer&, const k10engine::Board::Graph*&);
+void encode(ByteBuffer&, const k10engine::Board::Graph* const&);
 
 template<>
-void encode(ByteBuffer&, const k10engine::Board::Graph*&);
+bool decode(ByteBuffer&, const k10engine::Board::Graph*&);

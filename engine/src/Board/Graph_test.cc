@@ -2,6 +2,7 @@
 
 #include "Board/Graph.h"
 #include "Board/Parser.h"
+#include "Board/Store.h"
 #include "Test/catch.h"
 
 namespace k10engine::Board {
@@ -145,6 +146,23 @@ TEST_CASE("Loading generated boards", "[Board][Board.Graph]")
         auto g = from_file("static/Tall.board");
         REQUIRE(g->size() == 295);
         delete g;
+    }
+}
+
+TEST_CASE("Serialization", "[Board][Board.Graph]")
+{
+    SECTION("Standard")
+    {
+        const auto* expected = Store::the().by_name(Name::Standard);
+
+        ByteBuffer buf;
+        Encoder encoder(buf);
+        encoder << expected;
+
+        Decoder decoder(buf);
+        const Graph* actual = nullptr;
+        REQUIRE(decoder.decode(actual));
+        REQUIRE(expected == actual);
     }
 }
 

@@ -202,22 +202,20 @@ using Name = k10engine::Board::Name;
 using Store = k10engine::Board::Store;
 
 template<>
-bool decode(ByteBuffer& buf, const Graph*& graph)
+void encode(ByteBuffer& buf, const Graph* const& graph)
 {
-    Decoder decoder(buf);
-
-    u8 byte;
-    if (!decoder.decode(byte))
-        return false;
-
-    graph = Store::the().by_name(static_cast<Name>(byte));
-    return true;
+    Encoder encoder(buf);
+    const auto name = Store::the().name_of(graph);
+    encoder << static_cast<u8>(name);
 }
 
 template<>
-void encode(ByteBuffer& buf, const Graph*& graph)
+bool decode(ByteBuffer& buf, const Graph*& graph)
 {
-    Encoder encoder(buf);
-    const auto& name = Store::the().name_of(graph);
-    encoder << static_cast<u8>(name);
+    Decoder decoder(buf);
+    u8 name;
+    if (!decoder.decode(name))
+        return false;
+    graph = Store::the().by_name(static_cast<Name>(name));
+    return graph != nullptr;
 }
