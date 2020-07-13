@@ -66,6 +66,9 @@ add_executable(test_
     src/Core/Resource_test.cc
     src/Game/Game_test.cc
     src/Game/Store_test.cc
+    src/Game/IntegrationTests/SingleBoard.cc
+    src/Game/IntegrationTests/StandardBoard.cc
+    src/Game/IntegrationTests/TripleBoard.cc
     src/Scenario/Scenario_test.cc
     src/Server/Registrar_test.cc
     src/Server/Request_test.cc
