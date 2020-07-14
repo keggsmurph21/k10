@@ -141,3 +141,105 @@ Resource choose_from(const ResourceCounts& resources)
 }
 
 } // namespace k10engine
+
+using AbstractResource = k10engine::AbstractResource;
+using NonYieldingResource = k10engine::NonYieldingResource;
+using Resource = k10engine::Resource;
+using ResourceCollection = k10engine::ResourceCollection;
+
+template<>
+void encode(ByteBuffer& buf, const AbstractResource& abstract_resource)
+{
+    Encoder encoder(buf);
+    if (std::holds_alternative<Resource>(abstract_resource)) {
+        encoder << true;
+        encoder << std::get<Resource>(abstract_resource);
+    } else {
+        encoder << false;
+        encoder << std::get<NonYieldingResource>(abstract_resource);
+    }
+}
+
+template<>
+bool decode(ByteBuffer& buf, AbstractResource& abstract_resource)
+{
+    Decoder decoder(buf);
+    bool yields;
+    if (!decoder.decode(yields))
+        return false;
+    if (yields) {
+        Resource resource;
+        if (!decoder.decode(resource))
+            return false;
+        abstract_resource = resource;
+    } else {
+        NonYieldingResource resource;
+        if (!decoder.decode(resource))
+            return false;
+        abstract_resource = resource;
+    }
+    return true;
+}
+
+template<>
+void encode(ByteBuffer& buf, const NonYieldingResource& resource)
+{
+    Encoder encoder(buf);
+    encoder << static_cast<u8>(resource);
+}
+
+template<>
+bool decode(ByteBuffer& buf, NonYieldingResource& resource)
+{
+    Decoder decoder(buf);
+    u8 byte;
+    if (!decoder.decode(byte))
+        return false;
+    resource = static_cast<NonYieldingResource>(byte);
+    return true;
+}
+
+template<>
+void encode(ByteBuffer& buf, const Resource& resource)
+{
+    Encoder encoder(buf);
+    encoder << static_cast<u8>(resource);
+}
+
+template<>
+bool decode(ByteBuffer& buf, Resource& resource)
+{
+    Decoder decoder(buf);
+    u8 byte;
+    if (!decoder.decode(byte))
+        return false;
+    resource = static_cast<Resource>(byte);
+    return true;
+}
+
+template<>
+void encode(ByteBuffer& buf, const ResourceCollection& resources)
+{
+    Encoder encoder(buf);
+    encoder << resources.size();
+    for (const auto& resource : resources)
+        encoder << resource;
+}
+
+template<>
+bool decode(ByteBuffer& buf, ResourceCollection& resources)
+{
+    Decoder decoder(buf);
+    size_t len;
+    if (!decoder.decode(len))
+        return false;
+    ResourceCollection parsed_resources;
+    for (size_t i = 0; i < len; ++i) {
+        Resource resource;
+        if (!decoder.decode(resource))
+            return false;
+        parsed_resources.insert(resource);
+    }
+    resources = std::move(parsed_resources);
+    return true;
+}

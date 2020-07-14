@@ -6,6 +6,8 @@
 #include <variant>
 #include <vector>
 
+#include "Util/Decoder.h"
+#include "Util/Encoder.h"
 #include "Util/Types.h"
 
 namespace k10engine {
@@ -38,3 +40,27 @@ bool operator==(const ResourceCounts& l_resources, const ResourceCounts& r_resou
 Resource choose_from(const ResourceCounts&);
 
 } // namespace k10engine
+
+template<>
+void encode(ByteBuffer&, const k10engine::AbstractResource&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::AbstractResource&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::NonYieldingResource&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::NonYieldingResource&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Resource&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Resource&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::ResourceCollection&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::ResourceCollection&);
