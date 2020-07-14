@@ -25,3 +25,23 @@ std::ostream& operator<<(std::ostream& os, DevelopmentCard type)
 }
 
 } // namespace k10engine
+
+using DevelopmentCard = k10engine::DevelopmentCard;
+
+template<>
+void encode(ByteBuffer& buf, const DevelopmentCard& development_card)
+{
+    Encoder encoder(buf);
+    encoder << static_cast<u8>(development_card);
+}
+
+template<>
+bool decode(ByteBuffer& buf, DevelopmentCard& development_card)
+{
+    Decoder decoder(buf);
+    u8 byte;
+    if (!decoder.decode(byte))
+        return false;
+    development_card = static_cast<DevelopmentCard>(byte);
+    return true;
+}
