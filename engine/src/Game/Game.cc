@@ -99,8 +99,9 @@ Game::~Game()
     m_deck.clear();
 }
 
-std::optional<Game>
-Game::initialize(const Board::Graph* graph, const Scenario::Scenario& scenario, const Scenario::Parameters& parameters)
+Game* Game::initialize(const Board::Graph* graph,
+                       const Scenario::Scenario& scenario,
+                       const Scenario::Parameters& parameters)
 {
     if (!scenario.is_valid(parameters)) {
         return {};
@@ -205,7 +206,7 @@ Game::initialize(const Board::Graph* graph, const Scenario::Scenario& scenario, 
 
     // FIXME: Don't just blindly cast this unless we're 100% sure this is a Hex ...
     auto robber_location = static_cast<BoardView::Hex*>(nodes.at(robber_index));
-    return std::make_optional<Game>(graph, nodes, deck, scenario, parameters, robber_location);
+    return new Game(graph, nodes, deck, scenario, parameters, robber_location);
 }
 
 static bool player_can_execute_edge(const Player& player, const State::Edge& requested_edge)

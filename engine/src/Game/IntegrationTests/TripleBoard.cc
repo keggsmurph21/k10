@@ -101,6 +101,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
         check_end_turn(0);
 
         // dump_actions();
+        delete g;
     }
 
     SECTION("Two players")
@@ -291,6 +292,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
         check_end_turn(0);
 
         // dump_actions();
+        delete g;
     }
 
     SECTION("Three players")
@@ -573,5 +575,6 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
         check_end_turn(0);
 
         // dump_actions();
+        delete g;
     }
 }

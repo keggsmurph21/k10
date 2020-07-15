@@ -204,6 +204,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Integration] [Board.Standa
         check_roll_dice(1);
 
         // dump_actions();
+        delete g;
     }
 
     SECTION("Three players")
@@ -494,6 +495,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Integration] [Board.Standa
         check_no_actions(2);
 
         // dump_actions();
+        delete g;
     }
 }
 
@@ -669,6 +671,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
         check_state();
 
         // dump_actions();
+        delete g;
     }
 
     SECTION("Three players offering trades")
@@ -892,6 +895,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
         check_state();
 
         // dump_actions();
+        delete g;
     }
 
     SECTION("Three players building roads")
@@ -975,6 +979,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
         check_state();
 
         // dump_actions();
+        delete g;
     }
 
     SECTION("Three players building settlements")
@@ -1042,6 +1047,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
         check_state();
 
         // dump_actions();
+        delete g;
     }
 
     SECTION("Three players buying development cards")
@@ -1212,6 +1218,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
         check_state();
 
         // dump_actions();
+        delete g;
     }
 
     SECTION("Three players trading with bank")
@@ -1577,6 +1584,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
                 == ResType::Ok);
 
         // dump_actions();
+        delete g;
     }
 
     SECTION("Three players trading with bank")
@@ -1654,6 +1662,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
         check_state();
 
         // dump_actions();
+        delete g;
     }
 
     SECTION("Three players rolling sevens")
@@ -1835,5 +1844,6 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
         REQUIRE(g->execute_move_robber(g->player(1), g->hex(143)).type == ResType::Ok);
 
         // dump_actions();
+        delete g;
     }
 }

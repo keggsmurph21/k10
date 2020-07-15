@@ -98,5 +98,6 @@ TEST_CASE("Single board first two rounds", "[Game] [Integration] [Board.Single]"
         check_end_turn(0);
 
         // dump_actions();
+        delete g;
     }
 }

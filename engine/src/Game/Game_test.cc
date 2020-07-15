@@ -78,8 +78,9 @@ TEST_CASE("Game serialization", "[Game]")
         Game* actual = nullptr;
         REQUIRE(decoder.decode(actual));
 
-        require_equal(actual, &expected.value());
+        require_equal(actual, expected);
 
+        delete expected;
         delete actual;
     }
 
@@ -103,8 +104,9 @@ TEST_CASE("Game serialization", "[Game]")
         Game* actual = nullptr;
         REQUIRE(decoder.decode(actual));
 
-        require_equal(actual, &expected.value());
+        require_equal(actual, expected);
 
+        delete expected;
         delete actual;
     }
 
@@ -128,8 +130,9 @@ TEST_CASE("Game serialization", "[Game]")
         Game* actual = nullptr;
         REQUIRE(decoder.decode(actual));
 
-        require_equal(actual, &expected.value());
+        require_equal(actual, expected);
 
+        delete expected;
         delete actual;
     }
 }
