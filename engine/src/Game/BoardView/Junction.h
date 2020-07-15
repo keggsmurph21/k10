@@ -48,3 +48,6 @@ private:
 };
 
 } // namespace k10engine::Game::BoardView
+
+template<>
+void encode(ByteBuffer&, const k10engine::Game::BoardView::Junction&);

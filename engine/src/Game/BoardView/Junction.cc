@@ -37,3 +37,22 @@ bool Junction::operator==(const NodeView& other) const
 }
 
 } // namespace k10engine::Game::BoardView
+
+using Junction = k10engine::Game::BoardView::Junction;
+
+template<>
+void encode(ByteBuffer& buf, const Junction& junction)
+{
+    Encoder encoder(buf);
+    encoder << junction.has_settlement();
+    encoder << junction.has_city();
+    encoder << junction.is_settleable();
+    encoder << junction.port_exchange_rate();
+    encoder << junction.port_resources();
+    if (junction.owner() == nullptr) {
+        encoder << false;
+    } else {
+        encoder << true;
+        encoder << junction.owner()->index();
+    }
+}

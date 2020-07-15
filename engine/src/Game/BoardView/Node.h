@@ -60,3 +60,6 @@ protected:
 };
 
 } // namespace k10engine::Game::BoardView
+
+template<>
+void encode(ByteBuffer&, k10engine::Game::BoardView::NodeView* const&);

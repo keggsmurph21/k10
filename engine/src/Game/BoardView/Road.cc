@@ -22,3 +22,17 @@ bool Road::operator==(const NodeView& other) const
 }
 
 } // namespace k10engine::Game::BoardView
+
+using Road = k10engine::Game::BoardView::Road;
+
+template<>
+void encode(ByteBuffer& buf, const Road& road)
+{
+    Encoder encoder(buf);
+    if (road.owner() == nullptr) {
+        encoder << false;
+    } else {
+        encoder << true;
+        encoder << road.owner()->index();
+    }
+}

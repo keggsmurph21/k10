@@ -17,3 +17,13 @@ bool Hex::operator==(const NodeView& other) const
 }
 
 } // namespace k10engine::Game::BoardView
+
+using Hex = k10engine::Game::BoardView::Hex;
+
+template<>
+void encode(ByteBuffer& buf, const Hex& hex)
+{
+    Encoder encoder(buf);
+    encoder << hex.resource();
+    encoder << hex.roll_number();
+}

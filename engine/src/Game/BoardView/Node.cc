@@ -98,3 +98,32 @@ void NodeView::for_each_road_neighbor(const Callback<const BoardView::Road>& cal
 }
 
 } // namespace k10engine::Game::BoardView
+
+using Hex = k10engine::Game::BoardView::Hex;
+using Junction = k10engine::Game::BoardView::Junction;
+using NodeView = k10engine::Game::BoardView::NodeView;
+using Road = k10engine::Game::BoardView::Road;
+
+template<>
+void encode(ByteBuffer& buf, NodeView* const& node)
+{
+    Encoder encoder(buf);
+    encoder << (node == nullptr);
+    if (node == nullptr)
+        return;
+    encoder << node->index();
+    encoder << static_cast<u8>(node->type());
+    switch (node->type()) {
+    case NodeView::Type::Hex:
+        encoder << static_cast<const Hex&>(*node);
+        break;
+    case NodeView::Type::Junction:
+        encoder << static_cast<const Junction&>(*node);
+        break;
+    case NodeView::Type::Road:
+        encoder << static_cast<const Road&>(*node);
+        break;
+    default:
+        assert(false);
+    };
+}
