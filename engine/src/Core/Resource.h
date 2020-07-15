@@ -24,8 +24,8 @@ enum class Resource {
     Wood,
 };
 
-typedef std::map<Resource, size_t, std::less<>> ResourceCounts;
-typedef std::set<Resource, std::less<>> ResourceCollection;
+typedef std::map<Resource, size_t> ResourceCounts;
+typedef std::set<Resource> ResourceCollection;
 typedef std::variant<Resource, NonYieldingResource> AbstractResource;
 
 std::ostream& operator<<(std::ostream&, const NonYieldingResource&);
