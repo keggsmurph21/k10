@@ -257,7 +257,7 @@ struct PlayerState {
         std::cout << *g << std::endl;                                                                          \
         for (const auto& player : g->players()) {                                                              \
             std::cout << player << std::endl;                                                                  \
-            for (const auto& action : player.get_available_actions()) {                                        \
+            for (const auto& action : player->get_available_actions()) {                                       \
                 std::cout << " - " << action << std::endl;                                                     \
             }                                                                                                  \
         }                                                                                                      \

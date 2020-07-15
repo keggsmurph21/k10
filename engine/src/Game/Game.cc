@@ -30,7 +30,7 @@ bool Game::is_roll_seven() const
 bool Game::should_wait_for_discard() const
 {
     for (const auto& player : m_players) {
-        if (player.num_to_discard() > 0) {
+        if (player->num_to_discard() > 0) {
             return true;
         }
     }
@@ -40,7 +40,7 @@ bool Game::should_wait_for_discard() const
 bool Game::should_wait_for_trade() const
 {
     for (const auto& player : m_players) {
-        if (player.can_accept_trade() && !player.has_declined_trade()) {
+        if (player->can_accept_trade() && !player->has_declined_trade()) {
             return true;
         }
     }
@@ -60,8 +60,8 @@ void Game::set_current_trade(std::optional<Trade> trade)
         ++m_num_trades_offered_this_turn;
     } else {
         for (auto& player : m_players) {
-            player.set_can_accept_trade(false);
-            player.set_has_declined_trade(false);
+            player->set_can_accept_trade(false);
+            player->set_has_declined_trade(false);
         }
     }
 }
@@ -85,16 +85,17 @@ Game::Game(const Board::Graph* graph,
     , m_victory_points_goal(parameters.victory_points_goal)
 {
     for (size_t i = 0; i < parameters.players_count; ++i) {
-        m_players.push_back(Player(i, this));
+        m_players.push_back(new Player(i, this));
     }
     current_player().set_vertex(State::Vertex::Root);
 }
 
 Game::~Game()
 {
-    for (auto node : m_nodes) {
+    for (auto player : m_players)
+        delete player;
+    for (auto node : m_nodes)
         delete node;
-    }
     m_deck.clear();
 }
 
@@ -549,11 +550,11 @@ Result Game::execute_play_monopoly(Player& player, const Resource& resource)
     }
 
     for (auto& other_player : m_players) {
-        if (other_player == player) {
+        if (*other_player == player) {
             continue;
         }
-        const auto count = other_player.count(resource);
-        other_player.spend_resources({ { resource, count } });
+        const auto count = other_player->count(resource);
+        other_player->spend_resources({ { resource, count } });
         player.accrue_resources({ { resource, count } });
     }
 
@@ -668,9 +669,9 @@ Result Game::_after_roll(Player& player)
 
     if (is_roll_seven()) {
         for (auto& other_player : m_players) {
-            if (other_player.has_heavy_purse()) {
-                size_t num_to_discard = other_player.num_resources() / 2;
-                other_player.set_num_to_discard(num_to_discard);
+            if (other_player->has_heavy_purse()) {
+                size_t num_to_discard = other_player->num_resources() / 2;
+                other_player->set_num_to_discard(num_to_discard);
             }
         }
         player.set_vertex(State::Vertex::AfterRollingSeven);
@@ -689,7 +690,7 @@ Result Game::_after_roll(Player& player)
                     return;
                 }
                 const auto count = junction->has_city() ? 2 : 1;
-                m_players.at(junction->owner()->index()).accrue_resources({ { resource, count } });
+                m_players.at(junction->owner()->index())->accrue_resources({ { resource, count } });
             });
         });
     }
@@ -838,7 +839,7 @@ void Game::build_road(Player& player, BoardView::Road* road, Options options)
 bool Game::is_game_over() const
 {
     for (const auto& player : m_players) {
-        if (player.private_victory_points() == m_victory_points_goal) {
+        if (player->private_victory_points() == m_victory_points_goal) {
             return true;
         }
     }
@@ -865,10 +866,10 @@ void Game::increment_turn()
     m_has_rolled = false;
     m_num_trades_offered_this_turn = 0;
     for (auto& player : m_players) {
-        for (auto& development_card : player.m_unplayable_development_cards) {
-            player.m_playable_development_cards.push_back(development_card);
+        for (auto& development_card : player->m_unplayable_development_cards) {
+            player->m_playable_development_cards.push_back(development_card);
         }
-        player.m_unplayable_development_cards.clear();
+        player->m_unplayable_development_cards.clear();
     }
 }
 

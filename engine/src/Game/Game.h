@@ -78,12 +78,12 @@ public:
     const Board::Graph* graph() const { return m_graph; }
     const Scenario::Scenario& scenario() const { return m_scenario; }
 
-    Player& current_player() { return m_players.at(m_current_player_index); }
-    const Player& current_player() const { return m_players.at(m_current_player_index); }
+    Player& current_player() { return *m_players.at(m_current_player_index); }
+    const Player& current_player() const { return *m_players.at(m_current_player_index); }
 
-    const std::vector<Player>& players() const { return m_players; }
-    Player& player(size_t index) { return m_players.at(index); }
-    const Player& player(size_t index) const { return m_players.at(index); }
+    const std::vector<Player*>& players() const { return m_players; }
+    Player& player(size_t index) { return *m_players.at(index); }
+    const Player& player(size_t index) const { return *m_players.at(index); }
 
     friend std::ostream& operator<<(std::ostream&, const Game&);
 
@@ -140,7 +140,7 @@ private:
 
     size_t m_victory_points_goal;
 
-    std::vector<Player> m_players;
+    std::vector<Player*> m_players;
 
     size_t m_deck_index{ 0 };
     size_t m_current_player_index{ 0 };

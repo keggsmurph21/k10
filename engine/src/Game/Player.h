@@ -153,7 +153,7 @@ private:
 } // namespace k10engine::Game
 
 template<>
-inline void encode(ByteBuffer& buf, const k10engine::Game::Player& player)
+inline void encode(ByteBuffer& buf, k10engine::Game::Player* const& player)
 {
-    player.encode(buf);
+    player->encode(buf);
 }
