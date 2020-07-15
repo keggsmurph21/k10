@@ -36,6 +36,38 @@ bool Junction::operator==(const NodeView& other) const
            && owner() == static_cast<const Junction&>(other).owner();
 }
 
+Junction* Junction::decode(ByteBuffer& buf, const Board::Node& node)
+{
+    Decoder decoder(buf);
+    bool has_settlement;
+    if (!decoder.decode(has_settlement))
+        return nullptr;
+    bool has_city;
+    if (!decoder.decode(has_city))
+        return nullptr;
+    bool is_settleable;
+    if (!decoder.decode(is_settleable))
+        return nullptr;
+    size_t port_exchange_rate;
+    if (!decoder.decode(port_exchange_rate))
+        return nullptr;
+    ResourceCollection port_resources;
+    if (!decoder.decode(port_resources))
+        return nullptr;
+    bool has_owner;
+    if (!decoder.decode(has_owner))
+        return nullptr;
+    assert(!has_owner);
+    auto* junction = new Junction(node, port_resources, port_exchange_rate);
+    if (has_settlement)
+        junction->set_has_settlement();
+    if (has_city)
+        junction->set_has_city();
+    if (!is_settleable)
+        junction->set_is_not_settleable();
+    return junction;
+}
+
 } // namespace k10engine::Game::BoardView
 
 using Junction = k10engine::Game::BoardView::Junction;

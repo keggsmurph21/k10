@@ -21,6 +21,16 @@ bool Road::operator==(const NodeView& other) const
     return node() == other.node() && type() == other.type() && owner() == static_cast<const Road&>(other).owner();
 }
 
+Road* Road::decode(ByteBuffer& buf, const Board::Node& node)
+{
+    Decoder decoder(buf);
+    bool has_owner;
+    if (!decoder.decode(has_owner))
+        return nullptr;
+    assert(!has_owner);
+    return new Road(node);
+}
+
 } // namespace k10engine::Game::BoardView
 
 using Road = k10engine::Game::BoardView::Road;

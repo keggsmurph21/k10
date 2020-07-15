@@ -50,6 +50,8 @@ public:
     void for_each_junction_neighbor(const Callback<const BoardView::Junction>&) const;
     void for_each_road_neighbor(const Callback<const BoardView::Road>&) const;
 
+    static NodeView* decode(ByteBuffer&, const Board::Graph&);
+
 private:
     const Board::Node& m_node;
     const Type m_type;
@@ -60,6 +62,12 @@ protected:
 };
 
 } // namespace k10engine::Game::BoardView
+
+template<>
+void encode(ByteBuffer&, const k10engine::Game::BoardView::NodeView::Type&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Game::BoardView::NodeView::Type&);
 
 template<>
 void encode(ByteBuffer&, k10engine::Game::BoardView::NodeView* const&);

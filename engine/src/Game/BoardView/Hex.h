@@ -19,6 +19,7 @@ public:
         , m_roll_number(roll_number)
     {
     }
+    static Hex* decode(ByteBuffer&, const Board::Node&);
 
     friend std::ostream& operator<<(std::ostream&, const Hex&);
     virtual bool operator==(const NodeView&) const override;

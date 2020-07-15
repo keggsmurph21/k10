@@ -34,6 +34,7 @@ public:
         , m_port_exchange_rate(port_exchange_rate)
     {
     }
+    static Junction* decode(ByteBuffer&, const Board::Node&);
 
     friend std::ostream& operator<<(std::ostream&, const Junction&);
     virtual bool operator==(const NodeView&) const override;

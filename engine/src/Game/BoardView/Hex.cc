@@ -16,6 +16,18 @@ bool Hex::operator==(const NodeView& other) const
            && roll_number() == static_cast<const Hex&>(other).roll_number();
 }
 
+Hex* Hex::decode(ByteBuffer& buf, const Board::Node& node)
+{
+    Decoder decoder(buf);
+    AbstractResource resource;
+    if (!decoder.decode(resource))
+        return nullptr;
+    size_t roll_number;
+    if (!decoder.decode(roll_number))
+        return nullptr;
+    return new Hex(node, resource, roll_number);
+}
+
 } // namespace k10engine::Game::BoardView
 
 using Hex = k10engine::Game::BoardView::Hex;

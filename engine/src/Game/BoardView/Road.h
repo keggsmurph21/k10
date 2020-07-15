@@ -17,6 +17,7 @@ public:
         : NodeView(node, NodeView::Type::Road)
     {
     }
+    static Road* decode(ByteBuffer&, const Board::Node&);
 
     friend std::ostream& operator<<(std::ostream&, const Road&);
 

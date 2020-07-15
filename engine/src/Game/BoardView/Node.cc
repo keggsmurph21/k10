@@ -97,12 +97,58 @@ void NodeView::for_each_road_neighbor(const Callback<const BoardView::Road>& cal
     }
 }
 
+NodeView* NodeView::decode(ByteBuffer& buf, const Board::Graph& graph)
+{
+    Decoder decoder(buf);
+    bool is_null;
+    if (!decoder.decode(is_null) || is_null)
+        return nullptr;
+    size_t index;
+    if (!decoder.decode(index))
+        return nullptr;
+    const auto* node = graph.node(index);
+    if (node == nullptr)
+        return nullptr;
+    NodeView::Type type;
+    if (!decoder.decode(type))
+        return nullptr;
+    switch (type) {
+    case NodeView::Type::Hex:
+        return Hex::decode(buf, *node);
+    case NodeView::Type::Junction:
+        return Junction::decode(buf, *node);
+    case NodeView::Type::Road:
+        return Road::decode(buf, *node);
+    default:
+        return nullptr;
+    };
+}
+
 } // namespace k10engine::Game::BoardView
 
+using Type = k10engine::Game::BoardView::NodeView::Type;
 using Hex = k10engine::Game::BoardView::Hex;
 using Junction = k10engine::Game::BoardView::Junction;
 using NodeView = k10engine::Game::BoardView::NodeView;
 using Road = k10engine::Game::BoardView::Road;
+
+template<>
+void encode(ByteBuffer& buf, const Type& type)
+{
+    Encoder encoder(buf);
+    encoder << static_cast<u8>(type);
+}
+
+template<>
+bool decode(ByteBuffer& buf, Type& type)
+{
+    Decoder decoder(buf);
+    u8 byte;
+    if (!decoder.decode(byte))
+        return false;
+    type = static_cast<Type>(byte);
+    return true;
+}
 
 template<>
 void encode(ByteBuffer& buf, NodeView* const& node)
