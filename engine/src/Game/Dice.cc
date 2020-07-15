@@ -34,3 +34,28 @@ void Dice::set_total(u8 total)
 #endif
 
 } // namespace k10engine::Game
+
+using Dice = k10engine::Game::Dice;
+
+template<>
+void encode(ByteBuffer& buf, const Dice& dice)
+{
+    Encoder encoder(buf);
+    encoder << dice.die_0();
+    encoder << dice.die_1();
+}
+
+template<>
+bool decode(ByteBuffer& buf, k10engine::Game::Dice& dice)
+{
+    Decoder decoder(buf);
+    u8 die_0;
+    if (!decoder.decode(die_0))
+        return false;
+    u8 die_1;
+    if (!decoder.decode(die_1))
+        return false;
+    dice.set_die_0(die_0);
+    dice.set_die_1(die_1);
+    return true;
+}
