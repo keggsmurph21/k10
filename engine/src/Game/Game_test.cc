@@ -4,27 +4,8 @@
 
 namespace k10engine::Game {
 
-TEST_CASE("Game serialization", "[Game]")
+void require_equal(Game* actual, Game* expected)
 {
-    auto b = Board::Store::the().by_name(Board::Name::Single);
-    auto s = Scenario::get_single_scenario();
-    auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
-                                   Scenario::IterationType::Fixed,
-                                   Scenario::IterationType::Fixed,
-                                   Scenario::IterationType::Fixed,
-                                   1,
-                                   3 };
-    auto expected = Game::Game::initialize(b, *s, p);
-
-    ByteBuffer buf;
-    Encoder encoder(buf);
-    encoder << *expected;
-
-    std::cout << "ByteBuffer(" << buf.unread_size() << ") " << buf << std::endl;
-
-    Decoder decoder(buf);
-    Game* actual = nullptr;
-    REQUIRE(decoder.decode(actual));
     REQUIRE(actual != nullptr);
 
     REQUIRE(actual->can_steal() == expected->can_steal());
@@ -73,8 +54,83 @@ TEST_CASE("Game serialization", "[Game]")
     REQUIRE(actual->players().size() == expected->players().size());
     for (auto i = 0; i < actual->players().size(); ++i)
         REQUIRE(actual->players().at(i)->index() == expected->players().at(i)->index());
-
-    delete actual;
 }
 
+TEST_CASE("Game serialization", "[Game]")
+{
+    SECTION("Single")
+    {
+        auto b = Board::Store::the().by_name(Board::Name::Single);
+        auto s = Scenario::get_single_scenario();
+        auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
+                                       Scenario::IterationType::Fixed,
+                                       Scenario::IterationType::Fixed,
+                                       Scenario::IterationType::Fixed,
+                                       1,
+                                       3 };
+        auto expected = Game::Game::initialize(b, *s, p);
+
+        ByteBuffer buf;
+        Encoder encoder(buf);
+        encoder << *expected;
+
+        Decoder decoder(buf);
+        Game* actual = nullptr;
+        REQUIRE(decoder.decode(actual));
+
+        require_equal(actual, &expected.value());
+
+        delete actual;
+    }
+
+    SECTION("Triple")
+    {
+        auto b = Board::Store::the().by_name(Board::Name::Triple);
+        auto s = Scenario::get_triple_scenario();
+        auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
+                                       Scenario::IterationType::Fixed,
+                                       Scenario::IterationType::Fixed,
+                                       Scenario::IterationType::Fixed,
+                                       2,
+                                       3 };
+        auto expected = Game::Game::initialize(b, *s, p);
+
+        ByteBuffer buf;
+        Encoder encoder(buf);
+        encoder << *expected;
+
+        Decoder decoder(buf);
+        Game* actual = nullptr;
+        REQUIRE(decoder.decode(actual));
+
+        require_equal(actual, &expected.value());
+
+        delete actual;
+    }
+
+    SECTION("Standard")
+    {
+        auto b = Board::Store::the().by_name(Board::Name::Standard);
+        auto s = Scenario::get_standard_scenario();
+        auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
+                                       Scenario::IterationType::Fixed,
+                                       Scenario::IterationType::Fixed,
+                                       Scenario::IterationType::Fixed,
+                                       4,
+                                       10 };
+        auto expected = Game::Game::initialize(b, *s, p);
+
+        ByteBuffer buf;
+        Encoder encoder(buf);
+        encoder << *expected;
+
+        Decoder decoder(buf);
+        Game* actual = nullptr;
+        REQUIRE(decoder.decode(actual));
+
+        require_equal(actual, &expected.value());
+
+        delete actual;
+    }
+}
 } // namespace k10engine::Game
