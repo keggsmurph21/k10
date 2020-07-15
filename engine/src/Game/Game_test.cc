@@ -69,7 +69,7 @@ TEST_CASE("Game serialization", "[Game]")
                                        Scenario::IterationType::Fixed,
                                        1,
                                        3 };
-        auto expected = Game::Game::initialize(b, *s, p);
+        auto expected = Game::Game::initialize(b, s, p);
 
         ByteBuffer buf;
         Encoder encoder(buf);
@@ -95,7 +95,7 @@ TEST_CASE("Game serialization", "[Game]")
                                        Scenario::IterationType::Fixed,
                                        2,
                                        3 };
-        auto expected = Game::Game::initialize(b, *s, p);
+        auto expected = Game::Game::initialize(b, s, p);
 
         ByteBuffer buf;
         Encoder encoder(buf);
@@ -121,7 +121,7 @@ TEST_CASE("Game serialization", "[Game]")
                                        Scenario::IterationType::Fixed,
                                        4,
                                        10 };
-        auto expected = Game::Game::initialize(b, *s, p);
+        auto expected = Game::Game::initialize(b, s, p);
 
         ByteBuffer buf;
         Encoder encoder(buf);

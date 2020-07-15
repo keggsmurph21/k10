@@ -3,6 +3,7 @@
 
 #include "Core/Random.h"
 #include "Scenario/Scenario.h"
+#include "Scenario/Store.h"
 
 namespace k10engine::Scenario {
 
@@ -295,55 +296,6 @@ bool Scenario::operator==(const Scenario& other) const
     return true;
 }
 
-std::optional<Scenario> Scenario::decode(ByteBuffer& buf)
-{
-    Decoder decoder(buf);
-    size_t min_players_count;
-    if (!decoder.decode(min_players_count))
-        return {};
-    size_t max_players_count;
-    if (!decoder.decode(max_players_count))
-        return {};
-    size_t min_victory_points_goal;
-    if (!decoder.decode(min_victory_points_goal))
-        return {};
-    size_t max_victory_points_goal;
-    if (!decoder.decode(max_victory_points_goal))
-        return {};
-    Costs<Building> building_costs;
-    if (!decoder.decode(building_costs))
-        return {};
-    Counts<Building> building_counts;
-    if (!decoder.decode(building_counts))
-        return {};
-    Counts<Building> building_counts_per_player;
-    if (!decoder.decode(building_counts_per_player))
-        return {};
-    Counts<DevelopmentCard> development_card_counts;
-    if (!decoder.decode(development_card_counts))
-        return {};
-    Counts<AbstractResource> resource_counts;
-    if (!decoder.decode(resource_counts))
-        return {};
-    std::vector<u8> rolls;
-    if (!decoder.decode(rolls))
-        return {};
-    std::vector<_PortSpec> ports;
-    if (!decoder.decode(ports))
-        return {};
-    return Scenario(min_players_count,
-                    max_players_count,
-                    min_victory_points_goal,
-                    max_victory_points_goal,
-                    building_costs,
-                    building_counts,
-                    building_counts_per_player,
-                    development_card_counts,
-                    resource_counts,
-                    rolls,
-                    ports);
-}
-
 } // namespace k10engine::Scenario
 
 template<typename T>
@@ -352,14 +304,13 @@ using Costs = k10engine::Scenario::Costs<T>;
 template<typename T>
 using Counts = k10engine::Scenario::Counts<T>;
 
-using Building = k10engine::Building;
-using DevelopmentCard = k10engine::DevelopmentCard;
-using AbstractResource = k10engine::AbstractResource;
-using PortSpec = k10engine::Scenario::_PortSpec;
+using _PortSpec = k10engine::Scenario::_PortSpec;
 using Scenario = k10engine::Scenario::Scenario;
+using Store = k10engine::Scenario::Store;
+using Name = k10engine::Scenario::Name;
 
 template<>
-void encode(ByteBuffer& buf, const PortSpec& port_spec)
+void encode(ByteBuffer& buf, const _PortSpec& port_spec)
 {
     Encoder encoder(buf);
     encoder << port_spec.resources;
@@ -367,7 +318,7 @@ void encode(ByteBuffer& buf, const PortSpec& port_spec)
 }
 
 template<>
-bool decode(ByteBuffer& buf, PortSpec& port_spec)
+bool decode(ByteBuffer& buf, _PortSpec& port_spec)
 {
     Decoder decoder(buf);
     k10engine::ResourceCollection resources;
@@ -382,18 +333,20 @@ bool decode(ByteBuffer& buf, PortSpec& port_spec)
 }
 
 template<>
-void encode(ByteBuffer& buf, const Scenario& scenario)
+void encode(ByteBuffer& buf, const Scenario* const& scenario)
 {
     Encoder encoder(buf);
-    encoder << scenario.min_players_count();
-    encoder << scenario.max_players_count();
-    encoder << scenario.min_victory_points_goal();
-    encoder << scenario.max_victory_points_goal();
-    encoder << scenario.building_costs();
-    encoder << scenario.building_counts();
-    encoder << scenario.building_counts_per_player();
-    encoder << scenario.development_card_counts();
-    encoder << scenario.resource_counts();
-    encoder << scenario.peek_rolls();
-    encoder << scenario.peek_ports();
+    const auto name = Store::the().name_of(scenario);
+    encoder << static_cast<u8>(name);
+}
+
+template<>
+bool decode(ByteBuffer& buf, const Scenario*& scenario)
+{
+    Decoder decoder(buf);
+    u8 name;
+    if (!decoder.decode(name))
+        return false;
+    scenario = Store::the().by_name(static_cast<Name>(name));
+    return scenario != nullptr;
 }

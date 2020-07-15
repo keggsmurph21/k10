@@ -74,7 +74,7 @@ size_t Game::get_round() const
 Game::Game(const Board::Graph* graph,
            std::vector<BoardView::NodeView*>& nodes,
            std::vector<DevelopmentCard> deck,
-           const Scenario::Scenario& scenario,
+           const Scenario::Scenario* scenario,
            const Scenario::Parameters& parameters,
            BoardView::Hex* robber_location)
     : m_graph(graph)
@@ -100,17 +100,17 @@ Game::~Game()
 }
 
 Game* Game::initialize(const Board::Graph* graph,
-                       const Scenario::Scenario& scenario,
+                       const Scenario::Scenario* scenario,
                        const Scenario::Parameters& parameters)
 {
-    if (!scenario.is_valid(parameters)) {
+    if (!scenario->is_valid(parameters)) {
         return {};
     }
 
-    const auto& deck = scenario.get_development_card_deck(parameters.development_card_iteration_type);
-    const auto& ports = scenario.get_ports(parameters.port_iteration_type);
-    const auto& resources = scenario.get_resources(parameters.resource_iteration_type);
-    const auto& rolls = scenario.get_rolls(parameters.roll_iteration_type);
+    const auto& deck = scenario->get_development_card_deck(parameters.development_card_iteration_type);
+    const auto& ports = scenario->get_ports(parameters.port_iteration_type);
+    const auto& resources = scenario->get_resources(parameters.resource_iteration_type);
+    const auto& rolls = scenario->get_rolls(parameters.roll_iteration_type);
 
     std::vector<BoardView::NodeView*> nodes;
     std::map<size_t, BoardView::Junction*> junctions;
@@ -1207,8 +1207,8 @@ Game* Game::decode(ByteBuffer& buf)
     if (!decoder.decode(deck))
         return nullptr;
 
-    auto scenario = Scenario::Scenario::decode(buf);
-    if (!scenario.has_value())
+    const Scenario::Scenario* scenario;
+    if (!decoder.decode(scenario))
         return nullptr;
 
     Dice dice;
@@ -1275,7 +1275,7 @@ Game* Game::decode(ByteBuffer& buf)
     if (!decoder.decode(turn))
         return nullptr;
 
-    auto* game = new Game(graph, nodes, deck, *scenario, victory_points_goal, robber_hex);
+    auto* game = new Game(graph, nodes, deck, scenario, victory_points_goal, robber_hex);
     game->m_dice = dice;
     game->m_players = std::move(players);
     game->m_deck_index = deck_index;
@@ -1292,7 +1292,7 @@ Game* Game::decode(ByteBuffer& buf)
 Game::Game(const Board::Graph* graph,
            std::vector<BoardView::NodeView*>& nodes,
            std::vector<DevelopmentCard> deck,
-           const Scenario::Scenario& scenario,
+           const Scenario::Scenario* scenario,
            size_t victory_points_goal,
            BoardView::Hex* robber_location)
     : m_graph(graph)

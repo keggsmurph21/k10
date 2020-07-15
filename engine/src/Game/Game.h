@@ -38,7 +38,7 @@ public:
     Game(const Board::Graph*,
          std::vector<BoardView::NodeView*>&,
          std::vector<DevelopmentCard>,
-         const Scenario::Scenario&,
+         const Scenario::Scenario*,
          const Scenario::Parameters&,
          BoardView::Hex* robber_location);
     Game(const Game&) = delete;
@@ -76,7 +76,7 @@ public:
     size_t num_built(Building) const;
 
     const Board::Graph* graph() const { return m_graph; }
-    const Scenario::Scenario& scenario() const { return m_scenario; }
+    const Scenario::Scenario& scenario() const { return *m_scenario; }
 
     Player& current_player() { return *m_players.at(m_current_player_index); }
     const Player& current_player() const { return *m_players.at(m_current_player_index); }
@@ -125,14 +125,14 @@ public:
     const BoardView::Junction* junction(size_t index) const;
     const BoardView::Road* road(size_t index) const;
 
-    static Game* initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);
+    static Game* initialize(const Board::Graph*, const Scenario::Scenario*, const Scenario::Parameters&);
 
 private:
     // for deserialization
     Game(const Board::Graph*,
          std::vector<BoardView::NodeView*>&,
          std::vector<DevelopmentCard>,
-         const Scenario::Scenario&,
+         const Scenario::Scenario*,
          size_t victory_points_goal,
          BoardView::Hex* robber_location);
 
@@ -141,8 +141,7 @@ private:
     std::vector<BoardView::NodeView*> m_nodes;
     std::vector<DevelopmentCard> m_deck;
 
-    // This could probably be a reference to a resource-loader-managed object at some point ...
-    const Scenario::Scenario m_scenario;
+    const Scenario::Scenario* m_scenario;
 
     Dice m_dice;
     Robber m_robber;

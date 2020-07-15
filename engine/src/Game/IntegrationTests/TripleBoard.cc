@@ -8,7 +8,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
         auto b = Board::Store::the().by_name(Board::Name::Triple);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
         auto p = get_triple_parameters(1);
-        auto g = Game::Game::initialize(b, *s, p);
+        auto g = Game::Game::initialize(b, s, p);
 
         bootstrap_tests();
 
@@ -109,7 +109,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
         auto b = Board::Store::the().by_name(Board::Name::Triple);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
         auto p = get_triple_parameters(2);
-        auto g = Game::Game::initialize(b, *s, p);
+        auto g = Game::Game::initialize(b, s, p);
 
         bootstrap_tests();
 
@@ -300,7 +300,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
         auto b = Board::Store::the().by_name(Board::Name::Triple);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
         auto p = get_triple_parameters(3);
-        auto g = Game::Game::initialize(b, *s, p);
+        auto g = Game::Game::initialize(b, s, p);
 
         bootstrap_tests();
 

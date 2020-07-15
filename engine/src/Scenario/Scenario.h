@@ -102,7 +102,6 @@ public:
         m_min_victory_points_goal = std::max<size_t>(min_victory_points_goal, k10_SCENARIO_MIN_VICTORY_POINTS_GOAL);
         m_max_victory_points_goal = std::min<size_t>(max_victory_points_goal, k10_SCENARIO_MAX_VICTORY_POINTS_GOAL);
     }
-    static std::optional<Scenario> decode(ByteBuffer&);
     ~Scenario();
 
     bool operator==(const Scenario&) const;
@@ -132,4 +131,7 @@ template<>
 bool decode(ByteBuffer&, k10engine::Scenario::_PortSpec&);
 
 template<>
-void encode(ByteBuffer&, const k10engine::Scenario::Scenario&);
+void encode(ByteBuffer&, const k10engine::Scenario::Scenario* const&);
+
+template<>
+bool decode(ByteBuffer&, const k10engine::Scenario::Scenario*&);

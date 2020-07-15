@@ -8,7 +8,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Integration] [Board.Single]"
         auto b = Board::Store::the().by_name(Board::Name::Single);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Single);
         auto p = get_single_parameters();
-        auto g = Game::Game::initialize(b, *s, p);
+        auto g = Game::Game::initialize(b, s, p);
 
         bootstrap_tests();
 
