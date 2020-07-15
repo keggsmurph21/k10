@@ -44,26 +44,29 @@ public:
 
     Value* get(const Key& key)
     {
-        for (auto it = m_storage.begin(); !it.is_end(); ++it) {
-            auto* node = *it;
-            if (node->key == key) {
-                touch(it);
-                return node->value;
-            }
-        }
-        if (m_size == m_capacity) {
-            auto* evicted_node = m_storage.pop();
-            m_on_eviction(evicted_node->key, evicted_node->value);
-            delete evicted_node;
-            --m_size;
+        auto it = find(key);
+        if (!it.is_end()) {
+            auto* value = (*it)->value;
+            touch(it);
+            return value;
         }
         auto* value = m_on_miss(key);
         if (value == nullptr)
             return nullptr;
-        auto* node = new Node(key, value);
-        m_storage.prepend(node);
-        ++m_size;
-        return node->value;
+        prepend(key, value);
+        return value;
+    }
+
+    void set(const Key& key, Value* value)
+    {
+        assert(value != nullptr);
+        auto it = find(key);
+        if (!it.is_end()) {
+            touch(it);
+            (*it)->value = value;
+            return;
+        }
+        prepend(key, value);
     }
 
     size_t size() const { return m_size; }
@@ -91,5 +94,27 @@ private:
         auto* node = *it;
         m_storage.remove(it);
         m_storage.prepend(node);
+    }
+
+    void prepend(const Key& key, Value* value)
+    {
+        if (m_size == m_capacity) {
+            auto* evicted_node = m_storage.pop();
+            m_on_eviction(evicted_node->key, evicted_node->value);
+            delete evicted_node;
+            --m_size;
+        }
+        auto* node = new Node(key, value);
+        m_storage.prepend(node);
+        ++m_size;
+    }
+
+    typename Storage::Iterator find(const Key& key)
+    {
+        for (auto it = m_storage.begin(); !it.is_end(); ++it) {
+            if ((*it)->key == key)
+                return it;
+        }
+        return m_storage.end();
     }
 };

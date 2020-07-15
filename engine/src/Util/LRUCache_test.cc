@@ -48,8 +48,7 @@ TEST_CASE("LRUCache", "[Util][Util.LRUCache]")
     {
         std::vector<int> evictions;
 
-        LRUCache<int, int> cache(
-            get<int>, [&](const int&, int* value) { evictions.push_back(*value); }, 3);
+        LRUCache<int, int> cache(get<int>, [&](const int&, int* value) { evictions.push_back(*value); }, 3);
 
         REQUIRE(*cache.get(10) == 4);
         REQUIRE(*cache.get(11) == 5);
@@ -101,5 +100,20 @@ TEST_CASE("LRUCache", "[Util][Util.LRUCache]")
         counts.get("what");
         counts.get("is");
         counts.get("beadly");
+    }
+
+    SECTION("set()")
+    {
+        LRUCache<int, int> cache(get<int>, 2);
+        REQUIRE(cache.size() == 0);
+        cache.set(0, new int(100));
+        cache.set(1, new int(101));
+        REQUIRE(cache.size() == 2);
+        REQUIRE(*cache.get(0) == 100);
+        REQUIRE(*cache.get(1) == 101);
+        REQUIRE(*cache.get(2) == 20);
+        REQUIRE(cache.size() == 2);
+        REQUIRE(*cache.get(1) == 101);
+        REQUIRE(*cache.get(0) == 21);
     }
 }
