@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <map>
 #include <string.h>
 #include <vector>
 
@@ -48,6 +49,26 @@ public:
             if (!decode(t))
                 return false;
             ts.push_back(t);
+        }
+        return true;
+    }
+
+    template<typename K, typename V>
+    bool decode(std::map<K, V>& map)
+    {
+        map.clear();
+        u64 size;
+        if (!decode(size))
+            return false;
+
+        for (size_t i = 0; i < size; ++i) {
+            K key;
+            if (!decode(key))
+                return false;
+            V value;
+            if (!decode(value))
+                return false;
+            map.insert({ key, value });
         }
         return true;
     }

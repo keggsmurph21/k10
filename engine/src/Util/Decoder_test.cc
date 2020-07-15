@@ -1,10 +1,19 @@
-#include "Util/Decoder.h"
 #include "Test/catch.h"
+#include "Util/Decoder.h"
+#include "Util/Encoder.h"
 
 struct Point {
     u8 x;
     u8 y;
 };
+
+template<>
+void encode(ByteBuffer& buf, const Point& p)
+{
+    Encoder encoder(buf);
+    encoder << p.x;
+    encoder << p.y;
+}
 
 template<>
 bool decode(ByteBuffer& buf, Point& p)
@@ -61,5 +70,21 @@ TEST_CASE("Decoder", "[Util][Util.Decoder]")
             REQUIRE(points.at(1).x == 0);
             REQUIRE(points.at(1).y == 7);
         }
+    }
+    SECTION("map<std::string, Point>")
+    {
+        ByteBuffer buf;
+        Encoder encoder(buf);
+        std::map<std::string, Point> expected{ { "a", { 1, 2 } }, { "b", { 3, 4 } } };
+        encoder << expected;
+
+        Decoder decoder(buf);
+        std::map<std::string, Point> actual;
+        REQUIRE(decoder.decode(actual));
+        REQUIRE(actual.size() == expected.size());
+        REQUIRE(actual.at("a").x == expected.at("a").x);
+        REQUIRE(actual.at("a").y == expected.at("a").y);
+        REQUIRE(actual.at("b").x == expected.at("b").x);
+        REQUIRE(actual.at("b").y == expected.at("b").y);
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <map>
 #include <optional>
 #include <string.h>
 
@@ -49,6 +50,17 @@ public:
         *this << optional.has_value();
         if (optional.has_value())
             *this << optional.value();
+        return *this;
+    }
+
+    template<typename K, typename V>
+    Encoder& operator<<(const std::map<K, V>& map)
+    {
+        *this << map.size();
+        for (auto& it : map) {
+            *this << it.first;
+            *this << it.second;
+        }
         return *this;
     }
 
