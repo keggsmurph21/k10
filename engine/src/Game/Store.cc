@@ -120,15 +120,21 @@ Game* Store::retrieve_from_disk(const GameId& game_id) const
     ByteBuffer buf;
     {
         std::ifstream fp(path.full_path(), std::ios::binary);
+        if (!fp.is_open()) {
+            perror("read");
+            return nullptr;
+        }
         char tmp_buf[1024]; // read 1kb at a time
         size_t n_read = 0;
         do {
-            fp.read(tmp_buf, sizeof(tmp_buf));
+            if (!fp.read(tmp_buf, sizeof(tmp_buf)) && !fp.eof()) {
+                perror("read");
+                return nullptr;
+            }
             n_read = fp.gcount();
             buf.concat(tmp_buf, n_read);
         } while (n_read > 0);
     }
-
     return Game::decode(buf);
 }
 
@@ -140,10 +146,14 @@ void Store::write_to_disk(const GameId& game_id, const Game& game) const
 
     ByteBuffer buf;
     Encoder encoder(buf);
-    encoder << game.graph();
     encoder << game;
+
     {
-        std::ofstream fp(path.full_path(), std::ios::binary);
+        std::ofstream fp{ path.full_path(), std::ios::binary | std::ios::out };
+        if (!fp.is_open()) {
+            perror("write");
+            assert(false);
+        }
         fp.write(reinterpret_cast<char*>(buf.data()), buf.unread_size());
     }
 }
