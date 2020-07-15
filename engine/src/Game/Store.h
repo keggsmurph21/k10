@@ -28,6 +28,7 @@ public:
         [[nodiscard]] std::string next_dir() const;
         [[nodiscard]] std::string full_path() const;
         bool exists_on_disk() const;
+        void ensure_directories() const;
     };
     Path path_for(const GameId&) const;
 

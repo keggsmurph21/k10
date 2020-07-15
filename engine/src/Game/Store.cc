@@ -1,5 +1,5 @@
 #include <fstream>
-#include <iomanip>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "Board/Store.h"
@@ -87,6 +87,27 @@ bool Store::Path::exists_on_disk() const
     return access(full_path().c_str(), R_OK | W_OK) == 0;
 }
 
+void Store::Path::ensure_directories() const
+{
+    // If the base dir doesn't exist, we should panic
+    if (access(base_dir->c_str(), R_OK | W_OK) != 0) {
+        std::cerr << "Path::ensure_directories(): access(" << base_dir << ") failed" << std::endl;
+        assert(false);
+    }
+    if (access(high_dir().c_str(), R_OK | W_OK) != 0) {
+        if (mkdir(high_dir().c_str(), 0700) < 0) {
+            perror("mkdir");
+            assert(false);
+        }
+    }
+    if (access(next_dir().c_str(), R_OK | W_OK) != 0) {
+        if (mkdir(next_dir().c_str(), 0700) < 0) {
+            perror("mkdir");
+            assert(false);
+        }
+    }
+}
+
 Game* Store::retrieve_from_disk(const GameId& game_id) const
 {
     const auto path = path_for(game_id);
@@ -115,6 +136,8 @@ void Store::write_to_disk(const GameId& game_id, const Game& game) const
 {
     const auto path = path_for(game_id);
     std::cout << "Game::Store: writing game " << game_id << " to file://" << path.full_path() << std::endl;
+    path.ensure_directories();
+
     ByteBuffer buf;
     Encoder encoder(buf);
     encoder << game.graph();
