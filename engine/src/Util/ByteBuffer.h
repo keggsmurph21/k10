@@ -49,9 +49,13 @@ public:
             os << "{}";
             return os;
         }
-        os << "{ ";
-        for (const auto& byte : buf.m_bytes)
-            os << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(byte) << " ";
+        os << "{";
+        size_t os_cursor = 0;
+        for (const auto& byte : buf.m_bytes) {
+            os << (os_cursor == buf.m_cursor ? '_' : ' ');
+            os << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(byte);
+            ++os_cursor;
+        }
         os << "}";
         return os;
     }
