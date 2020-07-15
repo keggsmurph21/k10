@@ -37,3 +37,23 @@ std::ostream& operator<<(std::ostream& os, Vertex vertex)
 }
 
 } // namespace k10engine::State
+
+using Vertex = k10engine::State::Vertex;
+
+template<>
+void encode(ByteBuffer& buf, const Vertex& vertex)
+{
+    Encoder encoder(buf);
+    encoder << static_cast<u8>(vertex);
+}
+
+template<>
+bool decode(ByteBuffer& buf, Vertex& vertex)
+{
+    Decoder decoder(buf);
+    u8 byte;
+    if (!decoder.decode(byte))
+        return false;
+    vertex = static_cast<Vertex>(byte);
+    return true;
+}
