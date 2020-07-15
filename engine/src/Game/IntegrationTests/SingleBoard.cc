@@ -6,7 +6,7 @@ TEST_CASE("Single board first two rounds", "[Game] [Integration] [Board.Single]"
     SECTION("One player")
     {
         auto b = Board::Store::the().by_name(Board::Name::Single);
-        auto s = Scenario::get_single_scenario();
+        auto s = Scenario::Store::the().by_name(Scenario::Name::Single);
         auto p = get_single_parameters();
         auto g = Game::Game::initialize(b, *s, p);
 

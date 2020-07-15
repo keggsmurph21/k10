@@ -8,6 +8,7 @@
 #include "Game/Game.h"
 #include "Scenario/Parameters.h"
 #include "Scenario/Scenario.h"
+#include "Scenario/Store.h"
 #include "Test/catch.h"
 
 using namespace k10engine; // NOLINT(google-build-using-namespace)

@@ -5,6 +5,7 @@
 #include "Core/Building.h"
 #include "Core/Random.h"
 #include "Scenario/Scenario.h"
+#include "Scenario/Store.h"
 #include "Test/catch.h"
 
 namespace k10engine::Scenario {
@@ -1016,7 +1017,7 @@ TEST_CASE("Scenario deserialization", "[Scenario]")
     {
         ByteBuffer buf;
         Encoder encoder(buf);
-        const auto* expected = get_single_scenario();
+        const auto* expected = Store::the().by_name(Name::Single);
         encoder << *expected;
 
         auto actual = Scenario::decode(buf);
