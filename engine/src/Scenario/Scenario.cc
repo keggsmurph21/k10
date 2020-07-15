@@ -441,6 +441,55 @@ const Scenario* get_standard_scenario()
     return standard;
 }
 
+std::optional<Scenario> Scenario::decode(ByteBuffer& buf)
+{
+    Decoder decoder(buf);
+    size_t min_players_count;
+    if (!decoder.decode(min_players_count))
+        return {};
+    size_t max_players_count;
+    if (!decoder.decode(max_players_count))
+        return {};
+    size_t min_victory_points_goal;
+    if (!decoder.decode(min_victory_points_goal))
+        return {};
+    size_t max_victory_points_goal;
+    if (!decoder.decode(max_victory_points_goal))
+        return {};
+    Costs<Building> building_costs;
+    if (!decoder.decode(building_costs))
+        return {};
+    Counts<Building> building_counts;
+    if (!decoder.decode(building_counts))
+        return {};
+    Counts<Building> building_counts_per_player;
+    if (!decoder.decode(building_counts_per_player))
+        return {};
+    Counts<DevelopmentCard> development_card_counts;
+    if (!decoder.decode(development_card_counts))
+        return {};
+    Counts<AbstractResource> resource_counts;
+    if (!decoder.decode(resource_counts))
+        return {};
+    std::vector<int> rolls;
+    if (!decoder.decode(rolls))
+        return {};
+    std::vector<_PortSpec> ports;
+    if (!decoder.decode(ports))
+        return {};
+    return Scenario(min_players_count,
+                    max_players_count,
+                    min_victory_points_goal,
+                    max_victory_points_goal,
+                    building_costs,
+                    building_counts,
+                    building_counts_per_player,
+                    development_card_counts,
+                    resource_counts,
+                    rolls,
+                    ports);
+}
+
 } // namespace k10engine::Scenario
 
 template<typename T>
@@ -493,55 +542,4 @@ void encode(ByteBuffer& buf, const Scenario& scenario)
     encoder << scenario.resource_counts();
     encoder << scenario.peek_rolls();
     encoder << scenario.peek_ports();
-}
-
-template<>
-bool decode(ByteBuffer& buf, Scenario& scenario)
-{
-    Decoder decoder(buf);
-    size_t min_players_count;
-    if (!decoder.decode(min_players_count))
-        return false;
-    size_t max_players_count;
-    if (!decoder.decode(max_players_count))
-        return false;
-    size_t min_victory_points_goal;
-    if (!decoder.decode(min_victory_points_goal))
-        return false;
-    size_t max_victory_points_goal;
-    if (!decoder.decode(max_victory_points_goal))
-        return false;
-    Costs<Building> building_costs;
-    if (!decoder.decode(building_costs))
-        return false;
-    Counts<Building> building_counts;
-    if (!decoder.decode(building_counts))
-        return false;
-    Counts<Building> building_counts_per_player;
-    if (!decoder.decode(building_counts_per_player))
-        return false;
-    Counts<DevelopmentCard> development_card_counts;
-    if (!decoder.decode(development_card_counts))
-        return false;
-    Counts<AbstractResource> resource_counts;
-    if (!decoder.decode(resource_counts))
-        return false;
-    std::vector<int> rolls;
-    if (!decoder.decode(rolls))
-        return false;
-    std::vector<PortSpec> ports;
-    if (!decoder.decode(ports))
-        return false;
-    scenario = Scenario{ min_players_count,
-                         max_players_count,
-                         min_victory_points_goal,
-                         max_victory_points_goal,
-                         building_costs,
-                         building_counts,
-                         building_counts_per_player,
-                         development_card_counts,
-                         resource_counts,
-                         rolls,
-                         ports };
-    return true;
 }

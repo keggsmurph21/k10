@@ -1206,8 +1206,8 @@ Game* Game::decode(ByteBuffer& buf)
     if (!decoder.decode(deck))
         return nullptr;
 
-    Scenario::Scenario scenario;
-    if (!decoder.decode(scenario))
+    auto scenario = Scenario::Scenario::decode(buf);
+    if (!scenario.has_value())
         return nullptr;
 
     Dice dice;
@@ -1274,7 +1274,7 @@ Game* Game::decode(ByteBuffer& buf)
     if (!decoder.decode(turn))
         return nullptr;
 
-    auto* game = new Game(graph, nodes, deck, scenario, victory_points_goal, robber_hex);
+    auto* game = new Game(graph, nodes, deck, *scenario, victory_points_goal, robber_hex);
     game->m_dice = dice;
     game->m_players = std::move(players);
     game->m_deck_index = deck_index;

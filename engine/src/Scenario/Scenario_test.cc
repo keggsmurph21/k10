@@ -997,20 +997,19 @@ TEST_CASE("Scenario deserialization", "[Scenario]")
         Scenario expected{ 2, 2, 2, 2, {}, {}, {}, {}, {}, {}, {} };
         encoder << expected;
 
-        Decoder decoder(buf);
-        Scenario actual{ 0, 0, 0, 0, {}, {}, {}, {}, {}, {}, {} }; // no default constructor :/
-        REQUIRE(decoder.decode(actual));
-        REQUIRE(expected.min_players_count() == actual.min_players_count());
-        REQUIRE(expected.max_players_count() == actual.max_players_count());
-        REQUIRE(expected.min_victory_points_goal() == actual.min_victory_points_goal());
-        REQUIRE(expected.max_victory_points_goal() == actual.max_victory_points_goal());
-        REQUIRE(expected.building_costs() == actual.building_costs());
-        REQUIRE(expected.building_counts() == actual.building_counts());
-        REQUIRE(expected.building_counts_per_player() == actual.building_counts_per_player());
-        REQUIRE(expected.development_card_counts() == actual.development_card_counts());
-        REQUIRE(expected.resource_counts() == actual.resource_counts());
-        REQUIRE(expected.peek_rolls() == actual.peek_rolls());
-        REQUIRE(expected.peek_ports() == actual.peek_ports());
+        auto actual = Scenario::decode(buf);
+        REQUIRE(actual.has_value());
+        REQUIRE(expected.min_players_count() == actual->min_players_count());
+        REQUIRE(expected.max_players_count() == actual->max_players_count());
+        REQUIRE(expected.min_victory_points_goal() == actual->min_victory_points_goal());
+        REQUIRE(expected.max_victory_points_goal() == actual->max_victory_points_goal());
+        REQUIRE(expected.building_costs() == actual->building_costs());
+        REQUIRE(expected.building_counts() == actual->building_counts());
+        REQUIRE(expected.building_counts_per_player() == actual->building_counts_per_player());
+        REQUIRE(expected.development_card_counts() == actual->development_card_counts());
+        REQUIRE(expected.resource_counts() == actual->resource_counts());
+        REQUIRE(expected.peek_rolls() == actual->peek_rolls());
+        REQUIRE(expected.peek_ports() == actual->peek_ports());
     }
 
     SECTION("Single")
@@ -1020,20 +1019,19 @@ TEST_CASE("Scenario deserialization", "[Scenario]")
         const auto* expected = get_single_scenario();
         encoder << *expected;
 
-        Decoder decoder(buf);
-        Scenario actual{ 0, 0, 0, 0, {}, {}, {}, {}, {}, {}, {} }; // no default constructor :/
-        REQUIRE(decoder.decode(actual));
-        REQUIRE(expected->min_players_count() == actual.min_players_count());
-        REQUIRE(expected->max_players_count() == actual.max_players_count());
-        REQUIRE(expected->min_victory_points_goal() == actual.min_victory_points_goal());
-        REQUIRE(expected->max_victory_points_goal() == actual.max_victory_points_goal());
-        REQUIRE(expected->building_costs() == actual.building_costs());
-        REQUIRE(expected->building_counts() == actual.building_counts());
-        REQUIRE(expected->building_counts_per_player() == actual.building_counts_per_player());
-        REQUIRE(expected->development_card_counts() == actual.development_card_counts());
-        REQUIRE(expected->resource_counts() == actual.resource_counts());
-        REQUIRE(expected->peek_rolls() == actual.peek_rolls());
-        REQUIRE(expected->peek_ports() == actual.peek_ports());
+        auto actual = Scenario::decode(buf);
+        REQUIRE(actual.has_value());
+        REQUIRE(expected->min_players_count() == actual->min_players_count());
+        REQUIRE(expected->max_players_count() == actual->max_players_count());
+        REQUIRE(expected->min_victory_points_goal() == actual->min_victory_points_goal());
+        REQUIRE(expected->max_victory_points_goal() == actual->max_victory_points_goal());
+        REQUIRE(expected->building_costs() == actual->building_costs());
+        REQUIRE(expected->building_counts() == actual->building_counts());
+        REQUIRE(expected->building_counts_per_player() == actual->building_counts_per_player());
+        REQUIRE(expected->development_card_counts() == actual->development_card_counts());
+        REQUIRE(expected->resource_counts() == actual->resource_counts());
+        REQUIRE(expected->peek_rolls() == actual->peek_rolls());
+        REQUIRE(expected->peek_ports() == actual->peek_ports());
     }
 }
 

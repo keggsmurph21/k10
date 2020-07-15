@@ -15,7 +15,6 @@ TEST_CASE("Game serialization", "[Game]")
                                    1,
                                    3 };
     auto expected = Game::Game::initialize(b, *s, p);
-    (void)expected;
 
     ByteBuffer buf;
     Encoder encoder(buf);
@@ -73,7 +72,9 @@ TEST_CASE("Game serialization", "[Game]")
     REQUIRE(actual->current_player().index() == expected->current_player().index());
     REQUIRE(actual->players().size() == expected->players().size());
     for (auto i = 0; i < actual->players().size(); ++i)
-        REQUIRE(actual->players().at(i) == expected->players().at(i));
+        REQUIRE(actual->players().at(i)->index() == expected->players().at(i)->index());
+
+    delete actual;
 }
 
 } // namespace k10engine::Game

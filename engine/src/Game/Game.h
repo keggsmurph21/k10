@@ -141,7 +141,8 @@ private:
     std::vector<BoardView::NodeView*> m_nodes;
     std::vector<DevelopmentCard> m_deck;
 
-    const Scenario::Scenario& m_scenario;
+    // This could probably be a reference to a resource-loader-managed object at some point ...
+    const Scenario::Scenario m_scenario;
 
     Dice m_dice;
     Robber m_robber;
