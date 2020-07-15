@@ -22,3 +22,23 @@ std::ostream& operator<<(std::ostream& os, Building type)
 }
 
 } // namespace k10engine
+
+using Building = k10engine::Building;
+
+template<>
+void encode(ByteBuffer& buf, const Building& building)
+{
+    Encoder encoder(buf);
+    encoder << static_cast<u8>(building);
+}
+
+template<>
+bool decode(ByteBuffer& buf, Building& building)
+{
+    Decoder decoder(buf);
+    u8 byte;
+    if (!decoder.decode(byte))
+        return false;
+    building = static_cast<Building>(byte);
+    return true;
+}
