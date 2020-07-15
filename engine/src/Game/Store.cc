@@ -15,9 +15,9 @@ Store::Store(std::string path, size_t cache_size)
 {
 }
 
-void Store::create()
+void Store::set(GameId game_id, Game* game)
 {
-    (void)this;
+    m_cache.set(game_id, game);
 }
 
 Game* Store::get(GameId game_id)

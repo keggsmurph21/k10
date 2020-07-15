@@ -15,8 +15,8 @@ class Store {
 public:
     Store(std::string path, size_t cache_size);
 
-    void create();
     Game* get(GameId);
+    void set(GameId, Game*);
 
     struct Path {
         const std::string* base_dir;
