@@ -44,7 +44,7 @@ public:
     Game(const Game&) = delete;
     ~Game();
 
-    static Game* decode(const Board::Graph*, ByteBuffer&);
+    static Game* decode(ByteBuffer&);
     void encode(ByteBuffer&) const;
 
     bool can_steal() const { return m_can_steal; }
@@ -186,4 +186,7 @@ private:
 } // namespace k10engine::Game
 
 template<>
-void encode(ByteBuffer&, k10engine::Game::Game&);
+void encode(ByteBuffer&, const k10engine::Game::Game&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Game::Game*&);

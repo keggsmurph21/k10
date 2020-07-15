@@ -109,13 +109,7 @@ Game* Store::retrieve_from_disk(const GameId& game_id) const
         } while (n_read > 0);
     }
 
-    Decoder decoder(buf);
-
-    Board::Graph* graph;
-    if (!decoder.decode(graph))
-        return nullptr;
-
-    return Game::decode(graph, buf);
+    return Game::decode(buf);
 }
 
 void Store::write_to_disk(const GameId& game_id, const Game& game) const
