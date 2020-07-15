@@ -442,3 +442,106 @@ const Scenario* get_standard_scenario()
 }
 
 } // namespace k10engine::Scenario
+
+template<typename T>
+using Costs = k10engine::Scenario::Costs<T>;
+
+template<typename T>
+using Counts = k10engine::Scenario::Counts<T>;
+
+using Building = k10engine::Building;
+using DevelopmentCard = k10engine::DevelopmentCard;
+using AbstractResource = k10engine::AbstractResource;
+using PortSpec = k10engine::Scenario::_PortSpec;
+using Scenario = k10engine::Scenario::Scenario;
+
+template<>
+void encode(ByteBuffer& buf, const PortSpec& port_spec)
+{
+    Encoder encoder(buf);
+    encoder << port_spec.resources;
+    encoder << port_spec.exchange_rate;
+}
+
+template<>
+bool decode(ByteBuffer& buf, PortSpec& port_spec)
+{
+    Decoder decoder(buf);
+    k10engine::ResourceCollection resources;
+    if (!decoder.decode(resources))
+        return false;
+    port_spec.resources = std::move(resources);
+    u8 exchange_rate;
+    if (!decoder.decode(exchange_rate))
+        return false;
+    port_spec.exchange_rate = exchange_rate;
+    return true;
+}
+
+template<>
+void encode(ByteBuffer& buf, const Scenario& scenario)
+{
+    Encoder encoder(buf);
+    encoder << scenario.min_players_count();
+    encoder << scenario.max_players_count();
+    encoder << scenario.min_victory_points_goal();
+    encoder << scenario.max_victory_points_goal();
+    encoder << scenario.building_costs();
+    encoder << scenario.building_counts();
+    encoder << scenario.building_counts_per_player();
+    encoder << scenario.development_card_counts();
+    encoder << scenario.resource_counts();
+    encoder << scenario.peek_rolls();
+    encoder << scenario.peek_ports();
+}
+
+template<>
+bool decode(ByteBuffer& buf, Scenario& scenario)
+{
+    Decoder decoder(buf);
+    size_t min_players_count;
+    if (!decoder.decode(min_players_count))
+        return false;
+    size_t max_players_count;
+    if (!decoder.decode(max_players_count))
+        return false;
+    size_t min_victory_points_goal;
+    if (!decoder.decode(min_victory_points_goal))
+        return false;
+    size_t max_victory_points_goal;
+    if (!decoder.decode(max_victory_points_goal))
+        return false;
+    Costs<Building> building_costs;
+    if (!decoder.decode(building_costs))
+        return false;
+    Counts<Building> building_counts;
+    if (!decoder.decode(building_counts))
+        return false;
+    Counts<Building> building_counts_per_player;
+    if (!decoder.decode(building_counts_per_player))
+        return false;
+    Counts<DevelopmentCard> development_card_counts;
+    if (!decoder.decode(development_card_counts))
+        return false;
+    Counts<AbstractResource> resource_counts;
+    if (!decoder.decode(resource_counts))
+        return false;
+    std::vector<int> rolls;
+    if (!decoder.decode(rolls))
+        return false;
+    std::vector<PortSpec> ports;
+    if (!decoder.decode(ports))
+        return false;
+    scenario = Scenario{ min_players_count,
+                         max_players_count,
+                         min_victory_points_goal,
+                         max_victory_points_goal,
+                         building_costs,
+                         building_counts,
+                         building_counts_per_player,
+                         development_card_counts,
+                         resource_counts,
+                         rolls,
+                         ports };
+    return true;
+}

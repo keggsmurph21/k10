@@ -11,6 +11,8 @@
 #include "Core/Resource.h"
 #include "Scenario/IterationType.h"
 #include "Scenario/Parameters.h"
+#include "Util/Decoder.h"
+#include "Util/Encoder.h"
 
 namespace k10engine::Scenario {
 
@@ -131,3 +133,15 @@ const Scenario* get_triple_scenario();
 const Scenario* get_standard_scenario();
 
 } // namespace k10engine::Scenario
+
+template<>
+void encode(ByteBuffer&, const k10engine::Scenario::_PortSpec&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Scenario::_PortSpec&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Scenario::Scenario&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Scenario::Scenario&);
