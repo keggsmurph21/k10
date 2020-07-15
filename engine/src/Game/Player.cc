@@ -587,9 +587,22 @@ void Player::encode(ByteBuffer& buf) const
     encoder << m_index;
     encoder << m_resources;
     encoder << m_bank_trade_rates;
-    encoder << m_cities;
-    encoder << m_roads;
-    encoder << m_settlements;
+
+    encoder << m_cities.size();
+    for (auto* city : m_cities) {
+        encoder << city->index();
+    }
+
+    encoder << m_roads.size();
+    for (auto* road : m_roads) {
+        encoder << road->index();
+    }
+
+    encoder << m_settlements.size();
+    for (auto* settlement : m_settlements) {
+        encoder << settlement->index();
+    }
+
     encoder << m_played_development_cards;
     encoder << m_playable_development_cards;
     encoder << m_unplayable_development_cards;
@@ -601,6 +614,136 @@ void Player::encode(ByteBuffer& buf) const
     encoder << m_private_victory_points;
     encoder << m_army_size;
     encoder << m_longest_road;
+}
+
+Player* Player::decode(ByteBuffer& buf, const std::vector<BoardView::NodeView*>& nodes)
+{
+    Decoder decoder(buf);
+    size_t index;
+    if (!decoder.decode(index))
+        return nullptr;
+
+    ResourceCounts resources;
+    if (!decoder.decode(resources))
+        return nullptr;
+
+    ResourceCounts bank_trade_rates;
+    if (!decoder.decode(bank_trade_rates))
+        return nullptr;
+
+    std::vector<BoardView::Junction*> cities;
+    size_t n_cities;
+    if (!decoder.decode(n_cities))
+        return nullptr;
+    cities.reserve(n_cities);
+    for (size_t i = 0; i < n_cities; ++i) {
+        size_t index;
+        if (!decoder.decode(index))
+            return nullptr;
+        auto* node = nodes.at(index);
+        if (node == nullptr)
+            return nullptr;
+        if (!node->is_junction())
+            return nullptr;
+        cities.push_back(static_cast<BoardView::Junction*>(node));
+    }
+
+    std::vector<BoardView::Road*> roads;
+    size_t n_roads;
+    if (!decoder.decode(n_roads))
+        return nullptr;
+    roads.reserve(n_roads);
+    for (size_t i = 0; i < n_roads; ++i) {
+        size_t index;
+        if (!decoder.decode(index))
+            return nullptr;
+        auto* node = nodes.at(index);
+        if (node == nullptr)
+            return nullptr;
+        if (!node->is_junction())
+            return nullptr;
+        roads.push_back(static_cast<BoardView::Road*>(node));
+    }
+
+    std::vector<BoardView::Junction*> settlements;
+    size_t n_settlements;
+    if (!decoder.decode(n_settlements))
+        return nullptr;
+    settlements.reserve(n_settlements);
+    for (size_t i = 0; i < n_settlements; ++i) {
+        size_t index;
+        if (!decoder.decode(index))
+            return nullptr;
+        auto* node = nodes.at(index);
+        if (node == nullptr)
+            return nullptr;
+        if (!node->is_junction())
+            return nullptr;
+        settlements.push_back(static_cast<BoardView::Junction*>(node));
+    }
+
+    std::vector<DevelopmentCard> played_development_cards;
+    if (!decoder.decode(played_development_cards))
+        return nullptr;
+
+    std::vector<DevelopmentCard> playable_development_cards;
+    if (!decoder.decode(playable_development_cards))
+        return nullptr;
+
+    std::vector<DevelopmentCard> unplayable_development_cards;
+    if (!decoder.decode(unplayable_development_cards))
+        return nullptr;
+
+    State::Vertex vertex;
+    if (!decoder.decode(vertex))
+        return nullptr;
+
+    bool can_accept_trade;
+    if (!decoder.decode(can_accept_trade))
+        return nullptr;
+
+    bool has_declined_trade;
+    if (!decoder.decode(has_declined_trade))
+        return nullptr;
+
+    size_t num_to_discard;
+    if (!decoder.decode(num_to_discard))
+        return nullptr;
+
+    size_t public_victory_points;
+    if (!decoder.decode(public_victory_points))
+        return nullptr;
+
+    size_t private_victory_points;
+    if (!decoder.decode(private_victory_points))
+        return nullptr;
+
+    size_t army_size;
+    if (!decoder.decode(army_size))
+        return nullptr;
+
+    size_t longest_road;
+    if (!decoder.decode(longest_road))
+        return nullptr;
+
+    auto* player = new Player(index, nullptr);
+    player->m_resources = std::move(resources);
+    player->m_bank_trade_rates = std::move(bank_trade_rates);
+    player->m_cities = std::move(cities);
+    player->m_roads = std::move(roads);
+    player->m_settlements = std::move(settlements);
+    player->m_played_development_cards = std::move(played_development_cards);
+    player->m_playable_development_cards = std::move(playable_development_cards);
+    player->m_unplayable_development_cards = std::move(unplayable_development_cards);
+    player->m_vertex = vertex;
+    player->m_can_accept_trade = can_accept_trade;
+    player->m_has_declined_trade = has_declined_trade;
+    player->m_num_to_discard = num_to_discard;
+    player->m_public_victory_points = public_victory_points;
+    player->m_private_victory_points = private_victory_points;
+    player->m_army_size = army_size;
+    player->m_longest_road = longest_road;
+    return player;
 }
 
 } // namespace k10engine::Game

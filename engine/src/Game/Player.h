@@ -16,6 +16,7 @@
 #include "Game/ExecutionOptions.h"
 #include "Game/Game.h"
 #include "Game/Trade.h"
+#include "Util/Decoder.h"
 #include "Util/Encoder.h"
 
 namespace k10engine::Game {
@@ -56,6 +57,9 @@ public:
 
     const Game* game() const { return m_game; }
 
+    // only used during deserialization
+    void set_game(const Game* game) { m_game = game; }
+
     ~Player() {}
 
     bool operator!=(const Player&) const;
@@ -65,6 +69,7 @@ public:
     friend std::ostream& operator<<(std::ostream&, const Player&);
 
     void encode(ByteBuffer&) const;
+    static Player* decode(ByteBuffer&, const std::vector<BoardView::NodeView*>&);
 
 private:
     Player(size_t index, const Game* game)
