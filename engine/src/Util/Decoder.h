@@ -48,7 +48,7 @@ public:
             T t;
             if (!decode(t))
                 return false;
-            ts.push_back(t);
+            ts.push_back(std::move(t));
         }
         return true;
     }
@@ -68,7 +68,7 @@ public:
             V value;
             if (!decode(value))
                 return false;
-            map.insert({ key, value });
+            map.insert({ std::move(key), std::move(value) });
         }
         return true;
     }
