@@ -1145,13 +1145,15 @@ void Game::encode(ByteBuffer& buf) const
     encoder << m_nodes;
     encoder << m_deck;
     encoder << m_scenario;
-    // Dice m_dice;
-    // encoder << m_dice;
-    // Robber m_robber;
-    // encoder << m_robber;
+    encoder << m_dice;
+    if (m_robber.location() == nullptr) {
+        encoder << false;
+    } else {
+        encoder << true;
+        encoder << m_robber.location()->index();
+    }
     encoder << m_victory_points_goal;
-    // FIXME: Implement!
-    // encoder << m_players;
+    encoder << m_players;
     encoder << m_deck_index;
     encoder << m_current_player_index;
     encoder << m_can_steal;
@@ -1160,8 +1162,18 @@ void Game::encode(ByteBuffer& buf) const
     encoder << m_num_trades_offered_this_turn;
     encoder << m_current_trade;
     encoder << m_turn;
-    encoder << (m_has_largest_army == nullptr ? -1 : m_has_largest_army->index());
-    encoder << (m_has_longest_road == nullptr ? -1 : m_has_longest_road->index());
+    if (m_has_largest_army == nullptr) {
+        encoder << false;
+    } else {
+        encoder << true;
+        encoder << m_has_largest_army->index();
+    }
+    if (m_has_longest_road == nullptr) {
+        encoder << false;
+    } else {
+        encoder << true;
+        encoder << m_has_longest_road->index();
+    }
     encoder << m_buildings_built;
 }
 

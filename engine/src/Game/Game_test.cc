@@ -21,7 +21,7 @@ TEST_CASE("Game serialization", "[Game]")
     Encoder encoder(buf);
     encoder << expected;
 
-    std::cout << buf << std::endl;
+    std::cout << "ByteBuffer(" << buf.unread_size() << ") " << buf << std::endl;
 
     Decoder decoder(buf);
     Game* actual = nullptr;
