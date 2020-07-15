@@ -3,7 +3,9 @@
 #include <stdexcept>
 #include <variant>
 
+#include "Board/Store.h"
 #include "Game/Game.h"
+#include "Scenario/Store.h"
 
 namespace k10engine::Game {
 
@@ -1302,6 +1304,86 @@ Game::Game(const Board::Graph* graph,
     , m_robber(robber_location)
     , m_victory_points_goal(victory_points_goal)
 {
+}
+
+bool Game::operator==(const Game& that) const
+{
+    if (this->can_steal() != that.can_steal())
+        return false;
+    if (this->has_rolled() != that.has_rolled())
+        return false;
+    if (this->is_game_over() != that.is_game_over())
+        return false;
+    if (this->is_trade_accepted() != that.is_trade_accepted())
+        return false;
+    if (this->is_first_round() != that.is_first_round())
+        return false;
+    if (this->is_second_round() != that.is_second_round())
+        return false;
+    if (this->is_roll_seven() != that.is_roll_seven())
+        return false;
+    if (this->should_wait_for_discard() != that.should_wait_for_discard())
+        return false;
+    if (this->should_wait_for_trade() != that.should_wait_for_trade())
+        return false;
+
+    if (this->num_trades_offered_this_turn() != that.num_trades_offered_this_turn())
+        return false;
+    if (this->has_current_trade() != that.has_current_trade())
+        return false;
+    if (!(this->current_trade() == that.current_trade()))
+        return false;
+    if (this->robber_location()->index() != that.robber_location()->index())
+        return false;
+
+    if (this->get_dice_total() != that.get_dice_total())
+        return false;
+
+    if (this->turn() != that.turn())
+        return false;
+    if (this->get_round() != that.get_round())
+        return false;
+
+    if (this->largest_army() != that.largest_army())
+        return false;
+    if (this->longest_road() != that.longest_road())
+        return false;
+
+    if (this->has_largest_army() == nullptr) {
+        if (that.has_largest_army() != nullptr)
+            return false;
+    } else {
+        if (this->has_largest_army()->index() != that.has_largest_army()->index())
+            return false;
+    }
+
+    if (this->has_longest_road() == nullptr) {
+        if (that.has_longest_road() != nullptr)
+            return false;
+    } else {
+        if (this->has_longest_road()->index() != that.has_longest_road()->index())
+            return false;
+    }
+
+    for (auto i = 0; i < 4; ++i) {
+        if (this->num_built(static_cast<Building>(i)) != that.num_built(static_cast<Building>(i)))
+            return false;
+    }
+
+    if (Board::Store::the().name_of(this->graph()) != Board::Store::the().name_of(that.graph()))
+        return false;
+    if (Scenario::Store::the().name_of(&this->scenario()) != Scenario::Store::the().name_of(&that.scenario()))
+        return false;
+
+    if (this->current_player().index() != that.current_player().index())
+        return false;
+    if (this->players().size() != that.players().size())
+        return false;
+    for (size_t i = 0; i < this->players().size(); ++i)
+        if (this->players().at(i)->index() != that.players().at(i)->index())
+            return false;
+
+    return true;
 }
 
 } // namespace k10engine::Game

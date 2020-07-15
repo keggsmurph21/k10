@@ -44,8 +44,12 @@ public:
     Game(const Game&) = delete;
     ~Game();
 
+    static Game* initialize(const Board::Graph*, const Scenario::Scenario*, const Scenario::Parameters&);
+
     static Game* decode(ByteBuffer&);
     void encode(ByteBuffer&) const;
+
+    bool operator==(const Game&) const;
 
     bool can_steal() const { return m_can_steal; }
     bool has_rolled() const { return m_has_rolled; }
@@ -124,8 +128,6 @@ public:
     const BoardView::Hex* hex(size_t index) const;
     const BoardView::Junction* junction(size_t index) const;
     const BoardView::Road* road(size_t index) const;
-
-    static Game* initialize(const Board::Graph*, const Scenario::Scenario*, const Scenario::Parameters&);
 
 private:
     // for deserialization
