@@ -31,7 +31,7 @@ std::ostream& operator<<(std::ostream&, const Counts<AbstractResource>&);
 
 struct _PortSpec {
     ResourceCollection resources;
-    unsigned exchange_rate;
+    u8 exchange_rate;
     bool operator==(const _PortSpec& other) const
     {
         return resources == other.resources && exchange_rate == other.exchange_rate;
