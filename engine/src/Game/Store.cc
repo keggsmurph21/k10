@@ -45,22 +45,21 @@ Store::Path::Path(const std::string* base_dir, const GameId& game_id)
     low_bytes = low_bytes_stream.str();
 }
 
-[[nodiscard]] std::string Store::Path::high_dir() const
+std::string Store::Path::high_dir() const
 {
     std::ostringstream path;
     path << *base_dir << "/" << high_byte;
     return path.str();
 }
 
-[[nodiscard]] std::string Store::Path::next_dir() const
+std::string Store::Path::next_dir() const
 {
     std::ostringstream path;
     path << *base_dir << "/" << high_byte << "/" << next_byte;
     return path.str();
 }
 
-[[nodiscard]] std::string Store::Path::full_path() const
-{
+[[nodiscard]] std::string Store::Path::full_path() const {
     std::ostringstream path;
     path << *base_dir << "/" << high_byte << "/" << next_byte << "/" << low_bytes << ".game";
     return path.str();
