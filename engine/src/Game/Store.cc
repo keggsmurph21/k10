@@ -78,13 +78,13 @@ Store::Path Store::path_for(const GameId& game_id) const
 
 bool Store::Path::exists_on_disk() const
 {
-    if (access(base_dir->c_str(), R_OK | W_OK) == 0)
+    if (access(base_dir->c_str(), R_OK | W_OK) != 0)
         return false;
-    if (access(high_dir().c_str(), R_OK | W_OK) == 0)
+    if (access(high_dir().c_str(), R_OK | W_OK) != 0)
         return false;
-    if (access(next_dir().c_str(), R_OK | W_OK) == 0)
+    if (access(next_dir().c_str(), R_OK | W_OK) != 0)
         return false;
-    return access(full_path().c_str(), R_OK | W_OK) != 0;
+    return access(full_path().c_str(), R_OK | W_OK) == 0;
 }
 
 Game* Store::retrieve_from_disk(const GameId& game_id) const
