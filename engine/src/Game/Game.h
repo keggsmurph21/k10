@@ -128,6 +128,14 @@ public:
     static std::optional<Game> initialize(const Board::Graph*, const Scenario::Scenario&, const Scenario::Parameters&);
 
 private:
+    // for deserialization
+    Game(const Board::Graph*,
+         std::vector<BoardView::NodeView*>&,
+         std::vector<DevelopmentCard>,
+         const Scenario::Scenario&,
+         size_t victory_points_goal,
+         BoardView::Hex* robber_location);
+
     const Board::Graph* m_graph;
 
     std::vector<BoardView::NodeView*> m_nodes;

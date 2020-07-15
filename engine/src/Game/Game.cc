@@ -1147,12 +1147,7 @@ void Game::encode(ByteBuffer& buf) const
     encoder << m_deck;
     encoder << m_scenario;
     encoder << m_dice;
-    if (m_robber.location() == nullptr) {
-        encoder << false;
-    } else {
-        encoder << true;
-        encoder << m_robber.location()->index();
-    }
+    encoder << m_robber.location()->index();
     encoder << m_victory_points_goal;
     encoder << m_players;
     encoder << m_deck_index;
@@ -1161,7 +1156,19 @@ void Game::encode(ByteBuffer& buf) const
     encoder << m_has_rolled;
     encoder << m_is_trade_accepted;
     encoder << m_num_trades_offered_this_turn;
-    encoder << m_current_trade;
+
+    if (!m_current_trade.has_value()) {
+        encoder << false;
+    } else {
+        encoder << true;
+        encoder << m_current_trade->offerer->index();
+        encoder << m_current_trade->offered_to.size();
+        for (auto* offered_to : m_current_trade->offered_to)
+            encoder << offered_to->index();
+        encoder << m_current_trade->from_offerer;
+        encoder << m_current_trade->to_offerer;
+    }
+
     encoder << m_turn;
     if (m_has_largest_army == nullptr) {
         encoder << false;
@@ -1181,7 +1188,119 @@ void Game::encode(ByteBuffer& buf) const
 Game* Game::decode(ByteBuffer& buf)
 {
     Decoder decoder(buf);
-    return nullptr;
+    const Board::Graph* graph;
+    if (!decoder.decode(graph))
+        return nullptr;
+
+    std::vector<BoardView::NodeView*> nodes;
+    size_t n_nodes;
+    if (!decoder.decode(n_nodes))
+        return nullptr;
+    nodes.reserve(n_nodes);
+    for (size_t i = 0; i < n_nodes; ++i) {
+        auto* node = BoardView::NodeView::decode(buf, *graph);
+        nodes.push_back(node);
+    }
+
+    std::vector<DevelopmentCard> deck;
+    if (!decoder.decode(deck))
+        return nullptr;
+
+    Scenario::Scenario scenario;
+    if (!decoder.decode(scenario))
+        return nullptr;
+
+    Dice dice;
+    if (!decoder.decode(dice))
+        return nullptr;
+
+    size_t robber_location_index;
+    if (!decoder.decode(robber_location_index))
+        return nullptr;
+    auto* robber_node = nodes.at(robber_location_index);
+    if (robber_node == nullptr)
+        return nullptr;
+    if (!robber_node->is_hex())
+        return nullptr;
+    auto* robber_hex = static_cast<BoardView::Hex*>(robber_node);
+
+    size_t victory_points_goal;
+    if (!decoder.decode(victory_points_goal))
+        return nullptr;
+
+    std::vector<Player*> players;
+    size_t n_players;
+    if (!decoder.decode(n_players))
+        return nullptr;
+    nodes.reserve(n_nodes);
+    for (size_t i = 0; i < n_players; ++i) {
+        auto* player = Player::decode(buf, nodes);
+        players.push_back(player);
+    }
+
+    size_t deck_index;
+    if (!decoder.decode(deck_index))
+        return nullptr;
+
+    size_t current_player_index;
+    if (!decoder.decode(current_player_index))
+        return nullptr;
+
+    bool can_steal;
+    if (!decoder.decode(can_steal))
+        return nullptr;
+
+    bool has_rolled;
+    if (!decoder.decode(has_rolled))
+        return nullptr;
+
+    bool is_trade_accepted;
+    if (!decoder.decode(is_trade_accepted))
+        return nullptr;
+
+    size_t num_trades_offered_this_turn;
+    if (!decoder.decode(num_trades_offered_this_turn))
+        return nullptr;
+
+    std::optional<Trade> current_trade;
+    bool has_current_trade;
+    if (!decoder.decode(has_current_trade))
+        return nullptr;
+    if (has_current_trade) {
+        assert(false);
+    }
+
+    size_t turn;
+    if (!decoder.decode(turn))
+        return nullptr;
+
+    auto* game = new Game(graph, nodes, deck, scenario, victory_points_goal, robber_hex);
+    game->m_dice = dice;
+    game->m_players = std::move(players);
+    game->m_deck_index = deck_index;
+    game->m_current_player_index = current_player_index;
+    game->m_can_steal = can_steal;
+    game->m_has_rolled = has_rolled;
+    game->m_is_trade_accepted = is_trade_accepted;
+    game->m_num_trades_offered_this_turn = num_trades_offered_this_turn;
+    game->m_current_trade = std::move(current_trade);
+    game->m_turn = turn;
+    return game;
+}
+
+Game::Game(const Board::Graph* graph,
+           std::vector<BoardView::NodeView*>& nodes,
+           std::vector<DevelopmentCard> deck,
+           const Scenario::Scenario& scenario,
+           size_t victory_points_goal,
+           BoardView::Hex* robber_location)
+    : m_graph(graph)
+    , m_nodes(std::move(nodes))
+    , m_deck(std::move(deck))
+    , m_scenario(scenario)
+    , m_robber(robber_location)
+    , m_victory_points_goal(victory_points_goal)
+{
 }
 
 } // namespace k10engine::Game
@@ -1196,5 +1315,5 @@ template<>
 bool decode(ByteBuffer& buf, k10engine::Game::Game*& game)
 {
     game = k10engine::Game::Game::decode(buf);
-    return game == nullptr;
+    return game != nullptr;
 }
