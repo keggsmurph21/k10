@@ -115,9 +115,9 @@ std::vector<_PortSpec> Scenario::get_ports(IterationType type) const
     assert(false);
 }
 
-std::vector<int> Scenario::get_rolls(IterationType type) const
+std::vector<u8> Scenario::get_rolls(IterationType type) const
 {
-    std::vector<int> rolls;
+    std::vector<u8> rolls;
     for (const auto& roll : m_rolls) {
         rolls.push_back(roll);
     }
@@ -471,7 +471,7 @@ std::optional<Scenario> Scenario::decode(ByteBuffer& buf)
     Counts<AbstractResource> resource_counts;
     if (!decoder.decode(resource_counts))
         return {};
-    std::vector<int> rolls;
+    std::vector<u8> rolls;
     if (!decoder.decode(rolls))
         return {};
     std::vector<_PortSpec> ports;

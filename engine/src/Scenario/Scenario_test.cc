@@ -18,7 +18,7 @@ namespace k10engine::Scenario {
 #endif
 
 #ifndef MAGIC_NUMBER_3
-#    define MAGIC_NUMBER_3 420
+#    define MAGIC_NUMBER_3 100
 #endif
 
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
@@ -707,8 +707,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
         {
             const auto s = Scenario(
                 0, 0, 0, 0, {}, {}, {}, {}, {}, { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 }, {});
-            std::vector<int> expected_rolls;
-            std::vector<int> actual_rolls;
+            std::vector<u8> expected_rolls;
+            std::vector<u8> actual_rolls;
             expected_rolls = { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 };
             actual_rolls = s.get_rolls(IterationType::Fixed);
             REQUIRE(!actual_rolls.empty());

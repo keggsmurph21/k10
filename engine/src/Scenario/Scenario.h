@@ -69,9 +69,9 @@ public:
     std::vector<DevelopmentCard> get_development_card_deck(IterationType) const; // gets a fresh copy
     std::vector<_PortSpec> get_ports(IterationType) const;                       // gets a fresh copy
     std::vector<AbstractResource> get_resources(IterationType) const;            // gets a fresh copy
-    std::vector<int> get_rolls(IterationType) const;                             // gets a fresh copy
+    std::vector<u8> get_rolls(IterationType) const;                              // gets a fresh copy
 
-    const std::vector<int>& peek_rolls() const { return m_rolls; }
+    const std::vector<u8>& peek_rolls() const { return m_rolls; }
     const std::vector<_PortSpec>& peek_ports() const { return m_ports; }
 
     bool is_valid(const Parameters&) const;
@@ -87,7 +87,7 @@ public:
              Counts<Building> building_counts_per_player,
              Counts<DevelopmentCard> development_card_counts,
              Counts<AbstractResource> resource_counts,
-             std::vector<int> rolls,
+             std::vector<u8> rolls,
              std::vector<_PortSpec> ports)
         : m_building_costs(building_costs)
         , m_building_counts(building_counts)
@@ -118,7 +118,7 @@ protected:
     Counts<Building> m_building_counts_per_player;
     Counts<DevelopmentCard> m_development_card_counts;
     Counts<AbstractResource> m_resource_counts;
-    std::vector<int> m_rolls;
+    std::vector<u8> m_rolls;
 
     std::vector<_PortSpec> m_ports;
 };
