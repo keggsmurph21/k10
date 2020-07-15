@@ -581,4 +581,26 @@ bool Player::operator==(const Player& other) const
     return game() == other.game() && index() == other.index();
 }
 
+void Player::encode(ByteBuffer& buf) const
+{
+    Encoder encoder(buf);
+    encoder << m_index;
+    encoder << m_resources;
+    encoder << m_bank_trade_rates;
+    encoder << m_cities;
+    encoder << m_roads;
+    encoder << m_settlements;
+    encoder << m_played_development_cards;
+    encoder << m_playable_development_cards;
+    encoder << m_unplayable_development_cards;
+    encoder << m_vertex;
+    encoder << m_can_accept_trade;
+    encoder << m_has_declined_trade;
+    encoder << m_num_to_discard;
+    encoder << m_public_victory_points;
+    encoder << m_private_victory_points;
+    encoder << m_army_size;
+    encoder << m_longest_road;
+}
+
 } // namespace k10engine::Game

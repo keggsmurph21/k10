@@ -16,6 +16,7 @@
 #include "Game/ExecutionOptions.h"
 #include "Game/Game.h"
 #include "Game/Trade.h"
+#include "Util/Encoder.h"
 
 namespace k10engine::Game {
 
@@ -62,6 +63,8 @@ public:
 
     friend Game;
     friend std::ostream& operator<<(std::ostream&, const Player&);
+
+    void encode(ByteBuffer&) const;
 
 private:
     Player(size_t index, const Game* game)
@@ -148,3 +151,9 @@ private:
 };
 
 } // namespace k10engine::Game
+
+template<>
+inline void encode(ByteBuffer& buf, const k10engine::Game::Player& player)
+{
+    player.encode(buf);
+}
