@@ -78,6 +78,7 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Scenario&);
 
+    Scenario() {} // default constructor for deserialization
     Scenario(size_t min_players_count,
              size_t max_players_count,
              size_t min_victory_points_goal,
