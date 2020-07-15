@@ -14,13 +14,6 @@ enum class Building {
     Settlement,
 };
 
-static const Building AllBuildings[] = {
-    Building::City,
-    Building::DevelopmentCard,
-    Building::Road,
-    Building::Settlement,
-};
-
 std::ostream& operator<<(std::ostream&, Building);
 
 } // namespace k10engine
