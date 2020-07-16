@@ -6,17 +6,17 @@
 #include "Game/Game.h"
 #include "Util/LRUCache.h"
 
-namespace k10engine::Game {
+namespace k10engine::Server {
 
 // FIXME: This can be shared
 using GameId = u64;
 
-class Store {
+class GameCache {
 public:
-    Store(std::string path, size_t cache_size);
+    GameCache(std::string path, size_t cache_size);
 
-    Game* get(GameId);
-    void set(GameId, Game*);
+    Game::Game* get(GameId);
+    void set(GameId, Game::Game*);
 
     struct Path {
         const std::string* base_dir;
@@ -33,11 +33,11 @@ public:
     Path path_for(const GameId&) const;
 
 private:
-    Game* retrieve_from_disk(const GameId&) const;
-    void write_to_disk(const GameId&, const Game&) const;
+    Game::Game* retrieve_from_disk(const GameId&) const;
+    void write_to_disk(const GameId&, const Game::Game&) const;
 
     std::string m_path;
-    LRUCache<GameId, Game> m_cache;
+    LRUCache<GameId, Game::Game> m_cache;
 };
 
-} // namespace k10engine::Game
+} // namespace k10engine::Server

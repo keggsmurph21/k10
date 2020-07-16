@@ -2,8 +2,8 @@
 #include <unistd.h>
 
 #include "Board/Store.h"
-#include "Game/Store.h"
 #include "Scenario/Store.h"
+#include "Server/GameCache.h"
 #include "Test/catch.h"
 
 namespace k10engine {
@@ -20,20 +20,20 @@ Game::Game* make_game(Scenario::Name scenario_name, size_t n_players, size_t vic
     return Game::Game::initialize(s, p);
 }
 
-TEST_CASE("Store", "[Game][Game.Store]")
+TEST_CASE("GameCache", "[Server][Server.GameCache]")
 {
     SECTION("Reading games that don't exist")
     {
-        char game_store_path_template[] = "/tmp/k10-engine-game-store-XXXXXX";
-        const char* path = mkdtemp(game_store_path_template);
+        char game_cache_path_template[] = "/tmp/k10-engine-game-cache-XXXXXX";
+        const char* path = mkdtemp(game_cache_path_template);
         if (path == nullptr) {
             perror("mkdtemp");
             assert(false);
         }
 
-        auto store = Game::Store(path, 1);
-        REQUIRE(store.get(100) == nullptr);
-        REQUIRE(store.get(0xdeadbeefdeadbeef) == nullptr);
+        auto cache = Server::GameCache(path, 1);
+        REQUIRE(cache.get(100) == nullptr);
+        REQUIRE(cache.get(0xdeadbeefdeadbeef) == nullptr);
 
         if (rmdir(path) != 0) {
             perror("rmdir");
@@ -43,38 +43,38 @@ TEST_CASE("Store", "[Game][Game.Store]")
 
     SECTION("Storing a game to disk")
     {
-        char game_store_path_template[] = "/tmp/k10-engine-game-store-XXXXXX";
-        const char* path = mkdtemp(game_store_path_template);
+        char game_cache_path_template[] = "/tmp/k10-engine-game-cache-XXXXXX";
+        const char* path = mkdtemp(game_cache_path_template);
         if (path == nullptr) {
             perror("mkdtemp");
             assert(false);
         }
 
-        auto store = Game::Store(path, 1);
+        auto cache = Server::GameCache(path, 1);
 
-        // Need to be careful with pointer ownership here, since the Game::Store expects
+        // Need to be careful with pointer ownership here, since the Server::GameCache expects
         // to be able to "delete" at will.
         const auto get_game = []() -> Game::Game* { return make_game(Scenario::Name::Single, 1, 3); };
 
         auto* expected_game_0 = get_game();
-        store.set(0, get_game());
+        cache.set(0, get_game());
 
         // force a cache eviction on expected_game_0
         auto* expected_game_1 = get_game();
-        store.set(1, get_game());
+        cache.set(1, get_game());
 
         // check that expected_game_1 is still good to go
-        auto* actual_game_1 = store.get(1);
+        auto* actual_game_1 = cache.get(1);
         REQUIRE(actual_game_1 != nullptr);
         REQUIRE(*actual_game_1 == *expected_game_1);
 
         // load in expected_game_0 from disk ...
-        auto* actual_game_0 = store.get(0);
+        auto* actual_game_0 = cache.get(0);
         REQUIRE(actual_game_0 != nullptr);
         REQUIRE(*actual_game_0 == *expected_game_0);
 
         // check that expected_game_1 is still good to go
-        actual_game_1 = store.get(1);
+        actual_game_1 = cache.get(1);
         REQUIRE(actual_game_1 != nullptr);
         REQUIRE(*actual_game_1 == *expected_game_1);
 
