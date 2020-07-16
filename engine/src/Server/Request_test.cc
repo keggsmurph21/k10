@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 
+#include "Scenario/Store.h"
 #include "Server/Request.h"
 #include "Test/catch.h"
 #include "Util/ByteBuffer.h"
@@ -83,6 +84,8 @@ TEST_CASE("Request", "[Server][Server.Request]")
                                 0x00,
                                 0x00,
                                 0x00,
+                                // Scenario (name)
+                                0x00,
                                 // Parameters: development_card_iteration_type
                                 0x00,
                                 // Parameters: port_iteration_type
@@ -130,6 +133,8 @@ TEST_CASE("Request", "[Server][Server.Request]")
                                                  0x00,
                                                  0x00,
                                                  0x00,
+                                                 // Scenario (name)
+                                                 0x00,
                                                  // Parameters: development_card_iteration_type
                                                  0x00,
                                                  // Parameters: port_iteration_type
@@ -160,6 +165,7 @@ TEST_CASE("Request", "[Server][Server.Request]")
             REQUIRE(all_zeroes->m_type == Request::Type::NewGame);
             REQUIRE(all_zeroes->m_player_id == 0);
             REQUIRE(all_zeroes->m_player_secret == 0);
+            REQUIRE(all_zeroes->m_scenario == Scenario::Store::the().by_name(static_cast<Scenario::Name>(0)));
             REQUIRE(all_zeroes->m_parameters.development_card_iteration_type == IterationType::Fixed);
             REQUIRE(all_zeroes->m_parameters.port_iteration_type == IterationType::Fixed);
             REQUIRE(all_zeroes->m_parameters.resource_iteration_type == IterationType::Fixed);

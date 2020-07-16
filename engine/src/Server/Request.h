@@ -56,12 +56,16 @@ struct RegisterUserRequest final : public Request {
 struct NewGameRequest final : public Request {
     const Game::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
-    // FIXME: Add ability to choose game board / scenario
+    const Scenario::Scenario* m_scenario;
     const Scenario::Parameters m_parameters;
-    NewGameRequest(Game::PlayerId player_id, Registrar::PlayerSecret player_secret, Scenario::Parameters parameters)
+    NewGameRequest(Game::PlayerId player_id,
+                   Registrar::PlayerSecret player_secret,
+                   const Scenario::Scenario* scenario,
+                   Scenario::Parameters parameters)
         : Request(Type::NewGame)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
+        , m_scenario(scenario)
         , m_parameters(parameters)
     {
     }

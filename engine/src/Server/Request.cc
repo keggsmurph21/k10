@@ -135,11 +135,15 @@ bool decode(ByteBuffer& buf, k10engine::Server::NewGameRequest*& request)
     if (!decoder.decode(player_secret))
         return false;
 
+    const k10engine::Scenario::Scenario* scenario;
+    if (!decoder.decode(scenario))
+        return false;
+
     k10engine::Scenario::Parameters parameters;
     if (!decoder.decode(parameters))
         return false;
 
-    request = new NewGameRequest{ player_id, player_secret, parameters };
+    request = new NewGameRequest{ player_id, player_secret, scenario, parameters };
     return true;
 }
 
