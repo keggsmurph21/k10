@@ -73,23 +73,6 @@ size_t Game::get_round() const
     return m_turn / m_players.size();
 }
 
-Game::Game(const Scenario::Scenario* scenario,
-           std::vector<BoardView::NodeView*>& nodes,
-           std::vector<DevelopmentCard> deck,
-           const Scenario::Parameters& parameters,
-           BoardView::Hex* robber_location)
-    : m_scenario(scenario)
-    , m_nodes(std::move(nodes))
-    , m_deck(std::move(deck))
-    , m_robber(robber_location)
-    , m_victory_points_goal(parameters.victory_points_goal)
-{
-    for (size_t i = 0; i < parameters.players_count; ++i) {
-        m_players.push_back(new Player(i, this));
-    }
-    current_player().set_vertex(State::Vertex::Root);
-}
-
 Game::~Game()
 {
     for (auto player : m_players)
@@ -204,7 +187,13 @@ Game* Game::initialize(const Scenario::Scenario* scenario, const Scenario::Param
 
     // FIXME: Don't just blindly cast this unless we're 100% sure this is a Hex ...
     auto robber_location = static_cast<BoardView::Hex*>(nodes.at(robber_index));
-    return new Game(scenario, nodes, deck, parameters, robber_location);
+
+    auto* game = new Game(scenario, nodes, deck, parameters.victory_points_goal, robber_location);
+    for (size_t i = 0; i < parameters.players_count; ++i) {
+        game->m_players.push_back(new Player(i, game));
+    }
+    game->current_player().set_vertex(State::Vertex::Root);
+    return game;
 }
 
 static bool player_can_execute_edge(const Player& player, const State::Edge& requested_edge)

@@ -35,11 +35,6 @@ namespace k10engine::Game {
 
 class Game {
 public:
-    Game(const Scenario::Scenario*,
-         std::vector<BoardView::NodeView*>&,
-         std::vector<DevelopmentCard>,
-         const Scenario::Parameters&,
-         BoardView::Hex* robber_location);
     Game(const Game&) = delete;
     ~Game();
 
@@ -129,7 +124,6 @@ public:
     const BoardView::Road* road(size_t index) const;
 
 private:
-    // for deserialization
     Game(const Scenario::Scenario*,
          std::vector<BoardView::NodeView*>&,
          std::vector<DevelopmentCard>,
