@@ -105,25 +105,37 @@ const NewGameResponse* Server::handle_new_game(const NewGameRequest* request)
     return new NewGameResponse(game_id);
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 const JoinGameResponse* Server::handle_join_game(const JoinGameRequest* request)
 {
-    (void)request;
-    assert(false);
+    VALIDATE_REQUEST(request);
+    auto* game = m_game_cache.get(request->m_game_id);
+    if (game == nullptr)
+        assert(false);
+    if (!game->join(request->m_player_id))
+        assert(false);
+    return new JoinGameResponse();
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 const LeaveGameResponse* Server::handle_leave_game(const LeaveGameRequest* request)
 {
-    (void)request;
-    assert(false);
+    VALIDATE_REQUEST(request);
+    auto* game = m_game_cache.get(request->m_game_id);
+    if (game == nullptr)
+        assert(false);
+    if (!game->leave(request->m_player_id))
+        assert(false);
+    return new LeaveGameResponse();
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 const StartGameResponse* Server::handle_start_game(const StartGameRequest* request)
 {
-    (void)request;
-    assert(false);
+    VALIDATE_REQUEST(request);
+    auto* game = m_game_cache.get(request->m_game_id);
+    if (game == nullptr)
+        assert(false);
+    if (!game->start())
+        assert(false);
+    return new StartGameResponse();
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
