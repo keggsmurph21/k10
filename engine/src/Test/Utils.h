@@ -24,6 +24,21 @@ using IterationType = Scenario::IterationType;
 using Parameters = Scenario::Parameters;
 using Scenario_ = Scenario::Scenario;
 
+static Game::PlayerId s_next_player_id = 1;
+
+inline Game::Game* make_game(Scenario::Name scenario_name, size_t n_players, size_t victory_points_goal)
+{
+    auto s = Scenario::Store::the().by_name(scenario_name);
+    auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
+                                   Scenario::IterationType::Fixed,
+                                   Scenario::IterationType::Fixed,
+                                   Scenario::IterationType::Fixed,
+                                   n_players,
+                                   victory_points_goal };
+    auto* game = Game::Game::initialize(s_next_player_id++, s, p);
+    return game;
+}
+
 struct GameState {
     bool can_steal = false;
     bool has_rolled = false;
@@ -338,20 +353,3 @@ struct PlayerState {
         check_no_actions(1);                                                                                   \
         check_no_actions(2);                                                                                   \
     };
-
-inline Parameters get_single_parameters()
-{
-    return Parameters{ IterationType::Fixed, IterationType::Fixed, IterationType::Fixed, IterationType::Fixed, 1, 3 };
-}
-
-inline Parameters get_triple_parameters(size_t num_players)
-{
-    return Parameters{ IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,
-                       IterationType::Fixed, num_players,          3 };
-}
-
-inline Parameters get_standard_parameters(size_t num_players)
-{
-    return Parameters{ IterationType::Fixed, IterationType::Fixed, IterationType::Fixed,
-                       IterationType::Fixed, num_players,          10 };
-}

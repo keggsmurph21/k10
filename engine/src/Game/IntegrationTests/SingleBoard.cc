@@ -1,15 +1,11 @@
-#include "Common.h"
-
-static k10engine::Game::PlayerId s_next_player_id = 1;
+#include "Test/Utils.h"
 
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
 TEST_CASE("Single board first two rounds", "[Game] [Integration] [Board.Single]")
 {
     SECTION("One player")
     {
-        auto s = Scenario::Store::the().by_name(Scenario::Name::Single);
-        auto p = get_single_parameters();
-        auto g = Game::Game::initialize(s_next_player_id++, s, p);
+        auto g = make_game(Scenario::Name::Single, 1, 3);
 
         bootstrap_tests();
 

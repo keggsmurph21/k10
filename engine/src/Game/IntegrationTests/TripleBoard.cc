@@ -1,15 +1,11 @@
-#include "Common.h"
-
-static k10engine::Game::PlayerId s_next_player_id = 1;
+#include "Test/Utils.h"
 
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
 TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]")
 {
     SECTION("One player")
     {
-        auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
-        auto p = get_triple_parameters(1);
-        auto g = Game::Game::initialize(s_next_player_id++, s, p);
+        auto g = make_game(Scenario::Name::Triple, 1, 3);
 
         bootstrap_tests();
 
@@ -107,9 +103,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
 
     SECTION("Two players")
     {
-        auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
-        auto p = get_triple_parameters(2);
-        auto g = Game::Game::initialize(s_next_player_id++, s, p);
+        auto g = make_game(Scenario::Name::Triple, 2, 3);
 
         bootstrap_tests();
 
@@ -297,9 +291,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
 
     SECTION("Three players")
     {
-        auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
-        auto p = get_triple_parameters(3);
-        auto g = Game::Game::initialize(s_next_player_id++, s, p);
+        auto g = make_game(Scenario::Name::Triple, 3, 3);
 
         bootstrap_tests();
 

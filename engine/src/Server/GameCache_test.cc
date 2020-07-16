@@ -4,23 +4,10 @@
 #include "Board/Store.h"
 #include "Scenario/Store.h"
 #include "Server/GameCache.h"
+#include "Test/Utils.h"
 #include "Test/catch.h"
 
 namespace k10engine {
-
-static Game::PlayerId s_next_player_id = 1;
-
-Game::Game* make_game(Scenario::Name scenario_name, size_t n_players, size_t victory_points_goal)
-{
-    auto s = Scenario::Store::the().by_name(scenario_name);
-    auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
-                                   Scenario::IterationType::Fixed,
-                                   Scenario::IterationType::Fixed,
-                                   Scenario::IterationType::Fixed,
-                                   n_players,
-                                   victory_points_goal };
-    return Game::Game::initialize(s_next_player_id++, s, p);
-}
 
 TEST_CASE("GameCache", "[Server][Server.GameCache]")
 {

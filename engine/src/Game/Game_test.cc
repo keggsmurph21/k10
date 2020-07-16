@@ -1,24 +1,16 @@
 #include "Board/Store.h"
 #include "Game/Game.h"
 #include "Scenario/Store.h"
+#include "Test/Utils.h"
 #include "Test/catch.h"
 
 namespace k10engine::Game {
-
-static PlayerId s_next_player_id = 1;
 
 TEST_CASE("Game serialization", "[Game]")
 {
     SECTION("Single")
     {
-        auto s = Scenario::Store::the().by_name(Scenario::Name::Single);
-        auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
-                                       Scenario::IterationType::Fixed,
-                                       Scenario::IterationType::Fixed,
-                                       Scenario::IterationType::Fixed,
-                                       1,
-                                       3 };
-        auto expected = Game::Game::initialize(s_next_player_id++, s, p);
+        auto expected = make_game(Scenario::Name::Single, 1, 3, false);
 
         ByteBuffer buf;
         Encoder encoder(buf);
@@ -36,14 +28,7 @@ TEST_CASE("Game serialization", "[Game]")
 
     SECTION("Triple")
     {
-        auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
-        auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
-                                       Scenario::IterationType::Fixed,
-                                       Scenario::IterationType::Fixed,
-                                       Scenario::IterationType::Fixed,
-                                       2,
-                                       3 };
-        auto expected = Game::Game::initialize(s_next_player_id++, s, p);
+        auto expected = make_game(Scenario::Name::Triple, 2, 3, false);
 
         ByteBuffer buf;
         Encoder encoder(buf);
@@ -61,14 +46,7 @@ TEST_CASE("Game serialization", "[Game]")
 
     SECTION("Standard")
     {
-        auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
-        auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
-                                       Scenario::IterationType::Fixed,
-                                       Scenario::IterationType::Fixed,
-                                       Scenario::IterationType::Fixed,
-                                       4,
-                                       10 };
-        auto expected = Game::Game::initialize(s_next_player_id++, s, p);
+        auto expected = make_game(Scenario::Name::Standard, 4, 10, false);
 
         ByteBuffer buf;
         Encoder encoder(buf);
