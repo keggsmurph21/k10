@@ -8,10 +8,8 @@
 
 namespace k10engine {
 
-Game::Game*
-make_game(Board::Name board_name, Scenario::Name scenario_name, size_t n_players, size_t victory_points_goal)
+Game::Game* make_game(Scenario::Name scenario_name, size_t n_players, size_t victory_points_goal)
 {
-    auto b = Board::Store::the().by_name(board_name);
     auto s = Scenario::Store::the().by_name(scenario_name);
     auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
                                    Scenario::IterationType::Fixed,
@@ -19,7 +17,7 @@ make_game(Board::Name board_name, Scenario::Name scenario_name, size_t n_players
                                    Scenario::IterationType::Fixed,
                                    n_players,
                                    victory_points_goal };
-    return Game::Game::initialize(b, s, p);
+    return Game::Game::initialize(s, p);
 }
 
 TEST_CASE("Store", "[Game][Game.Store]")
@@ -56,9 +54,7 @@ TEST_CASE("Store", "[Game][Game.Store]")
 
         // Need to be careful with pointer ownership here, since the Game::Store expects
         // to be able to "delete" at will.
-        const auto get_game = []() -> Game::Game* {
-            return make_game(Board::Name::Single, Scenario::Name::Single, 1, 3);
-        };
+        const auto get_game = []() -> Game::Game* { return make_game(Scenario::Name::Single, 1, 3); };
 
         auto* expected_game_0 = get_game();
         store.set(0, get_game());

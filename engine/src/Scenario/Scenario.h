@@ -6,6 +6,7 @@
 #include <set>
 #include <vector>
 
+#include "Board/Graph.h"
 #include "Core/Building.h"
 #include "Core/DevelopmentCard.h"
 #include "Core/Resource.h"
@@ -44,6 +45,8 @@ std::ostream& operator<<(std::ostream&, const _PortSpec&);
 
 class Scenario {
 public:
+    const Board::Graph& graph() const { return m_graph; }
+
     size_t min_players_count() const { return m_min_players_count; }
     size_t max_players_count() const { return m_max_players_count; }
     size_t min_victory_points_goal() const { return m_min_victory_points_goal; }
@@ -78,7 +81,8 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Scenario&);
 
-    Scenario(size_t min_players_count,
+    Scenario(const Board::Graph& graph,
+             size_t min_players_count,
              size_t max_players_count,
              size_t min_victory_points_goal,
              size_t max_victory_points_goal,
@@ -89,7 +93,8 @@ public:
              Counts<AbstractResource> resource_counts,
              std::vector<u8> rolls,
              std::vector<_PortSpec> ports)
-        : m_building_costs(building_costs)
+        : m_graph(graph)
+        , m_building_costs(building_costs)
         , m_building_counts(building_counts)
         , m_building_counts_per_player(building_counts_per_player)
         , m_development_card_counts(development_card_counts)
@@ -107,6 +112,8 @@ public:
     bool operator==(const Scenario&) const;
 
 protected:
+    const Board::Graph& m_graph;
+
     size_t m_min_players_count;
     size_t m_max_players_count;
     size_t m_min_victory_points_goal;

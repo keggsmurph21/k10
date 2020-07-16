@@ -35,16 +35,15 @@ namespace k10engine::Game {
 
 class Game {
 public:
-    Game(const Board::Graph*,
+    Game(const Scenario::Scenario*,
          std::vector<BoardView::NodeView*>&,
          std::vector<DevelopmentCard>,
-         const Scenario::Scenario*,
          const Scenario::Parameters&,
          BoardView::Hex* robber_location);
     Game(const Game&) = delete;
     ~Game();
 
-    static Game* initialize(const Board::Graph*, const Scenario::Scenario*, const Scenario::Parameters&);
+    static Game* initialize(const Scenario::Scenario*, const Scenario::Parameters&);
 
     static Game* decode(ByteBuffer&);
     void encode(ByteBuffer&) const;
@@ -79,7 +78,7 @@ public:
 
     size_t num_built(Building) const;
 
-    const Board::Graph* graph() const { return m_graph; }
+    const Board::Graph& graph() const { return m_scenario->graph(); }
     const Scenario::Scenario& scenario() const { return *m_scenario; }
 
     Player& current_player() { return *m_players.at(m_current_player_index); }
@@ -131,19 +130,16 @@ public:
 
 private:
     // for deserialization
-    Game(const Board::Graph*,
+    Game(const Scenario::Scenario*,
          std::vector<BoardView::NodeView*>&,
          std::vector<DevelopmentCard>,
-         const Scenario::Scenario*,
          size_t victory_points_goal,
          BoardView::Hex* robber_location);
 
-    const Board::Graph* m_graph;
+    const Scenario::Scenario* m_scenario;
 
     std::vector<BoardView::NodeView*> m_nodes;
     std::vector<DevelopmentCard> m_deck;
-
-    const Scenario::Scenario* m_scenario;
 
     Dice m_dice;
     Robber m_robber;

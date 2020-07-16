@@ -271,29 +271,7 @@ std::ostream& operator<<(std::ostream& os, const Scenario& scenario)
 
 bool Scenario::operator==(const Scenario& other) const
 {
-    if (min_players_count() != other.min_players_count())
-        return false;
-    if (max_players_count() != other.max_players_count())
-        return false;
-    if (min_victory_points_goal() != other.min_victory_points_goal())
-        return false;
-    if (max_victory_points_goal() != other.max_victory_points_goal())
-        return false;
-    if (building_costs() != other.building_costs())
-        return false;
-    if (building_counts() != other.building_counts())
-        return false;
-    if (building_counts_per_player() != other.building_counts_per_player())
-        return false;
-    if (development_card_counts() != other.development_card_counts())
-        return false;
-    if (resource_counts() != other.resource_counts())
-        return false;
-    if (peek_rolls() != other.peek_rolls())
-        return false;
-    if (peek_ports() != other.peek_ports())
-        return false;
-    return true;
+    return Store::the().name_of(this) == Store::the().name_of(&other);
 }
 
 } // namespace k10engine::Scenario

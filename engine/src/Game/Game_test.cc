@@ -9,7 +9,6 @@ TEST_CASE("Game serialization", "[Game]")
 {
     SECTION("Single")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Single);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Single);
         auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
                                        Scenario::IterationType::Fixed,
@@ -17,7 +16,7 @@ TEST_CASE("Game serialization", "[Game]")
                                        Scenario::IterationType::Fixed,
                                        1,
                                        3 };
-        auto expected = Game::Game::initialize(b, s, p);
+        auto expected = Game::Game::initialize(s, p);
 
         ByteBuffer buf;
         Encoder encoder(buf);
@@ -35,7 +34,6 @@ TEST_CASE("Game serialization", "[Game]")
 
     SECTION("Triple")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Triple);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
         auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
                                        Scenario::IterationType::Fixed,
@@ -43,7 +41,7 @@ TEST_CASE("Game serialization", "[Game]")
                                        Scenario::IterationType::Fixed,
                                        2,
                                        3 };
-        auto expected = Game::Game::initialize(b, s, p);
+        auto expected = Game::Game::initialize(s, p);
 
         ByteBuffer buf;
         Encoder encoder(buf);
@@ -61,7 +59,6 @@ TEST_CASE("Game serialization", "[Game]")
 
     SECTION("Standard")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
                                        Scenario::IterationType::Fixed,
@@ -69,7 +66,7 @@ TEST_CASE("Game serialization", "[Game]")
                                        Scenario::IterationType::Fixed,
                                        4,
                                        10 };
-        auto expected = Game::Game::initialize(b, s, p);
+        auto expected = Game::Game::initialize(s, p);
 
         ByteBuffer buf;
         Encoder encoder(buf);

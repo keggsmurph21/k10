@@ -5,10 +5,9 @@ TEST_CASE("Standard board first two rounds", "[Game] [Integration] [Board.Standa
 {
     SECTION("Two players")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(2);
-        auto g = Game::Game::initialize(b, s, p);
+        auto g = Game::Game::initialize(s, p);
 
         bootstrap_tests();
 
@@ -209,10 +208,9 @@ TEST_CASE("Standard board first two rounds", "[Game] [Integration] [Board.Standa
 
     SECTION("Three players")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(b, s, p);
+        auto g = Game::Game::initialize(s, p);
 
         bootstrap_tests();
 
@@ -504,10 +502,9 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
 {
     SECTION("Three players immediately ending turns")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(b, s, p);
+        auto g = Game::Game::initialize(s, p);
 
         bootstrap_tests();
 
@@ -676,10 +673,9 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
 
     SECTION("Three players offering trades")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(b, s, p);
+        auto g = Game::Game::initialize(s, p);
 
         bootstrap_tests();
 
@@ -900,10 +896,9 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
 
     SECTION("Three players building roads")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(b, s, p);
+        auto g = Game::Game::initialize(s, p);
 
         bootstrap_tests();
 
@@ -984,10 +979,9 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
 
     SECTION("Three players building settlements")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(b, s, p);
+        auto g = Game::Game::initialize(s, p);
 
         bootstrap_tests();
 
@@ -1052,10 +1046,9 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
 
     SECTION("Three players buying development cards")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(b, s, p);
+        auto g = Game::Game::initialize(s, p);
 
         bootstrap_tests();
 
@@ -1223,10 +1216,9 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
 
     SECTION("Three players trading with bank")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(b, s, p);
+        auto g = Game::Game::initialize(s, p);
 
         bootstrap_tests();
 
@@ -1589,10 +1581,9 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
 
     SECTION("Three players trading with bank")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(b, s, p);
+        auto g = Game::Game::initialize(s, p);
 
         bootstrap_tests();
 
@@ -1667,10 +1658,9 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
 
     SECTION("Three players rolling sevens")
     {
-        auto b = Board::Store::the().by_name(Board::Name::Standard);
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(b, s, p);
+        auto g = Game::Game::initialize(s, p);
 
         bootstrap_tests();
 

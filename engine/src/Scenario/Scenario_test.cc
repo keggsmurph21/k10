@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include "Board/Store.h"
 #include "Core/Building.h"
 #include "Core/Random.h"
 #include "Scenario/Scenario.h"
@@ -27,7 +28,8 @@ TEST_CASE("Scenario initialization", "[Scenario]")
 {
     SECTION("Trivial")
     {
-        const auto s = Scenario(2, 2, 2, 2, {}, {}, {}, {}, {}, {}, {});
+        const auto s =
+            Scenario(*Board::Store::the().by_name(Board::Name::Single), 2, 2, 2, 2, {}, {}, {}, {}, {}, {}, {});
         REQUIRE(s.min_players_count() == 2);
         REQUIRE(s.max_players_count() == 2);
         REQUIRE(s.min_victory_points_goal() == 2);
@@ -81,7 +83,8 @@ TEST_CASE("Scenario initialization", "[Scenario]")
 
     SECTION("Mins & Maxes")
     {
-        const auto s = Scenario(k10_SCENARIO_MIN_PLAYERS_COUNT - 1,
+        const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                k10_SCENARIO_MIN_PLAYERS_COUNT - 1,
                                 k10_SCENARIO_MAX_PLAYERS_COUNT + 1,
                                 k10_SCENARIO_MIN_VICTORY_POINTS_GOAL - 1,
                                 k10_SCENARIO_MAX_VICTORY_POINTS_GOAL + 1,
@@ -105,7 +108,8 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             const k10engine::ResourceCounts expected_cost = { { k10engine::Resource::Ore, 3 },
                                                               { k10engine::Resource::Wheat, 2 } };
             const Costs<k10engine::Building> costs = { { k10engine::Building::City, expected_cost } };
-            const auto s = Scenario(0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
+            const auto s =
+                Scenario(*Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
             REQUIRE(!s.building_costs().empty());
             REQUIRE(s.building_costs().size() == 1);
             REQUIRE(s.is_valid(k10engine::Building::City));
@@ -131,7 +135,8 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                                                               { k10engine::Resource::Sheep, 1 },
                                                               { k10engine::Resource::Wheat, 1 } };
             const Costs<k10engine::Building> costs = { { k10engine::Building::DevelopmentCard, expected_cost } };
-            const auto s = Scenario(0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
+            const auto s =
+                Scenario(*Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
             REQUIRE(!s.building_costs().empty());
             REQUIRE(s.building_costs().size() == 1);
             REQUIRE(!s.is_valid(k10engine::Building::City));
@@ -158,7 +163,8 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                 { k10engine::Resource::Wood, 1 },
             };
             const Costs<k10engine::Building> costs = { { k10engine::Building::Road, expected_cost } };
-            const auto s = Scenario(0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
+            const auto s =
+                Scenario(*Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
             REQUIRE(!s.building_costs().empty());
             REQUIRE(s.building_costs().size() == 1);
             REQUIRE(!s.is_valid(k10engine::Building::City));
@@ -185,7 +191,8 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                                                               { k10engine::Resource::Wheat, 1 },
                                                               { k10engine::Resource::Wood, 1 } };
             const Costs<k10engine::Building> costs = { { k10engine::Building::Settlement, expected_cost } };
-            const auto s = Scenario(0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
+            const auto s =
+                Scenario(*Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
             REQUIRE(!s.building_costs().empty());
             REQUIRE(s.building_costs().size() == 1);
             REQUIRE(!s.is_valid(k10engine::Building::City));
@@ -232,7 +239,8 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                                                              { k10engine::Resource::Wheat, 1 },
                                                              { k10engine::Resource::Wood, 1 } },
                                                        } };
-            const auto s = Scenario(0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
+            const auto s =
+                Scenario(*Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0, costs, {}, {}, {}, {}, {}, {});
             REQUIRE(!s.building_costs().empty());
             REQUIRE(s.building_costs().size() == 4);
             REQUIRE(s.is_valid(k10engine::Building::City));
@@ -264,7 +272,18 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                                                              k10engine::Building::Road,
                                                              k10engine::Building::Settlement };
         for (const auto& building : buildings) {
-            const auto s = Scenario(0, 0, 0, 0, { { building, {} } }, { { building, 1 } }, {}, {}, {}, {}, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    { { building, {} } },
+                                    { { building, 1 } },
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {});
             REQUIRE(!s.building_counts().empty());
             REQUIRE(s.building_counts_per_player().empty());
             for (const auto& other_building : buildings) {
@@ -276,7 +295,18 @@ TEST_CASE("Scenario initialization", "[Scenario]")
         }
 
         for (const auto& building : buildings) {
-            const auto s = Scenario(0, 0, 0, 0, { { building, {} } }, {}, { { building, 1 } }, {}, {}, {}, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    { { building, {} } },
+                                    {},
+                                    { { building, 1 } },
+                                    {},
+                                    {},
+                                    {},
+                                    {});
             REQUIRE(s.building_counts().empty());
             REQUIRE(!s.building_counts_per_player().empty());
             for (const auto& other_building : buildings) {
@@ -304,8 +334,18 @@ TEST_CASE("Scenario initialization", "[Scenario]")
                 { k10engine::Building::Road, 15 },
                 { k10engine::Building::Settlement, 5 },
             };
-            const auto s =
-                Scenario(0, 0, 0, 0, building_costs, building_counts, building_counts_per_player, {}, {}, {}, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    building_costs,
+                                    building_counts,
+                                    building_counts_per_player,
+                                    {},
+                                    {},
+                                    {},
+                                    {});
             for (const auto& building : buildings) {
                 if (building_counts.find(building) == building_counts.end()) {
                     REQUIRE(s.count(building) == 0);
@@ -326,7 +366,18 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             k10engine::DevelopmentCard::YearOfPlenty,
         };
         for (const auto& development_card : development_cards) {
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, { { development_card, 1 } }, {}, {}, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    { { development_card, 1 } },
+                                    {},
+                                    {},
+                                    {});
             REQUIRE(!s.development_card_counts().empty());
             for (const auto& other_development_card : development_cards) {
                 const auto is_match = development_card == other_development_card;
@@ -347,7 +398,18 @@ TEST_CASE("Scenario initialization", "[Scenario]")
             Resource::Wood,
         };
         for (const auto& resource : resources) {
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, { { resource, 1 } }, {}, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { { resource, 1 } },
+                                    {},
+                                    {});
             REQUIRE(!s.resource_counts().empty());
             for (const auto& other_resource : resources) {
                 const auto is_match = resource == other_resource;
@@ -365,14 +427,26 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
     {
         SECTION("Trivial")
         {
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, {});
+            const auto s =
+                Scenario(*Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0, {}, {}, {}, {}, {}, {}, {});
             REQUIRE(s.get_resources(IterationType::Fixed).empty());
             REQUIRE(s.get_resources(IterationType::Random).empty());
         }
 
         SECTION("1 resource")
         {
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, { { k10engine::Resource::Ore, 1 } }, {}, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { { k10engine::Resource::Ore, 1 } },
+                                    {},
+                                    {});
             const auto& fixed_resources = s.get_resources(IterationType::Fixed);
             REQUIRE(!fixed_resources.empty());
             REQUIRE(fixed_resources.size() == 1);
@@ -385,7 +459,18 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("2 resources (same)")
         {
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, { { k10engine::Resource::Ore, 2 } }, {}, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { { k10engine::Resource::Ore, 2 } },
+                                    {},
+                                    {});
             const auto& fixed_resources = s.get_resources(IterationType::Fixed);
             REQUIRE(!fixed_resources.empty());
             REQUIRE(fixed_resources.size() == 2);
@@ -401,7 +486,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
         SECTION("2 resources (different)")
         {
             k10engine::Random::seed(MAGIC_NUMBER_1);
-            const auto s = Scenario(0,
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
                                     0,
                                     0,
                                     0,
@@ -427,7 +513,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
         SECTION("standard resources")
         {
             k10engine::Random::seed(MAGIC_NUMBER_1);
-            const auto s = Scenario(0,
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
                                     0,
                                     0,
                                     0,
@@ -519,14 +606,26 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
     {
         SECTION("Trivial")
         {
-            const auto s = Scenario(0, 0, 0, 0., {}, {}, {}, {}, {}, {}, {});
+            const auto s =
+                Scenario(*Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0., {}, {}, {}, {}, {}, {}, {});
             REQUIRE(s.get_development_card_deck(IterationType::Fixed).empty());
             REQUIRE(s.get_development_card_deck(IterationType::Random).empty());
         }
 
         SECTION("1 development card")
         {
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, { { k10engine::DevelopmentCard::Knight, 1 } }, {}, {}, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    { { k10engine::DevelopmentCard::Knight, 1 } },
+                                    {},
+                                    {},
+                                    {});
             const auto& fixed_development_cards = s.get_development_card_deck(IterationType::Fixed);
             REQUIRE(!fixed_development_cards.empty());
             REQUIRE(fixed_development_cards.size() == 1);
@@ -539,7 +638,18 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("2 development cards (same)")
         {
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, { { k10engine::DevelopmentCard::Knight, 2 } }, {}, {}, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    { { k10engine::DevelopmentCard::Knight, 2 } },
+                                    {},
+                                    {},
+                                    {});
             const auto& fixed_development_cards = s.get_development_card_deck(IterationType::Fixed);
             REQUIRE(!fixed_development_cards.empty());
             REQUIRE(fixed_development_cards.size() == 2);
@@ -556,7 +666,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
         {
             k10engine::Random::seed(MAGIC_NUMBER_1);
             const auto s =
-                Scenario(0,
+                Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                         0,
                          0,
                          0,
                          0,
@@ -581,7 +692,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("standard development cards")
         {
-            const auto s = Scenario(0,
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
                                     0,
                                     0,
                                     0,
@@ -655,14 +767,26 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
     {
         SECTION("Trivial")
         {
-            const auto s = Scenario(0, 0, 0, 0., {}, {}, {}, {}, {}, {}, {});
+            const auto s =
+                Scenario(*Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0., {}, {}, {}, {}, {}, {}, {});
             REQUIRE(s.get_rolls(IterationType::Fixed).empty());
             REQUIRE(s.get_rolls(IterationType::Random).empty());
         }
 
         SECTION("1 roll")
         {
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, { MAGIC_NUMBER_2 }, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { MAGIC_NUMBER_2 },
+                                    {});
             const auto& fixed_rolls = s.get_rolls(IterationType::Fixed);
             REQUIRE(!fixed_rolls.empty());
             REQUIRE(fixed_rolls.size() == 1);
@@ -675,7 +799,18 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("2 rolls (same)")
         {
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, { MAGIC_NUMBER_2, MAGIC_NUMBER_2 }, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { MAGIC_NUMBER_2, MAGIC_NUMBER_2 },
+                                    {});
             const auto& fixed_rolls = s.get_rolls(IterationType::Fixed);
             REQUIRE(!fixed_rolls.empty());
             REQUIRE(fixed_rolls.size() == 2);
@@ -691,7 +826,18 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
         SECTION("2 rolls (different)")
         {
             k10engine::Random::seed(MAGIC_NUMBER_1);
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, { MAGIC_NUMBER_2, MAGIC_NUMBER_3 }, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { MAGIC_NUMBER_2, MAGIC_NUMBER_3 },
+                                    {});
             const auto& fixed_rolls = s.get_rolls(IterationType::Fixed);
             REQUIRE(!fixed_rolls.empty());
             REQUIRE(fixed_rolls.size() == 2);
@@ -706,8 +852,18 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
 
         SECTION("standard rolls")
         {
-            const auto s = Scenario(
-                0, 0, 0, 0, {}, {}, {}, {}, {}, { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 }, {});
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 },
+                                    {});
             std::vector<u8> expected_rolls;
             std::vector<u8> actual_rolls;
             expected_rolls = { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 };
@@ -737,7 +893,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
     {
         SECTION("Trivial")
         {
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, {});
+            const auto s =
+                Scenario(*Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0, {}, {}, {}, {}, {}, {}, {});
             REQUIRE(s.get_ports(IterationType::Fixed).empty());
             REQUIRE(s.get_ports(IterationType::Random).empty());
         }
@@ -745,7 +902,18 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
         SECTION("1 port (single resource)")
         {
             const k10engine::Scenario::_PortSpec expected_port = { { k10engine::Resource::Ore }, 1 };
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, { expected_port });
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { expected_port });
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
             REQUIRE(fixed_ports.size() == 1);
@@ -761,7 +929,18 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const k10engine::Scenario::_PortSpec expected_port = {
                 { k10engine::Resource::Ore, k10engine::Resource::Wheat }, 1
             };
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, { expected_port });
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { expected_port });
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
             REQUIRE(fixed_ports.size() == 1);
@@ -778,7 +957,18 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             const k10engine::Scenario::_PortSpec expected_port = {
                 { k10engine::Resource::Ore, k10engine::Resource::Wheat }, 1
             };
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, { expected_port, expected_port });
+            const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    { expected_port, expected_port });
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
             REQUIRE(fixed_ports.size() == 2);
@@ -796,7 +986,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
             k10engine::Random::seed(MAGIC_NUMBER_1);
             std::vector<k10engine::Scenario::_PortSpec> expected_ports;
             expected_ports = { { { k10engine::Resource::Ore }, 1 }, { { k10engine::Resource::Wheat }, 1 } };
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, expected_ports);
+            const auto s = Scenario(
+                *Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0, {}, {}, {}, {}, {}, {}, expected_ports);
             const auto& fixed_ports = s.get_ports(IterationType::Fixed);
             REQUIRE(!fixed_ports.empty());
             REQUIRE(fixed_ports.size() == expected_ports.size());
@@ -860,7 +1051,8 @@ TEST_CASE("Iteration of (possibly) randomly generated values", "[Scenario]")
                   },
                   3 },
             };
-            const auto s = Scenario(0, 0, 0, 0, {}, {}, {}, {}, {}, {}, ports);
+            const auto s =
+                Scenario(*Board::Store::the().by_name(Board::Name::Single), 0, 0, 0, 0, {}, {}, {}, {}, {}, {}, ports);
             std::vector<k10engine::Scenario::_PortSpec> expected_ports;
             std::vector<k10engine::Scenario::_PortSpec> actual_ports;
             expected_ports = ports;
@@ -938,7 +1130,8 @@ TEST_CASE("Parameter validation", "[Scenario]")
     const size_t standard_max_players_count = 5;
     const size_t standard_min_victory_points_goal = 8;
     const size_t standard_max_victory_points_goal = 12;
-    const auto s = Scenario(standard_min_players_count,
+    const auto s = Scenario(*Board::Store::the().by_name(Board::Name::Single),
+                            standard_min_players_count,
                             standard_max_players_count,
                             standard_min_victory_points_goal,
                             standard_max_victory_points_goal,

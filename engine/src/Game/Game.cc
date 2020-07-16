@@ -73,16 +73,14 @@ size_t Game::get_round() const
     return m_turn / m_players.size();
 }
 
-Game::Game(const Board::Graph* graph,
+Game::Game(const Scenario::Scenario* scenario,
            std::vector<BoardView::NodeView*>& nodes,
            std::vector<DevelopmentCard> deck,
-           const Scenario::Scenario* scenario,
            const Scenario::Parameters& parameters,
            BoardView::Hex* robber_location)
-    : m_graph(graph)
+    : m_scenario(scenario)
     , m_nodes(std::move(nodes))
     , m_deck(std::move(deck))
-    , m_scenario(scenario)
     , m_robber(robber_location)
     , m_victory_points_goal(parameters.victory_points_goal)
 {
@@ -101,9 +99,7 @@ Game::~Game()
     m_deck.clear();
 }
 
-Game* Game::initialize(const Board::Graph* graph,
-                       const Scenario::Scenario* scenario,
-                       const Scenario::Parameters& parameters)
+Game* Game::initialize(const Scenario::Scenario* scenario, const Scenario::Parameters& parameters)
 {
     if (!scenario->is_valid(parameters)) {
         return {};
@@ -144,7 +140,7 @@ Game* Game::initialize(const Board::Graph* graph,
     };
 
     auto make_junction = [&](const Board::Node& node) -> BoardView::Junction* {
-        const auto port = graph->port(node);
+        const auto port = scenario->graph().port(node);
         if (port == nullptr) {
             return new BoardView::Junction(node, {}, 0);
         }
@@ -158,7 +154,7 @@ Game* Game::initialize(const Board::Graph* graph,
 
     auto make_road = [&](const Board::Node& node) -> BoardView::Road* { return new BoardView::Road(node); };
 
-    for (const auto& node : graph->nodes()) {
+    for (const auto& node : scenario->graph().nodes()) {
         switch (node.type()) {
         case Board::NodeType::Hex: { // scope for const
             auto hex = make_hex(node);
@@ -187,7 +183,7 @@ Game* Game::initialize(const Board::Graph* graph,
             continue;
         }
         for (const auto& direction : Board::AllDirections) {
-            const auto neighbor_node = graph->neighbor(node->node(), direction);
+            const auto neighbor_node = scenario->graph().neighbor(node->node(), direction);
             if (neighbor_node == nullptr) {
                 continue;
             }
@@ -208,7 +204,7 @@ Game* Game::initialize(const Board::Graph* graph,
 
     // FIXME: Don't just blindly cast this unless we're 100% sure this is a Hex ...
     auto robber_location = static_cast<BoardView::Hex*>(nodes.at(robber_index));
-    return new Game(graph, nodes, deck, scenario, parameters, robber_location);
+    return new Game(scenario, nodes, deck, parameters, robber_location);
 }
 
 static bool player_can_execute_edge(const Player& player, const State::Edge& requested_edge)
@@ -924,9 +920,9 @@ void Game::recalculate_largest_army(Player* player)
 std::ostream& operator<<(std::ostream& os, const Game& game)
 {
     const auto robber_hex = game.robber_location();
-    for (size_t y = 0; y < game.graph()->height(); ++y) {
-        for (size_t x = 0; x < game.graph()->width(); ++x) {
-            const auto node = game.graph()->node(x, y);
+    for (size_t y = 0; y < game.graph().height(); ++y) {
+        for (size_t x = 0; x < game.graph().width(); ++x) {
+            const auto node = game.graph().node(x, y);
             if (node == nullptr) {
                 os << " ";
                 continue;
@@ -959,18 +955,18 @@ std::ostream& operator<<(std::ostream& os, const Game& game)
                     os << owner->index();
                     continue;
                 }
-                if (game.graph()->has_neighbor(*node, Board::Direction::Clock6)
-                    || game.graph()->has_neighbor(*node, Board::Direction::Clock12)) {
+                if (game.graph().has_neighbor(*node, Board::Direction::Clock6)
+                    || game.graph().has_neighbor(*node, Board::Direction::Clock12)) {
                     os << '|';
                     continue;
                 }
-                if (game.graph()->has_neighbor(*node, Board::Direction::Clock2)
-                    || game.graph()->has_neighbor(*node, Board::Direction::Clock8)) {
+                if (game.graph().has_neighbor(*node, Board::Direction::Clock2)
+                    || game.graph().has_neighbor(*node, Board::Direction::Clock8)) {
                     os << '/';
                     continue;
                 }
-                if (game.graph()->has_neighbor(*node, Board::Direction::Clock4)
-                    || game.graph()->has_neighbor(*node, Board::Direction::Clock10)) {
+                if (game.graph().has_neighbor(*node, Board::Direction::Clock4)
+                    || game.graph().has_neighbor(*node, Board::Direction::Clock10)) {
                     os << '\\';
                     continue;
                 }
@@ -1018,7 +1014,7 @@ std::ostream& operator<<(std::ostream& os, const Game& game)
             }
             assert(false);
         }
-        if (y < game.graph()->height() - 1) {
+        if (y < game.graph().height() - 1) {
             os << std::endl;
         }
     }
@@ -1145,10 +1141,9 @@ const BoardView::Road* Game::road(size_t index) const
 void Game::encode(ByteBuffer& buf) const
 {
     Encoder encoder(buf);
-    encoder << m_graph;
+    encoder << m_scenario;
     encoder << m_nodes;
     encoder << m_deck;
-    encoder << m_scenario;
     encoder << m_dice;
     encoder << m_robber.location()->index();
     encoder << m_victory_points_goal;
@@ -1191,8 +1186,9 @@ void Game::encode(ByteBuffer& buf) const
 Game* Game::decode(ByteBuffer& buf)
 {
     Decoder decoder(buf);
-    const Board::Graph* graph;
-    if (!decoder.decode(graph))
+
+    const Scenario::Scenario* scenario;
+    if (!decoder.decode(scenario))
         return nullptr;
 
     std::vector<BoardView::NodeView*> nodes;
@@ -1201,16 +1197,12 @@ Game* Game::decode(ByteBuffer& buf)
         return nullptr;
     nodes.reserve(n_nodes);
     for (size_t i = 0; i < n_nodes; ++i) {
-        auto* node = BoardView::NodeView::decode(buf, *graph);
+        auto* node = BoardView::NodeView::decode(buf, scenario->graph());
         nodes.push_back(node);
     }
 
     std::vector<DevelopmentCard> deck;
     if (!decoder.decode(deck))
-        return nullptr;
-
-    const Scenario::Scenario* scenario;
-    if (!decoder.decode(scenario))
         return nullptr;
 
     Dice dice;
@@ -1277,7 +1269,7 @@ Game* Game::decode(ByteBuffer& buf)
     if (!decoder.decode(turn))
         return nullptr;
 
-    auto* game = new Game(graph, nodes, deck, scenario, victory_points_goal, robber_hex);
+    auto* game = new Game(scenario, nodes, deck, victory_points_goal, robber_hex);
     game->m_dice = dice;
     game->m_players = std::move(players);
     game->m_deck_index = deck_index;
@@ -1291,16 +1283,14 @@ Game* Game::decode(ByteBuffer& buf)
     return game;
 }
 
-Game::Game(const Board::Graph* graph,
+Game::Game(const Scenario::Scenario* scenario,
            std::vector<BoardView::NodeView*>& nodes,
            std::vector<DevelopmentCard> deck,
-           const Scenario::Scenario* scenario,
            size_t victory_points_goal,
            BoardView::Hex* robber_location)
-    : m_graph(graph)
+    : m_scenario(scenario)
     , m_nodes(std::move(nodes))
     , m_deck(std::move(deck))
-    , m_scenario(scenario)
     , m_robber(robber_location)
     , m_victory_points_goal(victory_points_goal)
 {
@@ -1370,8 +1360,6 @@ bool Game::operator==(const Game& that) const
             return false;
     }
 
-    if (Board::Store::the().name_of(this->graph()) != Board::Store::the().name_of(that.graph()))
-        return false;
     if (Scenario::Store::the().name_of(&this->scenario()) != Scenario::Store::the().name_of(&that.scenario()))
         return false;
 

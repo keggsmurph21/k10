@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include "Board/Store.h"
 #include "Scenario/Store.h"
 
 namespace k10engine::Scenario {
@@ -16,6 +17,7 @@ const Store& Store::the()
 // Dumb little DSL for constructing these scenarios ... it'd be much better to
 // just eventually move this into an actual config file format :^)
 
+#define WITH_BOARD(x) (*Board::Store::the().by_name(Board::Name::x))
 #define PLAYERS_CAN_RANGE_FROM(min, max) (min), (max)
 #define VICTORY_POINTS_CAN_RANGE_FROM(min, max) (min), (max)
 #define TO_BUILD(...) \
@@ -81,6 +83,7 @@ Store::Store()
 {
     m_named_scenarios.resize(5);
     m_named_scenarios.at(static_cast<size_t>(Name::Single)) = new Scenario{
+        WITH_BOARD(Single),
         PLAYERS_CAN_RANGE_FROM(1, 2),
         VICTORY_POINTS_CAN_RANGE_FROM(3, 6),
         TO_BUILD(A(City, IT COSTS(3, Ore) AND COSTS(2, Wheat)),
@@ -99,6 +102,7 @@ Store::Store()
         THE_PORTS_ARE(EXCHANGE_ANYTHING_FOR(3, OF_ANYTHING), EXCHANGE_ANYTHING_FOR(3, OF(Wheat)))
     };
     m_named_scenarios.at(static_cast<size_t>(Name::Triple)) = new Scenario{
+        WITH_BOARD(Triple),
         PLAYERS_CAN_RANGE_FROM(1, 3),
         VICTORY_POINTS_CAN_RANGE_FROM(3, 6),
         TO_BUILD(A(City, IT COSTS(3, Ore) AND COSTS(2, Wheat)),
@@ -120,6 +124,7 @@ Store::Store()
                       EXCHANGE_ANYTHING_FOR(3, OF_ANYTHING))
     };
     m_named_scenarios.at(static_cast<size_t>(Name::Standard)) = new Scenario{
+        WITH_BOARD(Standard),
         PLAYERS_CAN_RANGE_FROM(2, 5),
         VICTORY_POINTS_CAN_RANGE_FROM(8, 12),
         TO_BUILD(A(City, IT COSTS(3, Ore) AND COSTS(2, Wheat)),
