@@ -84,3 +84,28 @@ bool decode(ByteBuffer&, k10engine::Server::RegisterUserResponse&)
 {
     assert(false);
 }
+
+template<>
+void encode(ByteBuffer& buf, const k10engine::Server::NewGameResponse& response)
+{
+    Encoder encoder(buf);
+    encoder << response.m_game_id;
+}
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::JoinGameResponse&)
+{
+    // Nothing to do here ...
+}
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::LeaveGameResponse&)
+{
+    // Nothing to do here ...
+}
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::StartGameResponse&)
+{
+    // Nothing to do here ...
+}

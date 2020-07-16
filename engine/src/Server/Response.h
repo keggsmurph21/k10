@@ -126,3 +126,15 @@ void encode(ByteBuffer&, const k10engine::Server::RegisterUserResponse&);
 
 template<>
 bool decode(ByteBuffer&, k10engine::Server::RegisterUserResponse&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::NewGameResponse&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::JoinGameResponse&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::LeaveGameResponse&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::StartGameResponse&);
