@@ -4,6 +4,7 @@
 #include <variant>
 
 #include "Board/Store.h"
+#include "Core/Random.h"
 #include "Game/Game.h"
 #include "Scenario/Store.h"
 
@@ -192,7 +193,8 @@ Game* Game::initialize(PlayerId owner, const Scenario::Scenario* scenario, const
     for (size_t i = 0; i < parameters.players_count; ++i) {
         game->m_players.push_back(new Player(0, i, game));
     }
-    game->current_player().set_vertex(State::Vertex::Root);
+    game->m_joined_player_ids.reserve(parameters.players_count);
+    game->m_joined_player_ids.push_back(owner);
     return game;
 }
 
@@ -1132,6 +1134,7 @@ void Game::encode(ByteBuffer& buf) const
     Encoder encoder(buf);
 
     encoder << m_owner;
+    encoder << m_joined_player_ids;
     encoder << m_scenario;
     encoder << m_nodes;
     encoder << m_deck;
@@ -1180,6 +1183,10 @@ Game* Game::decode(ByteBuffer& buf)
 
     PlayerId owner;
     if (!decoder.decode(owner))
+        return nullptr;
+
+    std::vector<PlayerId> joined_player_ids;
+    if (!decoder.decode(joined_player_ids))
         return nullptr;
 
     const Scenario::Scenario* scenario;
@@ -1265,6 +1272,7 @@ Game* Game::decode(ByteBuffer& buf)
         return nullptr;
 
     auto* game = new Game(owner, scenario, nodes, deck, victory_points_goal, robber_hex);
+    game->m_joined_player_ids = std::move(joined_player_ids);
     game->m_dice = dice;
     game->m_players = std::move(players);
     for (auto* player : game->players())
@@ -1298,6 +1306,8 @@ Game::Game(PlayerId owner,
 bool Game::operator==(const Game& that) const
 {
     if (this->owner() != that.owner())
+        return false;
+    if (this->joined_player_ids() != that.joined_player_ids())
         return false;
 
     if (this->can_steal() != that.can_steal())
@@ -1373,6 +1383,77 @@ bool Game::operator==(const Game& that) const
         if (this->players().at(i)->index() != that.players().at(i)->index())
             return false;
 
+    return true;
+}
+
+size_t Game::num_joined() const
+{
+    return m_joined_player_ids.size();
+}
+
+bool Game::contains(PlayerId player_id) const
+{
+    for (const auto& joined_player_id : m_joined_player_ids) {
+        if (joined_player_id == player_id)
+            return true;
+    }
+    return false;
+}
+
+bool Game::can_join(PlayerId player_id) const
+{
+    return !contains(player_id);
+}
+
+bool Game::join(PlayerId player_id)
+{
+    if (has_started())
+        return false;
+    if (!can_join(player_id))
+        return false;
+    m_joined_player_ids.push_back(player_id);
+    return true;
+}
+
+bool Game::can_leave(PlayerId player_id) const
+{
+    return player_id != m_owner && contains(player_id);
+}
+
+bool Game::leave(PlayerId player_id)
+{
+    if (has_started())
+        return false;
+    if (!can_leave(player_id))
+        return false;
+    for (auto it = m_joined_player_ids.begin(); it != m_joined_player_ids.end(); ++it) {
+        if (*it == player_id) {
+            m_joined_player_ids.erase(it);
+            return true;
+        }
+    }
+    assert(false); // not reachable
+}
+
+bool Game::can_start() const
+{
+    return m_joined_player_ids.size() == m_players.size();
+}
+
+bool Game::has_started() const
+{
+    return m_joined_player_ids.size() == 0;
+}
+
+bool Game::start()
+{
+    if (!can_start())
+        return false;
+    std::shuffle(m_joined_player_ids.begin(), m_joined_player_ids.end(), Random::rng());
+    for (size_t i = 0; i < m_players.size(); ++i)
+        m_players.at(i)->set_id(m_joined_player_ids.at(i));
+    current_player().set_vertex(State::Vertex::Root);
+    m_joined_player_ids.resize(0);
     return true;
 }
 

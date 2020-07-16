@@ -46,6 +46,16 @@ public:
     bool operator==(const Game&) const;
 
     PlayerId owner() const { return m_owner; }
+    const std::vector<PlayerId>& joined_player_ids() const { return m_joined_player_ids; }
+
+    size_t num_joined() const;
+    bool can_join(PlayerId) const;
+    bool join(PlayerId);
+    bool can_leave(PlayerId) const;
+    bool leave(PlayerId);
+    bool can_start() const;
+    bool has_started() const;
+    bool start();
 
     bool can_steal() const { return m_can_steal; }
     bool has_rolled() const { return m_has_rolled; }
@@ -134,6 +144,9 @@ private:
          BoardView::Hex* robber_location);
 
     PlayerId m_owner;
+    std::vector<PlayerId> m_joined_player_ids;
+    bool contains(PlayerId) const;
+
     const Scenario::Scenario* m_scenario;
 
     std::vector<BoardView::NodeView*> m_nodes;

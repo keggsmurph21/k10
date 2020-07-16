@@ -29,6 +29,7 @@ static Game::PlayerId s_next_player_id = 1;
 inline Game::Game* make_game(Scenario::Name scenario_name,
                              size_t n_players,
                              size_t victory_points_goal,
+                             bool auto_start = true,
                              Game::PlayerId next_player_id = 0)
 {
     if (next_player_id == 0)
@@ -42,6 +43,12 @@ inline Game::Game* make_game(Scenario::Name scenario_name,
                                    n_players,
                                    victory_points_goal };
     auto* game = Game::Game::initialize(next_player_id++, s, p);
+    if (auto_start) {
+        // start at 1 because "owner" already joined
+        for (size_t i = 1; i < n_players; ++i)
+            REQUIRE(game->join(next_player_id++));
+        REQUIRE(game->start());
+    }
     return game;
 }
 
