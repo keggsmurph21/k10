@@ -16,6 +16,8 @@ Server::Server(int port, int listen_sock, std::string game_cache_path, size_t ga
     : ServerBase(port, listen_sock)
     , m_game_cache(GameCache(std::move(game_cache_path), game_cache_size))
 {
+    // We want to make sure we get the registration for player id 0!
+    (void)m_registrar.register_user("admin", "what is beadly");
 }
 
 bool Server::on_connect(int fd, char* client_ip)
