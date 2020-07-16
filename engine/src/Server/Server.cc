@@ -8,6 +8,10 @@
 
 namespace k10engine::Server {
 
+#define VALIDATE_REQUEST(request)                                                     \
+    if (!m_registrar.validate_player(request->m_player_id, request->m_player_secret)) \
+        assert(false);
+
 Server::Server(int port, int listen_sock, std::string game_cache_path, size_t game_cache_size)
     : ServerBase(port, listen_sock)
     , m_game_cache(GameCache(std::move(game_cache_path), game_cache_size))
@@ -91,11 +95,14 @@ const RegisterUserResponse* Server::handle_register_user(const RegisterUserReque
     return new RegisterUserResponse(registration);
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 const NewGameResponse* Server::handle_new_game(const NewGameRequest* request)
 {
-    (void)request;
-    assert(false);
+    VALIDATE_REQUEST(request);
+    auto* game = Game::Game::initialize(request->m_player_id, request->m_scenario, request->m_parameters);
+    if (game == nullptr)
+        assert(false);
+    auto game_id = m_game_cache.insert(game);
+    return new NewGameResponse(game_id);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)

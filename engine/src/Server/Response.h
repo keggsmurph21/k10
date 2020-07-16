@@ -43,8 +43,10 @@ struct RegisterUserResponse final : public Response {
 };
 
 struct NewGameResponse final : public Response {
-    NewGameResponse()
+    Game::GameId m_game_id;
+    NewGameResponse(Game::GameId game_id)
         : Response(Response::Type::NewGame)
+        , m_game_id(game_id)
     {
     }
 };
