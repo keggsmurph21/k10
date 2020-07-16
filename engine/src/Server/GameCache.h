@@ -13,6 +13,7 @@ public:
     GameCache(std::string path, size_t cache_size);
 
     Game::Game* get(Game::GameId);
+    Game::GameId insert(Game::Game*);
     void set(Game::GameId, Game::Game*);
 
     struct Path {

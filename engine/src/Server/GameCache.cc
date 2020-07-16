@@ -7,6 +7,8 @@
 
 namespace k10engine::Server {
 
+static Game::GameId s_next_game_id = 1;
+
 GameCache::GameCache(std::string path, size_t cache_size)
     : m_path(std::move(path))
     , m_cache({ [this](const Game::GameId& game_id) -> Game::Game* { return this->retrieve_from_disk(game_id); },
@@ -18,6 +20,13 @@ GameCache::GameCache(std::string path, size_t cache_size)
 void GameCache::set(Game::GameId game_id, Game::Game* game)
 {
     m_cache.set(game_id, game);
+}
+
+Game::GameId GameCache::insert(Game::Game* game)
+{
+    auto game_id = s_next_game_id++;
+    set(game_id, game);
+    return game_id;
 }
 
 Game::Game* GameCache::get(Game::GameId game_id)
