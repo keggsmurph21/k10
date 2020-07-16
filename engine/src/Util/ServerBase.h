@@ -23,13 +23,13 @@ public:
 
     static int bind_and_listen(int port);
 
-    template<typename T>
-    static inline T* create(int port)
+    template<typename T, typename... Args>
+    static inline T* create(int port, Args&&... args)
     {
         auto listen_sock = bind_and_listen(port);
         if (listen_sock < 0)
             return nullptr;
-        return new T(port, listen_sock);
+        return new T(port, listen_sock, std::forward<Args>(args)...);
     }
 
 protected:

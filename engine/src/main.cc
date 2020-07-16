@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 
     int port = std::stoi(argv[1]);
 
-    auto* server = ServerBase::create<k10engine::Server::Server>(port);
+    auto* server = ServerBase::create<k10engine::Server::Server>(port, "/tmp/k10-game-store", 100);
     if (server == nullptr) {
         std::cerr << "Unable to listen on port " << port << std::endl;
         return 1;

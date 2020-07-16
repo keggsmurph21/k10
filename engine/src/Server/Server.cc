@@ -8,6 +8,12 @@
 
 namespace k10engine::Server {
 
+Server::Server(int port, int listen_sock, std::string game_cache_path, size_t game_cache_size)
+    : ServerBase(port, listen_sock)
+    , m_game_cache(GameCache(std::move(game_cache_path), game_cache_size))
+{
+}
+
 bool Server::on_connect(int fd, char* client_ip)
 {
     (void)fd;

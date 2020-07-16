@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Server/GameCache.h"
 #include "Server/Registrar.h"
 #include "Server/Request.h"
 #include "Server/Response.h"
@@ -10,10 +11,7 @@ namespace k10engine::Server {
 
 class Server final : public ServerBase {
 public:
-    Server(int port, int listen_sock)
-        : ServerBase(port, listen_sock)
-    {
-    }
+    Server(int port, int listen_sock, std::string game_cache_path, size_t game_cache_size);
 
 private:
     [[nodiscard]] bool on_connect(int fd, char* client_ip) override;
@@ -31,6 +29,7 @@ private:
     const UnregisterListenerResponse* handle_unregister_listener(const UnregisterListenerRequest*);
 
     Registrar m_registrar;
+    GameCache m_game_cache;
 };
 
 } // namespace k10engine::Server
