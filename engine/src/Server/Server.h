@@ -14,8 +14,9 @@ public:
     Server(int port, int listen_sock, std::string game_cache_path, size_t game_cache_size);
 
 private:
-    [[nodiscard]] bool on_connect(int fd, char* client_ip) override;
-    [[nodiscard]] bool on_read(int fd, ByteBuffer&) override;
+    [[nodiscard]] bool on_connect(int fd, std::string client_ip) override;
+    [[nodiscard]] bool on_read(ByteBuffer&) override;
+    [[nodiscard]] bool on_writeable(int fd) override;
 
     const Response* handle(const Request*);
     const RegisterUserResponse* handle_register_user(const RegisterUserRequest*);

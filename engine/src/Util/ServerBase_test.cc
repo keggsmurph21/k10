@@ -12,11 +12,17 @@ public:
     }
 
 private:
-    [[nodiscard]] bool on_connect(int, char*) override { return true; }[[nodiscard]] bool on_read(int fd,
-                                                                                                  ByteBuffer&) override;
+    [[nodiscard]] bool on_connect(int, std::string) override;
+    [[nodiscard]] bool on_read(ByteBuffer&) override;
+    [[nodiscard]] bool on_writeable(int) override;
 };
 
-bool TestServer::on_read(int fd, ByteBuffer& request)
+bool TestServer::on_connect(int, std::string)
+{
+    return true;
+}
+
+bool TestServer::on_read(ByteBuffer& request)
 {
     (void)request;
 
@@ -24,17 +30,22 @@ bool TestServer::on_read(int fd, ByteBuffer& request)
     std::memset(buf, 0, 5);
     std::strncpy(buf, "ack\n", 5);
 
-    if (write(fd, buf, strlen(buf)) < 0) {
-        if (errno == EPIPE) {
-            std::cerr << "ignoring broken pipe..." << std::endl;
-            return true;
-        }
-        perror("write");
-        return false;
-    }
+    // if (write(fd, buf, strlen(buf)) < 0) {
+    // if (errno == EPIPE) {
+    // std::cerr << "ignoring broken pipe..." << std::endl;
+    // return true;
+    //}
+    // perror("write");
+    // return false;
+    //}
 
-    ::close(fd);
+    //::close(fd);
 
+    return true;
+}
+
+bool TestServer::on_writeable(int)
+{
     return true;
 }
 

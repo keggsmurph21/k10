@@ -16,10 +16,13 @@ public:
     using Event = struct epoll_event;
 
     [[nodiscard]] bool handle_new_connection(Event&);
-    [[nodiscard]] virtual bool on_connect(int fd, char* client_ip) = 0;
+    [[nodiscard]] virtual bool on_connect(int fd, std::string client_ip) = 0;
 
-    [[nodiscard]] bool handle_existing_connection(int fd, char* buf);
-    [[nodiscard]] virtual bool on_read(int fd, ByteBuffer&) = 0;
+    [[nodiscard]] bool handle_ready_to_read(int fd, char* buf);
+    [[nodiscard]] virtual bool on_read(ByteBuffer&) = 0;
+
+    [[nodiscard]] bool handle_ready_to_write(int fd);
+    [[nodiscard]] virtual bool on_writeable(int fd) = 0;
 
     static int bind_and_listen(int port);
 

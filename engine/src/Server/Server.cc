@@ -20,14 +20,14 @@ Server::Server(int port, int listen_sock, std::string game_cache_path, size_t ga
     (void)m_registrar.register_user("admin", "what is beadly");
 }
 
-bool Server::on_connect(int fd, char* client_ip)
+bool Server::on_connect(int fd, std::string client_ip)
 {
     (void)fd;
     (void)client_ip;
     return true;
 }
 
-bool Server::on_read(int fd, ByteBuffer& buf)
+bool Server::on_read(ByteBuffer& buf)
 {
     Decoder decoder(buf);
 
@@ -44,19 +44,28 @@ bool Server::on_read(int fd, ByteBuffer& buf)
     Encoder encoder(buf);
     encoder << *response;
     delete response;
-    std::cout << "response bytes: " << buf << std::endl;
 
-    if (::write(fd, buf.data(), buf.unread_size()) < 0) {
-        if (errno == EPIPE) {
-            std::cerr << "ignoring broken pipe..." << std::endl;
-            return true;
-        }
-        perror("write");
-        return false;
-    }
-    ::close(fd);
+    // std::cout << "response bytes(" << buf.unread_size() << ") to fd " << fd << ": " << buf << std::endl;
+
+    // if (::write(fd, buf.data(), buf.unread_size()) < 0) {
+    // std::cout << "wrote the bytes :^)" << std::endl;
+    // if (errno == EPIPE) {
+    // std::cerr << "ignoring broken pipe..." << std::endl;
+    // return true;
+    //}
+    // perror("write");
+    // return false;
+    //}
+    //::close(fd);
 
     return true;
+}
+
+bool Server::on_writeable(int fd)
+{
+    (void)this;
+    (void)fd;
+    assert(false);
 }
 
 const Response* Server::handle(const Request* request)

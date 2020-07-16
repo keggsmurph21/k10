@@ -1,4 +1,5 @@
 #include <arpa/inet.h>
+#include <cassert>
 #include <csignal>
 #include <cstring>
 #include <functional>
@@ -84,14 +85,22 @@ void ServerBase::serve()
 
         std::cout << std::endl << "looping thru " << num_fds << " events ..." << std::endl;
         for (int i = 0; i < num_fds; ++i) {
-            auto event_fd = m_events[i].data.fd;
-            std::cout << "handling event(" << i << ") with fd " << event_fd << std::endl;
+            auto event = m_events[i];
+            auto event_fd = event.data.fd;
+            std::cout << "handling event(" << i << ") with fd " << event_fd << " and mode " << event.events
+                      << std::endl;
             if (event_fd == m_listen_sock) {
                 if (!handle_new_connection(event))
                     exit(1);
-            } else {
-                if (!handle_existing_connection(event_fd, buf))
+            } else if (event.events & EPOLLIN) {
+                if (!handle_ready_to_read(event_fd, buf))
                     exit(1);
+            } else if (event.events & EPOLLOUT) {
+                if (!handle_ready_to_write(event_fd))
+                    exit(1);
+            } else {
+                std::cout << "Unknown epoll event (" << event.events << "), exiting ..." << std::endl;
+                exit(1);
             }
         }
     }
@@ -102,12 +111,14 @@ bool ServerBase::handle_new_connection(Event& event)
     static struct sockaddr_in client_addr;
     static socklen_t addrlen = sizeof(client_addr);
 
-    int conn_sock = accept(m_listen_sock, reinterpret_cast<sockaddr*>(&client_addr), &addrlen);
+    int conn_sock =
+        accept4(m_listen_sock, reinterpret_cast<sockaddr*>(&client_addr), &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
     if (conn_sock == -1) {
         perror("accept");
         return false;
     }
-    event.events = EPOLLIN;
+
+    event.events = EPOLLIN | EPOLLOUT;
     event.data.fd = conn_sock;
     if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, conn_sock, &event) == -1) {
         perror("epoll_ctl");
@@ -123,7 +134,7 @@ bool ServerBase::handle_new_connection(Event& event)
     return on_connect(conn_sock, client_ip);
 }
 
-bool ServerBase::handle_existing_connection(int fd, char* buf)
+bool ServerBase::handle_ready_to_read(int fd, char* buf)
 {
     std::memset(buf, 0, BUF_SIZE);
     int n_bytes = read(fd, buf, BUF_SIZE - 1);
@@ -141,7 +152,14 @@ bool ServerBase::handle_existing_connection(int fd, char* buf)
         return true;
     }
 
-    return on_read(fd, request_bytes);
+    return on_read(request_bytes);
+}
+
+bool ServerBase::handle_ready_to_write(int fd)
+{
+    (void)this;
+    (void)fd;
+    assert(false);
 }
 
 ServerBase::~ServerBase()
