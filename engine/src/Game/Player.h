@@ -26,6 +26,7 @@ namespace k10engine::Game {
 
 class Player {
 public:
+    PlayerId id() const { return m_id; }
     size_t index() const { return m_index; }
 
     std::vector<Action> get_available_actions() const;
@@ -69,14 +70,19 @@ public:
     static Player* decode(ByteBuffer&, const std::vector<BoardView::NodeView*>&);
 
 private:
-    Player(size_t index, const Game* game)
-        : m_index(index)
+    Player(PlayerId id, size_t index, const Game* game)
+        : m_id(id)
+        , m_index(index)
         , m_game(game)
     {
     }
 
+    PlayerId m_id; // value 0 means "not set"
     size_t m_index;
     const Game* m_game;
+
+    // only used once we "start" a game
+    void set_id(PlayerId id) { m_id = id; }
 
     // only used during deserialization
     void set_game(const Game* game) { m_game = game; }

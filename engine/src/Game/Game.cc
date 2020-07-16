@@ -190,7 +190,7 @@ Game* Game::initialize(const Scenario::Scenario* scenario, const Scenario::Param
 
     auto* game = new Game(scenario, nodes, deck, parameters.victory_points_goal, robber_location);
     for (size_t i = 0; i < parameters.players_count; ++i) {
-        game->m_players.push_back(new Player(i, game));
+        game->m_players.push_back(new Player(0, i, game));
     }
     game->current_player().set_vertex(State::Vertex::Root);
     return game;

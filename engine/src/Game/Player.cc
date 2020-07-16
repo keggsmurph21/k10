@@ -393,7 +393,7 @@ bool Player::can_afford(const Building& building) const
 
 std::ostream& operator<<(std::ostream& os, const Player& player)
 {
-    os << "Player{ " << player.index() << ", " << player.vertex() << " }";
+    os << "Player{ " << player.id() << ", " << player.index() << ", " << player.vertex() << " }";
     return os;
 }
 
@@ -578,12 +578,14 @@ bool Player::operator!=(const Player& other) const
 
 bool Player::operator==(const Player& other) const
 {
-    return game() == other.game() && index() == other.index();
+    return id() == other.id() && game() == other.game() && index() == other.index();
 }
 
 void Player::encode(ByteBuffer& buf) const
 {
     Encoder encoder(buf);
+
+    encoder << m_id;
     encoder << m_index;
     encoder << m_resources;
     encoder << m_bank_trade_rates;
@@ -619,6 +621,11 @@ void Player::encode(ByteBuffer& buf) const
 Player* Player::decode(ByteBuffer& buf, const std::vector<BoardView::NodeView*>& nodes)
 {
     Decoder decoder(buf);
+
+    PlayerId id;
+    if (!decoder.decode(id))
+        return nullptr;
+
     size_t index;
     if (!decoder.decode(index))
         return nullptr;
@@ -726,7 +733,7 @@ Player* Player::decode(ByteBuffer& buf, const std::vector<BoardView::NodeView*>&
     if (!decoder.decode(longest_road))
         return nullptr;
 
-    auto* player = new Player(index, nullptr);
+    auto* player = new Player(id, index, nullptr);
     player->m_resources = std::move(resources);
     player->m_bank_trade_rates = std::move(bank_trade_rates);
     player->m_cities = std::move(cities);

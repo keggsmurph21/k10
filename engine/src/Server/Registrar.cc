@@ -12,9 +12,9 @@ bool Registrar::validate_player(const Game::PlayerId player_id, const Registrar:
 
 static Registrar::PlayerSecret get_internal_secret()
 {
-    // random number in [0, 0xffffffffffffffff]
+    // random number in [1, 0xffffffffffffffff]
     static auto s_random_64bit_dist =
-        std::uniform_int_distribution<Registrar::PlayerSecret>(0, std::numeric_limits<Registrar::PlayerSecret>::max());
+        std::uniform_int_distribution<Registrar::PlayerSecret>(1, std::numeric_limits<Registrar::PlayerSecret>::max());
     static auto rng = Random::rng();
     return s_random_64bit_dist(rng);
 }
