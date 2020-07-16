@@ -57,9 +57,6 @@ public:
 
     const Game* game() const { return m_game; }
 
-    // only used during deserialization
-    void set_game(const Game* game) { m_game = game; }
-
     ~Player() {}
 
     bool operator!=(const Player&) const;
@@ -80,6 +77,9 @@ private:
 
     size_t m_index;
     const Game* m_game;
+
+    // only used during deserialization
+    void set_game(const Game* game) { m_game = game; }
 
     ResourceCounts m_resources;
     size_t count(const Resource&) const;

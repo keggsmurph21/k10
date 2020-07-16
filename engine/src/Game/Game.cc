@@ -1272,6 +1272,8 @@ Game* Game::decode(ByteBuffer& buf)
     auto* game = new Game(scenario, nodes, deck, victory_points_goal, robber_hex);
     game->m_dice = dice;
     game->m_players = std::move(players);
+    for (auto* player : game->players())
+        player->set_game(game);
     game->m_deck_index = deck_index;
     game->m_current_player_index = current_player_index;
     game->m_can_steal = can_steal;
