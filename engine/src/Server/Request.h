@@ -54,13 +54,11 @@ struct RegisterUserRequest final : public Request {
 };
 
 struct NewGameRequest final : public Request {
-    const Registrar::PlayerId m_player_id;
+    const Game::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
     // FIXME: Add ability to choose game board / scenario
     const Scenario::Parameters m_parameters;
-    NewGameRequest(Registrar::PlayerId player_id,
-                   Registrar::PlayerSecret player_secret,
-                   Scenario::Parameters parameters)
+    NewGameRequest(Game::PlayerId player_id, Registrar::PlayerSecret player_secret, Scenario::Parameters parameters)
         : Request(Type::NewGame)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
@@ -70,10 +68,10 @@ struct NewGameRequest final : public Request {
 };
 
 struct JoinGameRequest final : public Request {
-    const Registrar::PlayerId m_player_id;
+    const Game::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
-    const Game::Id m_game_id;
-    JoinGameRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::Id game_id)
+    const Game::GameId m_game_id;
+    JoinGameRequest(Game::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::GameId game_id)
         : Request(Type::JoinGame)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
@@ -83,10 +81,10 @@ struct JoinGameRequest final : public Request {
 };
 
 struct LeaveGameRequest final : public Request {
-    const Registrar::PlayerId m_player_id;
+    const Game::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
-    const Game::Id m_game_id;
-    LeaveGameRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::Id game_id)
+    const Game::GameId m_game_id;
+    LeaveGameRequest(Game::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::GameId game_id)
         : Request(Type::LeaveGame)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
@@ -96,10 +94,10 @@ struct LeaveGameRequest final : public Request {
 };
 
 struct StartGameRequest final : public Request {
-    const Registrar::PlayerId m_player_id;
+    const Game::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
-    const Game::Id m_game_id;
-    StartGameRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::Id game_id)
+    const Game::GameId m_game_id;
+    StartGameRequest(Game::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::GameId game_id)
         : Request(Type::StartGame)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
@@ -109,13 +107,13 @@ struct StartGameRequest final : public Request {
 };
 
 struct MakeMoveRequest final : public Request {
-    const Registrar::PlayerId m_player_id;
+    const Game::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
-    const Game::Id m_game_id;
+    const Game::GameId m_game_id;
     const Game::Action m_action;
-    MakeMoveRequest(Registrar::PlayerId player_id,
+    MakeMoveRequest(Game::PlayerId player_id,
                     Registrar::PlayerSecret player_secret,
-                    Game::Id game_id,
+                    Game::GameId game_id,
                     Game::Action action)
         : Request(Type::MakeMove)
         , m_player_id(player_id)
@@ -127,10 +125,10 @@ struct MakeMoveRequest final : public Request {
 };
 
 struct QueryRequest final : public Request {
-    const Registrar::PlayerId m_player_id;
+    const Game::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
-    const Game::Id m_game_id;
-    QueryRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::Id game_id)
+    const Game::GameId m_game_id;
+    QueryRequest(Game::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::GameId game_id)
         : Request(Type::Query)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
@@ -140,10 +138,10 @@ struct QueryRequest final : public Request {
 };
 
 struct RegisterListenerRequest final : public Request {
-    const Registrar::PlayerId m_player_id;
+    const Game::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
-    const Game::Id m_game_id;
-    RegisterListenerRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::Id game_id)
+    const Game::GameId m_game_id;
+    RegisterListenerRequest(Game::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::GameId game_id)
         : Request(Type::RegisterListener)
         , m_player_id(player_id)
         , m_player_secret(player_secret)
@@ -153,10 +151,10 @@ struct RegisterListenerRequest final : public Request {
 };
 
 struct UnregisterListenerRequest final : public Request {
-    const Registrar::PlayerId m_player_id;
+    const Game::PlayerId m_player_id;
     const Registrar::PlayerSecret m_player_secret;
-    const Game::Id m_game_id;
-    UnregisterListenerRequest(Registrar::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::Id game_id)
+    const Game::GameId m_game_id;
+    UnregisterListenerRequest(Game::PlayerId player_id, Registrar::PlayerSecret player_secret, Game::GameId game_id)
         : Request(Type::UnregisterListener)
         , m_player_id(player_id)
         , m_player_secret(player_secret)

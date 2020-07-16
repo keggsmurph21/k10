@@ -127,7 +127,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::NewGameRequest*& request)
 {
     Decoder decoder(buf);
 
-    k10engine::Server::Registrar::PlayerId player_id;
+    k10engine::Game::PlayerId player_id;
     if (!decoder.decode(player_id))
         return false;
 
@@ -148,7 +148,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::JoinGameRequest*& request)
 {
     Decoder decoder(buf);
 
-    k10engine::Server::Registrar::PlayerId player_id;
+    k10engine::Game::PlayerId player_id;
     if (!decoder.decode(player_id))
         return false;
 
@@ -156,7 +156,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::JoinGameRequest*& request)
     if (!decoder.decode(player_secret))
         return false;
 
-    k10engine::Game::Id game_id;
+    k10engine::Game::GameId game_id;
     if (!decoder.decode(game_id))
         return false;
 
@@ -169,7 +169,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::LeaveGameRequest*& request)
 {
     Decoder decoder(buf);
 
-    k10engine::Server::Registrar::PlayerId player_id;
+    k10engine::Game::PlayerId player_id;
     if (!decoder.decode(player_id))
         return false;
 
@@ -177,7 +177,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::LeaveGameRequest*& request)
     if (!decoder.decode(player_secret))
         return false;
 
-    k10engine::Game::Id game_id;
+    k10engine::Game::GameId game_id;
     if (!decoder.decode(game_id))
         return false;
 
@@ -190,7 +190,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::StartGameRequest*& request)
 {
     Decoder decoder(buf);
 
-    k10engine::Server::Registrar::PlayerId player_id;
+    k10engine::Game::PlayerId player_id;
     if (!decoder.decode(player_id))
         return false;
 
@@ -198,7 +198,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::StartGameRequest*& request)
     if (!decoder.decode(player_secret))
         return false;
 
-    k10engine::Game::Id game_id;
+    k10engine::Game::GameId game_id;
     if (!decoder.decode(game_id))
         return false;
 
@@ -211,7 +211,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::MakeMoveRequest*& request)
 {
     Decoder decoder(buf);
 
-    k10engine::Server::Registrar::PlayerId player_id;
+    k10engine::Game::PlayerId player_id;
     if (!decoder.decode(player_id))
         return false;
 
@@ -219,7 +219,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::MakeMoveRequest*& request)
     if (!decoder.decode(player_secret))
         return false;
 
-    k10engine::Game::Id game_id;
+    k10engine::Game::GameId game_id;
     if (!decoder.decode(game_id))
         return false;
 
@@ -236,7 +236,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::QueryRequest*& request)
 {
     Decoder decoder(buf);
 
-    k10engine::Server::Registrar::PlayerId player_id;
+    k10engine::Game::PlayerId player_id;
     if (!decoder.decode(player_id))
         return false;
 
@@ -244,7 +244,7 @@ bool decode(ByteBuffer& buf, k10engine::Server::QueryRequest*& request)
     if (!decoder.decode(player_secret))
         return false;
 
-    k10engine::Game::Id game_id;
+    k10engine::Game::GameId game_id;
     if (!decoder.decode(game_id))
         return false;
 

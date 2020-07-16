@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Util/Types.h"
+
 // Put all of our class declarations here so that
 // we can avoid polluting our actual headers with
 // forward declarations :^)
@@ -22,6 +24,9 @@ class Dice;
 class Game;
 class Player;
 class Robber;
+
+using GameId = u64;
+using PlayerId = u64;
 
 namespace BoardView {
 

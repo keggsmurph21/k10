@@ -3,8 +3,7 @@
 
 namespace k10engine::Server {
 
-bool Registrar::validate_player(const Registrar::PlayerId player_id,
-                                const Registrar::PlayerSecret internal_secret) const
+bool Registrar::validate_player(const Game::PlayerId player_id, const Registrar::PlayerSecret internal_secret) const
 {
     if (player_id >= m_internal_secrets.size())
         return false;
@@ -75,7 +74,7 @@ template<>
 bool decode(ByteBuffer& buf, k10engine::Server::Registrar::Registration& registration)
 {
     Decoder decoder(buf);
-    k10engine::Server::Registrar::PlayerId player_id;
+    k10engine::Game::PlayerId player_id;
     if (!decoder.decode(player_id))
         return false;
     k10engine::Server::Registrar::PlayerSecret player_secret;

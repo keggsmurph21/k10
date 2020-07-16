@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "Forward.h"
 #include "Util/Decoder.h"
 #include "Util/Encoder.h"
 #include "Util/LinkedTrie.h"
@@ -13,18 +14,17 @@ namespace k10engine::Server {
 
 class Registrar {
 public:
-    using PlayerId = size_t;
     using PlayerSecret = size_t;
 
     struct Registration {
-        PlayerId player_id;
+        Game::PlayerId player_id;
         PlayerSecret internal_secret;
     };
 
     [[nodiscard]] std::optional<Registration> register_user(const std::string& name,
                                                             const std::string& external_secret);
 
-    [[nodiscard]] bool validate_player(const PlayerId player_id, const PlayerSecret internal_secret) const;
+    [[nodiscard]] bool validate_player(const Game::PlayerId player_id, const PlayerSecret internal_secret) const;
 
 private:
     struct Record {
