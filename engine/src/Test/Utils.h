@@ -26,8 +26,14 @@ using Scenario_ = Scenario::Scenario;
 
 static Game::PlayerId s_next_player_id = 1;
 
-inline Game::Game* make_game(Scenario::Name scenario_name, size_t n_players, size_t victory_points_goal)
+inline Game::Game* make_game(Scenario::Name scenario_name,
+                             size_t n_players,
+                             size_t victory_points_goal,
+                             Game::PlayerId next_player_id = 0)
 {
+    if (next_player_id == 0)
+        next_player_id = s_next_player_id++;
+
     auto s = Scenario::Store::the().by_name(scenario_name);
     auto p = Scenario::Parameters{ Scenario::IterationType::Fixed,
                                    Scenario::IterationType::Fixed,
@@ -35,7 +41,7 @@ inline Game::Game* make_game(Scenario::Name scenario_name, size_t n_players, siz
                                    Scenario::IterationType::Fixed,
                                    n_players,
                                    victory_points_goal };
-    auto* game = Game::Game::initialize(s_next_player_id++, s, p);
+    auto* game = Game::Game::initialize(next_player_id++, s, p);
     return game;
 }
 

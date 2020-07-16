@@ -1297,6 +1297,9 @@ Game::Game(PlayerId owner,
 
 bool Game::operator==(const Game& that) const
 {
+    if (this->owner() != that.owner())
+        return false;
+
     if (this->can_steal() != that.can_steal())
         return false;
     if (this->has_rolled() != that.has_rolled())

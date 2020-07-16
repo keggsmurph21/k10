@@ -45,6 +45,8 @@ public:
 
     bool operator==(const Game&) const;
 
+    PlayerId owner() const { return m_owner; }
+
     bool can_steal() const { return m_can_steal; }
     bool has_rolled() const { return m_has_rolled; }
     bool is_game_over() const;

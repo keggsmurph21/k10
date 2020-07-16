@@ -43,14 +43,16 @@ TEST_CASE("GameCache", "[Server][Server.GameCache]")
 
         // Need to be careful with pointer ownership here, since the Server::GameCache expects
         // to be able to "delete" at will.
-        const auto get_game = []() -> Game::Game* { return make_game(Scenario::Name::Single, 1, 3); };
+        const auto get_game = [](Game::PlayerId owner_id = 0) -> Game::Game* {
+            return make_game(Scenario::Name::Single, 1, 3, true, owner_id);
+        };
 
         auto* expected_game_0 = get_game();
-        cache.set(0, get_game());
+        cache.set(0, get_game(expected_game_0->owner()));
 
         // force a cache eviction on expected_game_0
         auto* expected_game_1 = get_game();
-        cache.set(1, get_game());
+        cache.set(1, get_game(expected_game_1->owner()));
 
         // check that expected_game_1 is still good to go
         auto* actual_game_1 = cache.get(1);
