@@ -5,6 +5,8 @@
 
 namespace k10engine::Game {
 
+static PlayerId s_next_player_id = 1;
+
 TEST_CASE("Game serialization", "[Game]")
 {
     SECTION("Single")
@@ -16,7 +18,7 @@ TEST_CASE("Game serialization", "[Game]")
                                        Scenario::IterationType::Fixed,
                                        1,
                                        3 };
-        auto expected = Game::Game::initialize(s, p);
+        auto expected = Game::Game::initialize(s_next_player_id++, s, p);
 
         ByteBuffer buf;
         Encoder encoder(buf);
@@ -41,7 +43,7 @@ TEST_CASE("Game serialization", "[Game]")
                                        Scenario::IterationType::Fixed,
                                        2,
                                        3 };
-        auto expected = Game::Game::initialize(s, p);
+        auto expected = Game::Game::initialize(s_next_player_id++, s, p);
 
         ByteBuffer buf;
         Encoder encoder(buf);
@@ -66,7 +68,7 @@ TEST_CASE("Game serialization", "[Game]")
                                        Scenario::IterationType::Fixed,
                                        4,
                                        10 };
-        auto expected = Game::Game::initialize(s, p);
+        auto expected = Game::Game::initialize(s_next_player_id++, s, p);
 
         ByteBuffer buf;
         Encoder encoder(buf);

@@ -8,6 +8,8 @@
 
 namespace k10engine {
 
+static Game::PlayerId s_next_player_id = 1;
+
 Game::Game* make_game(Scenario::Name scenario_name, size_t n_players, size_t victory_points_goal)
 {
     auto s = Scenario::Store::the().by_name(scenario_name);
@@ -17,7 +19,7 @@ Game::Game* make_game(Scenario::Name scenario_name, size_t n_players, size_t vic
                                    Scenario::IterationType::Fixed,
                                    n_players,
                                    victory_points_goal };
-    return Game::Game::initialize(s, p);
+    return Game::Game::initialize(s_next_player_id++, s, p);
 }
 
 TEST_CASE("GameCache", "[Server][Server.GameCache]")

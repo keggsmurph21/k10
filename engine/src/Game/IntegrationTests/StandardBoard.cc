@@ -1,5 +1,7 @@
 #include "Common.h"
 
+static k10engine::Game::PlayerId s_next_player_id = 1;
+
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
 TEST_CASE("Standard board first two rounds", "[Game] [Integration] [Board.Standard]")
 {
@@ -7,7 +9,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Integration] [Board.Standa
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(2);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -210,7 +212,7 @@ TEST_CASE("Standard board first two rounds", "[Game] [Integration] [Board.Standa
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -504,7 +506,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -675,7 +677,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -898,7 +900,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -981,7 +983,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -1048,7 +1050,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -1218,7 +1220,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -1583,7 +1585,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -1660,7 +1662,7 @@ TEST_CASE("Standard board", "[Game] [Integration] [Board.Standard]")
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Standard);
         auto p = get_standard_parameters(3);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 

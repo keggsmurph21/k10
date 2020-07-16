@@ -1,5 +1,7 @@
 #include "Common.h"
 
+static k10engine::Game::PlayerId s_next_player_id = 1;
+
 // NOLINTNEXTLINE(readability-function-size,google-readability-function-size)
 TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]")
 {
@@ -7,7 +9,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
         auto p = get_triple_parameters(1);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -107,7 +109,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
         auto p = get_triple_parameters(2);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 
@@ -297,7 +299,7 @@ TEST_CASE("Triple board first two rounds", "[Game] [Integration] [Board.Triple]"
     {
         auto s = Scenario::Store::the().by_name(Scenario::Name::Triple);
         auto p = get_triple_parameters(3);
-        auto g = Game::Game::initialize(s, p);
+        auto g = Game::Game::initialize(s_next_player_id++, s, p);
 
         bootstrap_tests();
 

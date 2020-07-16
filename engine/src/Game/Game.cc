@@ -82,7 +82,7 @@ Game::~Game()
     m_deck.clear();
 }
 
-Game* Game::initialize(const Scenario::Scenario* scenario, const Scenario::Parameters& parameters)
+Game* Game::initialize(PlayerId owner, const Scenario::Scenario* scenario, const Scenario::Parameters& parameters)
 {
     if (!scenario->is_valid(parameters)) {
         return {};
@@ -188,7 +188,7 @@ Game* Game::initialize(const Scenario::Scenario* scenario, const Scenario::Param
     // FIXME: Don't just blindly cast this unless we're 100% sure this is a Hex ...
     auto robber_location = static_cast<BoardView::Hex*>(nodes.at(robber_index));
 
-    auto* game = new Game(scenario, nodes, deck, parameters.victory_points_goal, robber_location);
+    auto* game = new Game(owner, scenario, nodes, deck, parameters.victory_points_goal, robber_location);
     for (size_t i = 0; i < parameters.players_count; ++i) {
         game->m_players.push_back(new Player(0, i, game));
     }
@@ -1130,6 +1130,8 @@ const BoardView::Road* Game::road(size_t index) const
 void Game::encode(ByteBuffer& buf) const
 {
     Encoder encoder(buf);
+
+    encoder << m_owner;
     encoder << m_scenario;
     encoder << m_nodes;
     encoder << m_deck;
@@ -1175,6 +1177,10 @@ void Game::encode(ByteBuffer& buf) const
 Game* Game::decode(ByteBuffer& buf)
 {
     Decoder decoder(buf);
+
+    PlayerId owner;
+    if (!decoder.decode(owner))
+        return nullptr;
 
     const Scenario::Scenario* scenario;
     if (!decoder.decode(scenario))
@@ -1258,7 +1264,7 @@ Game* Game::decode(ByteBuffer& buf)
     if (!decoder.decode(turn))
         return nullptr;
 
-    auto* game = new Game(scenario, nodes, deck, victory_points_goal, robber_hex);
+    auto* game = new Game(owner, scenario, nodes, deck, victory_points_goal, robber_hex);
     game->m_dice = dice;
     game->m_players = std::move(players);
     for (auto* player : game->players())
@@ -1274,12 +1280,14 @@ Game* Game::decode(ByteBuffer& buf)
     return game;
 }
 
-Game::Game(const Scenario::Scenario* scenario,
+Game::Game(PlayerId owner,
+           const Scenario::Scenario* scenario,
            std::vector<BoardView::NodeView*>& nodes,
            std::vector<DevelopmentCard> deck,
            size_t victory_points_goal,
            BoardView::Hex* robber_location)
-    : m_scenario(scenario)
+    : m_owner(owner)
+    , m_scenario(scenario)
     , m_nodes(std::move(nodes))
     , m_deck(std::move(deck))
     , m_robber(robber_location)

@@ -38,7 +38,7 @@ public:
     Game(const Game&) = delete;
     ~Game();
 
-    static Game* initialize(const Scenario::Scenario*, const Scenario::Parameters&);
+    static Game* initialize(PlayerId owner, const Scenario::Scenario*, const Scenario::Parameters&);
 
     static Game* decode(ByteBuffer&);
     void encode(ByteBuffer&) const;
@@ -124,12 +124,14 @@ public:
     const BoardView::Road* road(size_t index) const;
 
 private:
-    Game(const Scenario::Scenario*,
+    Game(PlayerId owner,
+         const Scenario::Scenario*,
          std::vector<BoardView::NodeView*>&,
          std::vector<DevelopmentCard>,
          size_t victory_points_goal,
          BoardView::Hex* robber_location);
 
+    PlayerId m_owner;
     const Scenario::Scenario* m_scenario;
 
     std::vector<BoardView::NodeView*> m_nodes;
