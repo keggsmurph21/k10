@@ -9,23 +9,23 @@ namespace k10engine::Server {
 
 GameCache::GameCache(std::string path, size_t cache_size)
     : m_path(std::move(path))
-    , m_cache({ [this](const GameId& game_id) -> Game::Game* { return this->retrieve_from_disk(game_id); },
-                [this](const GameId& game_id, Game::Game* game) -> void { this->write_to_disk(game_id, *game); },
+    , m_cache({ [this](const Game::Id& game_id) -> Game::Game* { return this->retrieve_from_disk(game_id); },
+                [this](const Game::Id& game_id, Game::Game* game) -> void { this->write_to_disk(game_id, *game); },
                 cache_size })
 {
 }
 
-void GameCache::set(GameId game_id, Game::Game* game)
+void GameCache::set(Game::Id game_id, Game::Game* game)
 {
     m_cache.set(game_id, game);
 }
 
-Game::Game* GameCache::get(GameId game_id)
+Game::Game* GameCache::get(Game::Id game_id)
 {
     return m_cache.get(game_id);
 }
 
-static std::string byte_for_path(const GameId& game_id, u8 offset)
+static std::string byte_for_path(const Game::Id& game_id, u8 offset)
 {
     u64 mask = 0xff;
     u8 high_byte = (game_id & (mask << offset)) >> offset;
@@ -34,7 +34,7 @@ static std::string byte_for_path(const GameId& game_id, u8 offset)
     return path.str();
 }
 
-GameCache::Path::Path(const std::string* base_dir, const GameId& game_id)
+GameCache::Path::Path(const std::string* base_dir, const Game::Id& game_id)
     : base_dir(base_dir)
 {
     high_byte = byte_for_path(game_id, 56);
@@ -65,7 +65,7 @@ std::string GameCache::Path::next_dir() const
     return path.str();
 }
 
-GameCache::Path GameCache::path_for(const GameId& game_id) const
+GameCache::Path GameCache::path_for(const Game::Id& game_id) const
 {
     // If a (u64) game_id is given by { de ad be ef de ad be ef }, then
     // we'll try to store the binary representation of the game at
@@ -108,7 +108,7 @@ void GameCache::Path::ensure_directories() const
     }
 }
 
-Game::Game* GameCache::retrieve_from_disk(const GameId& game_id) const
+Game::Game* GameCache::retrieve_from_disk(const Game::Id& game_id) const
 {
     const auto path = path_for(game_id);
     // std::cout << "Server::GameCache: retrieving game " << game_id << " from file://" << path.full_path() <<
@@ -139,7 +139,7 @@ Game::Game* GameCache::retrieve_from_disk(const GameId& game_id) const
     return Game::Game::decode(buf);
 }
 
-void GameCache::write_to_disk(const GameId& game_id, const Game::Game& game) const
+void GameCache::write_to_disk(const Game::Id& game_id, const Game::Game& game) const
 {
     const auto path = path_for(game_id);
     // std::cout << "Server::GameCache: writing game " << game_id << " to file://" << path.full_path() << std::endl;

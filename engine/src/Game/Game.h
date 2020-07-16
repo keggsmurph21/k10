@@ -33,6 +33,8 @@ namespace k10engine::Game {
 
 #define MAX_NUM_TRADE_OFFERS_PER_TURN 42
 
+using Id = u64;
+
 class Game {
 public:
     Game(const Game&) = delete;
