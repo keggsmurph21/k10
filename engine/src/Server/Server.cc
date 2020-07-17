@@ -8,6 +8,8 @@
 
 namespace k10engine::Server {
 
+#define TRACE_SERVER
+
 #define VALIDATE_REQUEST(request)                                                         \
     if (!m_registrar.validate_player((request)->m_player_id, (request)->m_player_secret)) \
         return new ErrorResponse(Response::ErrorCode::NotRegistered);
@@ -131,8 +133,10 @@ Response* Server::handle_register_user(const RegisterUserRequest* request)
     const auto registration = m_registrar.register_user(request->m_name, request->m_secret);
     if (!registration.has_value())
         return new ErrorResponse(Response::ErrorCode::NotRegistered);
-    std::cout << "Registered player_id: " << registration->player_id
-              << ", player_secret: " << registration->internal_secret << std::endl;
+#ifdef TRACE_SERVER
+    std::cerr << "Server: Registered player: " << registration->player_id << " ("
+              << reinterpret_cast<void*>(registration->internal_secret) << ")" << std::endl;
+#endif
     return new RegisterUserResponse(*registration);
 }
 
@@ -143,6 +147,9 @@ Response* Server::handle_new_game(const NewGameRequest* request)
     if (game == nullptr)
         return new ErrorResponse(Response::ErrorCode::Rejected);
     auto game_id = m_game_cache.insert(game);
+#ifdef TRACE_SERVER
+    std::cerr << "Server: Player " << request->m_player_id << " created game " << game_id << std::endl;
+#endif
     return new NewGameResponse(game_id);
 }
 
@@ -154,6 +161,9 @@ Response* Server::handle_join_game(const JoinGameRequest* request)
         return new ErrorResponse(Response::ErrorCode::NotFound);
     if (!game->join(request->m_player_id))
         return new ErrorResponse(Response::ErrorCode::Rejected);
+#ifdef TRACE_SERVER
+    std::cerr << "Server: Player " << request->m_player_id << " joined game " << request->m_game_id << std::endl;
+#endif
     return new JoinGameResponse();
 }
 
@@ -165,6 +175,9 @@ Response* Server::handle_leave_game(const LeaveGameRequest* request)
         return new ErrorResponse(Response::ErrorCode::NotFound);
     if (!game->leave(request->m_player_id))
         return new ErrorResponse(Response::ErrorCode::Rejected);
+#ifdef TRACE_SERVER
+    std::cerr << "Server: Player " << request->m_player_id << " left game " << request->m_game_id << std::endl;
+#endif
     return new LeaveGameResponse();
 }
 
@@ -176,6 +189,9 @@ Response* Server::handle_start_game(const StartGameRequest* request)
         return new ErrorResponse(Response::ErrorCode::NotFound);
     if (!game->start())
         return new ErrorResponse(Response::ErrorCode::Rejected);
+#ifdef TRACE_SERVER
+    std::cerr << "Server: Player " << request->m_player_id << " started game " << request->m_game_id << std::endl;
+#endif
     return new StartGameResponse();
 }
 
