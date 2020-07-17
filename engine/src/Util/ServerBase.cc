@@ -1,4 +1,5 @@
 #include <arpa/inet.h>
+#include <bitset>
 #include <cassert>
 #include <csignal>
 #include <cstring>
@@ -9,16 +10,17 @@
 
 #include "Util/ServerBase.h"
 
+//#define TRACE_SERVER_BASE
+
 ServerBase::ServerBase(int port, int listen_sock)
     : m_port(port)
     , m_listen_sock(listen_sock)
 {
-    std::cout << "Listening on port " << port << std::endl;
-
     struct sigaction ignore_sigpipe;
     ignore_sigpipe.sa_handler = SIG_IGN;
     sigemptyset(&ignore_sigpipe.sa_mask);
     sigaction(SIGPIPE, &ignore_sigpipe, nullptr);
+    std::cerr << "ServerBase: Listening on port " << port << std::endl;
 }
 
 int ServerBase::bind_and_listen(int port)
@@ -73,7 +75,9 @@ void ServerBase::serve()
         shutdown(1);
     }
 
-    std::cout << "epoll fd: " << m_listen_sock << std::endl;
+#ifdef TRACE_SERVER_BASE
+    std::cerr << "ServerBase::serve(): got epoll fd: " << m_listen_sock << std::endl;
+#endif
 
     for (;;) {
         int num_fds = epoll_wait(m_epoll_fd, m_events, MAX_QUEUED_EPOLL_EVENTS, -1); // no timeout
@@ -82,12 +86,16 @@ void ServerBase::serve()
             shutdown(1);
         }
 
-        std::cout << std::endl << "looping thru " << num_fds << " events ..." << std::endl;
+#ifdef TRACE_SERVER_BASE
+        std::cerr << "ServerBase::serve(): Woke up for " << num_fds << " events" << std::endl;
+#endif
         for (int i = 0; i < num_fds; ++i) {
             auto event = m_events[i];
             auto event_fd = event.data.fd;
-            std::cout << "handling event(" << i << ") with fd " << event_fd << " and mode " << event.events
-                      << std::endl;
+#ifdef TRACE_SERVER_BASE
+            std::cerr << "ServerBase::serve(): Handling event " << std::dec << i + 1 << " of " << num_fds
+                      << ": fd=" << event_fd << ", mask=" << std::bitset<32>(event.events) << std::endl;
+#endif
             if (event_fd == m_listen_sock) {
                 if (!handle_new_connection(event))
                     shutdown(0);
@@ -98,7 +106,9 @@ void ServerBase::serve()
                 if (!handle_ready_to_write(event_fd))
                     shutdown(0);
             } else {
-                std::cout << "Unknown epoll event (" << event.events << "), exiting ..." << std::endl;
+#ifdef TRACE_SERVER_BASE
+                std::cerr << "ServerBase::serve(): Unknown epoll event, exiting ..." << std::endl;
+#endif
                 shutdown(1);
             }
         }
@@ -108,6 +118,9 @@ void ServerBase::serve()
 void ServerBase::shutdown(int exit_code)
 {
     exit_code = on_shutdown(exit_code);
+#ifdef TRACE_SERVER_BASE
+    std::cerr << "ServerBase::shutdown(" << exit_code << ")" << std::endl;
+#endif
     close();
     exit(exit_code);
 }
@@ -136,7 +149,10 @@ bool ServerBase::handle_new_connection(Event& event)
         perror("inet_ntop");
         return false;
     }
-    std::cout << "Got a new connection from " << client_ip << " on fd " << conn_sock << std::endl;
+#ifdef TRACE_SERVER_BASE
+    std::cerr << "ServerBase::handle_new_connection(): Got a new connection from " << client_ip
+              << " on fd=" << conn_sock << std::endl;
+#endif
     return on_connect(conn_sock, client_ip);
 }
 
@@ -151,7 +167,10 @@ bool ServerBase::handle_ready_to_read(int fd)
         int n_read = read(fd, read_buf, BUF_SIZE);
         if (n_read < 0) {
             if (errno & EAGAIN || errno & EWOULDBLOCK) {
-                std::cout << " =[" << fd << "]> req(" << std::dec << buf.unread_size() << ") " << buf << std::endl;
+#ifdef TRACE_SERVER_BASE
+                std::cerr << "ServerBase::handle_ready_to_read(" << fd << "): Received " << buf.unread_size()
+                          << " bytes: " << buf << std::endl;
+#endif
                 return on_read(fd, buf);
             }
             perror("read");
@@ -159,7 +178,10 @@ bool ServerBase::handle_ready_to_read(int fd)
         }
 
         if (n_read == 0) {
-            std::cout << "closing fd " << fd << std::endl;
+#ifdef TRACE_SERVER_BASE
+            std::cerr << "ServerBase::handle_ready_to_read(" << fd << "): Received 0 bytes, disconnecting client"
+                      << std::endl;
+#endif
             auto ret = on_disconnect(fd);
             ::close(fd);
             return ret;
@@ -171,7 +193,9 @@ bool ServerBase::handle_ready_to_read(int fd)
 
 bool ServerBase::send(int fd, ByteBuffer& buf)
 {
-    std::cout << " =[" << fd << "]> res(" << std::dec << buf.unread_size() << ") " << buf << std::endl;
+#ifdef TRACE_SERVER_BASE
+    std::cerr << "ServerBase::send(" << fd << "): Writing " << buf.unread_size() << " bytes: " << buf << std::endl;
+#endif
     for (;;) {
         int n_written = ::write(fd, buf.data() + buf.cursor(), buf.unread_size());
         buf.seek(buf.cursor() + n_written);
@@ -181,7 +205,7 @@ bool ServerBase::send(int fd, ByteBuffer& buf)
                 return true;
             }
             if (errno & EPIPE) {
-                std::cerr << "ignoring broken pipe ..." << std::endl;
+                std::cerr << "ServerBase::send(" << fd << "): Broken pipe! Ignoring ..." << std::endl;
                 return true;
             }
             perror("write");
@@ -190,7 +214,9 @@ bool ServerBase::send(int fd, ByteBuffer& buf)
 
         if (n_written == 0) {
             assert(false);
-            std::cout << "closing fd " << fd << std::endl;
+#ifdef TRACE_SERVER_BASE
+            std::cerr << "ServerBase::send(" << fd << "): Wrote 0 bytes, disconnecting client" << std::endl;
+#endif
             ::close(fd);
             return true;
         }
@@ -202,6 +228,9 @@ bool ServerBase::send(int fd, ByteBuffer& buf)
 
 bool ServerBase::handle_ready_to_write(int fd)
 {
+#ifdef TRACE_SERVER_BASE
+    std::cerr << "ServerBase::handle_ready_to_write(" << fd << ")" << std::endl;
+#endif
     return on_writeable(fd);
 }
 
