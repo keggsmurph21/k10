@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Game/View.h"
 #include "Server/Registrar.h"
 #include "Util/ByteBuffer.h"
 #include "Util/Decoder.h"
@@ -99,8 +100,10 @@ struct MakeMoveResponse final : public Response {
 };
 
 struct QueryResponse final : public Response {
-    QueryResponse()
+    const Game::View m_view;
+    QueryResponse(const Game::View view)
         : Response(Response::Type::Query)
+        , m_view(view)
     {
     }
 };
@@ -163,3 +166,6 @@ void encode(ByteBuffer&, const k10engine::Server::LeaveGameResponse&);
 
 template<>
 void encode(ByteBuffer&, const k10engine::Server::StartGameResponse&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::QueryResponse&);

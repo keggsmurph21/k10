@@ -205,8 +205,15 @@ Response* Server::handle_make_move(const MakeMoveRequest* request)
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 Response* Server::handle_query(const QueryRequest* request)
 {
-    (void)request;
-    assert(false);
+    VALIDATE_REQUEST(request);
+    auto* game = m_game_cache.get(request->m_game_id);
+    if (game == nullptr)
+        return new ErrorResponse(Response::ErrorCode::NotFound);
+    const auto view = game->view_for(request->m_player_id);
+#ifdef TRACE_SERVER
+    std::cerr << "Server: Player " << request->m_player_id << " queried game " << request->m_game_id << std::endl;
+#endif
+    return new QueryResponse(view);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)

@@ -43,9 +43,17 @@ res = request(struct.pack(">BQQBBBBBQQ", 1, p1, p1_secret, 2, 0, 0, 0, 0, 2, 10)
 res_type, game_id = struct.unpack(">BQ", res)
 print(f"Created game with id {game_id}")
 
+# Query the game (as p2)
+res = request(struct.pack(">BQQQ", 6, p2, p2_secret, game_id))
+print(f"Queried game")
+
 # Join the game (as p2)
 res = request(struct.pack(">BQQQ", 2, p2, p2_secret, game_id))
 print(f"Joined game")
+
+# Query the game (as p2)
+res = request(struct.pack(">BQQQ", 6, p2, p2_secret, game_id))
+print(f"Queried game")
 
 # Leave the game (as p2)
 res = request(struct.pack(">BQQQ", 3, p2, p2_secret, game_id))
@@ -58,3 +66,7 @@ print(f"Joined game")
 # Start the game (as p2)
 res = request(struct.pack(">BQQQ", 4, p2, p2_secret, game_id))
 print(f"Started game")
+
+# Query the game (as p2)
+res = request(struct.pack(">BQQQ", 6, p2, p2_secret, game_id))
+print(f"Queried game")

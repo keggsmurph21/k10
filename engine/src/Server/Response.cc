@@ -128,3 +128,10 @@ void encode(ByteBuffer&, const k10engine::Server::StartGameResponse&)
 {
     // Nothing to do here ...
 }
+
+template<>
+void encode(ByteBuffer& buf, const k10engine::Server::QueryResponse& response)
+{
+    Encoder encoder(buf);
+    encoder << response.m_view;
+}

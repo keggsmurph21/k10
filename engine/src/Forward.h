@@ -24,6 +24,7 @@ class Dice;
 class Game;
 class Player;
 class Robber;
+class View;
 
 using GameId = u64;
 using PlayerId = u64;

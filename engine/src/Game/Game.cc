@@ -6,6 +6,7 @@
 #include "Board/Store.h"
 #include "Core/Random.h"
 #include "Game/Game.h"
+#include "Game/View.h"
 #include "Scenario/Store.h"
 
 namespace k10engine::Game {
@@ -1455,6 +1456,30 @@ bool Game::start()
     current_player().set_vertex(State::Vertex::Root);
     m_joined_player_ids.resize(0);
     return true;
+}
+
+Player* Game::player(PlayerId player_id) const
+{
+    for (auto* player : m_players) {
+        if (player->id() == player_id)
+            return player;
+    }
+    return nullptr;
+}
+
+const View Game::view_for(PlayerId player_id) const
+{
+    if (!has_started()) {
+        return { *this, player_id, std::vector(m_joined_player_ids) };
+    }
+    const Player* player = this->player(player_id);
+    if (!player) {
+        return { *this, player_id };
+    }
+    // FIXME: No "view" for these objects yet ...
+    // std::vector<BoardView::NodeView*> m_nodes;
+    // std::vector<Player*> m_players;
+    return { *this, player_id, { m_dice.die_0(), m_dice.die_1() }, m_deck.size() - m_deck_index };
 }
 
 } // namespace k10engine::Game

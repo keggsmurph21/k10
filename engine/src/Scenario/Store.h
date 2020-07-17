@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "Scenario/Scenario.h"
+#include "Util/Decoder.h"
+#include "Util/Encoder.h"
 #include "Util/LRUCache.h"
 
 namespace k10engine::Scenario {
@@ -27,3 +29,9 @@ private:
 };
 
 } // namespace k10engine::Scenario
+
+template<>
+void encode(ByteBuffer&, const k10engine::Scenario::Name&);
+
+template<>
+bool decode(ByteBuffer&, k10engine::Scenario::Name&);

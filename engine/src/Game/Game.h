@@ -87,6 +87,7 @@ public:
 
     const Board::Graph& graph() const { return m_scenario->graph(); }
     const Scenario::Scenario& scenario() const { return *m_scenario; }
+    size_t victory_points_goal() const { return m_victory_points_goal; }
 
     Player& current_player() { return *m_players.at(m_current_player_index); }
     const Player& current_player() const { return *m_players.at(m_current_player_index); }
@@ -94,8 +95,11 @@ public:
     const std::vector<Player*>& players() const { return m_players; }
     Player& player(size_t index) { return *m_players.at(index); }
     const Player& player(size_t index) const { return *m_players.at(index); }
+    Player* player(PlayerId) const;
 
     friend std::ostream& operator<<(std::ostream&, const Game&);
+
+    const View view_for(PlayerId) const;
 
     Result execute_accept_trade(Player&);
     Result execute_build_city(Player&, BoardView::Junction*);

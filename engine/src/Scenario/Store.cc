@@ -186,3 +186,25 @@ Name Store::name_of(const Scenario* scenario) const
 }
 
 } // namespace k10engine::Scenario
+
+using Name = k10engine::Scenario::Name;
+
+template<>
+void encode(ByteBuffer& buf, const Name& name)
+{
+    Encoder encoder(buf);
+    encoder << static_cast<u8>(name);
+}
+
+template<>
+bool decode(ByteBuffer& buf, Name& name)
+{
+    Decoder decoder(buf);
+
+    u8 byte;
+    if (!decoder.decode(byte))
+        return false;
+
+    name = static_cast<Name>(byte);
+    return true;
+}
