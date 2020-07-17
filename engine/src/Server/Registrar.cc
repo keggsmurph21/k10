@@ -3,11 +3,24 @@
 
 namespace k10engine::Server {
 
+//#define TRACE_REGISTRAR
+
 bool Registrar::validate_player(const Game::PlayerId player_id, const Registrar::PlayerSecret internal_secret) const
 {
-    if (player_id >= m_internal_secrets.size())
+#ifdef TRACE_REGISTRAR
+    std::cerr << "Registrar::validate_player(" << player_id << "): ";
+#endif
+    if (player_id >= m_internal_secrets.size()) {
+#ifdef TRACE_REGISTRAR
+        std::cerr << "Unknown id" << std::endl;
+#endif
         return false;
-    return m_internal_secrets.at(player_id) == internal_secret;
+    }
+    auto is_valid = m_internal_secrets.at(player_id) == internal_secret;
+#ifdef TRACE_REGISTRAR
+    std::cerr << (is_valid ? "OK" : "Secrets mismatch") << std::endl;
+#endif
+    return is_valid;
 }
 
 static Registrar::PlayerSecret get_internal_secret()
@@ -22,22 +35,47 @@ static Registrar::PlayerSecret get_internal_secret()
 std::optional<Registrar::Registration> Registrar::register_user(const std::string& name,
                                                                 const std::string& external_secret)
 {
-    if (name.size() == 0)
+#ifdef TRACE_REGISTRAR
+    std::cerr << "Registrar::register_user(\"" << name << "\"): ";
+#endif
+    if (name.size() == 0) {
+#ifdef TRACE_REGISTRAR
+        std::cerr << "<name> too short" << std::endl;
+#endif
         return {};
-    if (external_secret.size() == 0)
+    }
+    if (external_secret.size() == 0) {
+#ifdef TRACE_REGISTRAR
+        std::cerr << "<secret> too short" << std::endl;
+#endif
         return {};
+    }
     size_t internal_secret_index;
     if (m_records.contains(name.c_str(), name.size())) {
+#ifdef TRACE_REGISTRAR
+        std::cerr << "Found existing record ...";
+#endif
         auto* record = m_records.get(name.c_str(), name.size());
         const auto offset = record->external_secret_index;
-        if (external_secret.size() != record->external_secret_len)
+        if (external_secret.size() != record->external_secret_len) {
+#ifdef TRACE_REGISTRAR
+            std::cerr << "Secrets mismatch" << std::endl;
+#endif
             return {};
+        }
         for (auto i = 0; i < record->external_secret_len; ++i) {
-            if (m_external_secrets.at(offset + i) != external_secret.at(i))
+            if (m_external_secrets.at(offset + i) != external_secret.at(i)) {
+#ifdef TRACE_REGISTRAR
+                std::cerr << "Secrets mismatch" << std::endl;
+#endif
                 return {};
+            }
         }
         internal_secret_index = record->internal_secret_index;
     } else {
+#ifdef TRACE_REGISTRAR
+        std::cerr << "Creating new record ... ";
+#endif
         Record record = {};
         record.external_secret_index = m_external_secrets.size();
         for (auto ch : external_secret)
@@ -49,6 +87,9 @@ std::optional<Registrar::Registration> Registrar::register_user(const std::strin
         m_records.set(name.c_str(), name.size(), record);
     }
     Registration registration{ internal_secret_index, m_internal_secrets.at(internal_secret_index) };
+#ifdef TRACE_REGISTRAR
+    std::cerr << "OK" << std::endl;
+#endif
     return registration;
 }
 
