@@ -18,17 +18,37 @@ Server::Server(int port, int listen_sock, std::string game_cache_path, size_t ga
 {
     // We want to make sure we get the registration for player id 0!
     (void)m_registrar.register_user("admin", "what is beadly");
+
+    // Maybe there's a better initial number than 256?
+    m_clients.reserve(256);
+    for (auto i = 0; i < 256; i++)
+        m_clients.push_back(nullptr);
+}
+
+Server::~Server()
+{
+    for (auto* client : m_clients)
+        delete client;
 }
 
 bool Server::on_connect(int fd, std::string client_ip)
 {
-    (void)fd;
-    (void)client_ip;
+    m_clients[fd] = new Client(fd, std::move(client_ip));
     return true;
+}
+
+void Server::for_each_interested_client(Game::GameId game_id, std::function<void(Client*)> callback)
+{
+    for (auto* client : m_clients) {
+        if (client && client->is_interested_in(game_id))
+            callback(client);
+    }
 }
 
 bool Server::on_read(int fd, ByteBuffer& buf)
 {
+    Client* client = m_clients.at(fd);
+
     Decoder decoder(buf);
 
     Request* request = nullptr;
@@ -41,24 +61,28 @@ bool Server::on_read(int fd, ByteBuffer& buf)
     if (response == nullptr)
         assert(false);
 
-    buf.clear();
-    Encoder encoder(buf);
-    encoder << *response;
-    delete response;
-
+    client->queue_response(response);
 
     return true;
 }
 
 bool Server::on_writeable(int fd)
 {
-    (void)this;
-    (void)fd;
-    assert(false);
+    ByteBuffer buf;
+    Client* client = m_clients.at(fd);
+
+    return client->for_each_pending_response([&](const Response* response) -> bool {
+        buf.clear();
+        Encoder encoder(buf);
+        encoder << *response;
+        return send(fd, buf);
+    });
 }
 
 bool Server::on_disconnect(int fd)
 {
+    Client* client = m_clients.at(fd);
+    delete client;
     return true;
 }
 

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+
+#include "Server/Client.h"
 #include "Server/GameCache.h"
 #include "Server/Registrar.h"
 #include "Server/Request.h"
@@ -12,12 +15,15 @@ namespace k10engine::Server {
 class Server final : public ServerBase {
 public:
     Server(int port, int listen_sock, std::string game_cache_path, size_t game_cache_size);
+    ~Server();
 
 private:
     [[nodiscard]] bool on_connect(int fd, std::string client_ip) override;
     [[nodiscard]] bool on_read(int fd, ByteBuffer&) override;
     [[nodiscard]] bool on_writeable(int fd) override;
     [[nodiscard]] bool on_disconnect(int fd) override;
+
+    void for_each_interested_client(Game::GameId, std::function<void(Client*)>);
 
     const Response* handle(const Request*);
     const RegisterUserResponse* handle_register_user(const RegisterUserRequest*);
@@ -32,6 +38,8 @@ private:
 
     Registrar m_registrar;
     GameCache m_game_cache;
+
+    std::vector<Client*> m_clients;
 };
 
 } // namespace k10engine::Server

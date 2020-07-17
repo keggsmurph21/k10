@@ -37,6 +37,7 @@ add_library(k10 SHARED
     src/Scenario/Parameters.cc
     src/Scenario/Scenario.cc
     src/Scenario/Store.cc
+    src/Server/Client.cc
     src/Server/GameCache.cc
     src/Server/Registrar.cc
     src/Server/Request.cc
