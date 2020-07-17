@@ -12,9 +12,10 @@ public:
     }
 
 private:
-    [[nodiscard]] bool on_connect(int, std::string) override;
-    [[nodiscard]] bool on_read(ByteBuffer&) override;
-    [[nodiscard]] bool on_writeable(int) override;
+    [[nodiscard]] bool on_connect(int fd, std::string) override;
+    [[nodiscard]] bool on_read(int fd, ByteBuffer&) override;
+    [[nodiscard]] bool on_writeable(int fd) override;
+    [[nodiscard]] bool on_disconnect(int fd) override;
 };
 
 bool TestServer::on_connect(int, std::string)
@@ -22,29 +23,20 @@ bool TestServer::on_connect(int, std::string)
     return true;
 }
 
-bool TestServer::on_read(ByteBuffer& request)
+bool TestServer::on_read(int, ByteBuffer& request)
 {
+    (void)this;
     (void)request;
-
-    static char buf[1024];
-    std::memset(buf, 0, 5);
-    std::strncpy(buf, "ack\n", 5);
-
-    // if (write(fd, buf, strlen(buf)) < 0) {
-    // if (errno == EPIPE) {
-    // std::cerr << "ignoring broken pipe..." << std::endl;
-    // return true;
-    //}
-    // perror("write");
-    // return false;
-    //}
-
-    //::close(fd);
-
     return true;
 }
 
-bool TestServer::on_writeable(int)
+bool TestServer::on_writeable(int fd)
+{
+    ByteBuffer buf{ "hello", 5 };
+    return send(fd, buf);
+}
+
+bool TestServer::on_disconnect(int)
 {
     return true;
 }

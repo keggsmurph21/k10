@@ -65,7 +65,6 @@ void ServerBase::serve()
     }
 
     Event event;
-    char buf[BUF_SIZE];
 
     event.events = EPOLLIN;
     event.data.fd = m_listen_sock;
@@ -93,7 +92,7 @@ void ServerBase::serve()
                 if (!handle_new_connection(event))
                     exit(1);
             } else if (event.events & EPOLLIN) {
-                if (!handle_ready_to_read(event_fd, buf))
+                if (!handle_ready_to_read(event_fd))
                     exit(1);
             } else if (event.events & EPOLLOUT) {
                 if (!handle_ready_to_write(event_fd))
@@ -134,32 +133,69 @@ bool ServerBase::handle_new_connection(Event& event)
     return on_connect(conn_sock, client_ip);
 }
 
-bool ServerBase::handle_ready_to_read(int fd, char* buf)
+bool ServerBase::handle_ready_to_read(int fd)
 {
-    std::memset(buf, 0, BUF_SIZE);
-    int n_bytes = read(fd, buf, BUF_SIZE - 1);
-    if (n_bytes < 0) {
-        perror("read");
-        return false;
+    static char read_buf[BUF_SIZE];
+    ByteBuffer buf;
+
+    for (;;) {
+        std::memset(read_buf, 0, BUF_SIZE - 1);
+
+        int n_read = read(fd, read_buf, BUF_SIZE);
+        if (n_read < 0) {
+            if (errno & EAGAIN || errno & EWOULDBLOCK) {
+                std::cout << " =[" << fd << "]> req(" << std::dec << buf.unread_size() << ") " << buf << std::endl;
+                return on_read(fd, buf);
+            }
+            perror("read");
+            return false;
+        }
+
+        if (n_read == 0) {
+            std::cout << "closing fd " << fd << std::endl;
+            auto ret = on_disconnect(fd);
+            ::close(fd);
+            return ret;
+        }
+
+        buf.concat(read_buf, n_read);
     }
+}
 
-    ByteBuffer request_bytes{ buf, static_cast<size_t>(n_bytes) };
-    std::cout << "req: " << request_bytes << std::endl;
+bool ServerBase::send(int fd, ByteBuffer& buf)
+{
+    std::cout << " =[" << fd << "]> res(" << std::dec << buf.unread_size() << ") " << buf << std::endl;
+    for (;;) {
+        int n_written = ::write(fd, buf.data() + buf.cursor(), buf.unread_size());
+        buf.seek(buf.cursor() + n_written);
 
-    if (n_bytes == 0) {
-        std::cout << "closing fd " << fd << std::endl;
-        ::close(fd);
-        return true;
+        if (n_written < 0) {
+            if (errno & EAGAIN || errno & EWOULDBLOCK) {
+                return true;
+            }
+            if (errno & EPIPE) {
+                std::cerr << "ignoring broken pipe ..." << std::endl;
+                return true;
+            }
+            perror("write");
+            return false;
+        }
+
+        if (n_written == 0) {
+            assert(false);
+            std::cout << "closing fd " << fd << std::endl;
+            ::close(fd);
+            return true;
+        }
+
+        if (buf.unread_size() == 0)
+            return true;
     }
-
-    return on_read(request_bytes);
 }
 
 bool ServerBase::handle_ready_to_write(int fd)
 {
-    (void)this;
-    (void)fd;
-    assert(false);
+    return on_writeable(fd);
 }
 
 ServerBase::~ServerBase()

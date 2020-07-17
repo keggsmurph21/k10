@@ -15,8 +15,9 @@ public:
 
 private:
     [[nodiscard]] bool on_connect(int fd, std::string client_ip) override;
-    [[nodiscard]] bool on_read(ByteBuffer&) override;
+    [[nodiscard]] bool on_read(int fd, ByteBuffer&) override;
     [[nodiscard]] bool on_writeable(int fd) override;
+    [[nodiscard]] bool on_disconnect(int fd) override;
 
     const Response* handle(const Request*);
     const RegisterUserResponse* handle_register_user(const RegisterUserRequest*);

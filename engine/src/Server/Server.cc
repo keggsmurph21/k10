@@ -27,13 +27,14 @@ bool Server::on_connect(int fd, std::string client_ip)
     return true;
 }
 
-bool Server::on_read(ByteBuffer& buf)
+bool Server::on_read(int fd, ByteBuffer& buf)
 {
     Decoder decoder(buf);
 
     Request* request = nullptr;
     if (!decoder.decode(request))
         assert(false);
+
     auto* response = handle(request);
     delete request;
 
@@ -45,18 +46,6 @@ bool Server::on_read(ByteBuffer& buf)
     encoder << *response;
     delete response;
 
-    // std::cout << "response bytes(" << buf.unread_size() << ") to fd " << fd << ": " << buf << std::endl;
-
-    // if (::write(fd, buf.data(), buf.unread_size()) < 0) {
-    // std::cout << "wrote the bytes :^)" << std::endl;
-    // if (errno == EPIPE) {
-    // std::cerr << "ignoring broken pipe..." << std::endl;
-    // return true;
-    //}
-    // perror("write");
-    // return false;
-    //}
-    //::close(fd);
 
     return true;
 }
@@ -66,6 +55,11 @@ bool Server::on_writeable(int fd)
     (void)this;
     (void)fd;
     assert(false);
+}
+
+bool Server::on_disconnect(int fd)
+{
+    return true;
 }
 
 const Response* Server::handle(const Request* request)
