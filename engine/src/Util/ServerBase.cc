@@ -61,7 +61,7 @@ void ServerBase::serve()
     m_epoll_fd = epoll_create1(0);
     if (m_epoll_fd < 0) {
         perror("epoll_create1");
-        exit(1);
+        shutdown(1);
     }
 
     Event event;
@@ -70,7 +70,7 @@ void ServerBase::serve()
     event.data.fd = m_listen_sock;
     if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_listen_sock, &event) != 0) {
         perror("epoll_ctl");
-        exit(1);
+        shutdown(1);
     }
 
     std::cout << "epoll fd: " << m_listen_sock << std::endl;
@@ -79,7 +79,7 @@ void ServerBase::serve()
         int num_fds = epoll_wait(m_epoll_fd, m_events, MAX_QUEUED_EPOLL_EVENTS, -1); // no timeout
         if (num_fds == -1) {
             perror("epoll_wait");
-            exit(1);
+            shutdown(1);
         }
 
         std::cout << std::endl << "looping thru " << num_fds << " events ..." << std::endl;
@@ -90,19 +90,26 @@ void ServerBase::serve()
                       << std::endl;
             if (event_fd == m_listen_sock) {
                 if (!handle_new_connection(event))
-                    exit(1);
+                    shutdown(0);
             } else if (event.events & EPOLLIN) {
                 if (!handle_ready_to_read(event_fd))
-                    exit(1);
+                    shutdown(0);
             } else if (event.events & EPOLLOUT) {
                 if (!handle_ready_to_write(event_fd))
-                    exit(1);
+                    shutdown(0);
             } else {
                 std::cout << "Unknown epoll event (" << event.events << "), exiting ..." << std::endl;
-                exit(1);
+                shutdown(1);
             }
         }
     }
+}
+
+void ServerBase::shutdown(int exit_code)
+{
+    exit_code = on_shutdown(exit_code);
+    close();
+    exit(exit_code);
 }
 
 bool ServerBase::handle_new_connection(Event& event)

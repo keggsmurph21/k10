@@ -37,6 +37,9 @@ protected:
 
     [[nodiscard]] virtual bool on_disconnect(int fd) = 0;
 
+    [[noreturn]] void shutdown(int exit_code);
+    virtual int on_shutdown(int exit_code) { return exit_code; }
+
     static int bind_and_listen(int port);
 
     ServerBase(int port, int listen_sock);
