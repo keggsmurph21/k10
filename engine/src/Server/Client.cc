@@ -2,6 +2,15 @@
 
 namespace k10engine::Server {
 
+static u16 s_next_client_id = 1;
+
+Client::Client(int fd, std::string ip)
+    : m_fd(fd)
+    , m_ip(std::move(ip))
+    , m_id(s_next_client_id++)
+{
+}
+
 Client::~Client()
 {
     for (auto* pending_response : m_pending_responses)

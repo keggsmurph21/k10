@@ -29,6 +29,7 @@ template<>
 void encode(ByteBuffer& buf, const k10engine::Server::Response& response)
 {
     Encoder encoder(buf);
+    encoder << response.m_client_id;
     encoder << response.m_request_id;
     encoder << response.m_type;
     switch (response.m_type) {

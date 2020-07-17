@@ -5,11 +5,12 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(("localhost", 3088))
 
 
+my_client_id = None
 my_seqn_id = 1
 
 
 def request(req: bytes) -> bytes:
-    global my_seqn_id
+    global my_client_id, my_seqn_id
     req = struct.pack(">H", my_seqn_id) + req
     print()
     print(f"    /sending {len(req)} bytes ({req})")
@@ -18,10 +19,13 @@ def request(req: bytes) -> bytes:
     res = sock.recv(4096)
     print(f"    \\received {len(res)} bytes ({res})")
     print()
-    seqn_id, = struct.unpack(">H", res[:2])
-    assert seqn_id == my_seqn_id
+    client_id, seqn_id = struct.unpack(">HH", res[:4])
+    if my_client_id is None:
+        my_client_id = client_id
+    elif my_client_id == client_id:
+        assert seqn_id == my_seqn_id
     my_seqn_id += 1
-    return res[2:]
+    return res[4:]
 
 
 # Register a user

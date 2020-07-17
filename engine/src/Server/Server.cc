@@ -55,6 +55,8 @@ bool Server::on_read(int fd, ByteBuffer& buf)
     if (!decoder.decode(request))
         assert(false);
 
+    request->m_client_id = client->id();
+
     auto* response = handle(request);
     delete request;
 
@@ -121,8 +123,10 @@ const Response* Server::handle(const Request* request)
     default:
         assert(false);
     }
-    if (response)
+    if (response) {
+        response->m_client_id = request->m_client_id;
         response->m_request_id = request->m_id;
+    }
     return response;
 }
 

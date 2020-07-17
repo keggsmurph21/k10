@@ -27,6 +27,8 @@ struct Request {
         UnregisterListener,
     };
 
+    u16 m_client_id{ 0 };
+
     // Clients can provide an <id> that we'll pass along in the response.
     u16 m_id{ 0 };
 

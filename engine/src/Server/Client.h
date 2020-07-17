@@ -10,12 +10,10 @@ namespace k10engine::Server {
 
 class Client {
 public:
-    Client(int fd, std::string ip)
-        : m_fd(fd)
-        , m_ip(std::move(ip))
-    {
-    }
+    Client(int fd, std::string ip);
     ~Client();
+
+    u16 id() const { return m_id; }
 
     void queue_response(const Response*);
     [[nodiscard]] bool for_each_pending_response(const std::function<bool(const Response*)>&);
@@ -27,6 +25,7 @@ public:
 private:
     int m_fd;
     const std::string m_ip;
+    u16 m_id;
     std::vector<const Response*> m_pending_responses;
     std::vector<Game::GameId> m_interesting_game_ids;
 };
