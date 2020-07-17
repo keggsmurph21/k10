@@ -58,10 +58,10 @@ bool Server::on_read(int fd, ByteBuffer& buf)
     } else {
         response = new ErrorResponse(Response::ErrorCode::Malformed);
     }
-    delete request;
 
     response->m_client_id = client->id();
     response->m_request_id = request ? request->m_id : 0;
+    delete request;
 
     client->queue_response(response);
 
