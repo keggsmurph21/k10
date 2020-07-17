@@ -36,6 +36,9 @@ public:
 
     u8* data() { return m_bytes.data(); }
 
+    size_t cursor() const { return m_cursor; }
+    void seek(size_t cursor) { m_cursor = cursor; }
+
     void concat(const char* bytes, size_t size)
     {
         grow_by(size);
