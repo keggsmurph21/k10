@@ -10,6 +10,7 @@ namespace k10engine::Server {
 
 struct Response {
     enum class Type {
+        Error,
         RegisterUser,
         NewGame,
         JoinGame,
@@ -22,6 +23,13 @@ struct Response {
         GameChanged,
     };
 
+    enum class ErrorCode {
+        Malformed,     // couldn't decode it
+        NotRegistered, // registration failed
+        NotFound,      // invalid game id
+        Rejected,      // engine refused it
+    };
+
     u16 m_client_id;
     u16 m_request_id;
     const Type m_type;
@@ -31,6 +39,15 @@ struct Response {
 protected:
     Response(Type type)
         : m_type(type)
+    {
+    }
+};
+
+struct ErrorResponse final : public Response {
+    const Response::ErrorCode m_code;
+    ErrorResponse(Response::ErrorCode code)
+        : Response(Response::Type::Error)
+        , m_code(code)
     {
     }
 };
@@ -115,6 +132,9 @@ template<>
 void encode(ByteBuffer&, const k10engine::Server::Response::Type&);
 
 template<>
+void encode(ByteBuffer&, const k10engine::Server::Response::ErrorCode&);
+
+template<>
 bool decode(ByteBuffer&, k10engine::Server::Response::Type&);
 
 template<>
@@ -122,6 +142,9 @@ void encode(ByteBuffer&, const k10engine::Server::Response&);
 
 template<>
 bool decode(ByteBuffer&, k10engine::Server::Response&);
+
+template<>
+void encode(ByteBuffer&, const k10engine::Server::ErrorResponse&);
 
 template<>
 void encode(ByteBuffer&, const k10engine::Server::RegisterUserResponse&);

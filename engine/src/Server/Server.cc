@@ -8,9 +8,9 @@
 
 namespace k10engine::Server {
 
-#define VALIDATE_REQUEST(request)                                                     \
-    if (!m_registrar.validate_player(request->m_player_id, request->m_player_secret)) \
-        assert(false);
+#define VALIDATE_REQUEST(request)                                                         \
+    if (!m_registrar.validate_player((request)->m_player_id, (request)->m_player_secret)) \
+        return new ErrorResponse(Response::ErrorCode::NotRegistered);
 
 Server::Server(int port, int listen_sock, std::string game_cache_path, size_t game_cache_size)
     : ServerBase(port, listen_sock)
@@ -48,20 +48,20 @@ void Server::for_each_interested_client(Game::GameId game_id, std::function<void
 bool Server::on_read(int fd, ByteBuffer& buf)
 {
     Client* client = m_clients.at(fd);
+    Request* request = nullptr;
+    Response* response = nullptr;
 
     Decoder decoder(buf);
 
-    Request* request = nullptr;
-    if (!decoder.decode(request))
-        assert(false);
-
-    request->m_client_id = client->id();
-
-    auto* response = handle(request);
+    if (decoder.decode(request)) {
+        response = handle(request);
+    } else {
+        response = new ErrorResponse(Response::ErrorCode::Malformed);
+    }
     delete request;
 
-    if (response == nullptr)
-        assert(false);
+    response->m_client_id = client->id();
+    response->m_request_id = request ? request->m_id : 0;
 
     client->queue_response(response);
 
@@ -88,7 +88,7 @@ bool Server::on_disconnect(int fd)
     return true;
 }
 
-const Response* Server::handle(const Request* request)
+Response* Server::handle(const Request* request)
 {
     assert(request != nullptr);
     Response* response = nullptr;
@@ -123,89 +123,85 @@ const Response* Server::handle(const Request* request)
     default:
         assert(false);
     }
-    if (response) {
-        response->m_client_id = request->m_client_id;
-        response->m_request_id = request->m_id;
-    }
     return response;
 }
 
-RegisterUserResponse* Server::handle_register_user(const RegisterUserRequest* request)
+Response* Server::handle_register_user(const RegisterUserRequest* request)
 {
     const auto registration = m_registrar.register_user(request->m_name, request->m_secret);
-    if (registration.has_value()) {
-        std::cout << "Registered player_id: " << registration->player_id
-                  << ", player_secret: " << registration->internal_secret << std::endl;
-    }
-    return new RegisterUserResponse(registration);
+    if (!registration.has_value())
+        return new ErrorResponse(Response::ErrorCode::NotRegistered);
+    std::cout << "Registered player_id: " << registration->player_id
+              << ", player_secret: " << registration->internal_secret << std::endl;
+    return new RegisterUserResponse(*registration);
 }
 
-NewGameResponse* Server::handle_new_game(const NewGameRequest* request)
+Response* Server::handle_new_game(const NewGameRequest* request)
 {
     VALIDATE_REQUEST(request);
     auto* game = Game::Game::initialize(request->m_player_id, request->m_scenario, request->m_parameters);
     if (game == nullptr)
-        assert(false);
+        return new ErrorResponse(Response::ErrorCode::Rejected);
     auto game_id = m_game_cache.insert(game);
     return new NewGameResponse(game_id);
 }
 
-JoinGameResponse* Server::handle_join_game(const JoinGameRequest* request)
+Response* Server::handle_join_game(const JoinGameRequest* request)
 {
     VALIDATE_REQUEST(request);
     auto* game = m_game_cache.get(request->m_game_id);
     if (game == nullptr)
-        assert(false);
+        return new ErrorResponse(Response::ErrorCode::NotFound);
     if (!game->join(request->m_player_id))
-        assert(false);
+        return new ErrorResponse(Response::ErrorCode::Rejected);
     return new JoinGameResponse();
 }
 
-LeaveGameResponse* Server::handle_leave_game(const LeaveGameRequest* request)
+Response* Server::handle_leave_game(const LeaveGameRequest* request)
 {
     VALIDATE_REQUEST(request);
     auto* game = m_game_cache.get(request->m_game_id);
     if (game == nullptr)
-        assert(false);
+        return new ErrorResponse(Response::ErrorCode::NotFound);
     if (!game->leave(request->m_player_id))
-        assert(false);
+        return new ErrorResponse(Response::ErrorCode::Rejected);
     return new LeaveGameResponse();
 }
 
-StartGameResponse* Server::handle_start_game(const StartGameRequest* request)
+Response* Server::handle_start_game(const StartGameRequest* request)
 {
     VALIDATE_REQUEST(request);
     auto* game = m_game_cache.get(request->m_game_id);
     if (game == nullptr)
-        assert(false);
+        return new ErrorResponse(Response::ErrorCode::NotFound);
     if (!game->start())
-        assert(false);
+        return new ErrorResponse(Response::ErrorCode::Rejected);
     return new StartGameResponse();
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-MakeMoveResponse* Server::handle_make_move(const MakeMoveRequest* request)
+Response* Server::handle_make_move(const MakeMoveRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-QueryResponse* Server::handle_query(const QueryRequest* request)
+Response* Server::handle_query(const QueryRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-RegisterListenerResponse* Server::handle_register_listener(const RegisterListenerRequest* request)
+Response* Server::handle_register_listener(const RegisterListenerRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-UnregisterListenerResponse* Server::handle_unregister_listener(const UnregisterListenerRequest* request)
+Response* Server::handle_unregister_listener(const UnregisterListenerRequest* request)
 {
     (void)request;
     assert(false);

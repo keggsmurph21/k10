@@ -14,6 +14,13 @@ void encode(ByteBuffer& buf, const k10engine::Server::Response::Type& type)
 }
 
 template<>
+void encode(ByteBuffer& buf, const k10engine::Server::Response::ErrorCode& code)
+{
+    Encoder encoder(buf);
+    encoder << static_cast<u8>(code);
+}
+
+template<>
 bool decode(ByteBuffer& buf, k10engine::Server::Response::Type& type)
 {
     if (buf.unread_size() < 1)
@@ -33,6 +40,9 @@ void encode(ByteBuffer& buf, const k10engine::Server::Response& response)
     encoder << response.m_request_id;
     encoder << response.m_type;
     switch (response.m_type) {
+    case k10engine::Server::Response::Type::Error:
+        encoder << *static_cast<const k10engine::Server::ErrorResponse*>(&response);
+        break;
     case k10engine::Server::Response::Type::RegisterUser:
         encoder << *static_cast<const k10engine::Server::RegisterUserResponse*>(&response);
         break;
@@ -72,6 +82,13 @@ template<>
 bool decode(ByteBuffer&, k10engine::Server::Response&)
 {
     assert(false);
+}
+
+template<>
+void encode(ByteBuffer& buf, const k10engine::Server::ErrorResponse& response)
+{
+    Encoder encoder(buf);
+    encoder << response.m_code;
 }
 
 template<>
