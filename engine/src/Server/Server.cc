@@ -89,32 +89,44 @@ bool Server::on_disconnect(int fd)
 const Response* Server::handle(const Request* request)
 {
     assert(request != nullptr);
+    Response* response = nullptr;
     switch (request->m_type) {
     case Request::Type::RegisterUser:
-        return handle_register_user(static_cast<const RegisterUserRequest*>(request));
+        response = handle_register_user(static_cast<const RegisterUserRequest*>(request));
+        break;
     case Request::Type::NewGame:
-        return handle_new_game(static_cast<const NewGameRequest*>(request));
+        response = handle_new_game(static_cast<const NewGameRequest*>(request));
+        break;
     case Request::Type::JoinGame:
-        return handle_join_game(static_cast<const JoinGameRequest*>(request));
+        response = handle_join_game(static_cast<const JoinGameRequest*>(request));
+        break;
     case Request::Type::LeaveGame:
-        return handle_leave_game(static_cast<const LeaveGameRequest*>(request));
+        response = handle_leave_game(static_cast<const LeaveGameRequest*>(request));
+        break;
     case Request::Type::StartGame:
-        return handle_start_game(static_cast<const StartGameRequest*>(request));
+        response = handle_start_game(static_cast<const StartGameRequest*>(request));
+        break;
     case Request::Type::MakeMove:
-        return handle_make_move(static_cast<const MakeMoveRequest*>(request));
+        response = handle_make_move(static_cast<const MakeMoveRequest*>(request));
+        break;
     case Request::Type::Query:
-        return handle_query(static_cast<const QueryRequest*>(request));
+        response = handle_query(static_cast<const QueryRequest*>(request));
+        break;
     case Request::Type::RegisterListener:
-        return handle_register_listener(static_cast<const RegisterListenerRequest*>(request));
+        response = handle_register_listener(static_cast<const RegisterListenerRequest*>(request));
+        break;
     case Request::Type::UnregisterListener:
-        return handle_unregister_listener(static_cast<const UnregisterListenerRequest*>(request));
+        response = handle_unregister_listener(static_cast<const UnregisterListenerRequest*>(request));
+        break;
     default:
         assert(false);
     }
-    return nullptr;
+    if (response)
+        response->m_request_id = request->m_id;
+    return response;
 }
 
-const RegisterUserResponse* Server::handle_register_user(const RegisterUserRequest* request)
+RegisterUserResponse* Server::handle_register_user(const RegisterUserRequest* request)
 {
     const auto registration = m_registrar.register_user(request->m_name, request->m_secret);
     if (registration.has_value()) {
@@ -124,7 +136,7 @@ const RegisterUserResponse* Server::handle_register_user(const RegisterUserReque
     return new RegisterUserResponse(registration);
 }
 
-const NewGameResponse* Server::handle_new_game(const NewGameRequest* request)
+NewGameResponse* Server::handle_new_game(const NewGameRequest* request)
 {
     VALIDATE_REQUEST(request);
     auto* game = Game::Game::initialize(request->m_player_id, request->m_scenario, request->m_parameters);
@@ -134,7 +146,7 @@ const NewGameResponse* Server::handle_new_game(const NewGameRequest* request)
     return new NewGameResponse(game_id);
 }
 
-const JoinGameResponse* Server::handle_join_game(const JoinGameRequest* request)
+JoinGameResponse* Server::handle_join_game(const JoinGameRequest* request)
 {
     VALIDATE_REQUEST(request);
     auto* game = m_game_cache.get(request->m_game_id);
@@ -145,7 +157,7 @@ const JoinGameResponse* Server::handle_join_game(const JoinGameRequest* request)
     return new JoinGameResponse();
 }
 
-const LeaveGameResponse* Server::handle_leave_game(const LeaveGameRequest* request)
+LeaveGameResponse* Server::handle_leave_game(const LeaveGameRequest* request)
 {
     VALIDATE_REQUEST(request);
     auto* game = m_game_cache.get(request->m_game_id);
@@ -156,7 +168,7 @@ const LeaveGameResponse* Server::handle_leave_game(const LeaveGameRequest* reque
     return new LeaveGameResponse();
 }
 
-const StartGameResponse* Server::handle_start_game(const StartGameRequest* request)
+StartGameResponse* Server::handle_start_game(const StartGameRequest* request)
 {
     VALIDATE_REQUEST(request);
     auto* game = m_game_cache.get(request->m_game_id);
@@ -168,28 +180,28 @@ const StartGameResponse* Server::handle_start_game(const StartGameRequest* reque
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const MakeMoveResponse* Server::handle_make_move(const MakeMoveRequest* request)
+MakeMoveResponse* Server::handle_make_move(const MakeMoveRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const QueryResponse* Server::handle_query(const QueryRequest* request)
+QueryResponse* Server::handle_query(const QueryRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const RegisterListenerResponse* Server::handle_register_listener(const RegisterListenerRequest* request)
+RegisterListenerResponse* Server::handle_register_listener(const RegisterListenerRequest* request)
 {
     (void)request;
     assert(false);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-const UnregisterListenerResponse* Server::handle_unregister_listener(const UnregisterListenerRequest* request)
+UnregisterListenerResponse* Server::handle_unregister_listener(const UnregisterListenerRequest* request)
 {
     (void)request;
     assert(false);

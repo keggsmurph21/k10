@@ -27,13 +27,15 @@ struct Request {
         UnregisterListener,
     };
 
+    // Clients can provide an <id> that we'll pass along in the response.
+    u16 m_id{ 0 };
+
     const Type m_type;
 
     virtual ~Request() {}
 
 protected:
-    Request(/*Client& client,*/ Type type)
-        /*: m_client(client)*/
+    Request(Type type)
         : m_type(type)
     {
     }

@@ -9,6 +9,7 @@
 #include "Util/Types.h"
 
 #define BYTE_FOR(x) (static_cast<u8>(Request::Type::x))
+#define SEQN_NUMBER 0x04, 0x20
 
 namespace k10engine::Server {
 
@@ -37,21 +38,21 @@ TEST_CASE("Request", "[Server][Server.Request]")
         {
             using T = RegisterUserRequest;
 
-            REQUIRE(decode<T>({ BYTE_FOR(RegisterUser) }) == nullptr);
-            REQUIRE(decode<T>({ BYTE_FOR(RegisterUser), 0x00 }) == nullptr);
-            REQUIRE(decode<T>({ BYTE_FOR(RegisterUser), 0x01 }) == nullptr);
-            REQUIRE(decode<T>({ BYTE_FOR(RegisterUser), 0x01, 'a', 0x00 }) == nullptr);
-            REQUIRE(decode<T>({ BYTE_FOR(RegisterUser), 0x01, 'a', 0x01 }) == nullptr);
+            REQUIRE(decode<T>({ SEQN_NUMBER, BYTE_FOR(RegisterUser) }) == nullptr);
+            REQUIRE(decode<T>({ SEQN_NUMBER, BYTE_FOR(RegisterUser), 0x00 }) == nullptr);
+            REQUIRE(decode<T>({ SEQN_NUMBER, BYTE_FOR(RegisterUser), 0x01 }) == nullptr);
+            REQUIRE(decode<T>({ SEQN_NUMBER, BYTE_FOR(RegisterUser), 0x01, 'a', 0x00 }) == nullptr);
+            REQUIRE(decode<T>({ SEQN_NUMBER, BYTE_FOR(RegisterUser), 0x01, 'a', 0x01 }) == nullptr);
 
-            const auto* a_a = decode<T>({ BYTE_FOR(RegisterUser), 0x01, 'a', 0x01, 'a' });
+            const auto* a_a = decode<T>({ SEQN_NUMBER, BYTE_FOR(RegisterUser), 0x01, 'a', 0x01, 'a' });
             REQUIRE(a_a != nullptr);
             REQUIRE(a_a->m_type == Request::Type::RegisterUser);
             REQUIRE(a_a->m_name == "a");
             REQUIRE(a_a->m_secret == "a");
             delete a_a;
 
-            const auto* hello_world =
-                decode<T>({ BYTE_FOR(RegisterUser), 0x05, 'h', 'e', 'l', 'l', 'o', 0x05, 'w', 'o', 'r', 'l', 'd' });
+            const auto* hello_world = decode<T>(
+                { SEQN_NUMBER, BYTE_FOR(RegisterUser), 0x05, 'h', 'e', 'l', 'l', 'o', 0x05, 'w', 'o', 'r', 'l', 'd' });
             REQUIRE(hello_world != nullptr);
             REQUIRE(hello_world->m_type == Request::Type::RegisterUser);
             REQUIRE(hello_world->m_name == "hello");
@@ -64,8 +65,9 @@ TEST_CASE("Request", "[Server][Server.Request]")
             using T = NewGameRequest;
             using IterationType = k10engine::Scenario::IterationType;
 
-            REQUIRE(decode<T>({ BYTE_FOR(NewGame) }) == nullptr);
-            REQUIRE(decode<T>({ BYTE_FOR(NewGame),
+            REQUIRE(decode<T>({ SEQN_NUMBER, BYTE_FOR(NewGame) }) == nullptr);
+            REQUIRE(decode<T>({ SEQN_NUMBER,
+                                BYTE_FOR(NewGame),
                                 // PlayerId
                                 0x00,
                                 0x00,
@@ -114,7 +116,8 @@ TEST_CASE("Request", "[Server][Server.Request]")
                                 0x00 })
                     == nullptr);
 
-            const auto* all_zeroes = decode<T>({ BYTE_FOR(NewGame),
+            const auto* all_zeroes = decode<T>({ SEQN_NUMBER,
+                                                 BYTE_FOR(NewGame),
                                                  // PlayerId
                                                  0x00,
                                                  0x00,
@@ -179,59 +182,36 @@ TEST_CASE("Request", "[Server][Server.Request]")
         {
             using T = JoinGameRequest;
 
-            REQUIRE(decode<T>({ BYTE_FOR(JoinGame) }) == nullptr);
-            REQUIRE(decode<T>({ BYTE_FOR(JoinGame), 0x00 }) == nullptr);
-            REQUIRE(decode<T>({ BYTE_FOR(JoinGame), // 15 bytes!
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
+            REQUIRE(decode<T>({ SEQN_NUMBER, BYTE_FOR(JoinGame) }) == nullptr);
+            REQUIRE(decode<T>({ SEQN_NUMBER, BYTE_FOR(JoinGame), 0x00 }) == nullptr);
+            REQUIRE(decode<T>({ SEQN_NUMBER, BYTE_FOR(JoinGame), // 15 bytes!
+                                0x00,        0x00,
+                                0x00,        0x00,
+                                0x00,        0x00,
+                                0x00,        0x00,
+                                0x00,        0x00,
+                                0x00,        0x00,
+                                0x00,        0x00,
+                                0x00,        0x00,
+                                0x00,        0x00,
+                                0x00,        0x00,
+                                0x00,        0x00,
                                 0x00 })
                     == nullptr);
 
-            const auto* all_zeroes = decode<T>({ BYTE_FOR(JoinGame),
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00,
-                                                 0x00 });
+            const auto* all_zeroes = decode<T>({ SEQN_NUMBER, BYTE_FOR(JoinGame),
+                                                 0x00,        0x00,
+                                                 0x00,        0x00,
+                                                 0x00,        0x00,
+                                                 0x00,        0x00,
+                                                 0x00,        0x00,
+                                                 0x00,        0x00,
+                                                 0x00,        0x00,
+                                                 0x00,        0x00,
+                                                 0x00,        0x00,
+                                                 0x00,        0x00,
+                                                 0x00,        0x00,
+                                                 0x00,        0x00 });
             REQUIRE(all_zeroes != nullptr);
             REQUIRE(all_zeroes->m_type == Request::Type::JoinGame);
             REQUIRE(all_zeroes->m_player_id == 0);
@@ -239,31 +219,19 @@ TEST_CASE("Request", "[Server][Server.Request]")
             REQUIRE(all_zeroes->m_game_id == 0);
             delete all_zeroes;
 
-            const auto* deadbeef = decode<T>({ BYTE_FOR(JoinGame),
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x00,
-                                               0x00,
-                                               0x00,
-                                               0x00,
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x11,
-                                               0x11,
-                                               0x11,
-                                               0x11,
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x22,
-                                               0x22,
-                                               0x22,
-                                               0x22 });
+            const auto* deadbeef = decode<T>({ SEQN_NUMBER, BYTE_FOR(JoinGame),
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x00,        0x00,
+                                               0x00,        0x00,
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x11,        0x11,
+                                               0x11,        0x11,
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x22,        0x22,
+                                               0x22,        0x22 });
             REQUIRE(deadbeef != nullptr);
             REQUIRE(deadbeef->m_type == Request::Type::JoinGame);
             REQUIRE(deadbeef->m_player_id == 0xdeadbeef00000000);
@@ -278,31 +246,19 @@ TEST_CASE("Request", "[Server][Server.Request]")
             // NB: This is identical to JoinGame
             using T = LeaveGameRequest;
 
-            const auto* deadbeef = decode<T>({ BYTE_FOR(LeaveGame),
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x00,
-                                               0x00,
-                                               0x00,
-                                               0x00,
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x11,
-                                               0x11,
-                                               0x11,
-                                               0x11,
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x22,
-                                               0x22,
-                                               0x22,
-                                               0x22 });
+            const auto* deadbeef = decode<T>({ SEQN_NUMBER, BYTE_FOR(LeaveGame),
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x00,        0x00,
+                                               0x00,        0x00,
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x11,        0x11,
+                                               0x11,        0x11,
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x22,        0x22,
+                                               0x22,        0x22 });
             REQUIRE(deadbeef != nullptr);
             REQUIRE(deadbeef->m_type == Request::Type::LeaveGame);
             REQUIRE(deadbeef->m_player_id == 0xdeadbeef00000000);
@@ -317,31 +273,19 @@ TEST_CASE("Request", "[Server][Server.Request]")
             // NB: This is identical to JoinGame
             using T = StartGameRequest;
 
-            const auto* deadbeef = decode<T>({ BYTE_FOR(StartGame),
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x00,
-                                               0x00,
-                                               0x00,
-                                               0x00,
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x11,
-                                               0x11,
-                                               0x11,
-                                               0x11,
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x22,
-                                               0x22,
-                                               0x22,
-                                               0x22 });
+            const auto* deadbeef = decode<T>({ SEQN_NUMBER, BYTE_FOR(StartGame),
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x00,        0x00,
+                                               0x00,        0x00,
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x11,        0x11,
+                                               0x11,        0x11,
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x22,        0x22,
+                                               0x22,        0x22 });
             REQUIRE(deadbeef != nullptr);
             REQUIRE(deadbeef->m_type == Request::Type::StartGame);
             REQUIRE(deadbeef->m_player_id == 0xdeadbeef00000000);
@@ -354,49 +298,28 @@ TEST_CASE("Request", "[Server][Server.Request]")
         {
             using T = MakeMoveRequest;
 
-            const auto* build_settlement = decode<T>({ BYTE_FOR(MakeMove),
-                                                       0xde,
-                                                       0xad,
-                                                       0xbe,
-                                                       0xef,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0xde,
-                                                       0xad,
-                                                       0xbe,
-                                                       0xef,
-                                                       0x11,
-                                                       0x11,
-                                                       0x11,
-                                                       0x11,
-                                                       0xde,
-                                                       0xad,
-                                                       0xbe,
-                                                       0xef,
-                                                       0x22,
-                                                       0x22,
-                                                       0x22,
-                                                       0x22,
-                                                       0x04,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x01,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x00,
-                                                       0x2a });
+            const auto* build_settlement = decode<T>({ SEQN_NUMBER, BYTE_FOR(MakeMove),
+                                                       0xde,        0xad,
+                                                       0xbe,        0xef,
+                                                       0x00,        0x00,
+                                                       0x00,        0x00,
+                                                       0xde,        0xad,
+                                                       0xbe,        0xef,
+                                                       0x11,        0x11,
+                                                       0x11,        0x11,
+                                                       0xde,        0xad,
+                                                       0xbe,        0xef,
+                                                       0x22,        0x22,
+                                                       0x22,        0x22,
+                                                       0x04,        0x00,
+                                                       0x00,        0x00,
+                                                       0x00,        0x00,
+                                                       0x00,        0x00,
+                                                       0x01,        0x00,
+                                                       0x00,        0x00,
+                                                       0x00,        0x00,
+                                                       0x00,        0x00,
+                                                       0x00,        0x2a });
             REQUIRE(build_settlement != nullptr);
             REQUIRE(build_settlement->m_type == Request::Type::MakeMove);
             REQUIRE(build_settlement->m_player_id == 0xdeadbeef00000000);
@@ -415,31 +338,19 @@ TEST_CASE("Request", "[Server][Server.Request]")
             // NB: This is identical to JoinGame
             using T = QueryRequest;
 
-            const auto* deadbeef = decode<T>({ BYTE_FOR(Query),
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x00,
-                                               0x00,
-                                               0x00,
-                                               0x00,
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x11,
-                                               0x11,
-                                               0x11,
-                                               0x11,
-                                               0xde,
-                                               0xad,
-                                               0xbe,
-                                               0xef,
-                                               0x22,
-                                               0x22,
-                                               0x22,
-                                               0x22 });
+            const auto* deadbeef = decode<T>({ SEQN_NUMBER, BYTE_FOR(Query),
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x00,        0x00,
+                                               0x00,        0x00,
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x11,        0x11,
+                                               0x11,        0x11,
+                                               0xde,        0xad,
+                                               0xbe,        0xef,
+                                               0x22,        0x22,
+                                               0x22,        0x22 });
             REQUIRE(deadbeef != nullptr);
             REQUIRE(deadbeef->m_type == Request::Type::Query);
             REQUIRE(deadbeef->m_player_id == 0xdeadbeef00000000);

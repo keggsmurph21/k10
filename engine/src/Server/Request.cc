@@ -38,6 +38,11 @@ template<>
 bool decode(ByteBuffer& buf, Request*& request)
 {
     Decoder decoder(buf);
+    u16 id;
+    if (!decoder.decode(id)) {
+        request = nullptr;
+        return false;
+    }
     Request::Type request_type;
     if (!decoder.decode(request_type)) {
         request = nullptr;
@@ -49,6 +54,7 @@ bool decode(ByteBuffer& buf, Request*& request)
         if (!decoder.decode(register_user_request))
             return false;
         request = register_user_request;
+        request->m_id = id;
         return true;
     }
     case Request::Type::NewGame: {
@@ -56,6 +62,7 @@ bool decode(ByteBuffer& buf, Request*& request)
         if (!decoder.decode(new_game_request))
             return false;
         request = new_game_request;
+        request->m_id = id;
         return true;
     }
     case Request::Type::JoinGame: {
@@ -63,6 +70,7 @@ bool decode(ByteBuffer& buf, Request*& request)
         if (!decoder.decode(join_game_request))
             return false;
         request = join_game_request;
+        request->m_id = id;
         return true;
     }
     case Request::Type::LeaveGame: {
@@ -70,6 +78,7 @@ bool decode(ByteBuffer& buf, Request*& request)
         if (!decoder.decode(leave_game_request))
             return false;
         request = leave_game_request;
+        request->m_id = id;
         return true;
     }
     case Request::Type::StartGame: {
@@ -77,6 +86,7 @@ bool decode(ByteBuffer& buf, Request*& request)
         if (!decoder.decode(start_game_request))
             return false;
         request = start_game_request;
+        request->m_id = id;
         return true;
     }
     case Request::Type::MakeMove: {
@@ -84,6 +94,7 @@ bool decode(ByteBuffer& buf, Request*& request)
         if (!decoder.decode(make_move_request))
             return false;
         request = make_move_request;
+        request->m_id = id;
         return true;
     }
     case Request::Type::Query: {
@@ -91,6 +102,7 @@ bool decode(ByteBuffer& buf, Request*& request)
         if (!decoder.decode(query_request))
             return false;
         request = query_request;
+        request->m_id = id;
         return true;
     }
     case Request::Type::RegisterListener:

@@ -22,6 +22,7 @@ struct Response {
         GameChanged,
     };
 
+    u16 m_request_id;
     const Type m_type;
 
     virtual ~Response() {}

@@ -26,15 +26,15 @@ private:
     void for_each_interested_client(Game::GameId, std::function<void(Client*)>);
 
     const Response* handle(const Request*);
-    const RegisterUserResponse* handle_register_user(const RegisterUserRequest*);
-    const NewGameResponse* handle_new_game(const NewGameRequest*);
-    const JoinGameResponse* handle_join_game(const JoinGameRequest*);
-    const LeaveGameResponse* handle_leave_game(const LeaveGameRequest*);
-    const StartGameResponse* handle_start_game(const StartGameRequest*);
-    const MakeMoveResponse* handle_make_move(const MakeMoveRequest*);
-    const QueryResponse* handle_query(const QueryRequest*);
-    const RegisterListenerResponse* handle_register_listener(const RegisterListenerRequest*);
-    const UnregisterListenerResponse* handle_unregister_listener(const UnregisterListenerRequest*);
+    RegisterUserResponse* handle_register_user(const RegisterUserRequest*);
+    NewGameResponse* handle_new_game(const NewGameRequest*);
+    JoinGameResponse* handle_join_game(const JoinGameRequest*);
+    LeaveGameResponse* handle_leave_game(const LeaveGameRequest*);
+    StartGameResponse* handle_start_game(const StartGameRequest*);
+    MakeMoveResponse* handle_make_move(const MakeMoveRequest*);
+    QueryResponse* handle_query(const QueryRequest*);
+    RegisterListenerResponse* handle_register_listener(const RegisterListenerRequest*);
+    UnregisterListenerResponse* handle_unregister_listener(const UnregisterListenerRequest*);
 
     Registrar m_registrar;
     GameCache m_game_cache;

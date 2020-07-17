@@ -4,7 +4,13 @@ import struct
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(("localhost", 3088))
 
+
+my_seqn_id = 1
+
+
 def request(req: bytes) -> bytes:
+    global my_seqn_id
+    req = struct.pack(">H", my_seqn_id) + req
     print()
     print(f"    /sending {len(req)} bytes ({req})")
     sock.send(req)
@@ -12,7 +18,10 @@ def request(req: bytes) -> bytes:
     res = sock.recv(4096)
     print(f"    \\received {len(res)} bytes ({res})")
     print()
-    return res
+    seqn_id, = struct.unpack(">H", res[:2])
+    assert seqn_id == my_seqn_id
+    my_seqn_id += 1
+    return res[2:]
 
 
 # Register a user
