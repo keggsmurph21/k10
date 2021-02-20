@@ -1,0 +1,9 @@
+[package]
+name = "kcore"
+version = "0.1.0"
+authors = ["Kevin Murphy <kevin@murp.us>"]
+edition = "2018"
+
+[dependencies]
+rand = { version = ">= 0.8.3" }
+serde = { version = ">= 1.0", features = ["derive"] }
