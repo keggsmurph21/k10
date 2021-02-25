@@ -9,7 +9,7 @@ use super::game::Game;
 use super::resource::{Resource, ResourceCounts};
 use super::trade::{Trade, TradeWith};
 
-pub type PlayerId = u64;
+pub type PlayerId = i64;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum PlayerState {
@@ -48,16 +48,16 @@ pub struct Player {
     pub state: PlayerState,
     pub hand: ResourceCounts,
     pub victory_points: VictoryPoints,
-    cities: HashSet<Index>,
-    roads: HashSet<Index>,
-    settlements: HashSet<Index>,
+    pub cities: HashSet<Index>,
+    pub roads: HashSet<Index>,
+    pub settlements: HashSet<Index>,
     pub army_size: u8,
     pub dev_cards: Vec<DevCardInHand>,
     pub has_played_dev_card: bool,
     pub num_trades_offered_this_turn: u8,
     pub num_to_discard: u8,
     pub has_declined_trade: bool,
-    bank_trade_rates: ResourceCounts,
+    pub bank_trade_rates: ResourceCounts,
 }
 
 impl Player {

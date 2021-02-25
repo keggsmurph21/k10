@@ -23,17 +23,17 @@ const MIN_LONGEST_ROAD: u8 = 5;
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Game {
     pub players: Players,
-    player_order: Vec<PlayerId>,
-    current_player_index: u8,
-    victory_points_goal: u8,
+    pub player_order: Vec<PlayerId>,
+    pub current_player_index: u8,
+    pub victory_points_goal: u8,
     pub dev_cards: Vec<DevCard>,
     pub board: Board,
     pub robber_index: Index,
-    turn_number: u32,
+    pub turn_number: u32,
     pub has_rolled: bool,
     pub current_trade: Option<Trade>,
-    has_largest_army: Option<PlayerId>,
-    has_longest_road: Option<PlayerId>,
+    pub has_largest_army: Option<PlayerId>,
+    pub has_longest_road: Option<PlayerId>,
     #[serde(skip)]
     die: Die,
 }
@@ -87,7 +87,7 @@ impl Game {
 
                 // Put the "current" player into the Root state
                 let current_player = game.player_order[usize::from(game.current_player_index)];
-                let current_player = game.players.get_mut(&u64::from(current_player)).unwrap();
+                let current_player = game.players.get_mut(&i64::from(current_player)).unwrap();
                 current_player.state = PlayerState::Root;
 
                 game
@@ -137,12 +137,12 @@ impl Game {
 
     pub fn current_player(&self) -> &Player {
         let player_id = self.player_order[usize::from(self.current_player_index)];
-        self.players.get(&u64::from(player_id)).unwrap()
+        self.players.get(&i64::from(player_id)).unwrap()
     }
 
     fn current_player_mut(&mut self) -> &mut Player {
         let player_id = self.player_order[usize::from(self.current_player_index)];
-        self.players.get_mut(&u64::from(player_id)).unwrap()
+        self.players.get_mut(&i64::from(player_id)).unwrap()
     }
 
     #[must_use]

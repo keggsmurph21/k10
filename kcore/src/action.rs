@@ -45,7 +45,7 @@ pub enum Error {
 #[derive(Debug, Deserialize, Serialize)]
 pub enum Payload {
     Drew(DevCard),
-    GameOver(u64),
+    GameOver(PlayerId),
     Monopolized(u8),
     Null,
     Rolled(u8),
