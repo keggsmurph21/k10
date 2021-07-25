@@ -1,7 +1,7 @@
 use sqlx::sqlite::SqlitePool;
 use std::collections::HashSet;
 
-use super::error::ClientError;
+use super::super::error::ClientError;
 use super::user::UserId;
 
 pub type GameId = i64;
@@ -13,7 +13,7 @@ pub struct Game {
     pub game: kcore::game::Game,
 }
 
-#[derive(sqlx::FromRow)]
+#[derive(Debug, sqlx::FromRow)]
 struct RawGame {
     pub id: GameId,
     pub users: String,
@@ -73,9 +73,10 @@ impl Game {
     pub async fn persist(self, pool: &SqlitePool) -> Result<(), ClientError> {
         let game = self.to_raw()?;
         sqlx::query(
-            "UPDATE games (users, game)
-                        VALUES (?, ?)
-                        WHERE id = ?",
+            "UPDATE games
+                    SET users = ?
+                      , game = ?
+                    WHERE id = ?",
         )
         .bind(game.users)
         .bind(game.game)

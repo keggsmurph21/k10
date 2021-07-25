@@ -1,14 +1,14 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqlitePool;
 use std::collections::HashSet;
 
 use kcore::board::BoardType;
 
-use super::error::ClientError;
+use super::super::error::ClientError;
 use super::game::GameId;
 use super::user::UserId;
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PendingGame {
     pub id: GameId,
     pub num_players: u8,

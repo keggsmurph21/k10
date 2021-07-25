@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 use super::super::resource::Resource;
 use super::index::Index;
 
-#[derive(Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub enum HexType {
     Desert,
     Ocean,
     WithResource { resource: Resource, roll: u8 },
 }
 
-#[derive(Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Hex {
     pub index: Index,
     pub hex_type: HexType,

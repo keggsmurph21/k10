@@ -11,7 +11,7 @@ use super::trade::{Trade, TradeWith};
 
 pub type PlayerId = i64;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum PlayerState {
     AfterBuildingFreeSettlement,
     AfterRollingSeven,
@@ -22,7 +22,7 @@ pub enum PlayerState {
     WaitForTradeResponses,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct VictoryPoints {
     pub public: u8,
     pub private: u8,
@@ -42,7 +42,7 @@ const DEFAULT_BANK_TRADE_RATE: u8 = 4;
 const GENERIC_PORT_BANK_TRADE_RATE: u8 = 3;
 const SPECIALTY_PORT_BANK_TRADE_RATE: u8 = 2;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Player {
     pub id: PlayerId,
     pub state: PlayerState,
@@ -404,7 +404,7 @@ impl Player {
             Some(
                 self.dev_cards
                     .iter()
-                    .filter(move |dc| dc.state != DevCardState::CanPlay)
+                    .filter(move |dc| dc.state == DevCardState::CanPlay)
                     .map(|dc| dc.card)
                     .collect::<HashSet<_>>()
                     .into_iter()

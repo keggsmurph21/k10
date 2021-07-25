@@ -5,13 +5,13 @@ use std::collections::HashSet;
 use super::player::PlayerId;
 use super::resource::ResourceCounts;
 
-#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum TradeWith {
     Bank,
     Players(HashSet<PlayerId>),
 }
 
-#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Trade {
     pub giving: ResourceCounts,
     pub getting: ResourceCounts,

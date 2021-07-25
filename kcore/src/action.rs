@@ -10,7 +10,7 @@ type HexIndex = Index;
 type JunctionIndex = Index;
 type RoadIndex = Index;
 
-#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum Request {
     AcceptTrade,
     BuildCity(JunctionIndex),
@@ -33,7 +33,7 @@ pub enum Request {
     StealFrom(PlayerId),
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum Error {
     CannotAfford,
     DiscardingTooMany,
@@ -42,7 +42,7 @@ pub enum Error {
     PlayerNotFound,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum Payload {
     Drew(DevCard),
     GameOver(PlayerId),

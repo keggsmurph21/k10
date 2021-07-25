@@ -21,12 +21,12 @@ pub mod port;
 pub use port::Port;
 
 pub mod road;
-pub use road::{Road, RoadOrientation};
+pub use road::Road;
 
 use super::player::PlayerId;
 use super::resource::{Resource, ResourceCounts};
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum Node {
     Hex(Hex),
     Junction(Junction),
@@ -46,7 +46,7 @@ enum NeighborType {
     JunctionRoad,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Board {
     pub board_type: BoardType,
     nodes: Nodes,
@@ -342,18 +342,7 @@ impl std::fmt::Display for Board {
                             },
                         ..
                     })) => "w",
-                    Some(Node::Road(Road {
-                        orientation: RoadOrientation::BackSlash,
-                        ..
-                    })) => "\\",
-                    Some(Node::Road(Road {
-                        orientation: RoadOrientation::ForwardSlash,
-                        ..
-                    })) => "/",
-                    Some(Node::Road(Road {
-                        orientation: RoadOrientation::Pipe,
-                        ..
-                    })) => "|",
+                    Some(Node::Road(_)) => "-",
                 };
                 write!(f, "{}", ch)?;
             }

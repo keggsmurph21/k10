@@ -1,9 +1,8 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqlitePool;
 
 pub type Password = String;
 // sqlx whines about unsigned
-pub type UserToken = i64;
 pub type UserId = i64;
 pub type Username = String;
 
@@ -16,7 +15,7 @@ pub struct User {
 }
 
 /// "Public" data viewable by anyone.
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct UserData {
     pub id: UserId,
     pub name: Username,

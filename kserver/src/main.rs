@@ -5,22 +5,11 @@ use std::sync::Arc; // TODO: Read more about this!
 use tokio::sync::RwLock; // TODO: Read more about this!
 use warp::Filter;
 
-mod client;
-mod error;
-mod game;
-mod game_view;
-mod handler;
-mod pending_game;
-mod request;
-mod server;
-mod token;
-mod user;
-mod ws;
-
-use client::Clients;
-use game::Game;
-use pending_game::PendingGame;
-use user::{User, UserId};
+use kserver::client::Clients;
+use kserver::handler;
+use kserver::model::game::Game;
+use kserver::model::pending_game::PendingGame;
+use kserver::model::user::{User, UserId};
 
 #[tokio::main]
 async fn main() {
@@ -80,10 +69,3 @@ fn with_clients(clients: Clients) -> impl Filter<Extract = (Clients,), Error = I
 fn with_pool(pool: SqlitePool) -> impl Filter<Extract = (SqlitePool,), Error = Infallible> + Clone {
     warp::any().map(move || pool.clone())
 }
-
-//fn main() {
-//
-//    let port = 3088;  // aka 0xc10
-//    let bind_addr = format!("0.0.0.0:{}", port);
-//    GameServer::new().serve(&bind_addr, &mut rng);
-//}

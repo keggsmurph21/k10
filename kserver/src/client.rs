@@ -6,9 +6,9 @@ use tokio::sync::{mpsc, RwLock};
 use warp::ws::Message;
 use warp::Error;
 
-use super::game::GameId;
+use super::model::game::GameId;
+use super::model::user::{User, UserData, UserId};
 use super::token::{new_token, Token};
-use super::user::{User, UserData, UserId};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ClientState {
