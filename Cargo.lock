@@ -818,6 +818,7 @@ name = "kserver"
 version = "0.1.0"
 dependencies = [
  "futures 0.3.13",
+ "futures-channel",
  "kcore",
  "rand 0.8.3",
  "reqwest",

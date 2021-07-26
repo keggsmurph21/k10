@@ -1,0 +1,13 @@
+* move everything back into a single crate and use "features"
+* enforce that users can only be in a single game at a time
+* integrate with reedline
+    * history
+    * syntax highlighting
+    * autocomplete
+    * hinting?
+* drawing the board
+    * zoom
+    * pan
+* typescript websocket client
+    * generate bindings to the websocket api
+* message passing (between the "rooms"?)

@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 futures = { version = "0.3", default-features = false }
+futures-channel = { version = "0.3", default-features = false }
 kcore = { path = "../kcore" }
 rand = { version = ">= 0.8.3", features = ["small_rng"] }
 reqwest = { version = ">= 0.11.4", features = ["json"] }

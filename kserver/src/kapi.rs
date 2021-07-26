@@ -1,3 +1,4 @@
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
 use kcore::board::BoardType;
@@ -12,10 +13,26 @@ use super::view::game::GameView;
 
 // rest API
 
+pub trait RestRequest: DeserializeOwned + Serialize {
+    fn path() -> &'static str;
+}
+
+pub trait RestResponse: DeserializeOwned + Serialize {
+    fn from_str(res: &str) -> Result<Self> {
+        serde_json::from_str(res).map_err(ClientError::SerdeError)
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct RegisterRequest {
     pub username: String,
     pub password: String,
+}
+
+impl RestRequest for RegisterRequest {
+    fn path() -> &'static str {
+        "register"
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -24,10 +41,10 @@ pub struct LoginRequest {
     pub password: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct LoginResponse {
-    pub user_id: UserId,
-    pub token: Token,
+impl RestRequest for LoginRequest {
+    fn path() -> &'static str {
+        "login"
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -35,6 +52,20 @@ pub struct LogoutRequest {
     pub user_id: UserId,
     pub token: Token,
 }
+
+impl RestRequest for LogoutRequest {
+    fn path() -> &'static str {
+        "logout"
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct LoginResponse {
+    pub user_id: UserId,
+    pub token: Token,
+}
+
+impl RestResponse for LoginResponse {}
 
 // ws API
 
@@ -93,7 +124,7 @@ pub trait Message {
     fn from_msg<M>(msg: M) -> Result<Self>
     where
         M: MessageAdapter,
-        Self: serde::de::DeserializeOwned + Sized,
+        Self: DeserializeOwned + Sized,
     {
         serde_json::from_str(&msg.to_str()?).map_err(ClientError::SerdeError)
     }

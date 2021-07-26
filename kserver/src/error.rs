@@ -12,16 +12,18 @@ pub enum ClientError {
     WrongPayload,
 
     #[error("Error during websocket I/O: {0}")]
-    WebsocketError(#[from] websocket::WebSocketError),
-
-    #[error("Error connecting to websocket host: {0}")]
-    WebsocketConnectionError(#[from] websocket::client::ParseError),
+    WebsocketError(#[from] tokio_tungstenite::tungstenite::Error),
 
     #[error("Error making request: {0}")]
     ReqwestError(#[from] reqwest::Error),
 
-    #[error("Failed reading data from stdin")]
-    StdinError(#[from] std::io::Error),
+    #[error("Failed parsing data as utf-8: {0}")]
+    Utf8Error(#[from] std::str::Utf8Error),
+
+    #[error("Failed to write to channel")]
+    ChannelWriteError(
+        #[from] futures_channel::mpsc::TrySendError<tokio_tungstenite::tungstenite::Message>,
+    ),
 
     #[error("Error during database I/O: {0}")]
     DatabaseError(#[from] sqlx::Error),
