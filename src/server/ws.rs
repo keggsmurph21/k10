@@ -6,10 +6,10 @@ use warp::ws::WebSocket;
 
 use crate::core::PlayerId;
 
+use super::api;
+use super::api::Message;
 use super::client::{Client, ClientState, Clients};
 use super::handler::handle_message;
-use super::kapi;
-use super::kapi::Message;
 use super::model::user::UserId;
 
 pub async fn on_client_connection(ws: WebSocket, id: UserId, pool: SqlitePool, clients: Clients) {
@@ -55,13 +55,13 @@ pub async fn on_client_connection(ws: WebSocket, id: UserId, pool: SqlitePool, c
     eprintln!("User({}) disconnected", id);
 }
 
-pub async fn broadcast(msg: kapi::Response, clients: &Clients, with_state: ClientState) {
+pub async fn broadcast(msg: api::Response, clients: &Clients, with_state: ClientState) {
     broadcast_map(|_| msg.clone(), clients, with_state).await;
 }
 
 pub async fn broadcast_map<F>(f: F, clients: &Clients, with_state: ClientState)
 where
-    F: Fn(&PlayerId) -> kapi::Response,
+    F: Fn(&PlayerId) -> api::Response,
 {
     clients
         .read()
@@ -74,7 +74,7 @@ where
         });
 }
 
-pub fn send(msg: kapi::Response, client: &Client) {
+pub fn send(msg: api::Response, client: &Client) {
     let msg = match msg.to_msg() {
         Ok(msg) => msg,
         Err(e) => {

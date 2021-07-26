@@ -1,7 +1,7 @@
+pub mod api;
 pub mod client;
 pub mod error;
 pub mod handler;
-pub mod kapi;
 pub mod model;
 pub mod result;
 pub mod token;

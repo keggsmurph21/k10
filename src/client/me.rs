@@ -1,4 +1,4 @@
-use crate::server::kapi;
+use crate::server::api;
 use crate::server::model::user::UserId;
 use crate::server::result::Result;
 use crate::server::token::Token;
@@ -21,7 +21,7 @@ impl Me {
 
         rest::register(
             &client,
-            kapi::RegisterRequest {
+            api::RegisterRequest {
                 username: username.clone(),
                 password: password.clone(),
             },
@@ -30,7 +30,7 @@ impl Me {
 
         let login = rest::login(
             &client,
-            kapi::LoginRequest {
+            api::LoginRequest {
                 username: username.clone(),
                 password: password.clone(),
             },

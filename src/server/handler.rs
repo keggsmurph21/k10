@@ -10,10 +10,10 @@ use warp::{Rejection, Reply};
 
 use crate::core;
 
+use super::api;
+use super::api::Message as _;
 use super::client::{Client, ClientState, Clients};
 use super::error::ClientError;
-use super::kapi;
-use super::kapi::Message as _;
 use super::model::game::Game;
 use super::model::game::GameId;
 use super::model::pending_game::PendingGame;
@@ -26,7 +26,7 @@ pub async fn noop_handler() -> Result<impl Reply, Rejection> {
 }
 
 pub async fn register_handler(
-    body: kapi::RegisterRequest,
+    body: api::RegisterRequest,
     pool: SqlitePool,
 ) -> Result<impl Reply, Rejection> {
     match User::by_username(&pool, &body.username).await {
@@ -52,7 +52,7 @@ pub async fn register_handler(
 }
 
 pub async fn login_handler(
-    body: kapi::LoginRequest,
+    body: api::LoginRequest,
     pool: SqlitePool,
     clients: Clients,
 ) -> Result<impl Reply, Rejection> {
@@ -66,7 +66,7 @@ pub async fn login_handler(
                 let client = Client::new(&user);
                 let token = client.token.clone();
                 clients.write().await.insert(user.id, client);
-                Ok(json(&kapi::LoginResponse {
+                Ok(json(&api::LoginResponse {
                     user_id: user.id,
                     token,
                 })
@@ -85,7 +85,7 @@ pub async fn login_handler(
 }
 
 pub async fn logout_handler(
-    body: kapi::LogoutRequest,
+    body: api::LogoutRequest,
     clients: Clients,
 ) -> Result<impl Reply, Rejection> {
     let mut clients = clients.write().await;
@@ -125,12 +125,12 @@ pub async fn ws_handler(
 }
 
 async fn handle_unauthenticated(
-    req: kapi::UnauthenticatedRequest,
+    req: api::UnauthenticatedRequest,
     mut client: Client,
     clients: &Clients,
 ) {
     match req {
-        kapi::UnauthenticatedRequest::Authenticate(req) => {
+        api::UnauthenticatedRequest::Authenticate(req) => {
             if req.token == client.token {
                 let users = clients
                     .read()
@@ -140,29 +140,29 @@ async fn handle_unauthenticated(
                     .map(|client| client.user_data.clone())
                     .collect();
 
-                let res = kapi::LobbyResponse::Authenticated(users);
-                let res = kapi::Response::Lobby(res);
+                let res = api::LobbyResponse::Authenticated(users);
+                let res = api::Response::Lobby(res);
                 ws::send(res, &client);
 
-                let res = kapi::LobbyResponse::UserConnected(client.user_data.clone());
-                let res = kapi::Response::Lobby(res);
+                let res = api::LobbyResponse::UserConnected(client.user_data.clone());
+                let res = api::Response::Lobby(res);
                 ws::broadcast(res, &clients, ClientState::InLobby).await;
 
                 client.state = ClientState::InLobby;
                 clients.write().await.insert(client.user_data.id, client);
             } else {
                 eprintln!("Auth failed for user({})", client.user_data.id);
-                let res = kapi::ClientErrorResponse {
+                let res = api::ClientErrorResponse {
                     msg: "Authentication failed".into(),
                 };
-                ws::send(kapi::Response::ClientError(res), &client);
+                ws::send(api::Response::ClientError(res), &client);
             }
         }
     }
 }
 
 async fn handle_create_game(
-    req: kapi::CreateGameRequest,
+    req: api::CreateGameRequest,
     client: &Client,
     pool: SqlitePool,
 ) -> Result<PendingGame, ClientError> {
@@ -194,7 +194,7 @@ enum JoinedGame {
 }
 
 async fn handle_join_game(
-    req: kapi::JoinGameRequest,
+    req: api::JoinGameRequest,
     client: &Client,
     pool: SqlitePool,
 ) -> Result<JoinedGame, ClientError> {
@@ -228,17 +228,17 @@ async fn handle_join_game(
 }
 
 async fn handle_in_lobby(
-    req: kapi::LobbyRequest,
+    req: api::LobbyRequest,
     client: Client,
     pool: SqlitePool,
     clients: &Clients,
 ) {
     match req {
-        kapi::LobbyRequest::CreateGame(req) => match handle_create_game(req, &client, pool).await {
+        api::LobbyRequest::CreateGame(req) => match handle_create_game(req, &client, pool).await {
             Ok(game) => {
                 eprintln!("Created game with id {}", game.id);
-                let res = kapi::LobbyResponse::CreatedGame(game);
-                let res = kapi::Response::Lobby(res);
+                let res = api::LobbyResponse::CreatedGame(game);
+                let res = api::Response::Lobby(res);
                 ws::broadcast(res, &clients, ClientState::InLobby).await;
             }
             Err(e) => {
@@ -247,33 +247,33 @@ async fn handle_in_lobby(
                     client.user_data.id, e
                 );
                 ws::send(
-                    kapi::Response::ServerError(kapi::ServerErrorResponse {
+                    api::Response::ServerError(api::ServerErrorResponse {
                         msg: format!("{:?}", e),
                     }),
                     &client,
                 );
             }
         },
-        kapi::LobbyRequest::JoinGame(req) => match handle_join_game(req, &client, pool).await {
+        api::LobbyRequest::JoinGame(req) => match handle_join_game(req, &client, pool).await {
             Ok(JoinedGame::Started(game)) => {
                 {
                     let mut clients = clients.write().await;
                     game.users.iter().for_each(|id| {
                         let mut client = clients.get(&id).unwrap().clone();
                         client.state = ClientState::InGame(game.id);
-                        let res = kapi::InGameResponse::CurrentView(GameView::of(&game.game, &id));
-                        let res = kapi::Response::InGame(res);
+                        let res = api::InGameResponse::CurrentView(GameView::of(&game.game, &id));
+                        let res = api::Response::InGame(res);
                         ws::send(res, &client);
                         clients.insert(*id, client);
                     });
                 }
-                let res = kapi::LobbyResponse::GameStarted(game.id);
-                let res = kapi::Response::Lobby(res);
+                let res = api::LobbyResponse::GameStarted(game.id);
+                let res = api::Response::Lobby(res);
                 ws::broadcast(res, &clients, ClientState::InLobby).await;
             }
             Ok(JoinedGame::Pending(game)) => {
-                let res = kapi::LobbyResponse::PlayersChanged(game);
-                let res = kapi::Response::Lobby(res);
+                let res = api::LobbyResponse::PlayersChanged(game);
+                let res = api::Response::Lobby(res);
                 ws::broadcast(res, &clients, ClientState::InLobby).await;
             }
             Err(e) => {
@@ -283,7 +283,7 @@ async fn handle_in_lobby(
                 );
                 ws::send(
                     // TODO: This isn't always a server error!
-                    kapi::Response::ServerError(kapi::ServerErrorResponse {
+                    api::Response::ServerError(api::ServerErrorResponse {
                         msg: format!("{:?}", e),
                     }),
                     &client,
@@ -294,7 +294,7 @@ async fn handle_in_lobby(
 }
 
 async fn handle_in_game(
-    req: kapi::InGameRequest,
+    req: api::InGameRequest,
     game_id: GameId,
     client: Client,
     pool: SqlitePool,
@@ -304,20 +304,20 @@ async fn handle_in_game(
     let player_id = &client.user_data.id;
 
     match req {
-        kapi::InGameRequest::MakeMove(req) => {
+        api::InGameRequest::MakeMove(req) => {
             let res = game
                 .game
                 .make_move(*player_id, req, &mut rand::thread_rng());
             eprintln!("{:?}", res);
-            let res = kapi::InGameResponse::MadeMove(res);
-            let res = kapi::Response::InGame(res);
+            let res = api::InGameResponse::MadeMove(res);
+            let res = api::Response::InGame(res);
             ws::send(res, &client);
 
             ws::broadcast_map(
                 |player_id| {
                     let view = GameView::of(&game.game, player_id);
-                    let res = kapi::InGameResponse::CurrentView(view);
-                    let res = kapi::Response::InGame(res);
+                    let res = api::InGameResponse::CurrentView(view);
+                    let res = api::Response::InGame(res);
                     res
                 },
                 &clients,
@@ -344,15 +344,15 @@ pub async fn handle_message(id: &UserId, msg: Message, pool: SqlitePool, clients
         match &client.state {
             ClientState::Unauthenticated => {} // there's no one to tell!
             state => {
-                let res = kapi::LobbyResponse::UserDisconnected(client.user_data.clone());
-                let res = kapi::Response::Lobby(res);
+                let res = api::LobbyResponse::UserDisconnected(client.user_data.clone());
+                let res = api::Response::Lobby(res);
                 ws::broadcast(res, &clients, state.clone()).await;
             }
         }
         return;
     }
 
-    match (&client.state, kapi::Request::from_msg(msg)) {
+    match (&client.state, api::Request::from_msg(msg)) {
         (_, Err(e)) => {
             let res = format!(
                 "Unable to parse request from {}: {:?}",
@@ -360,17 +360,17 @@ pub async fn handle_message(id: &UserId, msg: Message, pool: SqlitePool, clients
             );
             eprintln!("{}", res);
             ws::send(
-                kapi::Response::ClientError(kapi::ClientErrorResponse { msg: res }),
+                api::Response::ClientError(api::ClientErrorResponse { msg: res }),
                 &client,
             );
         }
-        (ClientState::Unauthenticated, Ok(kapi::Request::Unauthenticated(req))) => {
+        (ClientState::Unauthenticated, Ok(api::Request::Unauthenticated(req))) => {
             handle_unauthenticated(req, client, clients).await
         }
-        (ClientState::InLobby, Ok(kapi::Request::Lobby(req))) => {
+        (ClientState::InLobby, Ok(api::Request::Lobby(req))) => {
             handle_in_lobby(req, client, pool, clients).await
         }
-        (ClientState::InGame(game_id), Ok(kapi::Request::InGame(req))) => {
+        (ClientState::InGame(game_id), Ok(api::Request::InGame(req))) => {
             handle_in_game(req, *game_id, client, pool, clients).await
         }
         (_, req) => {
@@ -380,7 +380,7 @@ pub async fn handle_message(id: &UserId, msg: Message, pool: SqlitePool, clients
             );
             eprintln!("{}", res);
             ws::send(
-                kapi::Response::ClientError(kapi::ClientErrorResponse { msg: res }),
+                api::Response::ClientError(api::ClientErrorResponse { msg: res }),
                 &client,
             );
         }

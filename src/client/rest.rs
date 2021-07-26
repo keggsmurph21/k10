@@ -1,11 +1,11 @@
+use crate::server::api;
+use crate::server::api::RestResponse as _;
 use crate::server::error::ClientError;
-use crate::server::kapi;
-use crate::server::kapi::RestResponse as _;
 use crate::server::result::Result;
 
 async fn post<Req>(client: &reqwest::Client, req: Req) -> Result<reqwest::Response>
 where
-    Req: kapi::RestRequest,
+    Req: api::RestRequest,
 {
     // TODO: Make the host/port configurable!
     let url = format!("http://localhost:3088/{}", Req::path());
@@ -19,15 +19,12 @@ where
         .map_err(ClientError::ReqwestError)
 }
 
-pub async fn register(client: &reqwest::Client, req: kapi::RegisterRequest) -> Result<()> {
+pub async fn register(client: &reqwest::Client, req: api::RegisterRequest) -> Result<()> {
     post(client, req).await?;
     Ok(())
 }
 
-pub async fn login(
-    client: &reqwest::Client,
-    req: kapi::LoginRequest,
-) -> Result<kapi::LoginResponse> {
+pub async fn login(client: &reqwest::Client, req: api::LoginRequest) -> Result<api::LoginResponse> {
     let res = post(client, req).await?;
-    kapi::LoginResponse::from_str(&res.text().await?)
+    api::LoginResponse::from_str(&res.text().await?)
 }

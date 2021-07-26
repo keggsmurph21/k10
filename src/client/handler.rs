@@ -3,10 +3,10 @@ use tokio::io::AsyncReadExt;
 use tokio::sync::RwLock;
 use tokio_tungstenite::tungstenite as tt;
 
+use crate::server::api;
+use crate::server::api::Message;
 use crate::server::error;
 use crate::server::error::ClientError;
-use crate::server::kapi;
-use crate::server::kapi::Message as _;
 
 use super::state;
 
@@ -26,7 +26,7 @@ pub async fn handle_stdin(
         match std::str::from_utf8(&buf)
             .map(String::from)
             .map_err(ClientError::Utf8Error)
-            .and_then(kapi::Request::from_msg)
+            .and_then(api::Request::from_msg)
             .and_then(|msg| msg.to_msg())
             .and_then(|msg| {
                 tx.unbounded_send(msg)
@@ -42,12 +42,12 @@ pub async fn handle_msg(
     state: Arc<RwLock<state::State>>,
     msg: std::result::Result<tt::Message, tt::Error>,
 ) {
-    use kapi::Response::*;
-    use kapi::*;
+    use api::Response::*;
+    use api::*;
 
     let msg = match msg
         .map_err(error::ClientError::WebsocketError)
-        .and_then(kapi::Response::from_msg)
+        .and_then(api::Response::from_msg)
     {
         Err(e) => {
             // The server is probably down.

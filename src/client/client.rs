@@ -3,9 +3,9 @@ use futures_util::{future, pin_mut, StreamExt};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+use crate::server::api;
+use crate::server::api::Message;
 use crate::server::error::ClientError;
-use crate::server::kapi;
-use crate::server::kapi::Message;
 use crate::server::result::Result;
 
 use super::handler;
@@ -34,9 +34,9 @@ impl Client {
 
         // Once the websocket & channels are set up, immediately
         // try to authenticate.
-        let req = kapi::AuthenticateRequest { token: me.token };
-        let req = kapi::UnauthenticatedRequest::Authenticate(req);
-        let req = kapi::Request::Unauthenticated(req);
+        let req = api::AuthenticateRequest { token: me.token };
+        let req = api::UnauthenticatedRequest::Authenticate(req);
+        let req = api::Request::Unauthenticated(req);
         writer.send(req.to_msg()?).await?;
 
         // We'll maintain all of the state of our client application
@@ -48,7 +48,7 @@ impl Client {
         tokio::spawn(handler::handle_stdin(state.clone(), stdin_tx));
 
         // Forward messages directly from our stdin reader => websocket.
-        // These have already been parsed into valid kapi::Request's.
+        // These have already been parsed into valid api::Request's.
         let stdin_to_ws = stdin_rx.map(Ok).forward(writer);
 
         // Forward messages directly from the websocket => stdout
