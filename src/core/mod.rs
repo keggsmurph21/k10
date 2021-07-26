@@ -6,6 +6,7 @@ pub mod game;
 pub mod player;
 pub mod resource;
 pub mod trade;
+pub mod view;
 
 pub use board::Board;
 pub use board::BoardType;
@@ -13,3 +14,7 @@ pub use game::Game;
 pub use player::Player;
 pub use player::PlayerId;
 pub use trade::Trade;
+pub use view::game::GameView;
+pub use view::player::MeView;
+pub use view::player::OtherView;
+pub use view::player::PlayerView;

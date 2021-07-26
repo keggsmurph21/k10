@@ -9,6 +9,7 @@ use warp::ws::Message;
 use warp::{Rejection, Reply};
 
 use crate::core;
+use crate::core::GameView;
 
 use super::api;
 use super::api::Message as _;
@@ -18,7 +19,6 @@ use super::model::game::Game;
 use super::model::game::GameId;
 use super::model::pending_game::PendingGame;
 use super::model::user::{User, UserId};
-use super::view::game::GameView;
 use super::ws;
 
 pub async fn noop_handler() -> Result<impl Reply, Rejection> {

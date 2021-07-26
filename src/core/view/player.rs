@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::convert::TryFrom;
 
-use crate::core::action::Request;
-use crate::core::board::Index;
-use crate::core::dev_card::DevCardState;
-use crate::core::Game;
-use crate::core::Player;
-use crate::core::PlayerId;
+use super::super::action::Request;
+use super::super::board::Index;
+use super::super::dev_card::DevCardState;
+use super::super::game::Game;
+use super::super::player::Player;
+use super::super::player::PlayerId;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MeView {

@@ -5,5 +5,4 @@ pub mod handler;
 pub mod model;
 pub mod result;
 pub mod token;
-pub mod view;
 pub mod ws;

@@ -1,11 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::core;
-use crate::core::board::Index;
-use crate::core::Board;
-use crate::core::PlayerId;
-use crate::core::Trade;
-
+use super::super::board::Board;
+use super::super::board::Index;
+use super::super::game::Game;
+use super::super::player::PlayerId;
+use super::super::trade::Trade;
 use super::player::{MeView, OtherView, PlayerView};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -24,7 +23,7 @@ pub struct GameView {
 }
 
 impl GameView {
-    pub fn of(game: &core::Game, me: &PlayerId) -> Self {
+    pub fn of(game: &Game, me: &PlayerId) -> Self {
         Self {
             players: game
                 .player_order

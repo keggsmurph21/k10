@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::core::action;
 use crate::core::BoardType;
+use crate::core::GameView;
 
 use super::error::ClientError;
 use super::model::game::GameId;
@@ -10,7 +11,6 @@ use super::model::pending_game::PendingGame;
 use super::model::user::{UserData, UserId};
 use super::result::Result;
 use super::token::Token;
-use super::view::game::GameView;
 
 // rest API
 

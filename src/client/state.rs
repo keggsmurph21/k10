@@ -1,10 +1,9 @@
 use crate::core::action::Response;
-
+use crate::core::GameView;
 use crate::server::model::game::GameId;
 use crate::server::model::pending_game::PendingGame;
 use crate::server::model::user::UserData;
 use crate::server::model::user::UserId;
-use crate::server::view::game::GameView;
 
 use super::me::Me;
 
