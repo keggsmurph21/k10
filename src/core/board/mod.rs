@@ -358,8 +358,8 @@ mod test {
 
     use rand;
 
-    const ME: u64 = 100;
-    const YOU: u64 = 101;
+    const ME: PlayerId = 100;
+    const YOU: PlayerId = 101;
 
     fn check_longest_road(my_roads: Vec<(u16, u16)>, your_junctions: Vec<(u16, u16)>) -> u8 {
         let mut b = Board::new(BoardType::Standard, &mut rand::thread_rng());

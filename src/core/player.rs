@@ -553,8 +553,8 @@ mod test {
     use super::*;
     use crate::core::BoardType;
 
-    const ME: u64 = 100;
-    const OTHER: u64 = 101;
+    const ME: PlayerId = 100;
+    const OTHER: PlayerId = 101;
 
     #[test]
     fn test_hand() {
