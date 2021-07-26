@@ -1,10 +1,12 @@
-use kserver::error::ClientError;
-use kserver::kapi;
-use kserver::kapi::Message as _;
 use std::sync::Arc;
 use tokio::io::AsyncReadExt;
 use tokio::sync::RwLock;
 use tokio_tungstenite::tungstenite as tt;
+
+use crate::server::error;
+use crate::server::error::ClientError;
+use crate::server::kapi;
+use crate::server::kapi::Message as _;
 
 use super::state;
 
@@ -44,7 +46,7 @@ pub async fn handle_msg(
     use kapi::*;
 
     let msg = match msg
-        .map_err(kserver::error::ClientError::WebsocketError)
+        .map_err(error::ClientError::WebsocketError)
         .and_then(kapi::Response::from_msg)
     {
         Err(e) => {

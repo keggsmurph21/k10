@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqlitePool;
 use std::collections::HashSet;
 
-use kcore::board::BoardType;
+use crate::core::BoardType;
 
 use super::super::error::ClientError;
 use super::game::GameId;

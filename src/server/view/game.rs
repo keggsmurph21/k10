@@ -1,5 +1,11 @@
 use serde::{Deserialize, Serialize};
 
+use crate::core;
+use crate::core::board::Index;
+use crate::core::Board;
+use crate::core::PlayerId;
+use crate::core::Trade;
+
 use super::player::{MeView, OtherView, PlayerView};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -8,17 +14,17 @@ pub struct GameView {
     current_player_index: u8,
     victory_points_goal: u8,
     num_dev_cards: usize,
-    board: kcore::board::Board,
-    robber_index: kcore::board::Index,
+    board: Board,
+    robber_index: Index,
     turn_number: u32,
     has_rolled: bool,
-    current_trade: Option<kcore::trade::Trade>,
-    has_largest_army: Option<kcore::player::PlayerId>,
-    has_longest_road: Option<kcore::player::PlayerId>,
+    current_trade: Option<Trade>,
+    has_largest_army: Option<PlayerId>,
+    has_longest_road: Option<PlayerId>,
 }
 
 impl GameView {
-    pub fn of(game: &kcore::game::Game, me: &kcore::player::PlayerId) -> Self {
+    pub fn of(game: &core::Game, me: &PlayerId) -> Self {
         Self {
             players: game
                 .player_order

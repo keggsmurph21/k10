@@ -1,5 +1,7 @@
-use kserver::kapi;
-use kserver::result::Result;
+use crate::server::kapi;
+use crate::server::model::user::UserId;
+use crate::server::result::Result;
+use crate::server::token::Token;
 use rand::Rng;
 
 use super::rest;
@@ -9,8 +11,8 @@ use super::rest;
 #[derive(Debug)]
 pub struct Me {
     pub username: String,
-    pub id: kserver::model::user::UserId,
-    pub token: kserver::token::Token,
+    pub id: UserId,
+    pub token: Token,
 }
 
 impl Me {

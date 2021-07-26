@@ -1,8 +1,10 @@
-use kserver::model::game::GameId;
-use kserver::model::pending_game::PendingGame;
-use kserver::model::user::UserData;
-use kserver::model::user::UserId;
-use kserver::view::game::GameView;
+use crate::core::action::Response;
+
+use crate::server::model::game::GameId;
+use crate::server::model::pending_game::PendingGame;
+use crate::server::model::user::UserData;
+use crate::server::model::user::UserId;
+use crate::server::view::game::GameView;
 
 use super::me::Me;
 
@@ -70,7 +72,7 @@ impl State {
         self.current_game = CurrentGame::View(view);
     }
 
-    pub fn made_move(&mut self, res: kcore::action::Response) {
+    pub fn made_move(&mut self, res: Response) {
         eprintln!("Made move: {:?}", res);
         // TODO!
     }

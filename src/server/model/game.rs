@@ -1,6 +1,8 @@
 use sqlx::sqlite::SqlitePool;
 use std::collections::HashSet;
 
+use crate::core;
+
 use super::super::error::ClientError;
 use super::user::UserId;
 
@@ -10,7 +12,7 @@ pub type GameId = i64;
 pub struct Game {
     pub id: GameId,
     pub users: HashSet<UserId>,
-    pub game: kcore::game::Game,
+    pub game: core::Game,
 }
 
 #[derive(Debug, sqlx::FromRow)]
@@ -57,7 +59,7 @@ impl Game {
         pool: &SqlitePool,
         id: GameId,
         users: HashSet<UserId>,
-        game: kcore::game::Game,
+        game: core::Game,
     ) -> Result<Self, ClientError> {
         let game = Game { id, users, game };
         let game = game.to_raw()?;

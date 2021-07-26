@@ -1,7 +1,7 @@
-use kserver::error::ClientError;
-use kserver::kapi;
-use kserver::kapi::RestResponse as _;
-use kserver::result::Result;
+use crate::server::error::ClientError;
+use crate::server::kapi;
+use crate::server::kapi::RestResponse as _;
+use crate::server::result::Result;
 
 async fn post<Req>(client: &reqwest::Client, req: Req) -> Result<reqwest::Response>
 where

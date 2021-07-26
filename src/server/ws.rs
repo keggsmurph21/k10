@@ -4,6 +4,8 @@ use tokio::sync::mpsc;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use warp::ws::WebSocket;
 
+use crate::core::PlayerId;
+
 use super::client::{Client, ClientState, Clients};
 use super::handler::handle_message;
 use super::kapi;
@@ -59,7 +61,7 @@ pub async fn broadcast(msg: kapi::Response, clients: &Clients, with_state: Clien
 
 pub async fn broadcast_map<F>(f: F, clients: &Clients, with_state: ClientState)
 where
-    F: Fn(&kcore::player::PlayerId) -> kapi::Response,
+    F: Fn(&PlayerId) -> kapi::Response,
 {
     clients
         .read()

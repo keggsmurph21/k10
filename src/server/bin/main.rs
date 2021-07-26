@@ -5,11 +5,13 @@ use std::sync::Arc; // TODO: Read more about this!
 use tokio::sync::RwLock; // TODO: Read more about this!
 use warp::Filter;
 
-use kserver::client::Clients;
-use kserver::handler;
-use kserver::model::game::Game;
-use kserver::model::pending_game::PendingGame;
-use kserver::model::user::{User, UserId};
+extern crate k10;
+
+use k10::server::client::Clients;
+use k10::server::handler;
+use k10::server::model::game::Game;
+use k10::server::model::pending_game::PendingGame;
+use k10::server::model::user::{User, UserId};
 
 #[tokio::main]
 async fn main() {

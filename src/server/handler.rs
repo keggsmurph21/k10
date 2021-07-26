@@ -8,6 +8,8 @@ use warp::reply::json;
 use warp::ws::Message;
 use warp::{Rejection, Reply};
 
+use crate::core;
+
 use super::client::{Client, ClientState, Clients};
 use super::error::ClientError;
 use super::kapi;
@@ -209,7 +211,7 @@ async fn handle_join_game(
             let board_type = game.board_type.clone();
             let victory_points_goal = game.victory_points_goal.clone();
             game.delete(&pool).await?;
-            let game = kcore::game::Game::new(
+            let game = core::Game::new(
                 users.iter().cloned().collect(),
                 board_type,
                 victory_points_goal,

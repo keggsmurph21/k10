@@ -1,4 +1,4 @@
-* move everything back into a single crate and use "features"
+* use "features" to split off server/client/core
 * enforce that users can only be in a single game at a time
 * integrate with reedline
     * history
@@ -8,6 +8,18 @@
 * drawing the board
     * zoom
     * pan
+    * streams
 * typescript websocket client
     * generate bindings to the websocket api
-* message passing (between the "rooms"?)
+    * this would be the building-block for a web client
+* python websocket client
+    * generate bindings to the websocket api
+    * this could be used for an AI ??? (but mostly just for fun)
+* message passing (between the "rooms")
+* add a CI workflow
+    * build
+    * test
+    * fmt
+    * clippy
+* run the server on an EC2 instance
+    * docker?

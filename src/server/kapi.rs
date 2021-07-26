@@ -1,7 +1,8 @@
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
-use kcore::board::BoardType;
+use crate::core::action;
+use crate::core::BoardType;
 
 use super::error::ClientError;
 use super::model::game::GameId;
@@ -81,19 +82,6 @@ impl MessageAdapter for warp::ws::Message {
 
     fn from_string(msg: String) -> Self {
         warp::ws::Message::text(msg)
-    }
-}
-
-impl MessageAdapter for websocket::OwnedMessage {
-    fn to_str<'a>(&'a self) -> Result<&'a str> {
-        match self {
-            websocket::OwnedMessage::Text(res) => Ok(res),
-            _ => Err(ClientError::WrongPayload),
-        }
-    }
-
-    fn from_string(msg: String) -> Self {
-        websocket::OwnedMessage::Text(msg)
     }
 }
 
@@ -190,12 +178,12 @@ pub enum LobbyResponse {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum InGameRequest {
-    MakeMove(kcore::action::Request),
+    MakeMove(action::Request),
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum InGameResponse {
-    MadeMove(kcore::action::Response),
+    MadeMove(action::Response),
     CurrentView(GameView),
 }
 

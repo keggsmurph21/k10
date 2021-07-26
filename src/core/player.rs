@@ -550,8 +550,8 @@ impl Player {
 
 #[cfg(test)]
 mod test {
-    use super::super::board::BoardType;
     use super::*;
+    use crate::core::BoardType;
 
     const ME: u64 = 100;
     const OTHER: u64 = 101;
