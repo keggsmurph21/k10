@@ -1,4 +1,3 @@
-pub mod client;
 pub mod handler;
 pub mod me;
 pub mod rest;
