@@ -1,7 +1,0 @@
-cscope*
-*.o
-bin/*
-CMakeCache.txt
-CMakeFiles
-*.cmake
-Makefile

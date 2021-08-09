@@ -1,5 +1,0 @@
--DDEBUG
--Wall
--Wextra
---std=c++17
--I./engine/src
