@@ -4,10 +4,16 @@ use super::super::resource::Resource;
 use super::index::Index;
 
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
+pub struct HexResource {
+    pub resource: Resource,
+    pub roll: u8,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub enum HexType {
     Desert,
     Ocean,
-    WithResource { resource: Resource, roll: u8 },
+    WithResource(HexResource),
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]

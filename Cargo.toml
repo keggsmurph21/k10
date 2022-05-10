@@ -31,3 +31,7 @@ path = "src/server/bin/main.rs"
 [[bin]]
 name = "k10-client"
 path = "src/client/bin/main.rs"
+
+[[bin]]
+name = "haxx"
+path = "src/core/bin/main.rs"

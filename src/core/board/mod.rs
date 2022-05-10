@@ -12,7 +12,7 @@ pub mod index;
 pub use index::Index;
 
 pub mod hex;
-pub use hex::{Hex, HexType};
+pub use hex::{Hex, HexResource, HexType};
 
 pub mod junction;
 pub use junction::Junction;
@@ -49,7 +49,7 @@ enum NeighborType {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Board {
     pub board_type: BoardType,
-    nodes: Nodes,
+    pub(crate) nodes: Nodes,
 }
 
 impl Board {
@@ -304,42 +304,42 @@ impl std::fmt::Display for Board {
                     })) => "d",
                     Some(Node::Hex(Hex {
                         hex_type:
-                            HexType::WithResource {
+                            HexType::WithResource(HexResource {
                                 resource: Resource::Brick,
                                 ..
-                            },
+                            }),
                         ..
                     })) => "b",
                     Some(Node::Hex(Hex {
                         hex_type:
-                            HexType::WithResource {
+                            HexType::WithResource(HexResource {
                                 resource: Resource::Ore,
                                 ..
-                            },
+                            }),
                         ..
                     })) => "o",
                     Some(Node::Hex(Hex {
                         hex_type:
-                            HexType::WithResource {
+                            HexType::WithResource(HexResource {
                                 resource: Resource::Sheep,
                                 ..
-                            },
+                            }),
                         ..
                     })) => "s",
                     Some(Node::Hex(Hex {
                         hex_type:
-                            HexType::WithResource {
+                            HexType::WithResource(HexResource {
                                 resource: Resource::Wheat,
                                 ..
-                            },
+                            }),
                         ..
                     })) => "t",
                     Some(Node::Hex(Hex {
                         hex_type:
-                            HexType::WithResource {
+                            HexType::WithResource(HexResource {
                                 resource: Resource::Wood,
                                 ..
-                            },
+                            }),
                         ..
                     })) => "w",
                     Some(Node::Road(_)) => "-",

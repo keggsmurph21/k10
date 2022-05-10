@@ -8,7 +8,7 @@ use std::collections::HashSet;
 use std::convert::TryFrom;
 
 use super::action::{Error, Payload, Request, Response};
-use super::board::{boards, Board, BoardType, Hex, HexType, Index, Junction};
+use super::board::{boards, Board, BoardType, Hex, HexResource, HexType, Index, Junction};
 use super::dev_card::DevCard;
 use super::die::Die;
 use super::player::{Player, PlayerId, PlayerState};
@@ -488,7 +488,7 @@ impl Game {
                 let mut resources = ResourceCounts::new();
                 for hex in self.board.hex_neighbors_of_junction(&junction) {
                     if let Hex {
-                        hex_type: HexType::WithResource { resource: r, .. },
+                        hex_type: HexType::WithResource(HexResource { resource: r, .. }),
                         ..
                     } = hex
                     {
@@ -724,10 +724,10 @@ impl Game {
                         if let Hex {
                             index,
                             hex_type:
-                                HexType::WithResource {
+                                HexType::WithResource(HexResource {
                                     resource,
                                     roll: hex_roll,
-                                },
+                                }),
                         } = hex
                         {
                             if &roll != hex_roll {

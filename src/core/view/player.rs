@@ -11,8 +11,8 @@ use super::super::player::PlayerId;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MeView {
-    player: Player,
-    actions: Vec<Request>,
+    pub(crate) player: Player,
+    pub(crate) actions: Vec<Request>,
 }
 
 impl MeView {
@@ -26,17 +26,17 @@ impl MeView {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct OtherView {
-    id: PlayerId,
-    num_resources: u8,
-    public_victory_points: u8,
-    cities: HashSet<Index>,
-    roads: HashSet<Index>,
-    settlements: HashSet<Index>,
-    army_size: u8,
-    num_dev_cards: u8,
-    num_trades_offered_this_turn: u8,
-    num_to_discard: u8,
-    has_declined_trade: bool,
+    pub(crate) id: PlayerId,
+    pub(crate) num_resources: u8,
+    pub(crate) public_victory_points: u8,
+    pub(crate) cities: HashSet<Index>,
+    pub(crate) roads: HashSet<Index>,
+    pub(crate) settlements: HashSet<Index>,
+    pub(crate) army_size: u8,
+    pub(crate) num_dev_cards: u8,
+    pub(crate) num_trades_offered_this_turn: u8,
+    pub(crate) num_to_discard: u8,
+    pub(crate) has_declined_trade: bool,
 }
 
 impl OtherView {

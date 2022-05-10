@@ -131,7 +131,7 @@ pub mod standard {
             } else {
                 if let Some(resource) = hex_resource_queue.pop()? {
                     let roll = hex_roll_queue.pop()?;
-                    HexType::WithResource { resource, roll }
+                    HexType::WithResource(HexResource { resource, roll })
                 } else {
                     HexType::Desert
                 }

@@ -59,11 +59,11 @@ pub async fn handle_msg(
     // TODO: Remove this in favor of some real logging.  We
     //       can already see that this approach doesn't work
     //       for large messages like CurrentView ...
-    if matches!(msg, InGame(InGameResponse::CurrentView(_))) {
-        eprintln!("Received updated view");
-    } else {
-        eprintln!("Received {:?}", msg);
-    }
+    //if matches!(msg, InGame(InGameResponse::CurrentView(_))) {
+    //eprintln!("Received updated view");
+    //} else {
+    eprintln!("Received {:?}", msg);
+    //}
 
     let mut state = state.write().await;
 
