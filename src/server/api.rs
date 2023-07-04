@@ -158,12 +158,20 @@ pub struct CreateGameRequest {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct JoinGameRequest {
     pub game_id: GameId,
+    //pub player_id: PlayerId,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct StartGameRequest {
+    pub game_id: GameId,
+    //pub player_id: PlayerId,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum LobbyRequest {
     CreateGame(CreateGameRequest),
     JoinGame(JoinGameRequest),
+    StartGame(StartGameRequest),
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -177,8 +185,14 @@ pub enum LobbyResponse {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MakeMoveRequest {
+    pub game_id: GameId,
+    pub action_request: action::Request,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum InGameRequest {
-    MakeMove(action::Request),
+    MakeMove(MakeMoveRequest),
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

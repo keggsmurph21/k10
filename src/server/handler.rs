@@ -307,7 +307,7 @@ async fn handle_in_game(
         api::InGameRequest::MakeMove(req) => {
             let res = game
                 .game
-                .make_move(*player_id, req, &mut rand::thread_rng());
+                .make_move(*player_id, req.action_request, &mut rand::thread_rng());
             eprintln!("{:?}", res);
             let res = api::InGameResponse::MadeMove(res);
             let res = api::Response::InGame(res);

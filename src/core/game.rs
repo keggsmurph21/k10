@@ -95,7 +95,7 @@ impl Game {
         }
     }
 
-    fn num_players(&self) -> u32 {
+    pub fn num_players(&self) -> u32 {
         u32::try_from(self.player_order.len()).unwrap()
     }
 

@@ -1,5 +1,6 @@
 pub mod api;
 pub mod client;
+pub mod engine;
 pub mod error;
 pub mod handler;
 pub mod model;
